@@ -15,6 +15,7 @@ import AlbumManagement from './pages/admin/AlbumManagement';
 import SongManagement from './pages/admin/SongManagement';
 import GenreManagement from './pages/admin/GenreManagement';
 import Layout from './components/Layout';
+import ArtistDetails from './pages/admin/ArtistDetails';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="approvals" element={<Approvals />} />
               <Route path="artist-management" element={<ArtistManagement />} />
+              <Route path="artist-details/:id" element={<ArtistDetails />} />
               <Route path="user-management" element={<UserManagement />} />
               <Route path="financial-management" element={<FinancialManagement />} />
               <Route path="live-stream-management" element={<LiveStreamManagement />} />

@@ -39,84 +39,151 @@ interface RecentActivity {
   timestamp: string;
 }
 
+// Custom hook for data fetching
+function useFetch<T>(initialData: T, fetchFunction: () => T) {
+  const [data, setData] = useState<T>(initialData);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // In a real app, this would be an async API call
+        const result = fetchFunction();
+        setData(result);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [fetchFunction]);
+
+  return { data, loading, error };
+}
+
+// Custom hook for fetching artists
+function useFetchArtist(artistId?: string) {
+  const [artist, setArtist]    = useState<Artist | null>(null);
+  const [loading, setLoading]  = useState<boolean>(false);
+  const [error, setError]      = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!artistId) return;
+
+    const fetchArtist = async () => {
+      setLoading(true);
+      try {
+        // Mock API call - in a real app, this would be a fetch to your API
+        // const response = await fetch(`/api/artists/${artistId}`);
+        // const data = await response.json();
+        
+        // Mock data for demonstration
+        const mockArtist: Artist = {
+          id: artistId,
+          name: 'Artist ' + artistId,
+          total_listeners: 100000,
+          profile_image: '/api/placeholder/50/50',
+          genres: ['Pop', 'Rock']
+        };
+        
+        setArtist(mockArtist);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch artist');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArtist();
+  }, [artistId]);
+
+  return { artist, loading, error };
+}
+
 export default function MusicAdminDashboard() {
-  const [stats, setStats] = useState<PlatformStats>({
+  // Generate mock data functions
+  const fetchStats = () => {
+    return {
+      totalArtists: 1245,
+      totalTracks: 45678,
+      activeLiveStreams: 23,
+      totalRevenue: 345678,
+      totalListeners: 562345
+    };
+  };
+
+  const fetchTopArtists = () => {
+    return [
+      {
+        id: '1',
+        name: 'Aria Waves',
+        total_listeners: 345678,
+        profile_image: '/api/placeholder/50/50',
+        genres: ['Electronic', 'Ambient']
+      },
+      {
+        id: '2',
+        name: 'Jazz Horizons',
+        total_listeners: 234567,
+        profile_image: '/api/placeholder/50/50',
+        genres: ['Jazz', 'Fusion']
+      },
+      {
+        id: '3',
+        name: 'Rock Pulse',
+        total_listeners: 156789,
+        profile_image: '/api/placeholder/50/50',
+        genres: ['Rock', 'Alternative']
+      }
+    ];
+  };
+
+  const fetchRecentActivity = (): RecentActivity[] => {
+    return [
+      {
+        id: '1',
+        type: 'track_upload',
+        artistName: 'Aria Waves',
+        title: 'Ethereal Echoes',
+        timestamp: new Date().toISOString()
+      },
+      {
+        id: '2',
+        type: 'live_stream',
+        artistName: 'Jazz Horizons',
+        title: 'Late Night Jazz Session',
+        timestamp: new Date().toISOString()
+      },
+      {
+        id: '3',
+        type: 'playlist_created',
+        artistName: 'Rock Pulse',
+        title: 'Weekend Rock Mix',
+        timestamp: new Date().toISOString()
+      }
+    ];
+  };
+
+  // Use the custom hook to fetch data
+  const { data: stats } = useFetch<PlatformStats>({
     totalArtists: 0,
     totalTracks: 0,
     activeLiveStreams: 0,
     totalRevenue: 0,
     totalListeners: 0
-  });
+  }, fetchStats);
 
-  const [topArtists, setTopArtists] = useState<Artist[]>([]);
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const { data: topArtists } = useFetch<Artist[]>([], fetchTopArtists);
+  const { data: recentActivity } = useFetch<RecentActivity[]>([], fetchRecentActivity);
 
-  // Mock data generation (replace with actual API call)
-  useEffect(() => {
-    function generateMockData() {
-      const mockStats: PlatformStats = {
-        totalArtists: 1245,
-        totalTracks: 45678,
-        activeLiveStreams: 23,
-        totalRevenue: 345678,
-        totalListeners: 562345
-      };
-
-      const mockTopArtists: Artist[] = [
-        {
-          id: '1',
-          name: 'Aria Waves',
-          total_listeners: 345678,
-          profile_image: '/api/placeholder/50/50',
-          genres: ['Electronic', 'Ambient']
-        },
-        {
-          id: '2',
-          name: 'Jazz Horizons',
-          total_listeners: 234567,
-          profile_image: '/api/placeholder/50/50',
-          genres: ['Jazz', 'Fusion']
-        },
-        {
-          id: '3',
-          name: 'Rock Pulse',
-          total_listeners: 156789,
-          profile_image: '/api/placeholder/50/50',
-          genres: ['Rock', 'Alternative']
-        }
-      ];
-
-      const mockActivities: RecentActivity[] = [
-        {
-          id: '1',
-          type: 'track_upload',
-          artistName: 'Aria Waves',
-          title: 'Ethereal Echoes',
-          timestamp: new Date().toISOString()
-        },
-        {
-          id: '2',
-          type: 'live_stream',
-          artistName: 'Jazz Horizons',
-          title: 'Late Night Jazz Session',
-          timestamp: new Date().toISOString()
-        },
-        {
-          id: '3',
-          type: 'playlist_created',
-          artistName: 'Rock Pulse',
-          title: 'Weekend Rock Mix',
-          timestamp: new Date().toISOString()
-        }
-      ];
-
-      setStats(mockStats);
-      setTopArtists(mockTopArtists);
-      setRecentActivity(mockActivities);
-    }
-
-    generateMockData();
-  }, []);
+  // Example of using the artist-specific hook (not used in the UI yet)
+  const { artist: featuredArtist, loading: loadingFeatured } = useFetchArtist('featured');
 
   const StatCard = ({ 
     icon: Icon, 
@@ -124,7 +191,7 @@ export default function MusicAdminDashboard() {
     value, 
     trend 
   }: { 
-    icon: React.ComponentType<any>, 
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>, 
     title: string, 
     value: string | number, 
     trend?: string 

@@ -2,12 +2,20 @@ import React from 'react';
 import Layout from '../../components/Layout';
 import { Music2, Headphones, DollarSign, TrendingUp, Clock, ExternalLink, Mic2, Album, Users } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import useFetchArtist from '../../hooks/artist/useFetchArtist';
 
 interface ArtistStats {
   totalTracks: number;
   monthlyListeners: number;
   totalEarnings: number;
   socialMediaFollowers: number;
+}
+
+interface Track {
+  id: string;
+  title: string;
+  plays: number;
+  cover_url: string;
 }
 
 interface RecentActivity {
@@ -18,6 +26,8 @@ interface RecentActivity {
 }
 
 export default function ArtistDashboard() {
+  const { artist: featuredArtist, loading: loadingFeatured } = useFetchArtist('featured');
+ 
   const stats: ArtistStats = {
     totalTracks: 100,
     monthlyListeners: 1000,
@@ -35,7 +45,17 @@ export default function ArtistDashboard() {
     { id: '2', type: 'live_stream', title: 'Live Stream 1', timestamp: '2022-02-01' },
   ];
 
-  const StatCard = ({ icon: Icon, title, value, trend }: { icon: React.ComponentType<any>, title: string, value: string | number, trend?: string }) => (
+  const StatCard = ({ 
+    icon: Icon, 
+    title, 
+    value, 
+    trend 
+  }: { 
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>, 
+    title: string, 
+    value: string | number, 
+    trend?: string 
+  }) => (
     <div className="bg-white rounded-lg p-6 shadow-md">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
@@ -58,7 +78,7 @@ export default function ArtistDashboard() {
   );
 
   return (
-    <Layout userRole="artist">
+    <Layout>
       <div className="space-y-6">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
