@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import artistService, { Artist, Album, Song } from '../../services/artistService';
+import artistService, { Artist, Album, Song, CreateArtistData } from '../../services/artistService';
 import { AxiosError } from 'axios';
 
 interface ArtistState {
@@ -71,9 +71,9 @@ export const fetchArtistSongs = createAsyncThunk(
 
 export const createArtist = createAsyncThunk(
   'artist/create',
-  async (artistData: Omit<Artist, '_id' | 'createdAt' | 'updatedAt'>, { rejectWithValue }) => {
+  async (formData: CreateArtistData, { rejectWithValue }) => {
     try {
-      return await artistService.createArtist(artistData);
+      return await artistService.createArtist(formData);
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       return rejectWithValue(err.response?.data?.message || 'Failed to create artist');

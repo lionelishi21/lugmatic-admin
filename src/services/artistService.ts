@@ -5,6 +5,9 @@ export interface Artist {
   _id: string;
   name: string;
   bio?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
   image?: string;
   genres?: string[];
   socialLinks?: {
@@ -40,12 +43,25 @@ export interface Song {
   updatedAt: string;
 }
 
+// Interface for API response
+interface ApiResponse<T> {
+  data: T;
+  message?: string;
+  status?: string;
+}
+
 // Interface for creating a new artist
 export interface CreateArtistData {
   name: string;
-  email: string;
-  genre: string;
-  status?: 'active' | 'pending' | 'inactive';
+  bio?: string;
+  image?: string;
+  genres?: string[];
+  socialLinks?: {
+    website?: string;
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+  };
 }
 
 // Interface for updating an artist
@@ -67,13 +83,40 @@ export interface ArtistQueryParams {
   sortOrder?: 'asc' | 'desc';
 }
 
+// Utility function to generate artist data
+export const generateArtistData = (overrides: Partial<CreateArtistData> = {}): CreateArtistData => {
+  const defaultGenres = ['Pop', 'Rock', 'Hip Hop', 'R&B', 'Electronic'];
+  const randomGenres = Array.from(
+    { length: Math.floor(Math.random() * 3) + 1 },
+    () => defaultGenres[Math.floor(Math.random() * defaultGenres.length)]
+  );
+
+  const defaultData: CreateArtistData = {
+    name: `Artist ${Math.floor(Math.random() * 1000)}`,
+    bio: 'A talented musician with a unique sound and style.',
+    image: `https://picsum.photos/seed/${Math.random()}/400/400`,
+    genres: randomGenres,
+    socialLinks: {
+      website: 'https://example.com',
+      facebook: 'https://facebook.com/example',
+      twitter: 'https://twitter.com/example',
+      instagram: 'https://instagram.com/example'
+    }
+  };
+
+  return {
+    ...defaultData,
+    ...overrides
+  };
+};
+
 const artistService = {
   /**
    * Get all artists with pagination and filters
    */
   getAllArtists: async (): Promise<Artist[]> => {
-    const response = await apiService.get<Artist[]>('/artist/list');
-    console.log(response);
+    const response = await apiService.get<ApiResponse<Artist[]>>('/artist/list');
+    console.log(response.data);
     return response.data;
   },
 
@@ -81,17 +124,18 @@ const artistService = {
    * Get artist by ID
    */
   getArtistById: async (id: string): Promise<Artist> => {
-    const response = await apiService.get<Artist>(`/artist/${id}`);
-    console.log(response);
+    const response = await apiService.get<ApiResponse<Artist>>(`/artist/${id}`);
     return response.data.data;
   },
 
   /**
    * Create a new artist
    */
-  createArtist: async (artistData: Omit<Artist, '_id' | 'createdAt' | 'updatedAt'>): Promise<Artist> => {
-    const response = await apiService.post<Artist>('/artist/create', artistData);
-    return response.data.data;
+  createArtist: async (artistData: CreateArtistData): Promise<Artist> => {
+    console.log('data to send', artistData);
+    const response = await apiService.post<ApiResponse<Artist>>('/artist', artistData);
+    console.log(response.data);  
+    return response.data;
   },
 
   /**

@@ -16,6 +16,27 @@ import SongManagement from './pages/admin/SongManagement';
 import GenreManagement from './pages/admin/GenreManagement';
 import Layout from './components/Layout';
 import ArtistDetails from './pages/admin/ArtistDetails';
+import ArtistCreate from './pages/admin/ArtistCreate';
+
+// Import new pages for comprehensive features
+import Podcasts from './pages/artist/Podcasts';
+import Comments from './pages/artist/Comments';
+import Notifications from './pages/artist/Notifications';
+import Search from './pages/artist/Search';
+import UserProfile from './pages/artist/UserProfile';
+import Settings from './pages/artist/Settings';
+import Support from './pages/artist/Support';
+
+// Import new admin pages
+import PodcastManagement from './pages/admin/PodcastManagement';
+import CommentManagement from './pages/admin/CommentManagement';
+import GiftManagement from './pages/admin/GiftManagement';
+import NotificationManagement from './pages/admin/NotificationManagement';
+import ContentModeration from './pages/admin/ContentModeration';
+import Analytics from './pages/admin/Analytics';
+import SystemSettings from './pages/admin/SystemSettings';
+import Promotions from './pages/admin/Promotions';
+import Reports from './pages/admin/Reports';
 
 function App() {
   return (
@@ -31,6 +52,14 @@ function App() {
               <Route path="live" element={<Live />} />
               <Route path="gifts" element={<Gifts />} />
               <Route path="earnings" element={<Earnings />} />
+              {/* New artist routes */}
+              <Route path="podcasts" element={<Podcasts />} />
+              <Route path="comments" element={<Comments />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="search" element={<Search />} />
+              <Route path="profile" element={<UserProfile />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="support" element={<Support />} />
             </Routes></Layout>} />
             
             <Route path="/admin/*" element={<Layout><Routes>
@@ -44,6 +73,17 @@ function App() {
               <Route path="album-management" element={<AlbumManagement />} />
               <Route path="song-management" element={<SongManagement />} />
               <Route path="genre-management" element={<GenreManagement />} /> 
+              <Route path="artist-add" element={<ArtistCreate />} />
+              {/* New admin routes */}
+              <Route path="podcast-management" element={<PodcastManagement />} />
+              <Route path="comment-management" element={<CommentManagement />} />
+              <Route path="gift-management" element={<GiftManagement />} />
+              <Route path="notification-management" element={<NotificationManagement />} />
+              <Route path="content-moderation" element={<ContentModeration />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="system-settings" element={<SystemSettings />} />
+              <Route path="promotions" element={<Promotions />} />
+              <Route path="reports" element={<Reports />} />
             </Routes></Layout>} />
 
         </Routes>

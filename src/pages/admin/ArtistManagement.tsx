@@ -1,11 +1,16 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Preloader from '../../components/ui/Preloader';
 import { toast, Toaster } from 'react-hot-toast';
 import useFetchArtists, { Artist } from '../../hooks/artist/useFetchArtists';
+import { Link } from 'react-router-dom';
 
 // Types
 type ModalType = 'add' | 'edit' | 'delete' | 'view' | null;
+type FilterParams = {
+  searchTerm: string;
+  status: string;
+};
 
 // Animation variants
 const fadeIn = {
@@ -112,13 +117,13 @@ const ArtistRow = React.memo(({
         <div className="flex-shrink-0 h-10 w-10">
           <img 
             className="h-10 w-10 rounded-full object-cover" 
-            src={artist.imageUrl || 'https://via.placeholder.com/40'} 
+            src={artist.imageUrl || 'https://placehold.co/40x40/gray/white?text=Artist'} 
             alt={artist.name} 
             loading="lazy"
           />
         </div>
         <div className="ml-4">
-          <div className="text-sm font-medium text-gray-900">{artist.name}</div>
+          <div className="text-sm font-medium text-gray-900">{artist.firstName} {artist.lastName}</div>
           <div className="text-sm text-gray-500">{artist.email}</div>
         </div>
       </div>
@@ -127,10 +132,10 @@ const ArtistRow = React.memo(({
       <div className="text-sm text-gray-900">{artist.genre}</div>
     </td>
     <td className="px-6 py-4 whitespace-nowrap">
-      <StatusBadge status={artist.status} />
+      <StatusBadge status={artist.isActive ? 'active' : 'inactive'} />
     </td>
     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-      {artist.joinDate}
+      {artist.createdAt}
     </td>
     <td className="px-6 py-4 whitespace-nowrap">
       <div className="text-sm text-gray-900">
@@ -144,20 +149,17 @@ const ArtistRow = React.memo(({
       <div className="flex justify-end space-x-2">
         <button 
           onClick={onView}
-          className="text-blue-600 hover:text-blue-900"
-        >
+          className="text-blue-600 hover:text-blue-900">
           View
         </button>
         <button 
           onClick={onEdit}
-          className="text-indigo-600 hover:text-indigo-900"
-        >
+          className="text-indigo-600 hover:text-indigo-900" >
           Edit
         </button>
         <button 
           onClick={onDelete}
-          className="text-red-600 hover:text-red-900"
-        >
+          className="text-red-600 hover:text-red-900">
           Delete
         </button>
       </div>
@@ -170,7 +172,7 @@ const FormField: React.FC<{
   type?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}> = ({ name, type = 'text', value, onChange }) => (
+  }> = ({ name, type = 'text', value, onChange }) => (
   <div className="mb-4">
     <label className="block text-gray-700 text-sm font-bold mb-2 capitalize">
       {name}
@@ -187,33 +189,34 @@ const FormField: React.FC<{
 );
 
 const ArtistManagement: React.FC = () => {
+
   // State management
   const [modalOpen, setModalOpen] = useState<ModalType>(null);
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [formData, setFormData] = useState<Partial<Artist>>({});
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterParams, setFilterParams] = useState<FilterParams>({
+    searchTerm: '',
+    status: 'all'
+  });
   
-  // Get artists data once - no dependency array to prevent re-fetching
-  const { artists, loading } = useFetchArtists();
+  // Get artists data with filters
+  const { artists, loading, refetch } = useFetchArtists(filterParams);
 
-  // Memoized filtered artists - stabilized with explicit dependency array
-  const filteredArtists = useMemo(() => {
-    if (!artists || artists.length === 0) {
-      return [];
-    }
+  console.log('data------->',artists);
+
+  // Update filter params with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilterParams({
+        searchTerm,
+        status: filterStatus
+      });
+    }, 300);
     
-    return artists.filter((artist) => {
-      const matchesSearch = searchTerm === '' || 
-        artist.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        artist.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        artist.genre.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesStatus = filterStatus === 'all' || artist.status === filterStatus;
-      
-      return matchesSearch && matchesStatus;
-    });
-  }, [artists, searchTerm, filterStatus]);
+    return () => clearTimeout(timer);
+  }, [searchTerm, filterStatus]);
 
   // Modal handlers with stabilized functions
   const handleOpenModal = useCallback((type: ModalType, artist: Artist | null = null) => {
@@ -258,15 +261,17 @@ const ArtistManagement: React.FC = () => {
       
       // For demonstration only
       toast.success('Artist added successfully!');
+      refetch();
     } else if (modalOpen === 'edit' && selectedArtist) {
       // In a real implementation, you would update the artist
       // artists = artists.map(a => a.id === selectedArtist.id ? {...a, ...formData} : a);
       
       toast.success('Artist updated successfully!');
+      refetch();
     }
     
     handleCloseModal();
-  }, [modalOpen, formData, selectedArtist, handleCloseModal]);
+  }, [modalOpen, formData, selectedArtist, handleCloseModal, refetch]);
 
   // Delete handler
   const handleDeleteArtist = useCallback(() => {
@@ -275,9 +280,10 @@ const ArtistManagement: React.FC = () => {
       // artists = artists.filter(a => a.id !== selectedArtist.id);
       
       toast.success('Artist deleted successfully!');
+      refetch();
       handleCloseModal();
     }
-  }, [selectedArtist, handleCloseModal]);
+  }, [selectedArtist, handleCloseModal, refetch]);
 
   // Search handler - stabilized to prevent re-renders
   const handleSearchChange = useCallback((term: string) => {
@@ -316,8 +322,8 @@ const ArtistManagement: React.FC = () => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {filteredArtists.length > 0 ? (
-            filteredArtists.map((artist) => (
+          {artists && artists.length > 0 ? (
+            artists.map((artist) => (
               <ArtistRow 
                 key={artist.id} 
                 artist={artist} 
@@ -336,7 +342,7 @@ const ArtistManagement: React.FC = () => {
         </tbody>
       </table>
     </div>
-  ), [filteredArtists, handleOpenModal]);
+  ), [artists, handleOpenModal]);
 
   // Memoize add/edit form to prevent unnecessary re-renders
   const ArtistForm = useMemo(() => (
@@ -366,17 +372,18 @@ const ArtistManagement: React.FC = () => {
         <button
           type="button"
           onClick={handleCloseModal}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
-        >
+          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">
           Cancel
         </button>
-        <button
+       
+        <Link
+          to="/artist/add"
           type="submit"
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-        >
-          {modalOpen === 'add' ? 'Add Artist' : 'Save Changes'}
-        </button>
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+          Add Artist
+        </Link>
       </div>
+
     </form>
   ), [formData, handleInputChange, handleSubmit, handleCloseModal, modalOpen]);
 
@@ -408,15 +415,12 @@ const ArtistManagement: React.FC = () => {
         </div>
         
         {/* Add Artist Button */}
-        <button
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200 flex items-center"
-          onClick={() => handleOpenModal('add')}
-        >
-          <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
+        <Link
+          to="/admin/artist-add"
+          type="submit"
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
           Add Artist
-        </button>
+        </Link>
       </div>
       
       {/* Artists Table */}
@@ -436,69 +440,7 @@ const ArtistManagement: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* View Artist Modal */}
-      <AnimatePresence>
-        {modalOpen === 'view' && selectedArtist && (
-          <ModalContainer>
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-xl font-bold">Artist Details</h2>
-              <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-700">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-            
-            <div className="flex flex-col items-center mb-4">
-              <img 
-                src={selectedArtist.imageUrl || 'https://via.placeholder.com/100'} 
-                alt={selectedArtist.name} 
-                className="w-24 h-24 rounded-full object-cover mb-2"
-                loading="lazy"
-              />
-              <h3 className="text-lg font-bold">{selectedArtist.name}</h3>
-              <p className="text-gray-500">{selectedArtist.email}</p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">Genre</h4>
-                <p>{selectedArtist.genre}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">Status</h4>
-                <StatusBadge status={selectedArtist.status} />
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">Joined</h4>
-                <p>{selectedArtist.joinDate}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">Content</h4>
-                <p>{selectedArtist.totalSongs} songs, {selectedArtist.totalAlbums} albums</p>
-              </div>
-            </div>
-            
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={handleCloseModal}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
-              >
-                Close
-              </button>
-              <button
-                onClick={() => {
-                  handleCloseModal();
-                  handleOpenModal('edit', selectedArtist);
-                }}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-              >
-                Edit Artist
-              </button>
-            </div>
-          </ModalContainer>
-        )}
-      </AnimatePresence>
+
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>

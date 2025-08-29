@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 
 // Base API URL
-const API_URL = 'http://ec2-user@ec2-52-14-25-183.us-east-2.compute.amazonaws.com/api';
+const API_URL = 'http://localhost:3008/api';
 
 // Token storage keys
 const ACCESS_TOKEN_KEY = 'access_token';

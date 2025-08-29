@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import artistService, { Artist, ArtistQueryParams } from '../services/artistService';
 import { toast } from 'react-hot-toast';
 
@@ -72,14 +72,15 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
     setError(null);
     
     try {
-      const mergedParams = { ...queryParams, ...params };
-      const result = await artistService.getAllArtists(mergedParams);
-      setArtists(result.data);
-      setTotalArtists(result.total || result.data.length);
-      
+      // Store the params for future use, but don't pass them to service
       if (params) {
-        setQueryParams(mergedParams);
+        setQueryParams({ ...queryParams, ...params });
       }
+      
+      // Call without params since the service doesn't accept any
+      const artists = await artistService.getAllArtists();
+      setArtists(artists);
+      setTotalArtists(artists.length);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Failed to fetch artists';
       setError(errorMessage);
