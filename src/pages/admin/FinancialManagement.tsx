@@ -1,31 +1,7 @@
 import React, { useState } from 'react';
-import { DollarSign, CreditCard, FileText, Receipt, Settings, TrendingUp } from 'lucide-react';
+import { CreditCard, FileText, Receipt, Settings, TrendingUp } from 'lucide-react';
 
-interface Revenue {
-  id: string;
-  period: string;
-  amount: number;
-  source: 'subscriptions' | 'gifts' | 'tickets' | 'donations';
-  status: 'completed' | 'pending';
-}
-
-interface Payout {
-  id: string;
-  artistId: string;
-  artistName: string;
-  amount: number;
-  status: 'scheduled' | 'processing' | 'completed' | 'failed';
-  scheduledDate: string;
-}
-
-interface Subscription {
-  id: string;
-  plan: string;
-  price: number;
-  subscribers: number;
-  revenue: number;
-  status: 'active' | 'inactive';
-}
+// Removed unused interfaces
 
 export default function FinancialManagement() {
   const [activeTab, setActiveTab] = useState('revenue');

@@ -66,45 +66,7 @@ function useFetch<T>(initialData: T, fetchFunction: () => T) {
   return { data, loading, error };
 }
 
-// Custom hook for fetching artists
-function useFetchArtist(artistId?: string) {
-  const [artist, setArtist]    = useState<Artist | null>(null);
-  const [loading, setLoading]  = useState<boolean>(false);
-  const [error, setError]      = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!artistId) return;
-
-    const fetchArtist = async () => {
-      setLoading(true);
-      try {
-        // Mock API call - in a real app, this would be a fetch to your API
-        // const response = await fetch(`/api/artists/${artistId}`);
-        // const data = await response.json();
-        
-        // Mock data for demonstration
-        const mockArtist: Artist = {
-          id: artistId,
-          name: 'Artist ' + artistId,
-          total_listeners: 100000,
-          profile_image: '/api/placeholder/50/50',
-          genres: ['Pop', 'Rock']
-        };
-        
-        setArtist(mockArtist);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch artist');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArtist();
-  }, [artistId]);
-
-  return { artist, loading, error };
-}
+// (removed unused useFetchArtist helper)
 
 export default function MusicAdminDashboard() {
   // Generate mock data functions
@@ -183,7 +145,7 @@ export default function MusicAdminDashboard() {
   const { data: recentActivity } = useFetch<RecentActivity[]>([], fetchRecentActivity);
 
   // Example of using the artist-specific hook (not used in the UI yet)
-  const { artists: featuredArtists, loading: loadingFeatured } = useFetchArtist('featured');
+  // const { artist: featuredArtist, loading: loadingFeatured } = useFetchArtist('featured');
 
   const StatCard = ({ 
     icon: Icon, 

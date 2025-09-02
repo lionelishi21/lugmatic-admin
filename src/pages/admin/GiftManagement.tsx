@@ -4,17 +4,11 @@ import {
   Edit,
   Trash2,
   Upload,
-  Eye,
   Settings,
   Gift,
   DollarSign,
   Star,
   Package,
-  TrendingUp,
-  Users,
-  Archive,
-  CheckCircle,
-  XCircle
 } from 'lucide-react';
 import { giftService } from '../../services/giftService';
 import { Gift as GiftType } from '../../types';

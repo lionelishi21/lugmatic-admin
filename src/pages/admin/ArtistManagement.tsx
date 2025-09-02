@@ -7,10 +7,10 @@ import { Link } from 'react-router-dom';
 
 // Types
 type ModalType = 'add' | 'edit' | 'delete' | 'view' | null;
-type FilterParams = {
-  searchTerm: string;
-  status: string;
-};
+// type FilterParams = {
+//   searchTerm: string;
+//   status: string;
+// };
 
 // Animation variants
 const fadeIn = {
@@ -192,10 +192,10 @@ const ArtistManagement: React.FC = () => {
   const [formData, setFormData] = useState<Partial<Artist>>({});
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [filterParams, setFilterParams] = useState<FilterParams>({
-    searchTerm: '',
-    status: 'all'
-  });
+  // const [filterParams, setFilterParams] = useState<FilterParams>({
+  //   searchTerm: '',
+  //   status: 'all'
+  // });
   
   // Get artists data with filters
   const { artists, loading } = useFetchArtists();
@@ -204,12 +204,7 @@ const ArtistManagement: React.FC = () => {
 
   // Update filter params with debounce
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setFilterParams({
-        searchTerm,
-        status: filterStatus
-      });
-    }, 300);
+    const timer = setTimeout(() => {}, 300);
     
     return () => clearTimeout(timer);
   }, [searchTerm, filterStatus]);
@@ -244,16 +239,16 @@ const ArtistManagement: React.FC = () => {
     if (modalOpen === 'add') {
       // Create new artist template
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const newArtist: Artist = {
-        id: Date.now(),
-        name: formData.name || '',
-        email: formData.email || '',
-        genre: formData.genre || '',
-        status: (formData.status as 'active' | 'pending' | 'inactive') || 'pending',
-        joinDate: new Date().toISOString().split('T')[0],
-        totalSongs: 0,
-        totalAlbums: 0,
-      };
+      // const newArtist: Artist = {
+      //   id: Date.now(),
+      //   name: formData.name || '',
+      //   email: formData.email || '',
+      //   genre: formData.genre || '',
+      //   status: (formData.status as 'active' | 'pending' | 'inactive') || 'pending',
+      //   joinDate: new Date().toISOString().split('T')[0],
+      //   totalSongs: 0,
+      //   totalAlbums: 0,
+      // };
       
       // For demonstration only
       toast.success('Artist added successfully!');

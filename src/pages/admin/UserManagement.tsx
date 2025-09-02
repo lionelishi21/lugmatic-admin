@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Calendar, MoreVertical } from 'lucide-react';
+import { Users, Calendar, MoreVertical, Filter } from 'lucide-react';
 
 interface User {
   id: string;

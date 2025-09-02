@@ -1,33 +1,4 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Container,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Button,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Chip,
-  Card,
-  CardContent,
-  Grid as MuiGrid,
-} from '@mui/material';
-import {
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Add as AddIcon,
-  MusicNote as MusicNoteIcon,
-} from '@mui/icons-material';
 
 interface Genre {
   id: number;
@@ -99,168 +70,136 @@ const GenreManagement: React.FC = () => {
     },
   ];
 
-  const getStatusColor = (status: Genre['status']) => {
-    return status === 'active' ? 'success' : 'default';
+  const getStatusChip = (status: Genre['status']) => {
+    const color = status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+    return <span className={`inline-flex px-2 py-1 rounded text-xs font-medium ${color}`}>{status}</span>;
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">Genre Management</Typography>
-        <Box>
-          <Button
-            variant="outlined"
+    <div className="max-w-6xl mx-auto mt-6 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">Genre Management</h1>
+        <div className="flex items-center gap-3">
+          <button
             onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
-            sx={{ mr: 2 }}
+            className="px-4 py-2 border rounded-md text-sm"
           >
             {viewMode === 'list' ? 'Grid View' : 'List View'}
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
+          </button>
+          <button
             onClick={() => handleOpenDialog()}
+            className="px-4 py-2 rounded-md bg-purple-600 text-white text-sm"
           >
-            Add New Genre
-          </Button>
-        </Box>
-      </Box>
+            + Add New Genre
+          </button>
+        </div>
+      </div>
 
       {viewMode === 'list' ? (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>Songs</TableCell>
-                <TableCell>Albums</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Created At</TableCell>
-                <TableCell>Updated At</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {genres.map((genre) => (
-                <TableRow key={genre.id}>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <MusicNoteIcon color="primary" />
-                      {genre.name}
-                    </Box>
-                  </TableCell>
-                  <TableCell>{genre.description}</TableCell>
-                  <TableCell>{genre.songCount}</TableCell>
-                  <TableCell>{genre.albumCount}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={genre.status}
-                      color={getStatusColor(genre.status)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{new Date(genre.createdAt).toLocaleDateString()}</TableCell>
-                  <TableCell>{new Date(genre.updatedAt).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <IconButton onClick={() => handleOpenDialog(genre)}>
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton>
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <div className="bg-white rounded-lg shadow">
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Songs</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Albums</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Updated</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {genres.map((genre) => (
+                  <tr key={genre.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{genre.name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{genre.description}</td>
+                    <td className="px-6 py-4 text-sm">{genre.songCount}</td>
+                    <td className="px-6 py-4 text-sm">{genre.albumCount}</td>
+                    <td className="px-6 py-4 text-sm">{getStatusChip(genre.status)}</td>
+                    <td className="px-6 py-4 text-sm">{new Date(genre.createdAt).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 text-sm">{new Date(genre.updatedAt).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => handleOpenDialog(genre)} className="px-3 py-1 text-indigo-600 hover:bg-indigo-50 rounded">
+                          Edit
+                        </button>
+                        <button className="px-3 py-1 text-red-600 hover:bg-red-50 rounded">
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       ) : (
-        <MuiGrid container spacing={3}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {genres.map((genre) => (
-            <MuiGrid item xs={12} sm={6} md={4} key={genre.id}>
-              <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                    <MusicNoteIcon color="primary" />
-                    <Typography variant="h6">{genre.name}</Typography>
-                  </Box>
-                  <Typography color="textSecondary" gutterBottom>
-                    {genre.description}
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                    <Chip
-                      label={`${genre.songCount} Songs`}
-                      size="small"
-                      variant="outlined"
-                    />
-                    <Chip
-                      label={`${genre.albumCount} Albums`}
-                      size="small"
-                      variant="outlined"
-                    />
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-                    <Chip
-                      label={genre.status}
-                      color={getStatusColor(genre.status)}
-                      size="small"
-                    />
-                    <Box>
-                      <IconButton onClick={() => handleOpenDialog(genre)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </MuiGrid>
+            <div key={genre.id} className="rounded-lg border bg-white p-4 shadow">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-2 w-2 rounded-full bg-purple-500" />
+                <h3 className="font-semibold">{genre.name}</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-2">{genre.description}</p>
+              <div className="flex items-center gap-2 text-xs text-gray-700 mb-3">
+                <span className="px-2 py-1 border rounded">{genre.songCount} Songs</span>
+                <span className="px-2 py-1 border rounded">{genre.albumCount} Albums</span>
+              </div>
+              <div className="flex items-center justify-between">
+                {getStatusChip(genre.status)}
+                <div className="flex items-center gap-2">
+                  <button onClick={() => handleOpenDialog(genre)} className="px-3 py-1 text-indigo-600 hover:bg-indigo-50 rounded">
+                    Edit
+                  </button>
+                  <button className="px-3 py-1 text-red-600 hover:bg-red-50 rounded">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
-        </MuiGrid>
+        </div>
       )}
 
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {selectedGenre ? 'Edit Genre' : 'Add New Genre'}
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-            <TextField
-              label="Genre Name"
-              fullWidth
-              defaultValue={selectedGenre?.name}
-            />
-            <TextField
-              label="Description"
-              fullWidth
-              multiline
-              rows={3}
-              defaultValue={selectedGenre?.description}
-            />
-            <TextField
-              label="Status"
-              select
-              fullWidth
-              defaultValue={selectedGenre?.status || 'active'}
-              SelectProps={{
-                native: true,
-              }}
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </TextField>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button variant="contained" onClick={handleCloseDialog}>
-            {selectedGenre ? 'Update' : 'Create'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+      {openDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">{selectedGenre ? 'Edit Genre' : 'Add New Genre'}</h2>
+              <button onClick={handleCloseDialog} className="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Genre Name</label>
+                <input defaultValue={selectedGenre?.name} className="mt-1 w-full rounded border px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Description</label>
+                <textarea defaultValue={selectedGenre?.description} rows={3} className="mt-1 w-full rounded border px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Status</label>
+                <select defaultValue={selectedGenre?.status || 'active'} className="mt-1 w-full rounded border px-3 py-2">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <button onClick={handleCloseDialog} className="px-4 py-2 text-sm rounded border">Cancel</button>
+              <button onClick={handleCloseDialog} className="px-4 py-2 text-sm rounded bg-purple-600 text-white">
+                {selectedGenre ? 'Update' : 'Create'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

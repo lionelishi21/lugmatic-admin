@@ -2,7 +2,7 @@ import React from 'react';
 import Layout from '../../components/Layout';
 import { Music2, Headphones, DollarSign, TrendingUp, Clock, ExternalLink, Mic2, Album, Users } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import useFetchArtist from '../../hooks/artist/useFetchArtist';
+// import useFetchArtist from '../../hooks/artist/useFetchArtist';
 
 interface ArtistStats {
   totalTracks: number;

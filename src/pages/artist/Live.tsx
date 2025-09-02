@@ -33,7 +33,7 @@ export default function Live() {
   });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [stats, setStats] = useState<StreamStats>({
+  const [stats] = useState<StreamStats>({
     viewers: 0,
     likes: 0,
     gifts: 0

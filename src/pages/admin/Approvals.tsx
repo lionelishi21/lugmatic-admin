@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Music2, Search, Filter, Play, Pause, CheckCircle, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -66,7 +66,7 @@ export default function Approvals() {
     }
   };
 
-  const handleApproval = async (trackId: string, approved: boolean) => {
+  const handleApproval = async (_trackId: string, approved: boolean) => {
     // Simulate updating track status
     // Assuming the tracks array is updated elsewhere or in a different context
     toast.success(`Track ${approved ? 'approved' : 'rejected'} successfully`);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Music2, Trash2, Edit2, Filter } from 'lucide-react';
 
 interface Content {
@@ -12,7 +12,6 @@ interface Content {
 
 export default function ContentManagement() {
   const [contents, setContents] = useState<Content[]>([]);
-  const [filter, setFilter] = useState('all');
 
   // Mock data generation (replace with actual API call)
   useEffect(() => {
