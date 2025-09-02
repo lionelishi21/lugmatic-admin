@@ -26,7 +26,7 @@ interface RecentActivity {
 }
 
 export default function ArtistDashboard() {
-  const { artist: featuredArtist, loading: loadingFeatured } = useFetchArtist('featured');
+  // const { artists: featuredArtists, loading: loadingFeatured } = useFetchArtist('featured');
  
   const stats: ArtistStats = {
     totalTracks: 100,

@@ -16,7 +16,6 @@ import {
   Badge
 } from '@mui/material';
 import {
-  Notifications as NotificationsIcon,
   Delete as DeleteIcon,
   MarkEmailRead as MarkReadIcon,
   Settings as SettingsIcon
@@ -62,7 +61,7 @@ const Notifications: React.FC = () => {
     try {
       setLoading(true);
       const response = await notificationService.getUserNotifications();
-      setNotifications(response.data.data);
+      setNotifications((response.data.data as unknown as { data: Notification[] }).data || []);
     } catch (error) {
       toast.error('Failed to load notifications');
       console.error('Error loading notifications:', error);
@@ -74,13 +73,13 @@ const Notifications: React.FC = () => {
   const loadUnreadCount = async () => {
     try {
       const response = await notificationService.getUnreadCount();
-      setUnreadCount(response.data.count);
+      setUnreadCount(response.data.data.count);
     } catch (error) {
       console.error('Error loading unread count:', error);
     }
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 

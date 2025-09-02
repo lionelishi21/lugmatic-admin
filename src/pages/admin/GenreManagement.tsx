@@ -20,7 +20,7 @@ import {
   Chip,
   Card,
   CardContent,
-  Grid,
+  Grid as MuiGrid,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -175,9 +175,9 @@ const GenreManagement: React.FC = () => {
           </Table>
         </TableContainer>
       ) : (
-        <Grid container spacing={3}>
+        <MuiGrid container spacing={3}>
           {genres.map((genre) => (
-            <Grid item xs={12} sm={6} md={4} key={genre.id}>
+            <MuiGrid item xs={12} sm={6} md={4} key={genre.id}>
               <Card>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -216,9 +216,9 @@ const GenreManagement: React.FC = () => {
                   </Box>
                 </CardContent>
               </Card>
-            </Grid>
+            </MuiGrid>
           ))}
-        </Grid>
+        </MuiGrid>
       )}
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>

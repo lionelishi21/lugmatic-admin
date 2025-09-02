@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useArtist } from '../../context/ArtistContext';
+import { useArtistContext } from '../../context/ArtistContext';
 import Preloader from '../../components/ui/Preloader';
 import { toast } from 'react-hot-toast';
 import { Artist } from '../../services/artistService';
@@ -9,7 +9,7 @@ import { Artist } from '../../services/artistService';
 const ArtistEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { fetchArtistById, selectedArtist, updateArtist, loading, error } = useArtist();
+  const { fetchArtistById, selectedArtist, updateArtist, loading, error } = useArtistContext();
   
   // Local form state
   const [formData, setFormData] = useState<Partial<Artist>>({});
@@ -29,7 +29,7 @@ const ArtistEdit: React.FC = () => {
       setFormData({
         name: selectedArtist.name,
         email: selectedArtist.email,
-        genre: selectedArtist.genre,
+        genres: selectedArtist.genres,
         status: selectedArtist.status
       });
     }
@@ -64,8 +64,8 @@ const ArtistEdit: React.FC = () => {
       errors.email = 'Invalid email format';
     }
     
-    if (!formData.genre || formData.genre.trim() === '') {
-      errors.genre = 'Genre is required';
+    if (!formData.genres || (Array.isArray(formData.genres) && formData.genres.length === 0)) {
+      errors.genre = 'At least one genre is required';
     }
     
     setFormErrors(errors);
@@ -188,17 +188,17 @@ const ArtistEdit: React.FC = () => {
             )}
           </div>
 
-          {/* Genre Field */}
+          {/* Genres Field */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="genre">
-              Genre
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="genres">
+              Genres (comma separated)
             </label>
             <input
-              id="genre"
-              name="genre"
+              id="genres"
+              name="genres"
               type="text"
-              value={formData.genre || ''}
-              onChange={handleInputChange}
+              value={Array.isArray(formData.genres) ? formData.genres.join(', ') : ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, genres: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }))}
               className={`w-full px-3 py-2 border ${
                 formErrors.genre ? 'border-red-500' : 'border-gray-300'
               } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}

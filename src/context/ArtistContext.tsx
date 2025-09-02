@@ -12,12 +12,12 @@ interface ArtistContextState {
   queryParams: ArtistQueryParams;
   // Methods
   fetchArtists: (params?: ArtistQueryParams) => Promise<void>;
-  fetchArtistById: (id: string | number) => Promise<void>;
+  fetchArtistById: (id: string) => Promise<void>;
   createArtist: (data: any) => Promise<boolean>;
-  updateArtist: (id: string | number, data: any) => Promise<boolean>;
-  deleteArtist: (id: string | number) => Promise<boolean>;
-  approveArtist: (id: string | number) => Promise<boolean>;
-  rejectArtist: (id: string | number, reason: string) => Promise<boolean>;
+  updateArtist: (id: string, data: any) => Promise<boolean>;
+  deleteArtist: (id: string) => Promise<boolean>;
+  approveArtist: (id: string) => Promise<boolean>;
+  rejectArtist: (id: string, reason: string) => Promise<boolean>;
   setQueryParams: (params: ArtistQueryParams) => void;
   clearSelectedArtist: () => void;
 }
@@ -32,7 +32,7 @@ const ArtistContext = createContext<ArtistContextState>({
   queryParams: {
     page: 1,
     limit: 10,
-    sortBy: 'joinDate',
+    sortBy: 'createdAt',
     sortOrder: 'desc'
   },
   fetchArtists: async () => {},
@@ -62,7 +62,7 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   const [queryParams, setQueryParams] = useState<ArtistQueryParams>({
     page: 1,
     limit: 10,
-    sortBy: 'joinDate',
+    sortBy: 'createdAt',
     sortOrder: 'desc'
   });
 
@@ -91,13 +91,13 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   };
 
   // Fetch a single artist by ID
-  const fetchArtistById = async (id: string | number) => {
+  const fetchArtistById = async (id: string) => {
     setLoading(true);
     setError(null);
     
     try {
       const result = await artistService.getArtistById(id);
-      setSelectedArtist(result.data);
+      setSelectedArtist(result);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || `Failed to fetch artist with ID ${id}`;
       setError(errorMessage);
@@ -113,7 +113,7 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
     setError(null);
     
     try {
-      const result = await artistService.createArtist(data);
+      await artistService.createArtist(data);
       // Refresh the artist list after creating a new one
       await fetchArtists();
       toast.success('Artist created successfully!');
@@ -129,7 +129,7 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   };
 
   // Update an existing artist
-  const updateArtist = async (id: string | number, data: any): Promise<boolean> => {
+  const updateArtist = async (id: string, data: any): Promise<boolean> => {
     setLoading(true);
     setError(null);
     
@@ -139,13 +139,13 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
       // Update the local state to reflect changes
       setArtists(prevArtists => 
         prevArtists.map(artist => 
-          artist.id === id ? { ...artist, ...result.data } : artist
+          artist._id === id ? { ...artist, ...result } : artist
         )
       );
       
       // If the updated artist is currently selected, update it
-      if (selectedArtist && selectedArtist.id === id) {
-        setSelectedArtist({ ...selectedArtist, ...result.data });
+      if (selectedArtist && selectedArtist._id === id) {
+        setSelectedArtist({ ...selectedArtist, ...result });
       }
       
       toast.success('Artist updated successfully!');
@@ -161,7 +161,7 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   };
 
   // Delete an artist
-  const deleteArtist = async (id: string | number): Promise<boolean> => {
+  const deleteArtist = async (id: string): Promise<boolean> => {
     setLoading(true);
     setError(null);
     
@@ -169,10 +169,10 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
       await artistService.deleteArtist(id);
       
       // Remove the deleted artist from the local state
-      setArtists(prevArtists => prevArtists.filter(artist => artist.id !== id));
+      setArtists(prevArtists => prevArtists.filter(artist => artist._id !== id));
       
       // If the deleted artist is currently selected, clear it
-      if (selectedArtist && selectedArtist.id === id) {
+      if (selectedArtist && selectedArtist._id === id) {
         setSelectedArtist(null);
       }
       
@@ -189,23 +189,23 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   };
 
   // Approve a pending artist
-  const approveArtist = async (id: string | number): Promise<boolean> => {
+  const approveArtist = async (id: string): Promise<boolean> => {
     setLoading(true);
     setError(null);
     
     try {
-      const result = await artistService.approveArtist(id);
+      await artistService.approveArtist(id);
       
       // Update the local state to reflect changes
       setArtists(prevArtists => 
         prevArtists.map(artist => 
-          artist.id === id ? { ...artist, status: 'active' } : artist
+          artist._id === id ? { ...artist, status: 'active' } : artist
         )
       );
       
       // If the approved artist is currently selected, update it
-      if (selectedArtist && selectedArtist.id === id) {
-        setSelectedArtist({ ...selectedArtist, status: 'active' });
+      if (selectedArtist && selectedArtist._id === id) {
+        setSelectedArtist({ ...selectedArtist, status: 'active' } as Artist);
       }
       
       toast.success('Artist approved successfully!');
@@ -221,7 +221,7 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   };
 
   // Reject a pending artist
-  const rejectArtist = async (id: string | number, reason: string): Promise<boolean> => {
+  const rejectArtist = async (id: string, reason: string): Promise<boolean> => {
     setLoading(true);
     setError(null);
     
@@ -231,13 +231,13 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
       // Update the local state to reflect changes
       setArtists(prevArtists => 
         prevArtists.map(artist => 
-          artist.id === id ? { ...artist, status: 'inactive' } : artist
+          artist._id === id ? { ...artist, status: 'inactive' } : artist
         )
       );
       
       // If the rejected artist is currently selected, update it
-      if (selectedArtist && selectedArtist.id === id) {
-        setSelectedArtist({ ...selectedArtist, status: 'inactive' });
+      if (selectedArtist && selectedArtist._id === id) {
+        setSelectedArtist({ ...selectedArtist, status: 'inactive' } as Artist);
       }
       
       toast.success('Artist rejected successfully!');
@@ -283,11 +283,11 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   );
 };
 
-// Custom hook to use the Artist context
-export const useArtist = () => {
+// Custom hook to use the artist context
+export const useArtistContext = () => {
   const context = useContext(ArtistContext);
-  if (context === undefined) {
-    throw new Error('useArtist must be used within an ArtistProvider');
+  if (!context) {
+    throw new Error('useArtistContext must be used within an ArtistProvider');
   }
   return context;
 };

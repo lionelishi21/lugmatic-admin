@@ -49,7 +49,7 @@ export const notificationService = {
 
   // Get unread notifications count
   getUnreadCount: async () => {
-    return apiService.get<ApiResponse<{ count: number }>>('/notifications/unread-count');
+    return apiService.get<{ count: number }>('/notifications/unread-count');
   },
 
   // Get notifications by type

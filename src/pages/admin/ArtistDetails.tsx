@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useArtist } from '../../context/ArtistContext';
+import { useArtistContext } from '../../context/ArtistContext';
 import Preloader from '../../components/ui/Preloader';
 
 const ArtistDetails: React.FC = () => {
@@ -14,7 +14,7 @@ const ArtistDetails: React.FC = () => {
     error, 
     approveArtist, 
     rejectArtist 
-  } = useArtist();
+  } = useArtistContext();
 
   // Fetch artist details when component mounts
   useEffect(() => {
@@ -139,7 +139,7 @@ const ArtistDetails: React.FC = () => {
             {/* Artist Image */}
             <div className="md:w-1/4 flex justify-center mb-4 md:mb-0">
               <img 
-                src={selectedArtist.imageUrl || 'https://via.placeholder.com/200'} 
+                src={(selectedArtist as any).imageUrl || (selectedArtist.image as string) || 'https://via.placeholder.com/200'} 
                 alt={selectedArtist.name} 
                 className="w-48 h-48 rounded-full object-cover"
               />
@@ -149,8 +149,8 @@ const ArtistDetails: React.FC = () => {
             <div className="md:w-3/4 md:pl-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">Genre</h3>
-                  <p className="font-medium">{selectedArtist.genre}</p>
+                  <h3 className="text-sm font-medium text-gray-500">Genres</h3>
+                  <p className="font-medium">{Array.isArray(selectedArtist.genres) ? selectedArtist.genres.join(', ') : ''}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Status</h3>
@@ -164,11 +164,7 @@ const ArtistDetails: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Joined</h3>
-                  <p>{selectedArtist.joinDate}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Content</h3>
-                  <p>{selectedArtist.totalSongs} songs, {selectedArtist.totalAlbums} albums</p>
+                  <p>{new Date(selectedArtist.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
               

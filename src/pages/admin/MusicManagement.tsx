@@ -1,30 +1,5 @@
 import React, { useState } from 'react';
-import { Music2, ListMusic, Tags, Shield, Brain, FileCheck, Settings } from 'lucide-react';
-
-interface Track {
-  id: string;
-  title: string;
-  artist: string;
-  genre: string;
-  status: 'pending' | 'approved' | 'rejected';
-  copyright: {
-    status: 'verified' | 'pending' | 'flagged';
-    license: string;
-  };
-  metadata: {
-    duration: string;
-    bpm: number;
-    key: string;
-    tags: string[];
-  };
-}
-
-interface Genre {
-  id: string;
-  name: string;
-  count: number;
-  status: 'active' | 'inactive';
-}
+import { Music2, ListMusic, Tags, Shield, Brain, FileCheck } from 'lucide-react';
 
 export default function MusicManagement() {
   const [activeTab, setActiveTab] = useState('tracks');

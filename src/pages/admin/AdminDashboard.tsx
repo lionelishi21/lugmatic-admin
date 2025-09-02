@@ -183,7 +183,7 @@ export default function MusicAdminDashboard() {
   const { data: recentActivity } = useFetch<RecentActivity[]>([], fetchRecentActivity);
 
   // Example of using the artist-specific hook (not used in the UI yet)
-  const { artist: featuredArtist, loading: loadingFeatured } = useFetchArtist('featured');
+  const { artists: featuredArtists, loading: loadingFeatured } = useFetchArtist('featured');
 
   const StatCard = ({ 
     icon: Icon, 

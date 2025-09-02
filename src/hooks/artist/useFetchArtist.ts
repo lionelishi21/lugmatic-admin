@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store';
 import { fetchArtists as fetchArtistsAction } from '../../store/slices/artistSlice';
 import artistService, { Artist } from '../../services/artistService';

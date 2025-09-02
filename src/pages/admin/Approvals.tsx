@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Layout from '../../components/Layout';
-import { Music2, Search, Filter, Play, Pause, ChevronDown, CheckCircle, XCircle } from 'lucide-react';
-import { format, formatDistanceToNow } from 'date-fns';
+import { Music2, Search, Filter, Play, Pause, CheckCircle, XCircle } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
 
 interface Track {
@@ -42,11 +41,7 @@ export default function Approvals() {
   }, []);
 
   const fetchPendingTracks = async () => {
-    // Simulate fetching tracks from a different source
-    const mockTracks = [
-      // Add mock tracks here
-    ];
-    setTracks(mockTracks);
+    setTracks([] as Track[]);
     setIsLoading(false);
   };
 

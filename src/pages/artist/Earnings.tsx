@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import { DollarSign, TrendingUp, BarChart2, Calendar, Download, ChevronDown, Filter } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import { format, endOfMonth, subMonths } from 'date-fns';
 
 interface EarningsStats {
   totalEarnings: number;
@@ -39,7 +39,7 @@ export default function Earnings() {
   const fetchEarningsData = async () => {
     try {
       // Simulate fetching earnings from a different source
-      const mockEarnings = [
+      const mockEarnings: EarningsData[] = [
         // Add mock earnings here
       ];
       setEarnings(mockEarnings);

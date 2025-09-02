@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import lugmaticIcon from '../assets/lugmaticIcon.png';
 interface LayoutProps {
   children: React.ReactNode;
+  userRole?: 'admin' | 'artist';
 }
 
 type NavItemType = {
@@ -20,10 +21,10 @@ type NavItemType = {
   badge?: string;
 };
 
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children, userRole: userRoleProp }: LayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [userRole, setUserRole] = useState('admin');
+  const [userRole, setUserRole] = useState(userRoleProp ?? 'admin');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   
@@ -32,13 +33,17 @@ export default function Layout({ children }: LayoutProps) {
 
   // Update userRole based on URL path
   useEffect(() => {
-    setUserRole(location.pathname.startsWith('/admin') ? 'admin' : 'artist');
+    if (userRoleProp) {
+      setUserRole(userRoleProp);
+    } else {
+      setUserRole(location.pathname.startsWith('/admin') ? 'admin' : 'artist');
+    }
     
     // Close sidebar on mobile when navigating
     if (isMobile) {
       setIsSidebarOpen(false);
     }
-  }, [location.pathname, isMobile]);
+  }, [location.pathname, isMobile, userRoleProp]);
 
   // Handle window resize
   useEffect(() => {

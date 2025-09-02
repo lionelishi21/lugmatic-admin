@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import { Gift, TrendingUp, Calendar, DollarSign, ChevronDown, Search } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';

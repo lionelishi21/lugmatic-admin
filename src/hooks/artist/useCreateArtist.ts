@@ -6,12 +6,9 @@ import { AppDispatch } from '../../store';
 import { CreateArtistData } from '../../services/artistService';
 
 interface ArtistFormData {
-  firstName: string;
-  lastName: string;
   name: string;
   email: string;
   bio: string;
-  gender: string;
   genres: string[];
   socialLinks: {
     website: string;
@@ -41,11 +38,7 @@ const useCreateArtist = (): UseCreateArtistReturn => {
       // Create data object that matches CreateArtistData type
       const artistData: CreateArtistData = {
         name: formData.name,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
         bio: formData.bio,
-        gender: formData.gender,
         genres: formData.genres,
         socialLinks: formData.socialLinks,
       };

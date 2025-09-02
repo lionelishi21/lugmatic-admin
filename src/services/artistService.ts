@@ -10,6 +10,7 @@ export interface Artist {
   lastName?: string;
   image?: string;
   genres?: string[];
+  status?: 'active' | 'pending' | 'inactive';
   socialLinks?: {
     website?: string;
     facebook?: string;
@@ -44,11 +45,11 @@ export interface Song {
 }
 
 // Interface for API response
-interface ApiResponse<T> {
-  data: T;
-  message?: string;
-  status?: string;
-}
+// interface ApiResponse<T> {
+//   data: T;
+//   message?: string;
+//   status?: string;
+// }
 
 // Interface for creating a new artist
 export interface CreateArtistData {
@@ -115,16 +116,16 @@ const artistService = {
    * Get all artists with pagination and filters
    */
   getAllArtists: async (): Promise<Artist[]> => {
-    const response = await apiService.get<ApiResponse<Artist[]>>('/artist/list');
+    const response = await apiService.get<Artist[]>('/artist/list');
     console.log(response.data);
-    return response.data;
+    return response.data.data;
   },
 
   /**
    * Get artist by ID
    */
   getArtistById: async (id: string): Promise<Artist> => {
-    const response = await apiService.get<ApiResponse<Artist>>(`/artist/${id}`);
+    const response = await apiService.get<Artist>(`/artist/${id}`);
     return response.data.data;
   },
 
@@ -133,9 +134,9 @@ const artistService = {
    */
   createArtist: async (artistData: CreateArtistData): Promise<Artist> => {
     console.log('data to send', artistData);
-    const response = await apiService.post<ApiResponse<Artist>>('/artist', artistData);
+    const response = await apiService.post<Artist>('/artist', artistData);
     console.log(response.data);  
-    return response.data;
+    return response.data.data;
   },
 
   /**

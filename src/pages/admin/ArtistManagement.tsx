@@ -123,7 +123,7 @@ const ArtistRow = React.memo(({
           />
         </div>
         <div className="ml-4">
-          <div className="text-sm font-medium text-gray-900">{artist.firstName} {artist.lastName}</div>
+          <div className="text-sm font-medium text-gray-900">{artist.name}</div>
           <div className="text-sm text-gray-500">{artist.email}</div>
         </div>
       </div>
@@ -132,18 +132,14 @@ const ArtistRow = React.memo(({
       <div className="text-sm text-gray-900">{artist.genre}</div>
     </td>
     <td className="px-6 py-4 whitespace-nowrap">
-      <StatusBadge status={artist.isActive ? 'active' : 'inactive'} />
+      <StatusBadge status={artist.status} />
     </td>
     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-      {artist.createdAt}
+      {artist.joinDate}
     </td>
     <td className="px-6 py-4 whitespace-nowrap">
-      <div className="text-sm text-gray-900">
-        {artist.totalSongs} songs
-      </div>
-      <div className="text-sm text-gray-500">
-        {artist.totalAlbums} albums
-      </div>
+      <div className="text-sm text-gray-900">—</div>
+      <div className="text-sm text-gray-500">—</div>
     </td>
     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
       <div className="flex justify-end space-x-2">
@@ -202,7 +198,7 @@ const ArtistManagement: React.FC = () => {
   });
   
   // Get artists data with filters
-  const { artists, loading, refetch } = useFetchArtists(filterParams);
+  const { artists, loading } = useFetchArtists();
 
   console.log('data------->',artists);
 
@@ -261,17 +257,15 @@ const ArtistManagement: React.FC = () => {
       
       // For demonstration only
       toast.success('Artist added successfully!');
-      refetch();
     } else if (modalOpen === 'edit' && selectedArtist) {
       // In a real implementation, you would update the artist
       // artists = artists.map(a => a.id === selectedArtist.id ? {...a, ...formData} : a);
       
       toast.success('Artist updated successfully!');
-      refetch();
     }
     
     handleCloseModal();
-  }, [modalOpen, formData, selectedArtist, handleCloseModal, refetch]);
+  }, [modalOpen, formData, selectedArtist, handleCloseModal]);
 
   // Delete handler
   const handleDeleteArtist = useCallback(() => {
@@ -280,10 +274,9 @@ const ArtistManagement: React.FC = () => {
       // artists = artists.filter(a => a.id !== selectedArtist.id);
       
       toast.success('Artist deleted successfully!');
-      refetch();
       handleCloseModal();
     }
-  }, [selectedArtist, handleCloseModal, refetch]);
+  }, [selectedArtist, handleCloseModal]);
 
   // Search handler - stabilized to prevent re-renders
   const handleSearchChange = useCallback((term: string) => {

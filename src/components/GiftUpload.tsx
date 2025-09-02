@@ -506,7 +506,7 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                     />
                   </button>
                 </div>
-              </div>
+                            </div>
             </div>
           </div>
         </div>

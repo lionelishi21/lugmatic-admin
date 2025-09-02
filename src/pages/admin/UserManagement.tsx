@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Mail, Calendar, MoreVertical, UserPlus, Filter } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Users, Calendar, MoreVertical } from 'lucide-react';
 
 interface User {
   id: string;
@@ -12,7 +12,7 @@ interface User {
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
-  const [filter, setFilter] = useState('all');
+  // const [filter, setFilter] = useState('all');
 
   // Mock data generation (replace with actual API call)
   useEffect(() => {
@@ -57,7 +57,6 @@ export default function UserManagement() {
             Filter
           </button>
           <button className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg">
-            <UserPlus className="h-4 w-4 mr-2" />
             Add User
           </button>
         </div>

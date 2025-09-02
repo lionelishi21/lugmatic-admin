@@ -1,32 +1,42 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { toast } from 'react-hot-toast';
-import { Artist } from '../../hooks/artist/useFetchArtists';
-import { CloudUploadIcon } from '@heroicons/react/outline';
+import { CreateArtistData } from '../../services/artistService';
+import { Upload } from 'lucide-react';
 import { usePostArtist } from '../../hooks/artist/usePostArtist';
 
+interface ArtistFormData {
+  name: string;
+  bio: string;
+  genre: string;
+  image?: File | undefined;
+}
+
 const AddArtist = () => {
-  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
-  const [formData, setFormData] = useState<Artist>({});
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const navigate = useNavigate();
   const { postArtist, isLoading } = usePostArtist();
   
   // Form validation schema
-  const schema = yup.object().shape({
+  const schema: yup.ObjectSchema<ArtistFormData> = yup.object({
     name: yup.string().required('Artist name is required'),
     bio: yup.string().required('Artist bio is required'),
     genre: yup.string().required('Genre is required'),
-    image: yup.mixed().required('Artist image is required')
-  });
+    image: yup.mixed<File>().optional()
+  }) as yup.ObjectSchema<ArtistFormData>;
   
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<Artist>({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<ArtistFormData>({
     resolver: yupResolver(schema),
-    defaultValues: formData
+    defaultValues: {
+      name: '',
+      bio: '',
+      genre: '',
+      image: undefined
+    }
   });
   
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,15 +45,20 @@ const AddArtist = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
-        setFormData(prev => ({ ...prev, image: file }));
       };
       reader.readAsDataURL(file);
     }
   };
   
-  const onSubmit = async (data: Artist) => {
+  const onSubmit: SubmitHandler<ArtistFormData> = async (data) => {
     try {
-      await postArtist(data);
+      const artistData: CreateArtistData = {
+        name: data.name,
+        bio: data.bio,
+        genres: data.genre ? [data.genre] : []
+      };
+      
+      await postArtist(artistData);
       toast.success('Artist added successfully!');
       reset();
       setImagePreview(null);
@@ -92,6 +107,7 @@ const AddArtist = () => {
                 type="text"
                 {...register('genre')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter genre (e.g., Pop, Rock, Hip Hop)"
               />
               {errors.genre && (
                 <p className="mt-1 text-sm text-red-600">{errors.genre.message}</p>
@@ -114,14 +130,13 @@ const AddArtist = () => {
             
             <div>
               <label className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
-                <CloudUploadIcon className="h-5 w-5 mr-2" />
+                <Upload className="h-5 w-5 mr-2" />
                 Upload Image
                 <input
                   type="file"
                   accept="image/*"
                   hidden
-                  onChange={handleImageChange}
-                  {...register('image')}
+                  {...register('image', { onChange: handleImageChange })}
                 />
               </label>
               {errors.image && (
@@ -171,7 +186,5 @@ const AddArtist = () => {
     </AnimatePresence>
   );
 };
-
-
 
 export default AddArtist;

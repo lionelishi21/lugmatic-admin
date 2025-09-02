@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { createArtist } from '../../store/slices/artistSlice';
 import { AppDispatch } from '../../store';
+import { CreateArtistData } from '../../services/artistService';
 
 // Custom hook for posting artist data
 export const usePostArtist = () => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
 
-  const postArtist = async (data: Artist) => {
+  const postArtist = async (data: CreateArtistData) => {
     setIsLoading(true);
     try {
 

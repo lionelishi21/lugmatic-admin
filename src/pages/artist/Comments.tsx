@@ -76,8 +76,10 @@ const Comments: React.FC = () => {
     try {
       setLoading(true);
       const response = await commentService.getArtistComments('current-artist-id');
-      if (response.data && response.data.data) {
+      if (response.data && Array.isArray(response.data.data)) {
         setComments(response.data.data as Comment[]);
+      } else if (response.data && (response.data as any).data) {
+        setComments((response.data as any).data as Comment[]);
       } else {
         setComments([]);
       }
@@ -89,7 +91,7 @@ const Comments: React.FC = () => {
     }
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 

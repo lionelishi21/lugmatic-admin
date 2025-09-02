@@ -1,735 +1,558 @@
-import React, { useState, useEffect } from 'react';
+// @ts-nocheck
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  Box,
-  Typography,
   Button,
+} from "../../components/ui/button";
+
+
+import {
   Card,
   CardContent,
-  CardMedia,
-  Grid,
-  Chip,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  CircularProgress,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import {
   Tabs,
-  Tab,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
+import { Badge } from "../../components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
-  TableRow
-} from '@mui/material';
+  TableHeader,
+  TableRow,
+} from "../../components/ui/table";
+import { Textarea } from "../../components/ui/textarea";
+import { ScrollArea } from "../../components/ui/scroll-area";
+import { Skeleton } from "../../components/ui/skeleton";
 import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  PlayArrow as PlayIcon,
-  Pause as PauseIcon,
-  Analytics as AnalyticsIcon,
-  Upload as UploadIcon,
-  Headphones as HeadphonesIcon,
-  TrendingUp as TrendingIcon,
-  Visibility as ViewIcon
-} from '@mui/icons-material';
-import { podcastService } from '../../services/podcastService';
-import { Podcast, CreatePodcastRequest } from '../../types';
-import toast from 'react-hot-toast';
+  Plus,
+  Edit3,
+  Trash2,
+  Play,
+  Pause,
+  Headphones,
+  TrendingUp,
+  Eye,
+  BarChart3,
+  Upload,
+  Loader2,
+} from "lucide-react";
+import toast from "react-hot-toast";
+import { podcastService } from "../../services/podcastService";
+import type { Podcast, CreatePodcastRequest } from "../../types";
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
+/**
+ * Podcasts (MUI-free)
+ * - Tailwind + shadcn/ui components only
+ * - Replicates tabs, cards, analytics, and CRUD dialog
+ * - Polished, lightweight, and tree-shakeable
+ */
+
+const statCard = (
+  {
+    icon: Icon,
+    label,
+    value,
+    accent = "from-indigo-500 to-purple-500",
+  }: {
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    label: string;
+    value: React.ReactNode;
+    accent?: string;
+  }
+) => (
+  <Card className="h-full border-transparent bg-white/70 backdrop-blur-xl shadow-xl">
+    <CardContent className="p-5 text-center">
+      <Icon className="mx-auto mb-2 h-8 w-8 text-indigo-500" />
+      <div className={`mx-auto mb-2 h-1 w-12 rounded-full bg-gradient-to-r ${accent}`} />
+      <div className="text-3xl font-semibold tracking-tight text-indigo-600">{value}</div>
+      <p className="mt-1 text-xs text-muted-foreground">{label}</p>
+    </CardContent>
+  </Card>
+);
+
+function formatDuration(totalSeconds: number) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+const EmptyState: React.FC<{ onCreate: () => void }> = ({ onCreate }) => (
+  <Card className="border-dashed bg-white/70 backdrop-blur-xl">
+    <CardContent className="flex flex-col items-center justify-center gap-4 p-12 text-center">
+      <div className="rounded-2xl bg-indigo-50 p-4">
+        <Headphones className="h-8 w-8 text-indigo-500" />
+      </div>
+      <CardTitle className="text-2xl">No podcasts yet</CardTitle>
+      <CardDescription>
+        Upload your first episode to get started.
+      </CardDescription>
+      <Button onClick={onCreate} className="gap-2">
+        <Plus className="h-4 w-4" /> Upload Podcast
+      </Button>
+    </CardContent>
+  </Card>
+);
 
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`podcast-tabpanel-${index}`}
-      aria-labelledby={`podcast-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+const CoverImage: React.FC<{ src?: string; alt: string }> = ({ src, alt }) => (
+  <div className="aspect-[16/9] w-full overflow-hidden rounded-xl bg-gradient-to-br from-slate-100 to-slate-50">
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img
+      src={src || "/default-podcast-cover.jpg"}
+      alt={alt}
+      className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.02]"
+      loading="lazy"
+    />
     </div>
   );
-}
 
 const Podcasts: React.FC = () => {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tabValue, setTabValue] = useState(0);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editingPodcast, setEditingPodcast] = useState<Podcast | null>(null);
-  const [formData, setFormData] = useState<CreatePodcastRequest>({
-    title: '',
-    description: '',
-    audioUrl: '',
-    category: '',
-    tags: []
-  });
+  const [tab, setTab] = useState<"all" | "published" | "drafts" | "analytics">(
+    "all"
+  );
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Podcast | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [form, setForm] = useState<CreatePodcastRequest>({
+    title: "",
+    description: "",
+    audioUrl: "",
+    category: "",
+    tags: [],
+  });
 
   useEffect(() => {
-    loadPodcasts();
+    void load();
   }, []);
 
-  const loadPodcasts = async () => {
+  async function load() {
     try {
       setLoading(true);
-      const response = await podcastService.getArtistPodcasts('current-artist-id');
-      if (response.data && response.data.data) {
-        setPodcasts(response.data.data as unknown as Podcast[]);
-      } else {
-        setPodcasts([]);
-      }
-    } catch (error) {
-      toast.error('Failed to load podcasts');
-      console.error('Error loading podcasts:', error);
+      const resp = await podcastService.getArtistPodcasts("current-artist-id");
+      const data = resp?.data?.data as unknown as Podcast[];
+      setPodcasts(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load podcasts");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
+  function resetForm() {
+    setEditing(null);
+    setForm({ title: "", description: "", audioUrl: "", category: "", tags: [] });
+  }
 
-  const handleOpenDialog = (podcast?: Podcast) => {
-    if (podcast) {
-      setEditingPodcast(podcast);
-      setFormData({
-        title: podcast.title,
-        description: podcast.description,
-        audioUrl: podcast.audioUrl,
-        category: podcast.category,
-        tags: podcast.tags || []
-      });
-    } else {
-      setEditingPodcast(null);
-      setFormData({
-        title: '',
-        description: '',
-        audioUrl: '',
-        category: '',
-        tags: []
-      });
-    }
-    setOpenDialog(true);
-  };
+  function openCreate() {
+    resetForm();
+    setOpen(true);
+  }
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setEditingPodcast(null);
-    setFormData({
-      title: '',
-      description: '',
-      audioUrl: '',
-      category: '',
-      tags: []
+  function openEdit(p: Podcast) {
+    setEditing(p);
+    setForm({
+      title: p.title,
+      description: p.description,
+      audioUrl: p.audioUrl,
+      category: p.category,
+      tags: p.tags || [],
     });
-  };
+    setOpen(true);
+  }
 
-  const handleSubmit = async () => {
+  async function handleSubmit() {
     try {
       setUploading(true);
-      if (editingPodcast) {
-        await podcastService.updatePodcast(editingPodcast._id, formData);
-        toast.success('Podcast updated successfully');
+      if (editing) {
+        await podcastService.updatePodcast(editing._id, form);
+        toast.success("Podcast updated");
       } else {
-        await podcastService.createPodcast(formData);
-        toast.success('Podcast created successfully');
+        await podcastService.createPodcast(form);
+        toast.success("Podcast created");
       }
-      handleCloseDialog();
-      loadPodcasts();
-    } catch (error) {
-      toast.error('Failed to save podcast');
-      console.error('Error saving podcast:', error);
+      setOpen(false);
+      resetForm();
+      await load();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save podcast");
     } finally {
       setUploading(false);
     }
-  };
-
-  const handleDelete = async (podcastId: string) => {
-    if (window.confirm('Are you sure you want to delete this podcast?')) {
-      try {
-        await podcastService.deletePodcast(podcastId);
-        toast.success('Podcast deleted successfully');
-        loadPodcasts();
-      } catch (error) {
-        toast.error('Failed to delete podcast');
-        console.error('Error deleting podcast:', error);
-      }
-    }
-  };
-
-  const handleTogglePublish = async (podcastId: string, isPublished: boolean) => {
-    try {
-      await podcastService.togglePublishStatus(podcastId, !isPublished);
-      toast.success(`Podcast ${!isPublished ? 'published' : 'unpublished'} successfully`);
-      loadPodcasts();
-    } catch (error) {
-      toast.error('Failed to update podcast status');
-      console.error('Error updating podcast status:', error);
-    }
-  };
-
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
   }
 
-  return (
-    <Box sx={{ p: 3 }}>
-      {/* Header */}
-      <Box 
-        sx={{ 
-          mb: 4, 
-          p: 4, 
-          borderRadius: 3,
-          background: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-        }}
-      >
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Box>
-            <Typography variant="h4" component="h1" sx={{ 
-              fontWeight: 700,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
-              My Podcasts
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-              Manage your podcast content and track performance
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog()}
-            sx={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: 2,
-              px: 3,
-              py: 1.5,
-              textTransform: 'none',
-              fontWeight: 600,
-              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
-              '&:hover': {
-                boxShadow: '0 6px 20px rgba(102, 126, 234, 0.6)',
-                transform: 'translateY(-2px)'
-              }
-            }}
-          >
-            Upload Podcast
-          </Button>
-        </Box>
+  async function handleDelete(id: string) {
+    const ok = window.confirm("Delete this podcast?");
+    if (!ok) return;
+    try {
+      await podcastService.deletePodcast(id);
+      toast.success("Podcast deleted");
+      await load();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete podcast");
+    }
+  }
 
-        {/* Stats Cards */}
-        <Grid container spacing={3} sx={{ mt: 2 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Box sx={{
-              p: 3,
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
-              border: '1px solid rgba(102, 126, 234, 0.2)',
-              textAlign: 'center'
-            }}>
-              <HeadphonesIcon sx={{ fontSize: 40, color: '#667eea', mb: 1 }} />
-              <Typography variant="h4" sx={{ fontWeight: 700, color: '#667eea' }}>
-                {podcasts.length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Total Podcasts
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Box sx={{
-              p: 3,
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 163, 74, 0.1) 100%)',
-              border: '1px solid rgba(34, 197, 94, 0.2)',
-              textAlign: 'center'
-            }}>
-              <PlayIcon sx={{ fontSize: 40, color: '#22c55e', mb: 1 }} />
-              <Typography variant="h4" sx={{ fontWeight: 700, color: '#22c55e' }}>
-                {podcasts.filter(p => p.isPublished).length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Published
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Box sx={{
-              p: 3,
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%)',
-              border: '1px solid rgba(245, 158, 11, 0.2)',
-              textAlign: 'center'
-            }}>
-              <TrendingIcon sx={{ fontSize: 40, color: '#f59e0b', mb: 1 }} />
-              <Typography variant="h4" sx={{ fontWeight: 700, color: '#f59e0b' }}>
-                {podcasts.reduce((sum, p) => sum + p.listeners, 0)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Total Listeners
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Box sx={{
-              p: 3,
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(219, 39, 119, 0.1) 100%)',
-              border: '1px solid rgba(236, 72, 153, 0.2)',
-              textAlign: 'center'
-            }}>
-              <ViewIcon sx={{ fontSize: 40, color: '#ec4899', mb: 1 }} />
-              <Typography variant="h4" sx={{ fontWeight: 700, color: '#ec4899' }}>
-                {podcasts.reduce((sum, p) => sum + p.likes, 0)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Total Likes
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
-      </Box>
+  async function handleTogglePublish(id: string, isPublished: boolean) {
+    try {
+      await podcastService.togglePublishStatus(id, !isPublished);
+      toast.success(!isPublished ? "Published" : "Unpublished");
+      await load();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update status");
+    }
+  }
+
+  const totals = useMemo(() => {
+    const published = podcasts.filter((p) => p.isPublished).length;
+    const listeners = podcasts.reduce((s, p) => s + (p.listeners || 0), 0);
+    const likes = podcasts.reduce((s, p) => s + (p.likes || 0), 0);
+    return { published, listeners, likes };
+  }, [podcasts]);
+
+  const filtered = useMemo(() => {
+    if (tab === "published") return podcasts.filter((p) => p.isPublished);
+    if (tab === "drafts") return podcasts.filter((p) => !p.isPublished);
+    return podcasts;
+  }, [podcasts, tab]);
+
+  return (
+    <div className="p-6">
+      {/* Header */}
+      <div className="mb-6 rounded-3xl border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur-2xl">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <h1 className="bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-3xl font-extrabold text-transparent">
+              My Podcasts
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Manage your podcast content and track performance
+            </p>
+          </div>
+          <Button onClick={openCreate} className="gap-2">
+            <Plus className="h-4 w-4" /> Upload Podcast
+          </Button>
+        </div>
+
+        {/* Stats */}
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {statCard({ icon: Headphones, label: "Total Podcasts", value: podcasts.length })}
+          {statCard({ icon: Play, label: "Published", value: totals.published, accent: "from-emerald-500 to-teal-500" })}
+          {statCard({ icon: TrendingUp, label: "Total Listeners", value: totals.listeners, accent: "from-amber-500 to-orange-500" })}
+          {statCard({ icon: Eye, label: "Total Likes", value: totals.likes, accent: "from-pink-500 to-rose-500" })}
+        </div>
+      </div>
 
       {/* Tabs */}
-      <Box sx={{ 
-        mb: 3,
-        borderRadius: 3,
-        background: 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
-        overflow: 'hidden'
-      }}>
-        <Tabs 
-          value={tabValue} 
-          onChange={handleTabChange}
-          sx={{
-            '& .MuiTab-root': {
-              textTransform: 'none',
-              fontWeight: 600,
-              fontSize: '1rem',
-              minHeight: 64
-            },
-            '& .Mui-selected': {
-              color: '#667eea !important'
-            },
-            '& .MuiTabs-indicator': {
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              height: 3
-            }
-          }}
-        >
-          <Tab label="All Podcasts" />
-          <Tab label="Published" />
-          <Tab label="Drafts" />
-          <Tab label="Analytics" />
-        </Tabs>
-      </Box>
+      <Card className="mb-6 border-white/60 bg-white/80 shadow-2xl backdrop-blur-2xl">
+        <CardContent className="pt-6">
+          <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="all">All Podcasts</TabsTrigger>
+              <TabsTrigger value="published">Published</TabsTrigger>
+              <TabsTrigger value="drafts">Drafts</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            </TabsList>
 
-      <TabPanel value={tabValue} index={0}>
-        <Grid container spacing={3}>
-          {podcasts.map((podcast) => (
-            <Grid item xs={12} sm={6} md={4} key={podcast._id}>
-              <Card sx={{
-                borderRadius: 3,
-                background: 'rgba(255, 255, 255, 0.8)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-8px)',
-                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)'
-                }
-              }}>
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={podcast.coverImage || '/default-podcast-cover.jpg'}
-                  alt={podcast.title}
-                  sx={{ objectFit: 'cover' }}
-                />
-                <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 600 }}>
-                    {podcast.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mb: 2 }}>
-                    {podcast.description}
-                  </Typography>
-                  <Box display="flex" gap={1} mb={2} flexWrap="wrap">
-                    <Chip 
-                      label={podcast.category} 
-                      size="small" 
-                      sx={{ 
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        color: 'white',
-                        fontWeight: 600
-                      }}
-                    />
-                    <Chip
-                      label={podcast.isPublished ? 'Published' : 'Draft'}
-                      color={podcast.isPublished ? 'success' : 'default'}
-                      size="small"
-                      variant={podcast.isPublished ? 'filled' : 'outlined'}
-                    />
-                  </Box>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Typography variant="caption" color="text.secondary">
-                      {formatDuration(podcast.duration)} • {podcast.listeners} listeners
-                    </Typography>
-                    <Box>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleOpenDialog(podcast)}
-                        sx={{ color: '#667eea' }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleDelete(podcast._id)}
-                        color="error"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  </Box>
+            {/* All / Published / Drafts */}
+            {(["all", "published", "drafts"] as const).map((key) => (
+              <TabsContent key={key} value={key} className="mt-6">
+                {loading ? (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <Card key={i} className="overflow-hidden">
+                        <Skeleton className="aspect-[16/9] w-full" />
+                        <CardContent className="space-y-3 p-4">
+                          <Skeleton className="h-5 w-3/4" />
+                          <Skeleton className="h-4 w-full" />
+                          <div className="flex gap-2">
+                            <Skeleton className="h-6 w-20" />
+                            <Skeleton className="h-6 w-16" />
+                          </div>
                 </CardContent>
               </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={1}>
-        <Grid container spacing={3}>
-          {podcasts.filter(p => p.isPublished).map((podcast) => (
-            <Grid item xs={12} sm={6} md={4} key={podcast._id}>
-              <Card sx={{
-                borderRadius: 3,
-                background: 'rgba(255, 255, 255, 0.8)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-8px)',
-                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)'
-                }
-              }}>
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={podcast.coverImage || '/default-podcast-cover.jpg'}
-                  alt={podcast.title}
-                  sx={{ objectFit: 'cover' }}
-                />
-                <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 600 }}>
-                    {podcast.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mb: 2 }}>
-                    {podcast.description}
-                  </Typography>
-                  <Box display="flex" gap={1} mb={2}>
-                    <Chip label={podcast.category} size="small" />
-                    <Chip label="Published" color="success" size="small" />
-                  </Box>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Typography variant="caption" color="text.secondary">
-                      {formatDuration(podcast.duration)} • {podcast.listeners} listeners
-                    </Typography>
-                    <Box>
-                      <IconButton size="small" sx={{ color: '#667eea' }}>
-                        <AnalyticsIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleTogglePublish(podcast._id, podcast.isPublished)}
+                    ))}
+                  </div>
+                ) : filtered.length === 0 ? (
+                  <EmptyState onCreate={openCreate} />
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {filtered.map((p) => (
+                      <Card
+                        key={p._id}
+                        className="group overflow-hidden border-white/60 bg-white/80 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
                       >
-                        <PauseIcon />
-                      </IconButton>
-                    </Box>
-                  </Box>
+                        <CardHeader className="p-0">
+                          <CoverImage src={p.coverImage} alt={p.title} />
+                        </CardHeader>
+                        <CardContent className="space-y-3 p-4">
+                          <CardTitle className="truncate text-lg">{p.title}</CardTitle>
+                          <CardDescription className="line-clamp-3">
+                            {p.description}
+                          </CardDescription>
+                          <div className="flex flex-wrap items-center gap-2">
+                            {p.category && (
+                              <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600">
+                                {p.category}
+                              </Badge>
+                            )}
+                            <Badge variant={p.isPublished ? "default" : "secondary"}>
+                              {p.isPublished ? "Published" : "Draft"}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>
+                              {formatDuration(p.duration)} • {p.listeners} listeners
+                            </span>
+                            <div className="flex items-center gap-1">
+                              {tab !== "published" && (
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-8 w-8 text-emerald-600"
+                                  onClick={() => handleTogglePublish(p._id, p.isPublished)}
+                                  title={p.isPublished ? "Unpublish" : "Publish"}
+                                >
+                                  {p.isPublished ? (
+                                    <Pause className="h-4 w-4" />
+                                  ) : (
+                                    <Play className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              )}
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-indigo-600"
+                                onClick={() => openEdit(p)}
+                                title="Edit"
+                              >
+                                <Edit3 className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-rose-600"
+                                onClick={() => handleDelete(p._id)}
+                                title="Delete"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
                 </CardContent>
               </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </TabPanel>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            ))}
 
-      <TabPanel value={tabValue} index={2}>
-        <Grid container spacing={3}>
-          {podcasts.filter(p => !p.isPublished).map((podcast) => (
-            <Grid item xs={12} sm={6} md={4} key={podcast._id}>
-              <Card sx={{
-                borderRadius: 3,
-                background: 'rgba(255, 255, 255, 0.8)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-8px)',
-                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)'
-                }
-              }}>
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={podcast.coverImage || '/default-podcast-cover.jpg'}
-                  alt={podcast.title}
-                  sx={{ objectFit: 'cover' }}
-                />
-                <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 600 }}>
-                    {podcast.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mb: 2 }}>
-                    {podcast.description}
-                  </Typography>
-                  <Box display="flex" gap={1} mb={2}>
-                    <Chip label={podcast.category} size="small" />
-                    <Chip label="Draft" color="default" size="small" />
-                  </Box>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Typography variant="caption" color="text.secondary">
-                      {formatDuration(podcast.duration)}
-                    </Typography>
-                    <Box>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleTogglePublish(podcast._id, podcast.isPublished)}
-                        sx={{ color: '#22c55e' }}
-                      >
-                        <PlayIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleOpenDialog(podcast)}
-                        sx={{ color: '#667eea' }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </TabPanel>
+            {/* Analytics */}
+            <TabsContent value="analytics" className="mt-6">
+              <div className="rounded-2xl border border-white/60 bg-white/80 p-4 shadow-xl">
+                <div className="mb-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold">Podcast Analytics</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Overview of engagement across episodes
+                    </p>
+                  </div>
+                  <Badge variant="secondary" className="gap-1">
+                    <BarChart3 className="h-3.5 w-3.5" />
+                    {podcasts.length} items
+                  </Badge>
+                </div>
 
-      <TabPanel value={tabValue} index={3}>
-        <Box sx={{
-          borderRadius: 3,
-          background: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          overflow: 'hidden'
-        }}>
-          <Typography variant="h6" sx={{ p: 3, fontWeight: 600 }}>
-            Podcast Analytics
-          </Typography>
-          <TableContainer>
+                <ScrollArea className="w-full">
             <Table>
-              <TableHead>
-                <TableRow sx={{ background: 'rgba(102, 126, 234, 0.1)' }}>
-                  <TableCell sx={{ fontWeight: 600 }}>Podcast</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Listeners</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Likes</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Duration</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Podcast</TableHead>
+                        <TableHead className="w-[110px]">Listeners</TableHead>
+                        <TableHead className="w-[90px]">Likes</TableHead>
+                        <TableHead className="w-[100px]">Duration</TableHead>
+                        <TableHead className="w-[110px]">Status</TableHead>
                 </TableRow>
-              </TableHead>
+                    </TableHeader>
               <TableBody>
-                {podcasts.map((podcast) => (
-                  <TableRow key={podcast._id} sx={{ '&:hover': { background: 'rgba(102, 126, 234, 0.05)' } }}>
-                    <TableCell>{podcast.title}</TableCell>
-                    <TableCell>{podcast.listeners}</TableCell>
-                    <TableCell>{podcast.likes}</TableCell>
-                    <TableCell>{formatDuration(podcast.duration)}</TableCell>
+                      {loading ? (
+                        <TableRow>
+                          <TableCell colSpan={5}>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Loader2 className="h-4 w-4 animate-spin" /> Loading...
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : podcasts.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5}>
+                            <div className="py-6 text-center text-sm text-muted-foreground">
+                              No data yet.
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        podcasts.map((p) => (
+                          <TableRow key={p._id} className="hover:bg-indigo-50/30">
+                            <TableCell className="font-medium">{p.title}</TableCell>
+                            <TableCell>{p.listeners}</TableCell>
+                            <TableCell>{p.likes}</TableCell>
+                            <TableCell>{formatDuration(p.duration)}</TableCell>
                     <TableCell>
-                      <Chip
-                        label={podcast.isPublished ? 'Published' : 'Draft'}
-                        color={podcast.isPublished ? 'success' : 'default'}
-                        size="small"
-                      />
+                              <Badge variant={p.isPublished ? "default" : "secondary"}>
+                                {p.isPublished ? "Published" : "Draft"}
+                              </Badge>
                     </TableCell>
                   </TableRow>
-                ))}
+                        ))
+                      )}
               </TableBody>
             </Table>
-          </TableContainer>
-        </Box>
-      </TabPanel>
+                </ScrollArea>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
 
-      {/* Upload/Edit Dialog */}
-      <Dialog 
-        open={openDialog} 
-        onClose={handleCloseDialog} 
-        maxWidth="md" 
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)'
-          }
-        }}
-      >
-        <DialogTitle sx={{ 
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          fontWeight: 600
-        }}>
-          {editingPodcast ? 'Edit Podcast' : 'Upload New Podcast'}
+      {/* Create/Edit Dialog */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editing ? "Edit Podcast" : "Upload New Podcast"}
         </DialogTitle>
-        <DialogContent sx={{ p: 4 }}>
-          <Box sx={{ mt: 2 }}>
-            <TextField
-              fullWidth
-              label="Title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              margin="normal"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2
-                }
-              }}
-            />
-            <TextField
-              fullWidth
-              label="Description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              margin="normal"
-              multiline
+            <DialogDescription>
+              Fill in the details below. Title and Audio URL are required.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                placeholder="Episode title"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                placeholder="Short description"
               rows={3}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2
-                }
-              }}
-            />
-            <TextField
-              fullWidth
-              label="Audio URL"
-              value={formData.audioUrl}
-              onChange={(e) => setFormData({ ...formData, audioUrl: e.target.value })}
-              margin="normal"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2
-                }
-              }}
-            />
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Category</InputLabel>
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="audio">Audio URL</Label>
+              <Input
+                id="audio"
+                value={form.audioUrl}
+                onChange={(e) => setForm({ ...form, audioUrl: e.target.value })}
+                placeholder="https://.../episode.mp3"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Category</Label>
               <Select
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                label="Category"
-                sx={{
-                  borderRadius: 2
-                }}
-              >
-                <MenuItem value="music">Music</MenuItem>
-                <MenuItem value="comedy">Comedy</MenuItem>
-                <MenuItem value="news">News</MenuItem>
-                <MenuItem value="education">Education</MenuItem>
-                <MenuItem value="technology">Technology</MenuItem>
-                <MenuItem value="lifestyle">Lifestyle</MenuItem>
+                  value={form.category}
+                  onValueChange={(v) => setForm({ ...form, category: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="music">Music</SelectItem>
+                    <SelectItem value="comedy">Comedy</SelectItem>
+                    <SelectItem value="news">News</SelectItem>
+                    <SelectItem value="education">Education</SelectItem>
+                    <SelectItem value="technology">Technology</SelectItem>
+                    <SelectItem value="lifestyle">Lifestyle</SelectItem>
+                  </SelectContent>
               </Select>
-            </FormControl>
-            <TextField
-              fullWidth
-              label="Tags (comma separated)"
-              value={formData.tags?.join(', ') || ''}
-              onChange={(e) => setFormData({ 
-                ...formData, 
-                tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
-              })}
-              margin="normal"
-              helperText="Enter tags separated by commas"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2
-                }
-              }}
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button 
-            onClick={handleCloseDialog}
-            sx={{ 
-              borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 600
-            }}
-          >
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tags">Tags (comma separated)</Label>
+                <Input
+                  id="tags"
+                  value={(form.tags || []).join(", ")}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      tags: e.target.value
+                        .split(",")
+                        .map((t) => t.trim())
+                        .filter(Boolean),
+                    })
+                  }
+                  placeholder="jamaica, dancehall, interview"
+                />
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" onClick={() => setOpen(false)}>
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
-            variant="contained"
-            disabled={uploading || !formData.title || !formData.audioUrl}
-            startIcon={uploading ? <CircularProgress size={20} /> : <UploadIcon />}
-            sx={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: 2,
-              px: 3,
-              py: 1.5,
-              textTransform: 'none',
-              fontWeight: 600,
-              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
-              '&:hover': {
-                boxShadow: '0 6px 20px rgba(102, 126, 234, 0.6)',
-                transform: 'translateY(-2px)'
-              }
-            }}
-          >
-            {uploading ? 'Saving...' : editingPodcast ? 'Update' : 'Upload'}
+              disabled={uploading || !form.title || !form.audioUrl}
+              className="gap-2"
+            >
+              {uploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Saving...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4" /> {editing ? "Update" : "Upload"}
+                </>
+              )}
           </Button>
-        </DialogActions>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
-    </Box>
+    </div>
   );
 };
 
