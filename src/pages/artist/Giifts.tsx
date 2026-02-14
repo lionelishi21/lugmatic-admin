@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import Layout from '../../components/Layout';
 import { Gift, TrendingUp, Calendar, DollarSign, ChevronDown, Search } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 
@@ -121,7 +120,6 @@ export default function Gifts() {
   );
 
   return (
-    <Layout userRole="artist">
       <div className="space-y-6">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -264,6 +262,5 @@ export default function Gifts() {
           </div>
         </div>
       </div>
-    </Layout>
   );
 }

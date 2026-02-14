@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import Layout from '../../components/Layout';
 import { DollarSign, TrendingUp, BarChart2, Calendar, Download, ChevronDown, Filter } from 'lucide-react';
 import { format, endOfMonth, subMonths } from 'date-fns';
 
@@ -112,7 +111,6 @@ export default function Earnings() {
   );
 
   return (
-    <Layout userRole="artist">
       <div className="space-y-6">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -272,6 +270,5 @@ export default function Earnings() {
           </div>
         </div>
       </div>
-    </Layout>
   );
 }

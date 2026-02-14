@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import Layout from '../../components/Layout';
 import { Upload as UploadIcon, Music, Image, X, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -79,7 +78,6 @@ export default function Upload() {
   };
 
   return (
-    <Layout userRole="artist">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-md p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Upload Your Track</h1>
@@ -261,6 +259,5 @@ export default function Upload() {
           </form>
         </div>
       </div>
-    </Layout>
   );
 }

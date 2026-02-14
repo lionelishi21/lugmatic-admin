@@ -1,5 +1,4 @@
 import React from 'react';
-import Layout from '../../components/Layout';
 import { Music2, Headphones, DollarSign, TrendingUp, Clock, ExternalLink, Mic2, Album, Users } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 // import useFetchArtist from '../../hooks/artist/useFetchArtist';
@@ -78,7 +77,6 @@ export default function ArtistDashboard() {
   );
 
   return (
-    <Layout>
       <div className="space-y-6">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -182,6 +180,5 @@ export default function ArtistDashboard() {
           </div>
         </div>
       </div>
-    </Layout>
   );
 }
