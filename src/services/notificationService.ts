@@ -108,9 +108,10 @@ export const notificationService = {
 
   // Subscribe to real-time notifications (WebSocket)
   subscribeToNotifications: (userId: string, onMessage: (notification: Notification) => void) => {
-    // This would typically use WebSocket or Server-Sent Events
-    // For now, we'll return a mock subscription
-    const ws = new WebSocket(`ws://localhost:3008/notifications/${userId}`);
+    // Derive WebSocket URL from API URL environment variable
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3008/api';
+    const wsUrl = apiUrl.replace(/^http/, 'ws').replace(/\/api\/?$/, '');
+    const ws = new WebSocket(`${wsUrl}/notifications/${userId}`);
     
     ws.onmessage = (event) => {
       const notification = JSON.parse(event.data);

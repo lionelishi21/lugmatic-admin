@@ -1,52 +1,59 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { useFormik } from 'formik';
 import toast from 'react-hot-toast';
+import logo from '../../assets/logo.png';
+
+const validationSchema = yup.object({
+  email: yup
+    .string()
+    .email('Enter a valid email')
+    .required('Email is required'),
+  password: yup
+    .string()
+    .min(8, 'Password should be at least 8 characters')
+    .required('Password is required'),
+});
+
+type LoginFormValues = yup.InferType<typeof validationSchema>;
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, isLoading, error, isAuthenticated, clearAuthError } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const { login, isLoading, error, isAuthenticated, user, clearAuthError } = useAuth();
 
-  // Form validation schema
-  const validationSchema = yup.object({
-    email: yup
-      .string()
-      .email('Enter a valid email')
-      .required('Email is required'),
-    password: yup
-      .string()
-      .min(8, 'Password should be at least 8 characters')
-      .required('Password is required'),
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, touchedFields, isValid },
+    watch,
+  } = useForm<LoginFormValues>({
+    resolver: yupResolver(validationSchema),
+    mode: 'onBlur',
+    defaultValues: { email: '', password: '' },
   });
 
-  // Formik setup
-  const formik = useFormik({
-    initialValues: {
-      email: '',
-      password: '',
-    },
-    validationSchema: validationSchema,
-    onSubmit: async (values) => {
-      console.log('Login attempt:', values.email, values.password);
-      try {
-        await login(values.email, values.password);
-        // Navigation is handled in the login function
-      } catch (error) {
-        // Error is handled by the useEffect below
-        console.error('Login error:', error);
-      }
-    },
-  });
+  const emailValue = watch('email');
+  const passwordValue = watch('password');
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/admin');
+  const onSubmit = async (values: LoginFormValues) => {
+    try {
+      await login(values.email, values.password);
+    } catch (error) {
+      console.error('Login error:', error);
     }
-  }, [isAuthenticated, navigate]);
+  };
+
+  // No redirect useEffect - login function handles navigation after successful login
+  // This prevents infinite loops
+
+  const handlePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   // Show error toast if login fails
   useEffect(() => {
@@ -73,7 +80,7 @@ export default function Login() {
   }, [error, clearAuthError]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-pink-900 flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-green-900 via-emerald-900 to-lime-900 flex items-center justify-center relative overflow-hidden">
       {/* Animated Music Waves Background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating Music Notes */}
@@ -83,24 +90,30 @@ export default function Login() {
         <div className="absolute bottom-20 right-20 text-white/10 text-3xl animate-bounce delay-700">♫</div>
         
         {/* Animated Gradient Orbs */}
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-pink-500/10 to-purple-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-green-500/20 to-lime-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-lime-500/10 to-green-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
         
         {/* Sound Wave Visualization */}
         <div className="absolute bottom-0 left-0 right-0 flex items-end justify-center gap-1 opacity-20">
-          {[...Array(50)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-gradient-to-t from-purple-400 to-pink-400 rounded-full"
-              style={{
-                width: '4px',
-                height: `${Math.random() * 60 + 20}px`,
-                animation: `pulse ${Math.random() * 2 + 1}s infinite ease-in-out`,
-                animationDelay: `${i * 0.1}s`
-              }}
-            />
-          ))}
+          {[...Array(50)].map((_, i) => {
+            const duration = Math.random() * 2 + 1;
+            return (
+              <div
+                key={i}
+                className="bg-gradient-to-t from-green-400 to-lime-400 rounded-full"
+                style={{
+                  width: '4px',
+                  height: `${Math.random() * 60 + 20}px`,
+                  animationName: 'pulse',
+                  animationDuration: `${duration}s`,
+                  animationIterationCount: 'infinite',
+                  animationTimingFunction: 'ease-in-out',
+                  animationDelay: `${i * 0.1}s`
+                }}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -112,10 +125,13 @@ export default function Login() {
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
-                  className="w-1 h-8 bg-purple-400 rounded-full animate-pulse"
+                  className="w-1 h-8 bg-green-400 rounded-full"
                   style={{
-                    animationDelay: `${i * 0.2}s`,
-                    animationDuration: '1s'
+                    animationName: 'pulse',
+                    animationDuration: '1s',
+                    animationIterationCount: 'infinite',
+                    animationTimingFunction: 'ease-in-out',
+                    animationDelay: `${i * 0.2}s`
                   }}
                 />
               ))}
@@ -135,23 +151,12 @@ export default function Login() {
         transition={{ duration: 0.5 }}
       >
         {/* Music App Logo */}
-        <div className="flex justify-center mb-8 relative">
-          <div className="relative group cursor-pointer">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-400 via-pink-400 to-indigo-400 rounded-2xl blur-lg opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
-            <div className="relative bg-gradient-to-br from-purple-500 via-pink-500 to-indigo-500 p-4 rounded-2xl transform group-hover:scale-105 transition-transform duration-300">
-              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center relative overflow-hidden">
-                {/* Vinyl Record Design */}
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl"></div>
-                <div className="relative w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <div className="absolute inset-0 border-2 border-white/30 rounded-full"></div>
-                </div>
-              </div>
-            </div>
-          </div>
+       
+        <div className="flex justify-center mb-2 relative">
+         <img src={logo} alt="Lugmatic" className="h-20 mb-1" />
         </div>
         
-        <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+        <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-green-600 via-lime-600 to-emerald-600 bg-clip-text text-transparent mb-2">
           Lugmatic
         </h2>
 
@@ -159,19 +164,8 @@ export default function Login() {
           Your music, your way. Sign in to continue.
         </p>
 
-        {/* Music Genre Pills */}
-        <div className="flex justify-center gap-2 mb-6">
-          {['Pop', 'Rock', 'Jazz', 'Hip-Hop'].map((genre) => (
-            <span
-              key={genre}
-              className="px-3 py-1 bg-purple-50 rounded-full text-xs text-purple-600 border border-purple-200"
-            >
-              {genre}
-            </span>
-          ))}
-        </div>
-
-        <form onSubmit={formik.handleSubmit} className="space-y-6">
+      
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <motion.div 
             className="relative"
             initial={{ x: -20, opacity: 0 }}
@@ -179,34 +173,39 @@ export default function Login() {
             transition={{ delay: 0.1 }}
           >
             <label className="block text-gray-700 text-sm font-medium mb-2 flex items-center gap-2">
-              <span className="text-purple-500">📧</span>
+              <span className="text-green-500">📧</span>
               Email Address
             </label>
             <div className="relative">
               <input
                 type="email"
                 id="email"
-                name="email"
-                value={formik.values.email}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+                {...register('email')}
                 className={`w-full px-4 py-3 bg-gray-50 border ${
-                  formik.touched.email && formik.errors.email 
+                  touchedFields.email && errors.email 
                     ? 'border-red-300' 
                     : 'border-gray-200'
-                } rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-transparent text-gray-900 placeholder-gray-500 transition-all duration-200`}
+                } rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:border-transparent text-gray-900 placeholder-gray-500 transition-all duration-200`}
                 placeholder="Enter your email"
               />
-              {formik.values.email && !formik.errors.email && (
+              {emailValue && !errors.email && (
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                  <div 
+                    className="w-2 h-2 bg-green-400 rounded-full"
+                    style={{
+                      animationName: 'pulse',
+                      animationDuration: '2s',
+                      animationIterationCount: 'infinite',
+                      animationTimingFunction: 'ease-in-out'
+                    }}
+                  ></div>
                 </div>
               )}
             </div>
-            {formik.touched.email && formik.errors.email && (
+            {touchedFields.email && errors.email && (
               <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
                 <span className="text-red-500">⚠</span>
-                {formik.errors.email}
+                {errors.email.message}
               </p>
             )}
           </motion.div>
@@ -218,49 +217,63 @@ export default function Login() {
             transition={{ delay: 0.2 }}
           >
             <label className="block text-gray-700 text-sm font-medium mb-2 flex items-center gap-2">
-              <span className="text-pink-500">🔒</span>
+              <span className="text-lime-500">🔒</span>
               Password
             </label>
             <div className="relative">
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="password"
-                name="password"
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+                {...register('password')}
                 className={`w-full px-4 py-3 bg-gray-50 border ${
-                  formik.touched.password && formik.errors.password 
+                  touchedFields.password && errors.password 
                     ? 'border-red-300' 
                     : 'border-gray-200'
-                } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-400/50 focus:border-transparent text-gray-900 placeholder-gray-500 transition-all duration-200`}
+                } rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-400/50 focus:border-transparent text-gray-900 placeholder-gray-500 transition-all duration-200`}
                 placeholder="Enter your password"
               />
-              {formik.values.password && !formik.errors.password && (
+              {passwordValue && !errors.password && (
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
+                  <div 
+                    className="w-2 h-2 bg-lime-400 rounded-full"
+                    style={{
+                      animationName: 'pulse',
+                      animationDuration: '2s',
+                      animationIterationCount: 'infinite',
+                      animationTimingFunction: 'ease-in-out'
+                    }}
+                  ></div>
+                </div>
+              )}  
+              {passwordValue && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer" onClick={handlePasswordVisibility}>
+                  {showPassword ? (
+                    <span className="text-lime-500">🔒</span>
+                  ) : (
+                    <span className="text-lime-500">🔓</span>
+                  )}
                 </div>
               )}
             </div>
-            {formik.touched.password && formik.errors.password && (
+            {touchedFields.password && errors.password && (
               <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
                 <span className="text-red-500">⚠</span>
-                {formik.errors.password}
+                {errors.password.message}
               </p>
             )}
           </motion.div>
 
           <motion.button
             type="submit"
-            disabled={isLoading || !formik.isValid}
-            className="w-full relative bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 text-white py-3 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
+            disabled={isLoading || !isValid}
+            className="w-full relative bg-gradient-to-r from-green-500 via-lime-500 to-emerald-500 text-white py-3 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-green-600 via-lime-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative flex items-center justify-center gap-2">
               {isLoading ? (
                 <>
@@ -268,8 +281,14 @@ export default function Login() {
                     {[...Array(3)].map((_, i) => (
                       <div
                         key={i}
-                        className="w-2 h-2 bg-white rounded-full animate-bounce"
-                        style={{ animationDelay: `${i * 0.2}s` }}
+                        className="w-2 h-2 bg-white rounded-full"
+                        style={{
+                          animationName: 'bounce',
+                          animationDuration: '1s',
+                          animationIterationCount: 'infinite',
+                          animationTimingFunction: 'ease-in-out',
+                          animationDelay: `${i * 0.2}s`
+                        }}
                       />
                     ))}
                   </div>
@@ -277,8 +296,8 @@ export default function Login() {
                 </>
               ) : (
                 <>
-                  <span className="text-xl">🎵</span>
-                  <span>Start Listening</span>
+                  {/* <span className="text-xl">🎵</span> */}
+                  <span>Login</span>
                   <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </>
               )}
@@ -287,31 +306,13 @@ export default function Login() {
         </form>
 
         {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+        {/* <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
           <p className="text-xs text-gray-600 mb-2 font-medium">Demo Credentials:</p>
           <div className="text-xs text-gray-500 space-y-1">
             <p><strong>Email:</strong> demo@example.com</p>
             <p><strong>Password:</strong> password123</p>
           </div>
-        </div>
-
-        {/* Music Controls Preview */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors cursor-pointer">
-              <span className="text-gray-500">⏮</span>
-            </div>
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
-              <span className="text-white">▶</span>
-            </div>
-            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors cursor-pointer">
-              <span className="text-gray-500">⏭</span>
-            </div>
-          </div>
-          <p className="text-center text-gray-500 text-xs">
-            Millions of songs. Zero ads. Sign in to unlock.
-          </p>
-        </div>
+        </div> */}
       </motion.div>
     </div>
   );

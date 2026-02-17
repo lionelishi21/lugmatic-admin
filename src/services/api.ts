@@ -1,15 +1,36 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, AxiosError } from 'axios';
 
-// Base API URL
-const API_URL = 'http://localhost:3008/api';
+// Base API URL — reads from Vite env, falls back to localhost for dev
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3008/api';
 
 // Token storage keys
 const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 
 // Token helper functions
-export const getAccessToken = (): string | null => localStorage.getItem(ACCESS_TOKEN_KEY);
-export const getRefreshToken = (): string | null => localStorage.getItem(REFRESH_TOKEN_KEY);
+export const getAccessToken = (): string | null => {
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  if (token) {
+    return token;
+  }
+
+  // Fallback: support legacy/session-based storage
+  try {
+    const sessionStr = localStorage.getItem('storageSession');
+    if (sessionStr) {
+      const session = JSON.parse(sessionStr);
+      return session?.accessToken || session?.access_token || null;
+    }
+  } catch {
+    // ignore
+  }
+
+  return null;
+};
+
+export const getRefreshToken = (): string | null => {
+  return localStorage.getItem(REFRESH_TOKEN_KEY);
+};
 export const setTokens = (accessToken: string, refreshToken: string): void => {
   localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
   localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
@@ -37,10 +58,27 @@ export const createApiInstance = (config?: AxiosRequestConfig): AxiosInstance =>
   // Request interceptor - add auth token to requests
   instance.interceptors.request.use(
     (config) => {
+      // Ensure headers object exists
+      if (!config.headers) {
+        config.headers = {} as AxiosRequestHeaders;
+      }
+      
       const token = getAccessToken();
-      if (token && config.headers) {
+      if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+      
+      // If data is FormData, remove Content-Type header to let axios set it with boundary
+      // BUT preserve Authorization header
+      if (config.data instanceof FormData) {
+        const authHeader = config.headers.Authorization;
+        delete config.headers['Content-Type'];
+        // Re-ensure Authorization is still there after deleting Content-Type
+        if (authHeader && !config.headers.Authorization) {
+          config.headers.Authorization = typeof authHeader === 'string' ? authHeader : String(authHeader);
+        }
+      }
+      
       return config;
     },
     (error) => Promise.reject(error)
@@ -69,12 +107,22 @@ export const createApiInstance = (config?: AxiosRequestConfig): AxiosInstance =>
         try {
           originalRequest._retry = true;
           
+          // Create a separate axios instance without interceptors for refresh call
+          // to avoid infinite loop (refresh endpoint shouldn't require auth)
+          const refreshInstance = axios.create({
+            baseURL: API_URL,
+            timeout: 15000,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
           // Call token refresh endpoint
-          const response = await axios.post(`${API_URL}/refresh-token`, {
+          const response = await refreshInstance.post('/refresh-token', {
             refreshToken,
           });
           
-          const { accessToken, refreshToken: newRefreshToken } = response.data;
+          const { accessToken, refreshToken: newRefreshToken } = response.data as { accessToken: string; refreshToken: string };
           
           // Save new tokens
           setTokens(accessToken, newRefreshToken);
@@ -139,10 +187,10 @@ export const apiService = {
   refreshToken: (refreshToken: string) => 
     api.post('/refresh-token', { refreshToken }),
     
-  logout: () => {
-    clearTokens();
-    return api.post('/logout');
-  }
+  logout: () => 
+    api.post('/logout').catch(() => {
+      // If logout endpoint fails, that's okay - tokens will still be cleared by Redux
+    })
 };
 
 export default apiService; 

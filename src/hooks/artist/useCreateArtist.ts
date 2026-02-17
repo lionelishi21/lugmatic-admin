@@ -3,12 +3,15 @@ import { useDispatch } from 'react-redux';
 import { createArtist } from '../../store/slices/artistSlice';
 import { toast } from 'react-hot-toast';
 import { AppDispatch } from '../../store';
-import { CreateArtistData } from '../../services/artistService';
+import { ArtistSocialLinks, CreateArtistData } from '../../services/artistService';
 
 interface ArtistFormData {
+  firstName: string;
+  lastName: string;
   name: string;
   email: string;
   bio: string;
+  gender: string;
   genres: string[];
   socialLinks: {
     website: string;
@@ -30,33 +33,60 @@ const useCreateArtist = (): UseCreateArtistReturn => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+
+      reader.readAsDataURL(file);
+    });
+  };
+
   const createArtistHandler = async (formData: ArtistFormData): Promise<void> => {
     try {
       setIsSubmitting(true);
       setError(null);
 
       // Create data object that matches CreateArtistData type
+      const normalizedSocialLinks = Object.entries(formData.socialLinks).reduce(
+        (acc, [key, value]) => {
+          const trimmedValue = value.trim();
+          if (trimmedValue) {
+            acc[key as keyof ArtistSocialLinks] = trimmedValue;
+          }
+          return acc;
+        },
+        {} as ArtistSocialLinks
+      );
+
+      const normalizedGenres = formData.genres
+        .map((genre) => genre.trim())
+        .filter((genre) => genre.length > 0);
+
       const artistData: CreateArtistData = {
-        name: formData.name,
-        bio: formData.bio,
-        genres: formData.genres,
-        socialLinks: formData.socialLinks,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        name: formData.name.trim(),
+        bio: formData.bio?.trim() || undefined,
+        gender: formData.gender || undefined,
+        genres: normalizedGenres.length > 0 ? normalizedGenres : undefined,
+        image: undefined,
       };
+
+      if (Object.keys(normalizedSocialLinks).length > 0) {
+        artistData.socialLinks = normalizedSocialLinks;
+      }
 
       // Handle file separately if it exists
       if (formData.image) {
-        const formDataToSend = new FormData();
-        
-        // Append all data as JSON except the image
-        formDataToSend.append('data', JSON.stringify(artistData));
-        formDataToSend.append('image', formData.image);
-        
-        // Dispatch the create artist action with FormData
-        await dispatch(createArtist(formDataToSend as unknown as CreateArtistData)).unwrap();
-      } else {
-        // Dispatch without image
-        await dispatch(createArtist(artistData)).unwrap();
+        artistData.image = await fileToBase64(formData.image);
       }
+
+      // Dispatch the create artist action with normalized payload
+      await dispatch(createArtist(artistData)).unwrap();
       
       toast.success('Artist profile created successfully!');
     } catch (err) {

@@ -1,3 +1,4 @@
+import { AxiosResponse } from 'axios';
 import apiService from './api';
 
 // Artist interface
@@ -6,19 +7,27 @@ export interface Artist {
   name: string;
   bio?: string;
   email?: string;
+  contactEmail?: string;
   firstName?: string;
   lastName?: string;
+  fullName?: string;
   image?: string;
+  profilePicture?: string | null;
   genres?: string[];
-  status?: 'active' | 'pending' | 'inactive';
+  favoriteGenres?: string[];
+  status?: 'active' | 'pending' | 'inactive' | 'approved' | 'rejected';
   socialLinks?: {
     website?: string;
     facebook?: string;
     twitter?: string;
     instagram?: string;
   };
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+  approvedAt?: string | null;
+  isApproved?: boolean;
+  isVerified?: boolean;
+  [key: string]: unknown;
 }
 
 export interface Album {
@@ -52,17 +61,23 @@ export interface Song {
 // }
 
 // Interface for creating a new artist
+export interface ArtistSocialLinks {
+  website?: string;
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+}
+
 export interface CreateArtistData {
+  firstName: string;
+  lastName: string;
+  email: string;
   name: string;
   bio?: string;
-  image?: string;
+  gender?: string;
+  image?: string | null;
   genres?: string[];
-  socialLinks?: {
-    website?: string;
-    facebook?: string;
-    twitter?: string;
-    instagram?: string;
-  };
+  socialLinks?: ArtistSocialLinks;
 }
 
 // Interface for updating an artist
@@ -93,6 +108,9 @@ export const generateArtistData = (overrides: Partial<CreateArtistData> = {}): C
   );
 
   const defaultData: CreateArtistData = {
+    firstName: 'Sample',
+    lastName: 'Artist',
+    email: `artist${Math.floor(Math.random() * 1000)}@example.com`,
     name: `Artist ${Math.floor(Math.random() * 1000)}`,
     bio: 'A talented musician with a unique sound and style.',
     image: `https://picsum.photos/seed/${Math.random()}/400/400`,
@@ -111,32 +129,39 @@ export const generateArtistData = (overrides: Partial<CreateArtistData> = {}): C
   };
 };
 
+const extractResponseData = <T>(response: AxiosResponse<T | { data: T }>): T => {
+  const { data } = response;
+
+  if (data && typeof data === 'object' && 'data' in (data as Record<string, unknown>)) {
+    return (data as { data: T }).data;
+  }
+
+  return data as T;
+};
+
 const artistService = {
   /**
    * Get all artists with pagination and filters
    */
   getAllArtists: async (): Promise<Artist[]> => {
     const response = await apiService.get<Artist[]>('/artist/list');
-    console.log(response.data);
-    return response.data.data;
+    return extractResponseData<Artist[]>(response);
   },
 
   /**
    * Get artist by ID
    */
   getArtistById: async (id: string): Promise<Artist> => {
-    const response = await apiService.get<Artist>(`/artist/${id}`);
-    return response.data.data;
+    const response = await apiService.get<Artist>(`/artist/details/${id}`);
+    return extractResponseData<Artist>(response);
   },
 
   /**
    * Create a new artist
    */
   createArtist: async (artistData: CreateArtistData): Promise<Artist> => {
-    console.log('data to send', artistData);
     const response = await apiService.post<Artist>('/artist', artistData);
-    console.log(response.data);  
-    return response.data.data;
+    return extractResponseData<Artist>(response);
   },
 
   /**
@@ -144,7 +169,7 @@ const artistService = {
    */
   updateArtist: async (id: string, artistData: Partial<Artist>): Promise<Artist> => {
     const response = await apiService.put<Artist>(`/artist/update/${id}`, artistData);
-    return response.data.data;
+    return extractResponseData<Artist>(response);
   },
 
   /**
@@ -167,7 +192,7 @@ const artistService = {
    */
   getArtistSongs: async (id: string): Promise<Song[]> => {
     const response = await apiService.get<Song[]>(`/artist/${id}/songs`);
-    return response.data.data;
+    return extractResponseData<Song[]>(response);
   },
 
   /**
@@ -175,23 +200,23 @@ const artistService = {
    */
   getArtistAlbums: async (id: string): Promise<Album[]> => {
     const response = await apiService.get<Album[]>(`/artist/${id}/albums`);
-    return response.data.data;
+    return extractResponseData<Album[]>(response);
   },
 
   /**
    * Approve a pending artist
    */
   approveArtist: async (id: string | number) => {
-    const response = await apiService.post(`/artists/${id}/approve`);
-    return response.data;
+    const response = await apiService.put<Artist>(`/admin/artists/${id}/approve`, { approved: true });
+    return extractResponseData<Artist>(response);
   },
 
   /**
    * Reject a pending artist
    */
   rejectArtist: async (id: string | number, reason: string) => {
-    const response = await apiService.post(`/artists/${id}/reject`, { reason });
-    return response.data;
+    const response = await apiService.put<Artist>(`/admin/artists/${id}/approve`, { approved: false, reason });
+    return extractResponseData<Artist>(response);
   },
 
   /**

@@ -2,18 +2,15 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { fetchArtists as fetchArtistsAction } from '../../store/slices/artistSlice';
+import type { Artist as ApiArtist } from '../../services/artistService';
 
-export interface Artist {
-  id: string | number;
-  name: string;
-  email: string;
-  genre: string;
-  status: 'active' | 'pending' | 'inactive';
-  joinDate: string;
-  totalSongs: number;
-  totalAlbums: number;
+export type Artist = ApiArtist & {
+  genre?: string;
+  joinDate?: string;
+  totalSongs?: number;
+  totalAlbums?: number;
   imageUrl?: string;
-}
+};
 
 export interface ArtistState {
   artists: Artist[];

@@ -17,6 +17,9 @@ import GenreManagement from './pages/admin/GenreManagement';
 import Layout from './components/Layout';
 import ArtistDetails from './pages/admin/ArtistDetails';
 import ArtistCreate from './pages/admin/ArtistCreate';
+import { ArtistProvider } from './context/ArtistContext';
+import AuthInitializer from './components/AuthInitializer';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Import new pages for comprehensive features
 import Podcasts from './pages/artist/Podcasts';
@@ -37,57 +40,78 @@ import Analytics from './pages/admin/Analytics';
 import SystemSettings from './pages/admin/SystemSettings';
 import Promotions from './pages/admin/Promotions';
 import Reports from './pages/admin/Reports';
+import PlaylistManagement from './pages/admin/PlaylistManagement';
 
 function App() {
   return (
     <>
-      <Router>
+      <AuthInitializer>
+        <Router>
         <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Navigate to="/login" replace />} />
             
-            <Route path="/artist/*" element={<Layout><Routes>
-              <Route index element={<ArtistDashboard />} />
-              <Route path="upload" element={<Upload />} />
-              <Route path="live" element={<Live />} />
-              <Route path="gifts" element={<Gifts />} />
-              <Route path="earnings" element={<Earnings />} />
-              {/* New artist routes */}
-              <Route path="podcasts" element={<Podcasts />} />
-              <Route path="comments" element={<Comments />} />
-              <Route path="notifications" element={<Notifications />} />
-              <Route path="search" element={<Search />} />
-              <Route path="profile" element={<UserProfile />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="support" element={<Support />} />
-            </Routes></Layout>} />
+            <Route path="/artist/*" element={
+              <ProtectedRoute requiredRole="artist">
+                <Layout>
+                  <Routes>
+                    <Route index element={<ArtistDashboard />} />
+                    <Route path="upload" element={<Upload />} />
+                    <Route path="live" element={<Live />} />
+                    <Route path="gifts" element={<Gifts />} />
+                    <Route path="earnings" element={<Earnings />} />
+                    {/* New artist routes */}
+                    <Route path="podcasts" element={<Podcasts />} />
+                    <Route path="comments" element={<Comments />} />
+                    <Route path="notifications" element={<Notifications />} />
+                    <Route path="search" element={<Search />} />
+                    <Route path="profile" element={<UserProfile />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="support" element={<Support />} />
+                  </Routes>
+                </Layout>
+              </ProtectedRoute>
+            } />
             
-            <Route path="/admin/*" element={<Layout><Routes>
-              <Route index element={<AdminDashboard />} />
-              <Route path="approvals" element={<Approvals />} />
-              <Route path="artist-management" element={<ArtistManagement />} />
-              <Route path="artist-details/:id" element={<ArtistDetails />} />
-              <Route path="user-management" element={<UserManagement />} />
-              <Route path="financial-management" element={<FinancialManagement />} />
-              <Route path="live-stream-management" element={<LiveStreamManagement />} />
-              <Route path="album-management" element={<AlbumManagement />} />
-              <Route path="song-management" element={<SongManagement />} />
-              <Route path="genre-management" element={<GenreManagement />} /> 
-              <Route path="artist-add" element={<ArtistCreate />} />
-              {/* New admin routes */}
-              <Route path="podcast-management" element={<PodcastManagement />} />
-              <Route path="comment-management" element={<CommentManagement />} />
-              <Route path="gift-management" element={<GiftManagement />} />
-              <Route path="notification-management" element={<NotificationManagement />} />
-              <Route path="content-moderation" element={<ContentModeration />} />
-              <Route path="analytics" element={<Analytics />} />
-              <Route path="system-settings" element={<SystemSettings />} />
-              <Route path="promotions" element={<Promotions />} />
-              <Route path="reports" element={<Reports />} />
-            </Routes></Layout>} />
+            <Route
+              path="/admin/*"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <ArtistProvider>
+                    <Layout>
+                      <Routes>
+                        <Route index element={<AdminDashboard />} />
+                        <Route path="approvals" element={<Approvals />} />
+                        <Route path="artist-management" element={<ArtistManagement />} />
+                        <Route path="artist-details/:id" element={<ArtistDetails />} />
+                        <Route path="user-management" element={<UserManagement />} />
+                        <Route path="financial-management" element={<FinancialManagement />} />
+                        <Route path="live-stream-management" element={<LiveStreamManagement />} />
+                        <Route path="album-management" element={<AlbumManagement />} />
+                        <Route path="song-management" element={<SongManagement />} />
+                        <Route path="playlist-management" element={<PlaylistManagement />} />
+                        <Route path="genre-management" element={<GenreManagement />} /> 
+                        <Route path="artist-add" element={<ArtistCreate />} />
+                        {/* New admin routes */}
+                        <Route path="podcast-management" element={<PodcastManagement />} />
+                        <Route path="comment-management" element={<CommentManagement />} />
+                        <Route path="gift-management" element={<GiftManagement />} />
+                        <Route path="notification-management" element={<NotificationManagement />} />
+                        <Route path="content-moderation" element={<ContentModeration />} />
+                        <Route path="analytics" element={<Analytics />} />
+                        <Route path="system-settings" element={<SystemSettings />} />
+                        <Route path="promotions" element={<Promotions />} />
+                        <Route path="reports" element={<Reports />} />
+                      </Routes>
+                    </Layout>
+                  </ArtistProvider>
+                </ProtectedRoute>
+              }
+            />
 
         </Routes>
-      </Router>
+        </Router>
+      </AuthInitializer>
     </>
   )
 }

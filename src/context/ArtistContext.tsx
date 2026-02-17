@@ -1,18 +1,26 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import artistService, { Artist, ArtistQueryParams } from '../services/artistService';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import artistService, { Album, Artist, ArtistQueryParams, Song } from '../services/artistService';
 import { toast } from 'react-hot-toast';
 
 // Interface for the context state
 interface ArtistContextState {
   artists: Artist[];
   selectedArtist: Artist | null;
+  albums: Album[];
+  songs: Song[];
   loading: boolean;
   error: string | null;
+  albumsLoading: boolean;
+  songsLoading: boolean;
+  albumsError: string | null;
+  songsError: string | null;
   totalArtists: number;
   queryParams: ArtistQueryParams;
   // Methods
   fetchArtists: (params?: ArtistQueryParams) => Promise<void>;
   fetchArtistById: (id: string) => Promise<void>;
+  fetchArtistAlbums: (id: string) => Promise<void>;
+  fetchArtistSongs: (id: string) => Promise<void>;
   createArtist: (data: any) => Promise<boolean>;
   updateArtist: (id: string, data: any) => Promise<boolean>;
   deleteArtist: (id: string) => Promise<boolean>;
@@ -20,14 +28,21 @@ interface ArtistContextState {
   rejectArtist: (id: string, reason: string) => Promise<boolean>;
   setQueryParams: (params: ArtistQueryParams) => void;
   clearSelectedArtist: () => void;
+  clearDiscography: () => void;
 }
 
 // Creating the context with default values
 const ArtistContext = createContext<ArtistContextState>({
   artists: [],
   selectedArtist: null,
+  albums: [],
+  songs: [],
   loading: false,
   error: null,
+  albumsLoading: false,
+  songsLoading: false,
+  albumsError: null,
+  songsError: null,
   totalArtists: 0,
   queryParams: {
     page: 1,
@@ -37,13 +52,16 @@ const ArtistContext = createContext<ArtistContextState>({
   },
   fetchArtists: async () => {},
   fetchArtistById: async () => {},
+  fetchArtistAlbums: async () => {},
+  fetchArtistSongs: async () => {},
   createArtist: async () => false,
   updateArtist: async () => false,
   deleteArtist: async () => false,
   approveArtist: async () => false,
   rejectArtist: async () => false,
   setQueryParams: () => {},
-  clearSelectedArtist: () => {}
+  clearSelectedArtist: () => {},
+  clearDiscography: () => {}
 });
 
 // Provider props interface
@@ -56,8 +74,14 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   // State
   const [artists, setArtists] = useState<Artist[]>([]);
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [albumsLoading, setAlbumsLoading] = useState<boolean>(false);
+  const [songsLoading, setSongsLoading] = useState<boolean>(false);
+  const [albumsError, setAlbumsError] = useState<string | null>(null);
+  const [songsError, setSongsError] = useState<string | null>(null);
   const [totalArtists, setTotalArtists] = useState<number>(0);
   const [queryParams, setQueryParams] = useState<ArtistQueryParams>({
     page: 1,
@@ -67,14 +91,14 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
   });
 
   // Fetch artists with given query parameters
-  const fetchArtists = async (params?: ArtistQueryParams) => {
+  const fetchArtists = useCallback(async (params?: ArtistQueryParams) => {
     setLoading(true);
     setError(null);
     
     try {
       // Store the params for future use, but don't pass them to service
       if (params) {
-        setQueryParams({ ...queryParams, ...params });
+        setQueryParams((prev) => ({ ...prev, ...params }));
       }
       
       // Call without params since the service doesn't accept any
@@ -82,33 +106,85 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
       setArtists(artists);
       setTotalArtists(artists.length);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to fetch artists';
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        'Failed to fetch artists';
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Fetch a single artist by ID
-  const fetchArtistById = async (id: string) => {
+  const fetchArtistById = useCallback(async (id: string) => {
     setLoading(true);
     setError(null);
     
     try {
-      const result = await artistService.getArtistById(id);
-      setSelectedArtist(result);
+      const [artistResult, albumsResult, songsResult] = await Promise.all([
+        artistService.getArtistById(id),
+        artistService.getArtistAlbums(id).catch(() => []),
+        artistService.getArtistSongs(id).catch(() => [])
+      ]);
+      setSelectedArtist(artistResult);
+      setAlbums(Array.isArray(albumsResult) ? albumsResult : []);
+      setSongs(Array.isArray(songsResult) ? songsResult : []);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || `Failed to fetch artist with ID ${id}`;
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        `Failed to fetch artist with ID ${id}`;
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const fetchArtistAlbums = useCallback(async (id: string) => {
+    setAlbumsLoading(true);
+    setAlbumsError(null);
+
+    try {
+      const artistAlbums = await artistService.getArtistAlbums(id);
+      setAlbums(Array.isArray(artistAlbums) ? artistAlbums : []);
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        `Failed to fetch albums for artist ${id}`;
+      setAlbumsError(errorMessage);
+      toast.error(errorMessage);
+      setAlbums([]);
+    } finally {
+      setAlbumsLoading(false);
+    }
+  }, []);
+
+  const fetchArtistSongs = useCallback(async (id: string) => {
+    setSongsLoading(true);
+    setSongsError(null);
+
+    try {
+      const artistSongs = await artistService.getArtistSongs(id);
+      setSongs(Array.isArray(artistSongs) ? artistSongs : []);
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        `Failed to fetch songs for artist ${id}`;
+      setSongsError(errorMessage);
+      toast.error(errorMessage);
+      setSongs([]);
+    } finally {
+      setSongsLoading(false);
+    }
+  }, []);
 
   // Create a new artist
-  const createArtist = async (data: any): Promise<boolean> => {
+  const createArtist = useCallback(async (data: any): Promise<boolean> => {
     setLoading(true);
     setError(null);
     
@@ -119,17 +195,20 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
       toast.success('Artist created successfully!');
       return true;
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to create artist';
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        'Failed to create artist';
       setError(errorMessage);
       toast.error(errorMessage);
       return false;
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchArtists]);
 
   // Update an existing artist
-  const updateArtist = async (id: string, data: any): Promise<boolean> => {
+  const updateArtist = useCallback(async (id: string, data: any): Promise<boolean> => {
     setLoading(true);
     setError(null);
     
@@ -151,17 +230,20 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
       toast.success('Artist updated successfully!');
       return true;
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || `Failed to update artist with ID ${id}`;
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        `Failed to update artist with ID ${id}`;
       setError(errorMessage);
       toast.error(errorMessage);
       return false;
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedArtist]);
 
   // Delete an artist
-  const deleteArtist = async (id: string): Promise<boolean> => {
+  const deleteArtist = useCallback(async (id: string): Promise<boolean> => {
     setLoading(true);
     setError(null);
     
@@ -179,17 +261,20 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
       toast.success('Artist deleted successfully!');
       return true;
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || `Failed to delete artist with ID ${id}`;
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        `Failed to delete artist with ID ${id}`;
       setError(errorMessage);
       toast.error(errorMessage);
       return false;
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedArtist]);
 
   // Approve a pending artist
-  const approveArtist = async (id: string): Promise<boolean> => {
+  const approveArtist = useCallback(async (id: string): Promise<boolean> => {
     setLoading(true);
     setError(null);
     
@@ -211,17 +296,20 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
       toast.success('Artist approved successfully!');
       return true;
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || `Failed to approve artist with ID ${id}`;
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        `Failed to approve artist with ID ${id}`;
       setError(errorMessage);
       toast.error(errorMessage);
       return false;
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedArtist]);
 
   // Reject a pending artist
-  const rejectArtist = async (id: string, reason: string): Promise<boolean> => {
+  const rejectArtist = useCallback(async (id: string, reason: string): Promise<boolean> => {
     setLoading(true);
     setError(null);
     
@@ -243,37 +331,57 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
       toast.success('Artist rejected successfully!');
       return true;
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || `Failed to reject artist with ID ${id}`;
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        `Failed to reject artist with ID ${id}`;
       setError(errorMessage);
       toast.error(errorMessage);
       return false;
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedArtist]);
 
   // Clear the selected artist
-  const clearSelectedArtist = () => {
+  const clearSelectedArtist = useCallback(() => {
     setSelectedArtist(null);
-  };
+    setError(null);
+  }, []);
+
+  const clearDiscography = useCallback(() => {
+    setAlbums([]);
+    setSongs([]);
+    setAlbumsError(null);
+    setSongsError(null);
+  }, []);
 
   // Context value
   const value = {
     artists,
     selectedArtist,
+    albums,
+    songs,
     loading,
     error,
+    albumsLoading,
+    songsLoading,
+    albumsError,
+    songsError,
     totalArtists,
     queryParams,
     fetchArtists,
     fetchArtistById,
+    fetchArtistAlbums,
+    fetchArtistSongs,
     createArtist,
     updateArtist,
     deleteArtist,
     approveArtist,
     rejectArtist,
     setQueryParams,
-    clearSelectedArtist
+    clearSelectedArtist,
+    clearDiscography
   };
 
   return (

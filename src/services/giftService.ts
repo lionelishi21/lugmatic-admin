@@ -14,7 +14,7 @@ export const giftService = {
 
   // Create new gift
   createGift: async (giftData: CreateGiftRequest) => {
-    return apiService.post('/gifts', giftData);
+    return apiService.post('/admin/gifts', giftData);
   },
 
   // Update gift

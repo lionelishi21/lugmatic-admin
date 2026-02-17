@@ -151,145 +151,168 @@ export default function MusicAdminDashboard() {
     icon: Icon, 
     title, 
     value, 
-    trend 
+    trend,
+    color = 'green'
   }: { 
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>, 
     title: string, 
     value: string | number, 
-    trend?: string 
-  }) => (
-    <div className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <div className="bg-purple-100 p-3 rounded-lg">
-            <Icon className="h-6 w-6 text-purple-600" />
+    trend?: string,
+    color?: 'green' | 'emerald' | 'blue' | 'amber' | 'rose'
+  }) => {
+    const colorMap = {
+      green: { bg: 'bg-green-50', icon: 'text-green-600', ring: 'ring-green-100' },
+      emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', ring: 'ring-emerald-100' },
+      blue: { bg: 'bg-blue-50', icon: 'text-blue-600', ring: 'ring-blue-100' },
+      amber: { bg: 'bg-amber-50', icon: 'text-amber-600', ring: 'ring-amber-100' },
+      rose: { bg: 'bg-rose-50', icon: 'text-rose-600', ring: 'ring-rose-100' },
+    };
+    const c = colorMap[color];
+    return (
+      <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200">
+        <div className="flex items-start justify-between">
+          <div className={`${c.bg} p-2.5 rounded-lg ring-1 ${c.ring}`}>
+            <Icon className={`h-5 w-5 ${c.icon}`} />
           </div>
-          <div className="ml-4">
-            <p className="text-sm text-gray-500">{title}</p>
-            <p className="text-2xl font-semibold text-gray-900">{value}</p>
-          </div>
+          {trend && (
+            <span className="text-green-600 text-xs font-semibold flex items-center bg-green-50 px-2 py-1 rounded-md">
+              <TrendingUp className="h-3 w-3 mr-0.5" />
+              {trend}
+            </span>
+          )}
         </div>
-        {trend && (
-          <span className="text-green-500 text-sm flex items-center">
-            <TrendingUp className="h-4 w-4 mr-1" />
-            {trend}
-          </span>
-        )}
+        <div className="mt-3">
+          <p className="text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
+          <p className="text-xs text-gray-500 mt-0.5 font-medium">{title}</p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Music Platform Dashboard</h1>
+    <div className="max-w-7xl mx-auto space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+        <p className="text-sm text-gray-500 mt-1">Overview of your music platform</p>
+      </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard 
           icon={Users} 
           title="Total Artists" 
-          value={stats.totalArtists} 
-          trend="+5.2%" 
+          value={stats.totalArtists.toLocaleString()} 
+          trend="+5.2%"
+          color="green"
         />
         <StatCard 
           icon={Headphones} 
           title="Total Listeners" 
           value={stats.totalListeners.toLocaleString()} 
-          trend="+8.7%" 
+          trend="+8.7%"
+          color="blue"
         />
         <StatCard 
           icon={Music2} 
           title="Total Tracks" 
-          value={stats.totalTracks} 
+          value={stats.totalTracks.toLocaleString()}
+          color="emerald"
         />
         <StatCard 
           icon={Radio} 
           title="Live Streams" 
           value={stats.activeLiveStreams} 
-          trend="+12.3%" 
+          trend="+12.3%"
+          color="rose"
         />
         <StatCard 
           icon={DollarSign} 
           title="Total Revenue" 
           value={`$${stats.totalRevenue.toLocaleString()}`} 
-          trend="+9.1%" 
+          trend="+9.1%"
+          color="amber"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Top Artists Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Top Artists</h2>
-            <button className="text-purple-600 hover:text-purple-700 flex items-center">
-              View All <ExternalLink className="ml-2 h-4 w-4" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="flex justify-between items-center px-5 py-4 border-b border-gray-50">
+            <h2 className="text-base font-semibold text-gray-900">Top Artists</h2>
+            <button className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center gap-1">
+              View All <ExternalLink className="h-3.5 w-3.5" />
             </button>
           </div>
-          <div className="space-y-4">
-            {topArtists.map((artist) => (
+          <div className="divide-y divide-gray-50">
+            {topArtists.map((artist, index) => (
               <div 
                 key={artist.id} 
-                className="flex items-center justify-between hover:bg-gray-100 p-2 rounded-lg transition-colors"
+                className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50/50 transition-colors"
               >
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold text-gray-300 w-5 text-center">{index + 1}</span>
                   <img
                     src={artist.profile_image || '/api/placeholder/50/50'}
                     alt={artist.name}
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
                   />
                   <div>
-                    <h3 className="font-medium text-gray-900">{artist.name}</h3>
-                    <p className="text-sm text-gray-500">
+                    <h3 className="text-sm font-semibold text-gray-900">{artist.name}</h3>
+                    <p className="text-xs text-gray-500">
                       {artist.total_listeners.toLocaleString()} listeners
                     </p>
-                    <div className="flex space-x-2 mt-1">
-                      {artist.genres.map((genre) => (
-                        <span 
-                          key={genre} 
-                          className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full"
-                        >
-                          {genre}
-                        </span>
-                      ))}
-                    </div>
                   </div>
                 </div>
-                <button className="text-purple-600 hover:text-purple-700">
-                  <PlayCircle className="h-6 w-6" />
-                </button>
+                <div className="flex items-center gap-2">
+                  {artist.genres.map((genre) => (
+                    <span 
+                      key={genre} 
+                      className="text-[10px] font-medium bg-green-50 text-green-700 px-2 py-0.5 rounded-full"
+                    >
+                      {genre}
+                    </span>
+                  ))}
+                  <button className="text-gray-300 hover:text-green-500 transition-colors ml-1">
+                    <PlayCircle className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Recent Activity Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
-          <div className="space-y-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-50">
+            <h2 className="text-base font-semibold text-gray-900">Recent Activity</h2>
+          </div>
+          <div className="divide-y divide-gray-50">
             {recentActivity.map((activity) => (
               <div 
                 key={activity.id} 
-                className="flex items-center space-x-4 hover:bg-gray-100 p-2 rounded-lg transition-colors"
+                className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-gray-50/50 transition-colors"
               >
-                <div className={`p-2 rounded-lg ${
-                  activity.type === 'track_upload' ? 'bg-blue-100' :
-                  activity.type === 'live_stream' ? 'bg-green-100' : 
-                  activity.type === 'playlist_created' ? 'bg-purple-100' : 'bg-gray-100'
+                <div className={`p-2 rounded-lg flex-shrink-0 ${
+                  activity.type === 'track_upload' ? 'bg-blue-50 ring-1 ring-blue-100' :
+                  activity.type === 'live_stream' ? 'bg-green-50 ring-1 ring-green-100' : 
+                  activity.type === 'playlist_created' ? 'bg-amber-50 ring-1 ring-amber-100' : 'bg-gray-50 ring-1 ring-gray-100'
                 }`}>
-                  {activity.type === 'track_upload' ? <Music2 className="h-5 w-5 text-blue-600" /> :
-                   activity.type === 'live_stream' ? <Radio className="h-5 w-5 text-green-600" /> :
-                   activity.type === 'playlist_created' ? <Heart className="h-5 w-5 text-purple-600" /> :
-                   <Globe className="h-5 w-5 text-gray-600" />}
+                  {activity.type === 'track_upload' ? <Music2 className="h-4 w-4 text-blue-600" /> :
+                   activity.type === 'live_stream' ? <Radio className="h-4 w-4 text-green-600" /> :
+                   activity.type === 'playlist_created' ? <Heart className="h-4 w-4 text-amber-600" /> :
+                   <Globe className="h-4 w-4 text-gray-600" />}
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-900">
-                    {activity.artistName} {
-                      activity.type === 'track_upload' ? 'uploaded' :
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-900 truncate">
+                    <span className="font-medium">{activity.artistName}</span>{' '}
+                    {activity.type === 'track_upload' ? 'uploaded' :
                       activity.type === 'live_stream' ? 'started live stream' :
                       activity.type === 'playlist_created' ? 'created playlist' : 'performed action'
-                    } "{activity.title}"
+                    }{' '}
+                    <span className="text-gray-600">"{activity.title}"</span>
                   </p>
-                  <p className="text-xs text-gray-500 flex items-center">
+                  <p className="text-xs text-gray-400 flex items-center mt-0.5">
                     <Clock className="h-3 w-3 mr-1" />
                     {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
                   </p>

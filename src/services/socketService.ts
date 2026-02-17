@@ -51,9 +51,14 @@ export interface StreamEndedEvent {
 
 // ─── Socket Service ──────────────────────────────────────────────────────────
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3008/api';
-// Socket connects to the server root, not the /api path
-const SOCKET_URL = API_URL.replace(/\/api\/?$/, '');
+// Socket.io needs a direct connection to the backend server (can't go through Vercel proxy)
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL
+  || (() => {
+    const api = import.meta.env.VITE_API_URL || 'http://localhost:3008/api';
+    // If API_URL is a relative path like /api, we can't derive a socket URL from it
+    if (api.startsWith('/')) return 'http://localhost:3008';
+    return api.replace(/\/api\/?$/, '');
+  })();
 
 class SocketService {
   private socket: Socket | null = null;

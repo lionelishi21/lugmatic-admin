@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Login Flow Test</h1>
+    <button onclick="testLogin()">Test Login</button>
+    <button onclick="checkToken()">Check Token</button>
+    <button onclick="clearToken()">Clear Token</button>
+    <pre id="output"></pre>
+
+    <script>
+        const API_URL = 'http://localhost:3008/api';
+        
+        function log(msg) {
+            const output = document.getElementById('output');
+            output.textContent += new Date().toISOString() + ': ' + msg + '\n';
+            console.log(msg);
+        }
+
+        async function testLogin() {
+            log('Starting login test...');
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@example.com',
+                        password: 'Admin123!'
+                    })
+                });
+                
+                const data = await response.json();
+                log('Login response: ' + JSON.stringify(data, null, 2));
+                
+                if (data.accessToken || data.access_token || data.data?.accessToken) {
+                    const token = data.accessToken || data.access_token || data.data?.accessToken;
+                    localStorage.setItem('access_token', token);
+                    log('Token stored: ' + token.substring(0, 20) + '...');
+                } else {
+                    log('ERROR: No token in response!');
+                }
+            } catch (error) {
+                log('ERROR: ' + error.message);
+            }
+        }
+
+        function checkToken() {
+            const token = localStorage.getItem('access_token');
+            log('Token in localStorage: ' + (token ? token.substring(0, 20) + '...' : 'NOT FOUND'));
+            log('All localStorage keys: ' + Object.keys(localStorage).join(', '));
+        }
+
+        function clearToken() {
+            localStorage.removeItem('access_token');
+            log('Token cleared');
+        }
+    </script>
+</body>
+</html>
+
