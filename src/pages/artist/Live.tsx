@@ -26,6 +26,7 @@ import {
   Clock,
   Wifi,
   WifiOff,
+  ChevronRight,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -43,13 +44,13 @@ import apiService from '../../services/api';
 
 type StreamPhase =
   | 'idle'
-  | 'creating'       // Creating stream on server
-  | 'getting_token'   // Getting LiveKit token
-  | 'connecting'      // Connecting to LiveKit room
-  | 'publishing'      // Publishing camera & mic
-  | 'live'            // Fully live
-  | 'ending'          // Ending stream
-  | 'error';          // Something failed
+  | 'creating'
+  | 'getting_token'
+  | 'connecting'
+  | 'publishing'
+  | 'live'
+  | 'ending'
+  | 'error';
 
 interface UserProfile {
   firstName?: string;
@@ -72,7 +73,6 @@ const PHASE_LABELS: Record<StreamPhase, string> = {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function Live() {
-  // Stream state
   const [phase, setPhase] = useState<StreamPhase>('idle');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [streamData, setStreamData] = useState<LiveStream | null>(null);
@@ -86,23 +86,19 @@ export default function Live() {
   const isLive = phase === 'live';
   const isBusy = ['creating', 'getting_token', 'connecting', 'publishing', 'ending'].includes(phase);
 
-  // Stream settings
   const [streamSettings, setStreamSettings] = useState({
     title: '',
     description: '',
     category: 'music',
   });
 
-  // Chat
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const chatRef = useRef<HTMLDivElement>(null);
 
-  // Stats
   const [viewerCount, setViewerCount] = useState(0);
   const [giftCount, setGiftCount] = useState(0);
 
-  // LiveKit
   const roomRef = useRef<Room | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMicOn, setIsMicOn] = useState(true);
@@ -110,7 +106,7 @@ export default function Live() {
   const [isPreviewActive, setIsPreviewActive] = useState(false);
   const localTracksRef = useRef<Awaited<ReturnType<typeof createLocalTracks>> | null>(null);
 
-  // ─── Fetch artist profile on mount ───────────────────────────────────
+  // ─── Fetch artist profile ─────────────────────────────────────────────
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -131,7 +127,7 @@ export default function Live() {
     fetchProfile();
   }, []);
 
-  // ─── Live elapsed timer ──────────────────────────────────────────────
+  // ─── Elapsed timer ────────────────────────────────────────────────────
   useEffect(() => {
     if (!liveSince) return;
     const interval = setInterval(() => {
@@ -148,14 +144,14 @@ export default function Live() {
     return () => clearInterval(interval);
   }, [liveSince]);
 
-  // ─── Auto-scroll chat ──────────────────────────────────────────────────
+  // ─── Auto-scroll chat ─────────────────────────────────────────────────
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // ─── Camera preview ────────────────────────────────────────────────────
+  // ─── Camera preview ───────────────────────────────────────────────────
   const startPreview = useCallback(async () => {
     try {
       const tracks = await createLocalTracks({
@@ -168,8 +164,7 @@ export default function Live() {
         videoTrack.attach(videoRef.current);
       }
       setIsPreviewActive(true);
-    } catch (err) {
-      console.error('Failed to start camera preview:', err);
+    } catch {
       toast.error('Could not access camera/microphone. Check browser permissions.');
     }
   }, []);
@@ -185,7 +180,7 @@ export default function Live() {
     setIsPreviewActive(false);
   }, []);
 
-  // ─── Cleanup on unmount ────────────────────────────────────────────────
+  // ─── Cleanup on unmount ───────────────────────────────────────────────
   useEffect(() => {
     return () => {
       stopPreview();
@@ -197,7 +192,7 @@ export default function Live() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ─── Socket event listeners (non-blocking) ─────────────────────────────
+  // ─── Socket listeners ─────────────────────────────────────────────────
   const setupSocketListeners = useCallback((streamId: string) => {
     try {
       socketService.onStreamState((state: StreamState) => {
@@ -215,12 +210,9 @@ export default function Live() {
       socketService.onViewerJoined((data) => setViewerCount(data.currentViewers));
       socketService.onViewerLeft((data) => setViewerCount(data.currentViewers));
       socketService.onStreamEnded(() => toast('Stream has ended'));
-      socketService.onError((data) => {
-        console.error('[Socket] Error:', data.message);
-      });
+      socketService.onError((data) => { console.error('[Socket] Error:', data.message); });
       socketService.joinStream(streamId);
     } catch (err) {
-      // Socket failures should NOT break the live stream
       console.warn('[Socket] Setup failed (chat may not work):', err);
     }
   }, []);
@@ -231,11 +223,8 @@ export default function Live() {
       toast.error('Please set a stream title');
       return;
     }
-
     setErrorMsg('');
-
     try {
-      // Step 1: Create stream
       setPhase('creating');
       const stream = await createStream({
         title: streamSettings.title,
@@ -246,14 +235,11 @@ export default function Live() {
       });
       setStreamData(stream);
 
-      // Step 2: Get LiveKit token
       setPhase('getting_token');
       const tokenData = await getStreamToken(stream._id);
 
-      // Step 3: Stop preview tracks
       stopPreview();
 
-      // Step 4: Connect to LiveKit room
       setPhase('connecting');
       const room = new Room({
         adaptiveStream: true,
@@ -262,16 +248,9 @@ export default function Live() {
       });
       roomRef.current = room;
 
-      room.on(RoomEvent.Disconnected, () => {
-        console.log('[LiveKit] Disconnected');
-        setLiveKitConnected(false);
-      });
-      room.on(RoomEvent.Connected, () => {
-        console.log('[LiveKit] Connected');
-        setLiveKitConnected(true);
-      });
+      room.on(RoomEvent.Disconnected, () => { setLiveKitConnected(false); });
+      room.on(RoomEvent.Connected, () => { setLiveKitConnected(true); });
       room.on(RoomEvent.ConnectionStateChanged, (state: ConnectionState) => {
-        console.log('[LiveKit] Connection state:', state);
         setLiveKitConnected(state === ConnectionState.Connected);
       });
       room.on(RoomEvent.LocalTrackPublished, (pub: LocalTrackPublication, participant: LocalParticipant) => {
@@ -283,20 +262,16 @@ export default function Live() {
 
       await room.connect(tokenData.url, tokenData.token);
 
-      // Step 5: Publish camera & mic
       setPhase('publishing');
       await room.localParticipant.enableCameraAndMicrophone();
 
-      // Attach local video
       const camPub = room.localParticipant.getTrackPublication(Track.Source.Camera);
       if (camPub?.track && videoRef.current) {
         camPub.track.attach(videoRef.current);
       }
 
-      // Step 6: Setup Socket.io (non-blocking)
       setupSocketListeners(stream._id);
 
-      // Done!
       setPhase('live');
       setIsSettingsOpen(false);
       setSummary(null);
@@ -311,10 +286,9 @@ export default function Live() {
     }
   };
 
-  // ─── End stream ────────────────────────────────────────────────────────
+  // ─── End stream ───────────────────────────────────────────────────────
   const handleEndStream = async () => {
     if (!streamData?._id) return;
-
     setPhase('ending');
     try {
       const result = await endStreamApi(streamData._id);
@@ -339,20 +313,17 @@ export default function Live() {
       const errMsg = error instanceof Error ? error.message : 'Failed to end stream';
       console.error('End stream error:', error);
       toast.error(errMsg);
-      // Keep live state so user can try ending again
       setPhase('live');
     }
   };
 
-  // ─── Toggle mic / camera ───────────────────────────────────────────────
+  // ─── Toggle mic / camera ──────────────────────────────────────────────
   const toggleMic = async () => {
     if (!roomRef.current) return;
     try {
       await roomRef.current.localParticipant.setMicrophoneEnabled(!isMicOn);
       setIsMicOn(!isMicOn);
-    } catch (err) {
-      console.error('Toggle mic error:', err);
-    }
+    } catch (err) { console.error('Toggle mic error:', err); }
   };
 
   const toggleCamera = async () => {
@@ -360,12 +331,10 @@ export default function Live() {
     try {
       await roomRef.current.localParticipant.setCameraEnabled(!isCameraOn);
       setIsCameraOn(!isCameraOn);
-    } catch (err) {
-      console.error('Toggle camera error:', err);
-    }
+    } catch (err) { console.error('Toggle camera error:', err); }
   };
 
-  // ─── Send chat message ─────────────────────────────────────────────────
+  // ─── Send chat message ────────────────────────────────────────────────
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !streamData?._id) return;
@@ -373,7 +342,7 @@ export default function Live() {
     setNewMessage('');
   };
 
-  // ─── Settings form ─────────────────────────────────────────────────────
+  // ─── Settings form ────────────────────────────────────────────────────
   const handleSettingsChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -395,58 +364,77 @@ export default function Live() {
     return `${s}s`;
   };
 
-  // ─── Render ────────────────────────────────────────────────────────────
+  // ─── Render ───────────────────────────────────────────────────────────
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* ═══ Live Status Banner ═══ */}
+    <div className="max-w-6xl mx-auto space-y-4">
+
+      {/* ── Page header ── */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Go Live</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Broadcast to your fans in real time</p>
+        </div>
+        {!isLive && !isBusy && phase !== 'error' && (
+          <button
+            onClick={openSettings}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold shadow-sm transition-all"
+          >
+            <Radio className="h-4 w-4" />
+            Go Live
+          </button>
+        )}
+      </div>
+
+      {/* ── Live status banner ── */}
       {isLive && (
-        <div className="mb-4 bg-red-600 text-white rounded-lg p-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <span className="flex items-center space-x-2">
-              <span className="w-3 h-3 bg-white rounded-full animate-pulse" />
-              <span className="text-lg font-bold">LIVE</span>
+        <div className="flex items-center justify-between bg-red-600 text-white rounded-2xl px-5 py-3 shadow-sm">
+          <div className="flex items-center gap-4 flex-wrap">
+            <span className="flex items-center gap-2 font-bold text-base">
+              <span className="w-2.5 h-2.5 bg-white rounded-full animate-pulse" />
+              LIVE
             </span>
-            <span className="flex items-center space-x-1 text-sm bg-white/20 px-3 py-1 rounded-full">
-              <Clock className="h-4 w-4" />
-              <span className="font-mono">{elapsedTime}</span>
+            <span className="flex items-center gap-1.5 text-sm bg-white/20 px-3 py-1 rounded-full font-mono">
+              <Clock className="h-3.5 w-3.5" />
+              {elapsedTime}
             </span>
-            <span className="flex items-center space-x-1 text-sm bg-white/20 px-3 py-1 rounded-full">
-              <Users className="h-4 w-4" />
-              <span>{viewerCount} watching</span>
+            <span className="flex items-center gap-1.5 text-sm bg-white/20 px-3 py-1 rounded-full">
+              <Users className="h-3.5 w-3.5" />
+              {viewerCount} watching
             </span>
-            <span className="flex items-center space-x-1 text-sm">
+            <span className="flex items-center gap-1.5 text-sm">
               {liveKitConnected ? (
-                <><Wifi className="h-4 w-4 text-green-300" /><span className="text-green-200">Connected</span></>
+                <><Wifi className="h-3.5 w-3.5 text-green-300" /><span className="text-green-200 text-sm">Connected</span></>
               ) : (
-                <><WifiOff className="h-4 w-4 text-yellow-300" /><span className="text-yellow-200">Reconnecting...</span></>
+                <><WifiOff className="h-3.5 w-3.5 text-yellow-300" /><span className="text-yellow-200 text-sm">Reconnecting...</span></>
               )}
             </span>
           </div>
           <button
             onClick={handleEndStream}
             disabled={phase === 'ending'}
-            className="px-4 py-2 bg-white text-red-600 rounded-md font-semibold hover:bg-red-50 disabled:opacity-50 flex items-center"
+            className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 rounded-xl font-semibold hover:bg-red-50 disabled:opacity-50 transition-colors text-sm"
           >
-            {phase === 'ending' ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
+            {phase === 'ending' && <Loader2 className="animate-spin h-4 w-4" />}
             End Stream
           </button>
         </div>
       )}
 
-      {/* ═══ Progress / Error Banner ═══ */}
+      {/* ── Progress banner ── */}
       {isBusy && phase !== 'ending' && (
-        <div className="mb-4 bg-purple-600 text-white rounded-lg p-4 flex items-center space-x-3">
-          <Loader2 className="animate-spin h-5 w-5 flex-shrink-0" />
-          <span className="font-medium">{PHASE_LABELS[phase]}</span>
+        <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl px-5 py-3">
+          <Loader2 className="animate-spin h-5 w-5 flex-shrink-0 text-emerald-600" />
+          <span className="font-medium text-sm">{PHASE_LABELS[phase]}</span>
         </div>
       )}
 
+      {/* ── Error banner ── */}
       {phase === 'error' && (
-        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 flex items-start space-x-3">
+        <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-4">
           <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold">Failed to start stream</p>
-            <p className="text-sm mt-1">{errorMsg}</p>
+            <p className="font-semibold text-sm">Failed to start stream</p>
+            <p className="text-sm mt-0.5 text-red-600">{errorMsg}</p>
             <button
               onClick={() => { setPhase('idle'); setErrorMsg(''); }}
               className="mt-2 text-sm font-medium text-red-600 hover:text-red-800 underline"
@@ -457,41 +445,50 @@ export default function Live() {
         </div>
       )}
 
-      {/* ═══ Stream ended summary ═══ */}
+      {/* ── Stream ended summary ── */}
       {summary && phase === 'idle' && (
-        <div className="mb-6 bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Stream Ended</h2>
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-green-100 flex items-center justify-center">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold text-gray-900">Stream Ended</h2>
+                <p className="text-xs text-gray-500">Here's how your session went</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setSummary(null)}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-purple-50 p-4 rounded-lg text-center">
-              <p className="text-2xl font-bold text-purple-700">{formatDuration(summary.duration)}</p>
-              <p className="text-sm text-gray-500">Duration</p>
-            </div>
-            <div className="bg-purple-50 p-4 rounded-lg text-center">
-              <p className="text-2xl font-bold text-purple-700">{summary.totalViewers}</p>
-              <p className="text-sm text-gray-500">Total Viewers</p>
-            </div>
-            <div className="bg-purple-50 p-4 rounded-lg text-center">
-              <p className="text-2xl font-bold text-purple-700">{summary.peakViewers}</p>
-              <p className="text-sm text-gray-500">Peak Viewers</p>
-            </div>
-            <div className="bg-purple-50 p-4 rounded-lg text-center">
-              <p className="text-2xl font-bold text-purple-700">{summary.totalGiftsReceived}</p>
-              <p className="text-sm text-gray-500">Gifts Received</p>
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: 'Duration', value: formatDuration(summary.duration), color: 'bg-green-50 text-green-700' },
+              { label: 'Total Viewers', value: summary.totalViewers, color: 'bg-blue-50 text-blue-700' },
+              { label: 'Peak Viewers', value: summary.peakViewers, color: 'bg-purple-50 text-purple-700' },
+              { label: 'Gifts Received', value: summary.totalGiftsReceived, color: 'bg-amber-50 text-amber-700' },
+            ].map(({ label, value, color }) => (
+              <div key={label} className={`${color} rounded-xl p-4 text-center`}>
+                <p className="text-2xl font-bold">{value}</p>
+                <p className="text-xs mt-0.5 opacity-75">{label}</p>
+              </div>
+            ))}
           </div>
-          <button onClick={() => setSummary(null)} className="mt-4 text-sm text-purple-600 hover:text-purple-800">
-            Dismiss
-          </button>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ═══ Main Video Section ═══ */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="relative bg-gray-900 aspect-video rounded-lg overflow-hidden">
+      {/* ── Main grid ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        {/* ── Video + info ── */}
+        <div className="lg:col-span-2 space-y-4">
+
+          {/* Video */}
+          <div className="relative bg-gray-950 aspect-video rounded-2xl overflow-hidden shadow-sm">
             <video
               ref={videoRef}
               autoPlay
@@ -500,28 +497,37 @@ export default function Live() {
               className={`w-full h-full object-cover ${isLive || isPreviewActive ? 'block' : 'hidden'}`}
             />
 
+            {/* Idle placeholder */}
             {phase === 'idle' && !isPreviewActive && !summary && (
-              <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-center">
-                <div>
-                  <Radio className="h-16 w-16 mb-4 mx-auto" />
-                  <p className="text-xl font-medium">Ready to Stream</p>
-                  <p className="text-sm mt-2 text-gray-500">Click "Go Live" to start your camera and go live</p>
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500 text-center px-6">
+                <div className="w-20 h-20 rounded-2xl bg-gray-800 flex items-center justify-center mb-4">
+                  <Radio className="h-9 w-9 text-gray-400" />
                 </div>
+                <p className="text-lg font-semibold text-gray-300">Ready to Stream</p>
+                <p className="text-sm mt-1 text-gray-500">Click "Go Live" to set up your stream</p>
+                <button
+                  onClick={openSettings}
+                  className="mt-5 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold shadow transition-all text-sm"
+                >
+                  <Radio className="h-4 w-4" />
+                  Go Live
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               </div>
             )}
 
-            {/* Live badge on video */}
+            {/* Live overlays */}
             {isLive && (
-              <div className="absolute top-4 left-4 flex items-center space-x-3">
-                <span className="flex items-center px-3 py-1 bg-red-600 text-white text-sm font-semibold rounded-full">
-                  <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse" />
+              <div className="absolute top-3 left-3 flex items-center gap-2">
+                <span className="flex items-center gap-1.5 px-2.5 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
+                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                   LIVE
                 </span>
-                <span className="flex items-center px-3 py-1 bg-black/50 text-white text-sm rounded-full">
-                  <Users className="h-4 w-4 mr-1" />
+                <span className="flex items-center gap-1 px-2.5 py-1 bg-black/60 text-white text-xs rounded-full">
+                  <Users className="h-3 w-3" />
                   {viewerCount}
                 </span>
-                <span className="flex items-center px-3 py-1 bg-black/50 text-white text-sm font-mono rounded-full">
+                <span className="px-2.5 py-1 bg-black/60 text-white text-xs font-mono rounded-full">
                   {elapsedTime}
                 </span>
               </div>
@@ -529,151 +535,150 @@ export default function Live() {
 
             {/* Preview badge */}
             {isPreviewActive && !isLive && (
-              <div className="absolute top-4 left-4">
-                <span className="px-3 py-1 bg-yellow-500 text-black text-sm font-semibold rounded-full">
+              <div className="absolute top-3 left-3">
+                <span className="px-2.5 py-1 bg-amber-400 text-black text-xs font-bold rounded-full">
                   PREVIEW
                 </span>
               </div>
             )}
 
-            {/* Stream controls overlay */}
+            {/* Stream controls */}
             {isLive && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-3">
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
                 <button
                   onClick={toggleMic}
-                  className={`p-3 rounded-full ${isMicOn ? 'bg-white/20 hover:bg-white/30' : 'bg-red-600 hover:bg-red-700'} text-white transition-colors`}
                   title={isMicOn ? 'Mute microphone' : 'Unmute microphone'}
+                  className={`p-3 rounded-full transition-colors ${isMicOn ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-red-600 hover:bg-red-700 text-white'}`}
                 >
                   {isMicOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
                 </button>
                 <button
                   onClick={toggleCamera}
-                  className={`p-3 rounded-full ${isCameraOn ? 'bg-white/20 hover:bg-white/30' : 'bg-red-600 hover:bg-red-700'} text-white transition-colors`}
                   title={isCameraOn ? 'Turn off camera' : 'Turn on camera'}
+                  className={`p-3 rounded-full transition-colors ${isCameraOn ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-red-600 hover:bg-red-700 text-white'}`}
                 >
                   {isCameraOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
                 </button>
                 <button
                   onClick={handleEndStream}
                   disabled={phase === 'ending'}
-                  className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-medium transition-colors flex items-center"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold transition-colors text-sm disabled:opacity-60"
                 >
-                  {phase === 'ending' ? <Loader2 className="animate-spin h-5 w-5" /> : 'End Stream'}
+                  {phase === 'ending' ? <Loader2 className="animate-spin h-4 w-4" /> : 'End Stream'}
                 </button>
               </div>
             )}
           </div>
 
-          {/* ═══ Stream Info Card ═══ */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">
+          {/* Stream info card */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div className="min-w-0">
+                <h2 className="text-base font-semibold text-gray-900 truncate">
                   {streamData?.title || streamSettings.title || 'Untitled Stream'}
                 </h2>
-                <p className="text-sm text-gray-500">
-                  {streamData?.description || streamSettings.description || 'No description'}
+                <p className="text-sm text-gray-500 mt-0.5 truncate">
+                  {streamData?.description || streamSettings.description || 'No description set'}
                 </p>
               </div>
-              <div className="flex items-center space-x-4">
-                {!isLive && !isBusy && phase !== 'error' && (
-                  <button
-                    onClick={openSettings}
-                    className="flex items-center px-5 py-2 rounded-md bg-purple-600 hover:bg-purple-700 text-white font-medium"
-                  >
-                    <Radio className="h-4 w-4 mr-2" />
-                    Go Live
-                  </button>
-                )}
-              </div>
+              {isLive && (
+                <span className="flex-shrink-0 flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
+                  <Wifi className="h-3 w-3" />
+                  {liveKitConnected ? 'Connected' : 'Reconnecting...'}
+                </span>
+              )}
             </div>
 
-            {/* Stream Stats */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-gray-50 p-4 rounded-lg text-center">
-                <Users className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-                <p className="text-2xl font-semibold">{viewerCount}</p>
-                <p className="text-sm text-gray-500">Viewers</p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg text-center">
-                <MessageSquare className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-                <p className="text-2xl font-semibold">{messages.length}</p>
-                <p className="text-sm text-gray-500">Messages</p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg text-center">
-                <Gift className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-                <p className="text-2xl font-semibold">{giftCount}</p>
-                <p className="text-sm text-gray-500">Gifts</p>
-              </div>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { icon: Users, label: 'Viewers', value: viewerCount, color: 'text-blue-600 bg-blue-50' },
+                { icon: MessageSquare, label: 'Messages', value: messages.length, color: 'text-green-600 bg-green-50' },
+                { icon: Gift, label: 'Gifts', value: giftCount, color: 'text-amber-600 bg-amber-50' },
+              ].map(({ icon: Icon, label, value, color }) => (
+                <div key={label} className="rounded-xl bg-gray-50 border border-gray-100 p-4 text-center">
+                  <div className={`w-9 h-9 rounded-lg ${color} flex items-center justify-center mx-auto mb-2`}>
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <p className="text-xl font-bold text-gray-900">{value}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* ═══ Chat Section ═══ */}
-        <div className="bg-white rounded-lg shadow-md flex flex-col h-[calc(100vh-12rem)]">
-          <div className="p-4 border-b flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Live Chat</h3>
+        {/* ── Chat ── */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col" style={{ height: 'calc(100vh - 16rem)', minHeight: '420px' }}>
+          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-gray-400" />
+              <h3 className="text-sm font-semibold text-gray-900">Live Chat</h3>
+            </div>
             {isLive && (
-              <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded-full">
+              <span className="flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                 Active
               </span>
             )}
           </div>
 
-          <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+          <div ref={chatRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-2.5">
             {!isLive && messages.length === 0 && (
-              <div className="text-center text-gray-400 mt-12">
-                <MessageSquare className="h-10 w-10 mx-auto mb-3 opacity-50" />
-                <p className="text-sm">Chat messages will appear here when you go live</p>
+              <div className="flex flex-col items-center justify-center h-full text-center pb-4">
+                <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center mb-3">
+                  <MessageSquare className="h-5 w-5 text-gray-400" />
+                </div>
+                <p className="text-sm font-medium text-gray-500">No messages yet</p>
+                <p className="text-xs text-gray-400 mt-1">Chat will appear here when you're live</p>
               </div>
             )}
 
             {messages.map((msg, idx) => (
-              <div key={`${msg.timestamp}-${idx}`} className="flex items-start space-x-2">
+              <div key={`${msg.timestamp}-${idx}`}>
                 {msg.type === 'gift' ? (
-                  <div className="w-full bg-yellow-50 border border-yellow-200 rounded-lg p-2 text-center">
-                    <span className="text-lg">🎁</span>
-                    <p className="text-sm font-medium text-yellow-800">
-                      {msg.username} sent <strong>{msg.giftName}</strong>
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-center">
+                    <span className="text-base">🎁</span>
+                    <p className="text-xs font-medium text-amber-800 mt-0.5">
+                      <span className="font-bold">{msg.username}</span> sent <span className="font-bold">{msg.giftName}</span>
                     </p>
                   </div>
                 ) : msg.type === 'system' || msg.type === 'join' || msg.type === 'leave' ? (
-                  <p className="text-xs text-gray-400 italic w-full text-center py-1">{msg.message}</p>
+                  <p className="text-xs text-gray-400 italic text-center py-0.5">{msg.message}</p>
                 ) : (
-                  <>
-                    <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center overflow-hidden">
+                  <div className="flex items-start gap-2">
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center overflow-hidden">
                       {msg.profilePicture ? (
                         <img src={msg.profilePicture} alt={msg.username} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-sm font-medium text-purple-600">
+                        <span className="text-xs font-bold text-white">
                           {msg.username?.[0]?.toUpperCase() || '?'}
                         </span>
                       )}
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900">{msg.username}</p>
-                      <p className="text-sm text-gray-600 break-words">{msg.message}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-gray-800">{msg.username}</p>
+                      <p className="text-xs text-gray-600 break-words leading-relaxed">{msg.message}</p>
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             ))}
           </div>
 
-          <form onSubmit={handleSendMessage} className="p-4 border-t">
-            <div className="flex space-x-2">
+          <form onSubmit={handleSendMessage} className="px-3 py-3 border-t border-gray-100 flex-shrink-0">
+            <div className="flex items-center gap-2">
               <input
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder={isLive ? 'Type a message...' : 'Go live to chat'}
                 disabled={!isLive}
-                className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="flex-1 rounded-xl border border-gray-200 bg-gray-50 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <button
                 type="submit"
                 disabled={!isLive || !newMessage.trim()}
-                className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 <Send className="h-4 w-4" />
               </button>
@@ -682,28 +687,29 @@ export default function Live() {
         </div>
       </div>
 
-      {/* ═══ Stream Settings Modal ═══ */}
+      {/* ── Settings Modal ── */}
       {isSettingsOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">
-                Go Live{artistName ? ` as ${artistName}` : ''}
-              </h3>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <div>
+                <h3 className="text-base font-semibold text-gray-900">
+                  {artistName ? `Go Live as ${artistName}` : 'Go Live'}
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">Set up your stream details</p>
+              </div>
               <button
-                onClick={() => {
-                  setIsSettingsOpen(false);
-                  if (!isLive) stopPreview();
-                }}
-                className="text-gray-500 hover:text-gray-700"
+                onClick={() => { setIsSettingsOpen(false); if (!isLive) stopPreview(); }}
+                className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="px-6 py-5 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Stream Title <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -712,28 +718,30 @@ export default function Live() {
                   value={streamSettings.title}
                   onChange={handleSettingsChange}
                   placeholder={artistName ? `${artistName} Live` : 'e.g. Friday Night Vibes'}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   required
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700">Description</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
                 <textarea
                   name="description"
                   value={streamSettings.description}
                   onChange={handleSettingsChange}
                   rows={3}
                   placeholder="Tell viewers what your stream is about..."
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700">Category</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Category</label>
                 <select
                   name="category"
                   value={streamSettings.category}
                   onChange={handleSettingsChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
                   <option value="music">Music</option>
                   <option value="performance">Live Performance</option>
@@ -745,30 +753,27 @@ export default function Live() {
                   <option value="other">Other</option>
                 </select>
               </div>
+            </div>
 
-              <div className="flex justify-end space-x-3 mt-6">
-                <button
-                  onClick={() => {
-                    setIsSettingsOpen(false);
-                    if (!isLive) stopPreview();
-                  }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleStartStream}
-                  disabled={isBusy || !streamSettings.title.trim()}
-                  className="px-5 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center font-medium disabled:opacity-50"
-                >
-                  {isBusy ? (
-                    <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                  ) : (
-                    <Radio className="h-4 w-4 mr-2" />
-                  )}
-                  {isBusy ? PHASE_LABELS[phase] : 'Go Live'}
-                </button>
-              </div>
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
+              <button
+                onClick={() => { setIsSettingsOpen(false); if (!isLive) stopPreview(); }}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleStartStream}
+                disabled={isBusy || !streamSettings.title.trim()}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm font-semibold disabled:opacity-50 transition-all"
+              >
+                {isBusy ? (
+                  <Loader2 className="animate-spin h-4 w-4" />
+                ) : (
+                  <Radio className="h-4 w-4" />
+                )}
+                {isBusy ? PHASE_LABELS[phase] : 'Go Live'}
+              </button>
             </div>
           </div>
         </div>

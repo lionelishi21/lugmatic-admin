@@ -202,8 +202,13 @@ const SongManagement: React.FC = () => {
       };
 
       if (selectedSong) {
-        // Update song (if backend supports it)
-        await songService.updateSong(selectedSong._id, cleanedFormData as Partial<CreateSongData>);
+        // Update song
+        await songService.updateSong(
+          selectedSong._id,
+          cleanedFormData as Partial<CreateSongData>,
+          audioFile || undefined,
+          coverArtFile || undefined
+        );
         toast.success('Song updated successfully');
       } else {
         // Create song with file uploads
@@ -336,9 +341,9 @@ const SongManagement: React.FC = () => {
                 {filteredSongs.map((song) => (
                   <tr key={song._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {song.coverArt ? (
+                      {song.coverArtUrl || song.coverArt ? (
                         <img
-                          src={song.coverArt}
+                          src={song.coverArtUrl || song.coverArt}
                           alt={song.name}
                           className="w-12 h-12 rounded object-cover"
                         />
@@ -364,7 +369,9 @@ const SongManagement: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{song.genre}</div>
+                      <div className="text-sm text-gray-900">
+                        {genres.find(g => g._id === song.genre)?.name || song.genre}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{formatDuration(song.duration)}</div>

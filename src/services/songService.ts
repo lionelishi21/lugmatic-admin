@@ -12,7 +12,9 @@ export interface Song {
   releaseDate: string;
   lyrics: string;
   coverArt: string;
+  coverArtUrl?: string;
   audioFile: string;
+  audioFileUrl?: string;
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -75,7 +77,7 @@ const songService = {
    */
   createSong: async (songData: CreateSongData, audioFile?: File, coverArtFile?: File): Promise<Song> => {
     const formData = new FormData();
-    
+
     // Add text fields
     formData.append('name', songData.name);
     formData.append('artist', songData.artist);
@@ -87,7 +89,7 @@ const songService = {
     formData.append('genre', songData.genre);
     formData.append('releaseDate', songData.releaseDate);
     formData.append('lyrics', songData.lyrics || '');
-    
+
     // Add files if provided
     if (audioFile) {
       formData.append('audioFile', audioFile);
@@ -95,14 +97,14 @@ const songService = {
       // Fallback to URL if no file provided
       formData.append('audioFile', songData.audioFile);
     }
-    
+
     if (coverArtFile) {
       formData.append('coverArt', coverArtFile);
     } else if (songData.coverArt) {
       // Fallback to base64 or URL if no file provided
       formData.append('coverArt', songData.coverArt);
     }
-    
+
     // Don't set Content-Type header - let axios set it automatically with boundary for FormData
     const response = await apiService.post<Song>('/song/create', formData);
     return extractResponseData<Song>(response);
@@ -111,9 +113,34 @@ const songService = {
   /**
    * Update an existing song (if backend supports it)
    */
-  updateSong: async (id: string, songData: Partial<UpdateSongData>): Promise<Song> => {
-    // Note: Backend may not have update endpoint yet
-    const response = await apiService.put<Song>(`/song/update/${id}`, songData);
+  updateSong: async (id: string, songData: Partial<UpdateSongData>, audioFile?: File, coverArtFile?: File): Promise<Song> => {
+    const formData = new FormData();
+
+    // Add text fields
+    if (songData.name) formData.append('name', songData.name);
+    if (songData.artist) formData.append('artist', songData.artist);
+    if (songData.album) formData.append('album', songData.album);
+    if (songData.duration !== undefined) formData.append('duration', songData.duration.toString());
+    if (songData.genre) formData.append('genre', songData.genre);
+    if (songData.releaseDate) formData.append('releaseDate', songData.releaseDate);
+    if (songData.lyrics !== undefined) formData.append('lyrics', songData.lyrics);
+    if (songData.isActive !== undefined) formData.append('isActive', songData.isActive.toString());
+
+    // Add files if provided
+    if (audioFile) {
+      formData.append('audioFile', audioFile);
+    } else if (songData.audioFile) {
+      formData.append('audioFile', songData.audioFile);
+    }
+
+    if (coverArtFile) {
+      formData.append('coverArt', coverArtFile);
+    } else if (songData.coverArt) {
+      formData.append('coverArt', songData.coverArt);
+    }
+
+    // Send PUT request with FormData
+    const response = await apiService.put<Song>(`/song/update/${id}`, formData);
     return extractResponseData<Song>(response);
   },
 
