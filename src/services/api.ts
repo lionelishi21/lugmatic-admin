@@ -62,12 +62,12 @@ export const createApiInstance = (config?: AxiosRequestConfig): AxiosInstance =>
       if (!config.headers) {
         config.headers = {} as AxiosRequestHeaders;
       }
-      
+
       const token = getAccessToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
-      
+
       // If data is FormData, remove Content-Type header to let axios set it with boundary
       // BUT preserve Authorization header
       if (config.data instanceof FormData) {
@@ -78,7 +78,7 @@ export const createApiInstance = (config?: AxiosRequestConfig): AxiosInstance =>
           config.headers.Authorization = typeof authHeader === 'string' ? authHeader : String(authHeader);
         }
       }
-      
+
       return config;
     },
     (error) => Promise.reject(error)
@@ -89,24 +89,24 @@ export const createApiInstance = (config?: AxiosRequestConfig): AxiosInstance =>
     (response) => response,
     async (error: AxiosError) => {
       const originalRequest = error.config as RetryConfig;
-      
+
       // If error is 401 and we have a refresh token, try to refresh
       if (
         error.response?.status === 401 &&
-        originalRequest && 
+        originalRequest &&
         !originalRequest._retry
       ) {
         const refreshToken = getRefreshToken();
-        
+
         // No refresh token available, reject the request
         if (!refreshToken) {
           clearTokens();
           return Promise.reject(error);
         }
-        
+
         try {
           originalRequest._retry = true;
-          
+
           // Create a separate axios instance without interceptors for refresh call
           // to avoid infinite loop (refresh endpoint shouldn't require auth)
           const refreshInstance = axios.create({
@@ -116,22 +116,22 @@ export const createApiInstance = (config?: AxiosRequestConfig): AxiosInstance =>
               'Content-Type': 'application/json',
             },
           });
-          
+
           // Call token refresh endpoint
           const response = await refreshInstance.post('/refresh-token', {
             refreshToken,
           });
-          
+
           const { accessToken, refreshToken: newRefreshToken } = response.data as { accessToken: string; refreshToken: string };
-          
+
           // Save new tokens
           setTokens(accessToken, newRefreshToken);
-          
+
           // Retry the original request with new token
           if (originalRequest.headers) {
             originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           }
-          
+
           return instance(originalRequest);
         } catch (refreshError) {
           // If refresh fails, clear tokens and reject
@@ -139,7 +139,7 @@ export const createApiInstance = (config?: AxiosRequestConfig): AxiosInstance =>
           return Promise.reject(refreshError);
         }
       }
-      
+
       return Promise.reject(error);
     }
   );
@@ -168,26 +168,26 @@ export interface PaginatedResponse<T> {
 
 // Common API methods
 export const apiService = {
-  get: <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> => 
+  get: <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> =>
     api.get(url, config),
-  
-  post: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> => 
+
+  post: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> =>
     api.post(url, data, config),
-  
-  put: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> => 
+
+  put: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> =>
     api.put(url, data, config),
-  
-  delete: <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> => 
+
+  delete: <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> =>
     api.delete(url, config),
-    
+
   // Auth specific methods
-  login: (email: string, password: string) => 
+  login: (email: string, password: string) =>
     api.post('/auth/login', { email, password }),
-    
-  refreshToken: (refreshToken: string) => 
+
+  refreshToken: (refreshToken: string) =>
     api.post('/refresh-token', { refreshToken }),
-    
-  logout: () => 
+
+  logout: () =>
     api.post('/logout').catch(() => {
       // If logout endpoint fails, that's okay - tokens will still be cleared by Redux
     })

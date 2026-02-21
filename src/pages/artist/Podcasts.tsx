@@ -52,18 +52,19 @@ import {
   Plus,
   Edit3,
   Trash2,
-  Play,
-  Pause,
-  Headphones,
-  TrendingUp,
   Eye,
   BarChart3,
   Upload,
   Loader2,
+  Play,
+  Pause,
+  Headphones,
+  TrendingUp,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { podcastService } from "../../services/podcastService";
 import type { Podcast, CreatePodcastRequest } from "../../types";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 
 /**
  * Podcasts (MUI-free)
@@ -127,8 +128,8 @@ const CoverImage: React.FC<{ src?: string; alt: string }> = ({ src, alt }) => (
       className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.02]"
       loading="lazy"
     />
-    </div>
-  );
+  </div>
+);
 
 const Podcasts: React.FC = () => {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
@@ -138,6 +139,7 @@ const Podcasts: React.FC = () => {
   );
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Podcast | null>(null);
+  const [podcastToDelete, setPodcastToDelete] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState<CreatePodcastRequest>({
     title: "",
@@ -208,16 +210,17 @@ const Podcasts: React.FC = () => {
     }
   }
 
-  async function handleDelete(id: string) {
-    const ok = window.confirm("Delete this podcast?");
-    if (!ok) return;
+  async function confirmDelete() {
+    if (!podcastToDelete) return;
     try {
-      await podcastService.deletePodcast(id);
+      await podcastService.deletePodcast(podcastToDelete);
       toast.success("Podcast deleted");
       await load();
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete podcast");
+    } finally {
+      setPodcastToDelete(null);
     }
   }
 
@@ -298,8 +301,8 @@ const Podcasts: React.FC = () => {
                             <Skeleton className="h-6 w-20" />
                             <Skeleton className="h-6 w-16" />
                           </div>
-                </CardContent>
-              </Card>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
                 ) : filtered.length === 0 ? (
@@ -362,15 +365,15 @@ const Podcasts: React.FC = () => {
                                 size="icon"
                                 variant="ghost"
                                 className="h-8 w-8 text-rose-600"
-                                onClick={() => handleDelete(p._id)}
+                                onClick={() => setPodcastToDelete(p._id)}
                                 title="Delete"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </div>
-                </CardContent>
-              </Card>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
                 )}
@@ -394,7 +397,7 @@ const Podcasts: React.FC = () => {
                 </div>
 
                 <ScrollArea className="w-full">
-            <Table>
+                  <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Podcast</TableHead>
@@ -402,9 +405,9 @@ const Podcasts: React.FC = () => {
                         <TableHead className="w-[90px]">Likes</TableHead>
                         <TableHead className="w-[100px]">Duration</TableHead>
                         <TableHead className="w-[110px]">Status</TableHead>
-                </TableRow>
+                      </TableRow>
                     </TableHeader>
-              <TableBody>
+                    <TableBody>
                       {loading ? (
                         <TableRow>
                           <TableCell colSpan={5}>
@@ -428,16 +431,16 @@ const Podcasts: React.FC = () => {
                             <TableCell>{p.listeners}</TableCell>
                             <TableCell>{p.likes}</TableCell>
                             <TableCell>{formatDuration(p.duration)}</TableCell>
-                    <TableCell>
+                            <TableCell>
                               <Badge variant={p.isPublished ? "default" : "secondary"}>
                                 {p.isPublished ? "Published" : "Draft"}
                               </Badge>
-                    </TableCell>
-                  </TableRow>
+                            </TableCell>
+                          </TableRow>
                         ))
                       )}
-              </TableBody>
-            </Table>
+                    </TableBody>
+                  </Table>
                 </ScrollArea>
               </div>
             </TabsContent>
@@ -451,7 +454,7 @@ const Podcasts: React.FC = () => {
           <DialogHeader>
             <DialogTitle>
               {editing ? "Edit Podcast" : "Upload New Podcast"}
-        </DialogTitle>
+            </DialogTitle>
             <DialogDescription>
               Fill in the details below. Title and Audio URL are required.
             </DialogDescription>
@@ -475,7 +478,7 @@ const Podcasts: React.FC = () => {
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 placeholder="Short description"
-              rows={3}
+                rows={3}
               />
             </div>
 
@@ -492,7 +495,7 @@ const Podcasts: React.FC = () => {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Category</Label>
-              <Select
+                <Select
                   value={form.category}
                   onValueChange={(v) => setForm({ ...form, category: v })}
                 >
@@ -507,7 +510,7 @@ const Podcasts: React.FC = () => {
                     <SelectItem value="technology">Technology</SelectItem>
                     <SelectItem value="lifestyle">Lifestyle</SelectItem>
                   </SelectContent>
-              </Select>
+                </Select>
               </div>
 
               <div className="space-y-2">
@@ -532,10 +535,10 @@ const Podcasts: React.FC = () => {
 
           <DialogFooter className="gap-2">
             <Button variant="ghost" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSubmit}
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit}
               disabled={uploading || !form.title || !form.audioUrl}
               className="gap-2"
             >
@@ -548,10 +551,19 @@ const Podcasts: React.FC = () => {
                   <Upload className="h-4 w-4" /> {editing ? "Update" : "Upload"}
                 </>
               )}
-          </Button>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        isOpen={!!podcastToDelete}
+        title="Delete Podcast"
+        message="Are you sure you want to delete this podcast? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+        onCancel={() => setPodcastToDelete(null)}
+      />
     </div>
   );
 };

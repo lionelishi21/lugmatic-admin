@@ -6,6 +6,7 @@ import albumService, { Album, CreateAlbumData } from '../../services/albumServic
 import artistService, { Artist } from '../../services/artistService';
 import genreService, { Genre } from '../../services/genreService';
 import FileUpload from '../../components/ui/FileUpload';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { Plus, Edit, Trash2, Disc, Search, Upload } from 'lucide-react';
 
 const AlbumManagement: React.FC = () => {
@@ -17,6 +18,7 @@ const AlbumManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [albumToDelete, setAlbumToDelete] = useState<string | null>(null);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [formData, setFormData] = useState<Partial<CreateAlbumData>>({
     name: '',
@@ -156,17 +158,17 @@ const AlbumManagement: React.FC = () => {
     }
   };
 
-  const handleDelete = async (albumId: string) => {
-    if (!window.confirm('Are you sure you want to delete this album?')) {
-      return;
-    }
+  const confirmDelete = async () => {
+    if (!albumToDelete) return;
     try {
-      await albumService.deleteAlbum(albumId);
+      await albumService.deleteAlbum(albumToDelete);
       toast.success('Album deleted successfully');
       fetchAlbums();
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to delete album';
       toast.error(errorMessage);
+    } finally {
+      setAlbumToDelete(null);
     }
   };
 
@@ -281,7 +283,7 @@ const AlbumManagement: React.FC = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(album._id)}
+                      onClick={() => setAlbumToDelete(album._id)}
                       className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center gap-2"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -424,6 +426,15 @@ const AlbumManagement: React.FC = () => {
           </motion.div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={!!albumToDelete}
+        title="Delete Album"
+        message="Are you sure you want to delete this album? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+        onCancel={() => setAlbumToDelete(null)}
+      />
     </div>
   );
 };

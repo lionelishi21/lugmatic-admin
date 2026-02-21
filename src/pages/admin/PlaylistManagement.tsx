@@ -4,7 +4,8 @@ import Preloader from '../../components/ui/Preloader';
 import { toast } from 'react-hot-toast';
 import playlistService, { Playlist, CreatePlaylistData } from '../../services/playlistService';
 import songService, { Song } from '../../services/songService';
-import { Plus, Edit, Trash2, Music, Search, ListMusic } from 'lucide-react';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import { Plus, Edit, Trash2, Search, ListMusic } from 'lucide-react';
 
 const PlaylistManagement: React.FC = () => {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
@@ -13,6 +14,7 @@ const PlaylistManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [playlistToDelete, setPlaylistToDelete] = useState<string | null>(null);
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
   const [formData, setFormData] = useState<Partial<CreatePlaylistData>>({
     name: '',
@@ -59,7 +61,7 @@ const PlaylistManagement: React.FC = () => {
         name: playlist.name,
         description: playlist.description || '',
         songs: playlist.songs || [],
-        isPredefined: true,
+        isRecommended: true,
       });
       setSelectedSongs(playlist.songs || []);
     } else {
@@ -68,7 +70,7 @@ const PlaylistManagement: React.FC = () => {
         name: '',
         description: '',
         songs: [],
-        isPredefined: true,
+        isRecommended: true,
       });
       setSelectedSongs([]);
     }
@@ -82,7 +84,7 @@ const PlaylistManagement: React.FC = () => {
       name: '',
       description: '',
       songs: [],
-      isPredefined: true,
+      isRecommended: true,
     });
     setSelectedSongs([]);
   };
@@ -119,8 +121,8 @@ const PlaylistManagement: React.FC = () => {
         });
         toast.success('Playlist updated successfully');
       } else {
-        // Create predefined playlist
-        await playlistService.createPredefinedPlaylist({
+        // Create recommended playlist
+        await playlistService.createRecommendedPlaylist({
           ...formData,
           songs: selectedSongs,
         } as CreatePlaylistData);
@@ -134,17 +136,17 @@ const PlaylistManagement: React.FC = () => {
     }
   };
 
-  const handleDelete = async (playlistId: string) => {
-    if (!window.confirm('Are you sure you want to delete this playlist?')) {
-      return;
-    }
+  const confirmDelete = async () => {
+    if (!playlistToDelete) return;
     try {
-      await playlistService.deletePlaylist(playlistId);
+      await playlistService.deletePlaylist(playlistToDelete);
       toast.success('Playlist deleted successfully');
       fetchPlaylists();
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to delete playlist';
       toast.error(errorMessage);
+    } finally {
+      setPlaylistToDelete(null);
     }
   };
 
@@ -224,7 +226,7 @@ const PlaylistManagement: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                     <span>{playlist.songs?.length || 0} songs</span>
-                    {playlist.isPredefined && (
+                    {playlist.isRecommended && (
                       <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
                         Predefined
                       </span>
@@ -239,7 +241,7 @@ const PlaylistManagement: React.FC = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(playlist._id)}
+                      onClick={() => setPlaylistToDelete(playlist._id)}
                       className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center gap-2"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -306,7 +308,7 @@ const PlaylistManagement: React.FC = () => {
                           />
                           <div className="flex-1">
                             <p className="text-sm font-medium text-gray-900">{song.name}</p>
-                            <p className="text-xs text-gray-500">{song.artist}</p>
+                            <p className="text-xs text-gray-500">{typeof song.artist === 'string' ? song.artist : song.artist?.name || 'Unknown'}</p>
                           </div>
                         </label>
                       ))}
@@ -336,6 +338,15 @@ const PlaylistManagement: React.FC = () => {
           </motion.div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={!!playlistToDelete}
+        title="Delete Playlist"
+        message="Are you sure you want to delete this playlist? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+        onCancel={() => setPlaylistToDelete(null)}
+      />
     </div>
   );
 };

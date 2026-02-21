@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import genreService, { Genre, CreateGenreData, UpdateGenreData } from '../../services/genreService';
 
 const GenreManagement: React.FC = () => {
@@ -25,7 +26,7 @@ const GenreManagement: React.FC = () => {
       setGenres(data);
     } catch (error) {
       console.error('Failed to fetch genres:', error);
-      alert('Failed to load genres. Please try again.');
+      toast.error('Failed to load genres. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -55,7 +56,7 @@ const GenreManagement: React.FC = () => {
     const isActive = formData.get('status') === 'active';
 
     if (!name.trim()) {
-      alert('Please enter a genre name');
+      toast.error('Please enter a genre name');
       return;
     }
 
@@ -70,17 +71,17 @@ const GenreManagement: React.FC = () => {
 
       if (selectedGenre) {
         await genreService.updateGenre(selectedGenre._id, data);
-        alert('Genre updated successfully!');
+        toast.success('Genre updated successfully!');
       } else {
         await genreService.createGenre(data);
-        alert('Genre created successfully!');
+        toast.success('Genre created successfully!');
       }
 
       await fetchGenres();
       handleCloseDialog();
     } catch (error: any) {
       console.error('Failed to save genre:', error);
-      alert(error?.response?.data?.message || 'Failed to save genre. Please try again.');
+      toast.error(error?.response?.data?.message || 'Failed to save genre. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -91,12 +92,12 @@ const GenreManagement: React.FC = () => {
 
     try {
       await genreService.deleteGenre(deleteDialog._id);
-      alert('Genre deleted successfully!');
+      toast.success('Genre deleted successfully!');
       await fetchGenres();
       setDeleteDialog(null);
     } catch (error: any) {
       console.error('Failed to delete genre:', error);
-      alert(error?.response?.data?.message || 'Failed to delete genre. Please try again.');
+      toast.error(error?.response?.data?.message || 'Failed to delete genre. Please try again.');
     }
   };
 

@@ -10,20 +10,17 @@ import {
   Star,
   Package,
   Search,
-  ToggleLeft,
-  ToggleRight,
   Sparkles,
   Filter,
   MoreHorizontal,
-  Eye,
   Power,
 } from 'lucide-react';
 import adminGiftService, {
-  AdminGiftPayload,
   GiftResponse,
 } from '../../services/adminGiftService';
 import toast from 'react-hot-toast';
 import GiftDialog from '../../components/gift/GiftDialog';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 const RARITY_COLORS: Record<string, string> = {
   common: 'bg-gray-100 text-gray-700',
@@ -42,6 +39,7 @@ const GiftManagement: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [giftToDeactivate, setGiftToDeactivate] = useState<string | null>(null);
 
   useEffect(() => {
     loadGifts();
@@ -104,16 +102,17 @@ const GiftManagement: React.FC = () => {
     setEditingGift(null);
   };
 
-  const handleDelete = async (giftId: string) => {
-    if (window.confirm('Are you sure you want to deactivate this gift?')) {
-      try {
-        await adminGiftService.softDeleteGift(giftId);
-        toast.success('Gift deactivated successfully');
-        loadGifts();
-      } catch (error) {
-        toast.error('Failed to update gift');
-        console.error('Error updating gift:', error);
-      }
+  const confirmDelete = async () => {
+    if (!giftToDeactivate) return;
+    try {
+      await adminGiftService.softDeleteGift(giftToDeactivate);
+      toast.success('Gift deactivated successfully');
+      loadGifts();
+    } catch (error) {
+      toast.error('Failed to update gift');
+      console.error('Error updating gift:', error);
+    } finally {
+      setGiftToDeactivate(null);
     }
   };
 
@@ -203,20 +202,18 @@ const GiftManagement: React.FC = () => {
             <button
               key={tab.label}
               onClick={() => setTabValue(index)}
-              className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
-                tabValue === index
-                  ? 'text-green-600 border-green-500'
-                  : 'text-gray-500 border-transparent hover:text-gray-700'
-              }`}
+              className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium transition-colors border-b-2 -mb-px ${tabValue === index
+                ? 'text-green-600 border-green-500'
+                : 'text-gray-500 border-transparent hover:text-gray-700'
+                }`}
             >
               {tab.label}
               {tab.count !== null && (
                 <span
-                  className={`text-xs px-2 py-0.5 rounded-full ${
-                    tabValue === index
-                      ? 'bg-green-50 text-green-600'
-                      : 'bg-gray-100 text-gray-500'
-                  }`}
+                  className={`text-xs px-2 py-0.5 rounded-full ${tabValue === index
+                    ? 'bg-green-50 text-green-600'
+                    : 'bg-gray-100 text-gray-500'
+                    }`}
                 >
                   {tab.count}
                 </span>
@@ -292,19 +289,17 @@ const GiftManagement: React.FC = () => {
                         )}
                         {/* Status badge */}
                         <span
-                          className={`absolute top-3 left-3 px-2 py-0.5 rounded-lg text-[11px] font-medium ${
-                            gift.isActive
-                              ? 'bg-green-50 text-green-600'
-                              : 'bg-gray-100 text-gray-500'
-                          }`}
+                          className={`absolute top-3 left-3 px-2 py-0.5 rounded-lg text-[11px] font-medium ${gift.isActive
+                            ? 'bg-green-50 text-green-600'
+                            : 'bg-gray-100 text-gray-500'
+                            }`}
                         >
                           {gift.isActive ? 'Active' : 'Inactive'}
                         </span>
                         {/* Rarity badge */}
                         <span
-                          className={`absolute top-3 right-3 px-2 py-0.5 rounded-lg text-[11px] font-medium capitalize ${
-                            RARITY_COLORS[gift.rarity] || RARITY_COLORS.common
-                          }`}
+                          className={`absolute top-3 right-3 px-2 py-0.5 rounded-lg text-[11px] font-medium capitalize ${RARITY_COLORS[gift.rarity] || RARITY_COLORS.common
+                            }`}
                         >
                           {gift.rarity}
                         </span>
@@ -342,10 +337,10 @@ const GiftManagement: React.FC = () => {
                                   {gift.isActive ? 'Deactivate' : 'Activate'}
                                 </button>
                                 <button
-                                  onClick={() => { handleDelete(gift._id); setActiveMenu(null); }}
+                                  onClick={() => { setGiftToDeactivate(gift._id); setActiveMenu(null); }}
                                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
                                 >
-                                  <Trash2 className="w-3.5 h-3.5" /> Delete
+                                  <Trash2 className="w-3.5 h-3.5" /> Deactivate
                                 </button>
                               </div>
                             )}
@@ -495,6 +490,15 @@ const GiftManagement: React.FC = () => {
       {openDialog && (
         <GiftDialog open={openDialog} onClose={handleCloseDialog} editingGift={editingGift} onSuccess={loadGifts} />
       )}
+
+      <ConfirmDialog
+        isOpen={!!giftToDeactivate}
+        title="Deactivate Gift"
+        message="Are you sure you want to deactivate this gift?"
+        confirmLabel="Deactivate"
+        onConfirm={confirmDelete}
+        onCancel={() => setGiftToDeactivate(null)}
+      />
     </div>
   );
 };

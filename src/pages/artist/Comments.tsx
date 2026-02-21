@@ -67,6 +67,7 @@ const Comments: React.FC = () => {
   const [replyDialog, setReplyDialog] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     loadComments();
@@ -114,16 +115,17 @@ const Comments: React.FC = () => {
     }
   };
 
-  const handleDeleteComment = async (commentId: string) => {
-    if (window.confirm('Are you sure you want to delete this comment?')) {
-      try {
-        await commentService.deleteComment(commentId);
-        toast.success('Comment deleted successfully');
-        loadComments();
-      } catch (error) {
-        toast.error('Failed to delete comment');
-        console.error('Error deleting comment:', error);
-      }
+  const confirmDeleteComment = async () => {
+    if (!commentToDelete) return;
+    try {
+      await commentService.deleteComment(commentToDelete);
+      toast.success('Comment deleted successfully');
+      loadComments();
+    } catch (error) {
+      toast.error('Failed to delete comment');
+      console.error('Error deleting comment:', error);
+    } finally {
+      setCommentToDelete(null);
     }
   };
 
@@ -197,10 +199,10 @@ const Comments: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       {/* Header */}
-      <Box 
-        sx={{ 
-          mb: 4, 
-          p: 4, 
+      <Box
+        sx={{
+          mb: 4,
+          p: 4,
           borderRadius: 3,
           background: 'rgba(255, 255, 255, 0.8)',
           backdropFilter: 'blur(20px)',
@@ -210,7 +212,7 @@ const Comments: React.FC = () => {
       >
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Box>
-            <Typography variant="h4" component="h1" sx={{ 
+            <Typography variant="h4" component="h1" sx={{
               fontWeight: 700,
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               backgroundClip: 'text',
@@ -291,7 +293,7 @@ const Comments: React.FC = () => {
       </Box>
 
       {/* Tabs */}
-      <Box sx={{ 
+      <Box sx={{
         mb: 3,
         borderRadius: 3,
         background: 'rgba(255, 255, 255, 0.8)',
@@ -299,8 +301,8 @@ const Comments: React.FC = () => {
         border: '1px solid rgba(255, 255, 255, 0.3)',
         overflow: 'hidden'
       }}>
-        <Tabs 
-          value={tabValue} 
+        <Tabs
+          value={tabValue}
           onChange={handleTabChange}
           sx={{
             '& .MuiTab-root': {
@@ -319,12 +321,12 @@ const Comments: React.FC = () => {
           }}
         >
           <Tab label="All Comments" />
-          <Tab 
+          <Tab
             label={
               <Badge badgeContent={comments.filter(c => c.moderationStatus === 'pending').length} color="warning">
                 Pending
               </Badge>
-            } 
+            }
           />
           <Tab label="Approved" />
           <Tab label="Rejected" />
@@ -427,7 +429,7 @@ const Comments: React.FC = () => {
                     <IconButton
                       size="small"
                       color="error"
-                      onClick={() => handleDeleteComment(comment._id)}
+                      onClick={() => setCommentToDelete(comment._id)}
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -438,8 +440,8 @@ const Comments: React.FC = () => {
                     {comment.replies.map((reply) => (
                       <ListItem key={reply._id} alignItems="flex-start" sx={{ pl: 6, pr: 3 }}>
                         <ListItemAvatar>
-                          <Avatar sx={{ 
-                            width: 32, 
+                          <Avatar sx={{
+                            width: 32,
                             height: 32,
                             background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
                             color: 'white',
@@ -496,7 +498,7 @@ const Comments: React.FC = () => {
                           <IconButton
                             size="small"
                             color="error"
-                            onClick={() => handleDeleteComment(reply._id)}
+                            onClick={() => setCommentToDelete(reply._id)}
                           >
                             <DeleteIcon />
                           </IconButton>
@@ -568,7 +570,7 @@ const Comments: React.FC = () => {
                   <IconButton
                     size="small"
                     color="error"
-                    onClick={() => handleDeleteComment(comment._id)}
+                    onClick={() => setCommentToDelete(comment._id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -619,7 +621,7 @@ const Comments: React.FC = () => {
                   <IconButton
                     size="small"
                     color="error"
-                    onClick={() => handleDeleteComment(comment._id)}
+                    onClick={() => setCommentToDelete(comment._id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -678,7 +680,7 @@ const Comments: React.FC = () => {
                   <IconButton
                     size="small"
                     color="error"
-                    onClick={() => handleDeleteComment(comment._id)}
+                    onClick={() => setCommentToDelete(comment._id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -690,10 +692,10 @@ const Comments: React.FC = () => {
       </TabPanel>
 
       {/* Reply Dialog */}
-      <Dialog 
-        open={replyDialog} 
-        onClose={() => setReplyDialog(false)} 
-        maxWidth="sm" 
+      <Dialog
+        open={replyDialog}
+        onClose={() => setReplyDialog(false)}
+        maxWidth="sm"
         fullWidth
         PaperProps={{
           sx: {
@@ -705,7 +707,7 @@ const Comments: React.FC = () => {
           }
         }}
       >
-        <DialogTitle sx={{ 
+        <DialogTitle sx={{
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           color: 'white',
           fontWeight: 600
@@ -729,9 +731,9 @@ const Comments: React.FC = () => {
           />
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button 
+          <Button
             onClick={() => setReplyDialog(false)}
-            sx={{ 
+            sx={{
               borderRadius: 2,
               textTransform: 'none',
               fontWeight: 600
@@ -759,6 +761,16 @@ const Comments: React.FC = () => {
           >
             Post Reply
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!commentToDelete} onClose={() => setCommentToDelete(null)}>
+        <DialogTitle sx={{ fontWeight: 600 }}>Delete Comment</DialogTitle>
+        <DialogContent>Are you sure you want to delete this comment? This action cannot be undone.</DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setCommentToDelete(null)} sx={{ textTransform: 'none', fontWeight: 600 }}>Cancel</Button>
+          <Button onClick={confirmDeleteComment} color="error" variant="contained" sx={{ textTransform: 'none', fontWeight: 600 }}>Delete</Button>
         </DialogActions>
       </Dialog>
     </Box>

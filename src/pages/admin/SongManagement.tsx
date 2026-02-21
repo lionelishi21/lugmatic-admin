@@ -7,6 +7,7 @@ import albumService, { Album } from '../../services/albumService';
 import artistService, { Artist } from '../../services/artistService';
 import genreService, { Genre } from '../../services/genreService';
 import FileUpload from '../../components/ui/FileUpload';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { Plus, Edit, Trash2, Music2, Search, User, Disc, Tag, Clock, Calendar, FileText } from 'lucide-react';
 
 const SongManagement: React.FC = () => {
@@ -15,6 +16,7 @@ const SongManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [songToDelete, setSongToDelete] = useState<string | null>(null);
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [formData, setFormData] = useState<Partial<CreateSongData>>({
     name: '',
@@ -102,16 +104,16 @@ const SongManagement: React.FC = () => {
     if (song) {
       setSelectedSong(song);
       // Handle artist - could be ID or name string
-      const artistId = typeof song.artist === 'object' ? song.artist._id : 
+      const artistId = typeof song.artist === 'object' ? song.artist._id :
         artists.find(a => a._id === song.artist || a.name === song.artist)?._id || song.artist;
-      
+
       // Handle album - could be ID or name string
       const albumId = typeof song.album === 'object' ? song.album._id :
         albums.find(a => a._id === song.album || a.name === song.album)?._id || song.album || '';
-      
+
       // Handle genre - could be ID or name string
       const genreId = genres.find(g => g._id === song.genre || g.name === song.genre)?._id || song.genre || '';
-      
+
       setFormData({
         name: song.name,
         artist: artistId,
@@ -185,20 +187,20 @@ const SongManagement: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate audio file for new songs
     if (!selectedSong && !audioFile) {
       toast.error('Please upload an audio file');
       return;
     }
-    
+
     try {
       // Clean up form data - convert empty album string to undefined
       const cleanedFormData = {
         ...formData,
         album: formData.album && formData.album.trim() !== '' ? formData.album : undefined,
       };
-      
+
       if (selectedSong) {
         // Update song (if backend supports it)
         await songService.updateSong(selectedSong._id, cleanedFormData as Partial<CreateSongData>);
@@ -220,17 +222,17 @@ const SongManagement: React.FC = () => {
     }
   };
 
-  const handleDelete = async (songId: string) => {
-    if (!window.confirm('Are you sure you want to delete this song?')) {
-      return;
-    }
+  const confirmDelete = async () => {
+    if (!songToDelete) return;
     try {
-      await songService.deleteSong(songId);
+      await songService.deleteSong(songToDelete);
       toast.success('Song deleted successfully');
       fetchSongs();
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to delete song';
       toast.error(errorMessage);
+    } finally {
+      setSongToDelete(null);
     }
   };
 
@@ -242,13 +244,13 @@ const SongManagement: React.FC = () => {
 
   const filteredSongs = songs.filter((song) => {
     const nameMatch = song.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const artistMatch = typeof song.artist === 'string' 
+    const artistMatch = typeof song.artist === 'string'
       ? song.artist.toLowerCase().includes(searchTerm.toLowerCase())
       : (song.artist?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const albumMatch = song.album 
-      ? (typeof song.album === 'string' 
-          ? song.album.toLowerCase().includes(searchTerm.toLowerCase())
-          : (song.album?.name || '').toLowerCase().includes(searchTerm.toLowerCase()))
+    const albumMatch = song.album
+      ? (typeof song.album === 'string'
+        ? song.album.toLowerCase().includes(searchTerm.toLowerCase())
+        : (song.album?.name || '').toLowerCase().includes(searchTerm.toLowerCase()))
       : false;
     return nameMatch || artistMatch || albumMatch;
   });
@@ -266,11 +268,11 @@ const SongManagement: React.FC = () => {
           <p className="text-gray-600 mt-2">Manage all songs in your system</p>
         </div>
         <button
-            onClick={() => handleOpenDialog()}
+          onClick={() => handleOpenDialog()}
           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
-          >
+        >
           <Plus className="w-5 h-5" />
-            Add New Song
+          Add New Song
         </button>
       </div>
 
@@ -356,7 +358,7 @@ const SongManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {song.album 
+                        {song.album
                           ? (typeof song.album === 'string' ? song.album : song.album.name || 'N/A')
                           : 'No Album'}
                       </div>
@@ -376,7 +378,7 @@ const SongManagement: React.FC = () => {
                           <Edit className="w-5 h-5" />
                         </button>
                         <button
-                          onClick={() => handleDelete(song._id)}
+                          onClick={() => setSongToDelete(song._id)}
                           className="text-red-600 hover:text-red-900"
                         >
                           <Trash2 className="w-5 h-5" />
@@ -401,7 +403,7 @@ const SongManagement: React.FC = () => {
           >
             <div className="mb-6 pb-4 border-b border-gray-200">
               <h2 className="text-2xl font-bold text-gray-800">
-          {selectedSong ? 'Edit Song' : 'Add New Song'}
+                {selectedSong ? 'Edit Song' : 'Add New Song'}
               </h2>
               <p className="text-sm text-gray-500 mt-1">
                 {selectedSong ? 'Update song information and files' : 'Fill in the details to create a new song'}
@@ -447,8 +449,8 @@ const SongManagement: React.FC = () => {
                 >
                   <option value="">Select an artist...</option>
                   {artists.map((artist) => {
-                    const displayName = artist.name || artist.fullName || 
-                      [artist.firstName, artist.lastName].filter(Boolean).join(' ') || 
+                    const displayName = artist.name || artist.fullName ||
+                      [artist.firstName, artist.lastName].filter(Boolean).join(' ') ||
                       'Unknown Artist';
                     return (
                       <option key={artist._id} value={artist._id}>
@@ -590,13 +592,22 @@ const SongManagement: React.FC = () => {
                   type="submit"
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                 >
-            {selectedSong ? 'Update' : 'Create'}
+                  {selectedSong ? 'Update' : 'Create'}
                 </button>
               </div>
             </form>
           </motion.div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={!!songToDelete}
+        title="Delete Song"
+        message="Are you sure you want to delete this song? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+        onCancel={() => setSongToDelete(null)}
+      />
     </div>
   );
 };

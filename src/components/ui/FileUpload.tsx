@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Upload, X, Image as ImageIcon, Music2 } from 'lucide-react';
 
 interface FileUploadProps {
@@ -35,18 +36,18 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const handleFileChange = (file: File) => {
     // Validate file type
     if (fileType === 'image' && !file.type.startsWith('image/')) {
-      alert('Please select an image file');
+      toast.error('Please select an image file');
       return;
     }
     if (fileType === 'audio' && !file.type.startsWith('audio/')) {
-      alert('Please select an audio file');
+      toast.error('Please select an audio file');
       return;
     }
 
     // Validate file size
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > actualMaxSize) {
-      alert(`File size must be less than ${actualMaxSize}MB`);
+      toast.error(`File size must be less than ${actualMaxSize}MB`);
       return;
     }
 
@@ -118,13 +119,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
       )}
 
       <div
-        className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${
-          dragActive
+        className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${dragActive
             ? 'border-green-500 bg-green-50'
             : error
-            ? 'border-red-300 bg-red-50'
-            : 'border-gray-300 bg-gray-50 hover:border-gray-400'
-        }`}
+              ? 'border-red-300 bg-red-50'
+              : 'border-gray-300 bg-gray-50 hover:border-gray-400'
+          }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
