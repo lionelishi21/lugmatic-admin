@@ -2,20 +2,28 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Upload as UploadIcon, Music, Image, X, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import genreService, { Genre } from '../../services/genreService';
+import songService, { CreateSongData } from '../../services/songService';
+import { useAuth } from '../../hooks/useAuth';
 
 interface UploadForm {
   title: string;
   description: string;
   genre: string;
+  releaseDate: string;
+  lyrics: string;
 }
 
 export default function Upload() {
+  const { user } = useAuth();
   const [form, setForm] = useState<UploadForm>({
     title: '',
     description: '',
     genre: '',
+    releaseDate: new Date().toISOString().split('T')[0],
+    lyrics: ''
   });
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioDuration, setAudioDuration] = useState<number>(0);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
@@ -53,6 +61,13 @@ export default function Upload() {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('audio/')) {
       setAudioFile(file);
+
+      // Get audio duration
+      const audio = new Audio(URL.createObjectURL(file));
+      audio.onloadedmetadata = () => {
+        setAudioDuration(Math.round(audio.duration));
+        URL.revokeObjectURL(audio.src);
+      };
     } else {
       toast.error('Please select a valid audio file');
     }
@@ -74,25 +89,67 @@ export default function Upload() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!user || (!user.id && !user.artistId)) {
+      toast.error('You must be logged in to upload songs');
+      return;
+    }
+
+    // Check for artistId, if missing verify if user.role is artist and has id
+    // Ideally we want user.artistId
+    const artistId = user.artistId || (user.role === 'artist' ? user.id : null);
+
+    if (!artistId) {
+      toast.error('Artist profile not found. Please log out and log in again.');
+      return;
+    }
+
     if (!audioFile || !coverImage) {
       toast.error('Please select both audio and cover image files');
       return;
     }
 
+    if (!form.genre) {
+      toast.error('Please select a genre');
+      return;
+    }
+
     setIsUploading(true);
     try {
-      // Simulate successful upload
-      toast.success('Track uploaded successfully! Waiting for approval.');
+      const songData: CreateSongData = {
+        name: form.title,
+        artist: String(artistId),
+        duration: audioDuration || 180, // Default to 3 mins if duration check failed
+        genre: form.genre,
+        releaseDate: form.releaseDate,
+        lyrics: form.lyrics,
+        coverArt: '', // Will be handled by service via file
+        audioFile: '', // Will be handled by service via file
+        album: '' // Optional
+      };
+
+      await songService.createSong(songData, audioFile, coverImage);
+
+      toast.success('Track uploaded successfully!');
+
       // Reset form
-      setForm({ title: '', description: '', genre: '' });
+      setForm({
+        title: '',
+        description: '',
+        genre: '',
+        releaseDate: new Date().toISOString().split('T')[0],
+        lyrics: ''
+      });
       setAudioFile(null);
+      setAudioDuration(0);
       setCoverImage(null);
       setCoverPreview('');
       if (audioInputRef.current) audioInputRef.current.value = '';
       if (imageInputRef.current) imageInputRef.current.value = '';
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error('Failed to upload track. Please try again.');
+      toast.error(error.message || 'Failed to upload track. Please try again.');
     } finally {
       setIsUploading(false);
     }
@@ -121,43 +178,73 @@ export default function Upload() {
               />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="genre" className="block text-sm font-medium text-gray-700">
+                  Genre
+                </label>
+                <select
+                  id="genre"
+                  name="genre"
+                  value={form.genre}
+                  onChange={handleFormChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  required
+                  disabled={loadingGenres}
+                >
+                  <option value="">
+                    {loadingGenres ? 'Loading genres...' : 'Select a genre'}
+                  </option>
+                  {genres.map((genre) => (
+                    <option key={genre._id} value={genre._id}>
+                      {genre.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="releaseDate" className="block text-sm font-medium text-gray-700">
+                  Release Date
+                </label>
+                <input
+                  type="date"
+                  id="releaseDate"
+                  name="releaseDate"
+                  value={form.releaseDate}
+                  onChange={handleFormChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  required
+                />
+              </div>
+            </div>
+
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                Description
+                Description (not used)
               </label>
               <textarea
                 id="description"
                 name="description"
                 value={form.description}
                 onChange={handleFormChange}
-                rows={3}
+                rows={2}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                required
               />
             </div>
 
             <div>
-              <label htmlFor="genre" className="block text-sm font-medium text-gray-700">
-                Genre
+              <label htmlFor="lyrics" className="block text-sm font-medium text-gray-700">
+                Lyrics
               </label>
-              <select
-                id="genre"
-                name="genre"
-                value={form.genre}
+              <textarea
+                id="lyrics"
+                name="lyrics"
+                value={form.lyrics}
                 onChange={handleFormChange}
+                rows={4}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                required
-                disabled={loadingGenres}
-              >
-                <option value="">
-                  {loadingGenres ? 'Loading genres...' : 'Select a genre'}
-                </option>
-                {genres.map((genre) => (
-                  <option key={genre._id} value={genre._id}>
-                    {genre.name}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
           </div>
 
@@ -178,10 +265,15 @@ export default function Upload() {
                       <div className="flex items-center space-x-2">
                         <Music className="h-8 w-8 text-purple-500" />
                         <span className="text-sm text-gray-700">{audioFile.name}</span>
+                        <div className="text-xs text-gray-500">
+                          {Math.floor(audioDuration / 60)}:{String(audioDuration % 60).padStart(2, '0')}
+                        </div>
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
                             setAudioFile(null);
+                            setAudioDuration(0);
                             if (audioInputRef.current) audioInputRef.current.value = '';
                           }}
                           className="text-red-500 hover:text-red-700"
@@ -228,7 +320,8 @@ export default function Upload() {
                       />
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
                           setCoverImage(null);
                           setCoverPreview('');
                           if (imageInputRef.current) imageInputRef.current.value = '';

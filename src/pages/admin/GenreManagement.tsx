@@ -11,7 +11,7 @@ const GenreManagement: React.FC = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [submitting, setSubmitting] = useState(false);
-  
+
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -104,7 +104,7 @@ const GenreManagement: React.FC = () => {
     return genres.filter((g) => {
       const matchesSearch = g.name.toLowerCase().includes(search.toLowerCase()) ||
         g.description.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || 
+      const matchesStatus = statusFilter === 'all' ||
         (statusFilter === 'active' && g.isActive) ||
         (statusFilter === 'inactive' && !g.isActive);
       return matchesSearch && matchesStatus;
@@ -143,22 +143,27 @@ const GenreManagement: React.FC = () => {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {[
-          { label: 'Total Genres', value: genres.length, icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" /></svg>
-          ), color: 'green' },
-          { label: 'Active', value: activeCount, icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-          ), color: 'emerald' },
-          { label: 'Total Songs', value: totalSongs, icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>
-          ), color: 'blue' },
+          {
+            label: 'Total Genres', value: genres.length, icon: (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" /></svg>
+            ), color: 'green'
+          },
+          {
+            label: 'Active', value: activeCount, icon: (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            ), color: 'emerald'
+          },
+          {
+            label: 'Total Songs', value: totalSongs, icon: (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>
+            ), color: 'blue'
+          },
         ].map((stat) => (
           <div key={stat.label} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${
-              stat.color === 'green' ? 'bg-green-50 text-green-600' :
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${stat.color === 'green' ? 'bg-green-50 text-green-600' :
               stat.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' :
-              'bg-blue-50 text-blue-600'
-            }`}>
+                'bg-blue-50 text-blue-600'
+              }`}>
               {stat.icon}
             </div>
             <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
@@ -187,9 +192,8 @@ const GenreManagement: React.FC = () => {
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors ${
-                  statusFilter === s ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                }`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors ${statusFilter === s ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                  }`}
               >
                 {s}
               </button>
@@ -320,9 +324,8 @@ const GenreManagement: React.FC = () => {
                       <td className="px-5 py-3.5 text-sm font-medium text-gray-700">{genre.albumCount}</td>
                       <td className="px-5 py-3.5 text-sm font-medium text-gray-700">{genre.artistCount}</td>
                       <td className="px-5 py-3.5">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${
-                          genre.status === 'active' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'
-                        }`}>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${genre.status === 'active' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'
+                          }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${genre.status === 'active' ? 'bg-green-500' : 'bg-gray-400'}`} />
                           {genre.status}
                         </span>
@@ -376,10 +379,11 @@ const GenreManagement: React.FC = () => {
               </div>
               <p className="text-sm text-gray-400 mb-5">{selectedGenre ? 'Update genre details' : 'Add a new music category'}</p>
             </div>
-            <div className="px-6 space-y-4">
+            <form ref={formRef} onSubmit={handleSubmit} className="px-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Genre Name</label>
                 <input
+                  name="name"
                   defaultValue={selectedGenre?.name}
                   placeholder="e.g. Afrobeats"
                   className="w-full rounded-xl bg-gray-50/80 border-0 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:bg-white transition-colors"
@@ -388,6 +392,7 @@ const GenreManagement: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
                 <textarea
+                  name="description"
                   defaultValue={selectedGenre?.description}
                   placeholder="Brief description of this genre..."
                   rows={3}
@@ -395,30 +400,48 @@ const GenreManagement: React.FC = () => {
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Color Theme</label>
+                <select
+                  name="color"
+                  defaultValue={selectedGenre?.color || 'emerald'}
+                  className="w-full rounded-xl bg-gray-50/80 border-0 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:bg-white transition-colors"
+                >
+                  <option value="rose">Rose</option>
+                  <option value="orange">Orange</option>
+                  <option value="violet">Violet</option>
+                  <option value="cyan">Cyan</option>
+                  <option value="amber">Amber</option>
+                  <option value="emerald">Emerald</option>
+                </select>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
                 <select
-                  defaultValue={selectedGenre?.status || 'active'}
+                  name="status"
+                  defaultValue={selectedGenre?.isActive ? 'active' : 'inactive'}
                   className="w-full rounded-xl bg-gray-50/80 border-0 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:bg-white transition-colors"
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
               </div>
-            </div>
-            <div className="p-6 flex items-center justify-end gap-3">
-              <button
-                onClick={handleCloseDialog}
-                className="px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCloseDialog}
-                className="px-5 py-2.5 text-sm font-medium bg-green-600 text-white hover:bg-green-700 rounded-xl transition-colors shadow-sm"
-              >
-                {selectedGenre ? 'Save Changes' : 'Create Genre'}
-              </button>
-            </div>
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={handleCloseDialog}
+                  className="px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-5 py-2.5 text-sm font-medium bg-green-600 text-white hover:bg-green-700 rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                >
+                  {submitting ? 'Saving...' : (selectedGenre ? 'Save Changes' : 'Create Genre')}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

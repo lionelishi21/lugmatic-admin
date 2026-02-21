@@ -6,6 +6,7 @@ interface AuthUser {
   id: string | number;
   email: string;
   role: string;
+  artistId?: string;
   accessToken?: string;
   refreshToken?: string;
 }
@@ -38,10 +39,10 @@ const getErrorMessage = (error: unknown): string => {
     error?: string;
     [key: string]: unknown;
   }>;
-  
+
   if (axiosError.response) {
     if (
-      axiosError.response.data && 
+      axiosError.response.data &&
       typeof axiosError.response.data === 'object'
     ) {
       if ('message' in axiosError.response.data) {
