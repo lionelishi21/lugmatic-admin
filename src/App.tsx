@@ -20,6 +20,7 @@ import ArtistCreate from './pages/admin/ArtistCreate';
 import { ArtistProvider } from './context/ArtistContext';
 import AuthInitializer from './components/AuthInitializer';
 import ProtectedRoute from './components/ProtectedRoute';
+import { Toaster } from 'react-hot-toast';
 
 // Import new pages for comprehensive features
 import Podcasts from './pages/artist/Podcasts';
@@ -45,12 +46,13 @@ import PlaylistManagement from './pages/admin/PlaylistManagement';
 function App() {
   return (
     <>
+      <Toaster position="top-center" />
       <AuthInitializer>
         <Router>
-        <Routes>
+          <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Navigate to="/login" replace />} />
-            
+
             <Route path="/artist/*" element={
               <ProtectedRoute requiredRole="artist">
                 <Layout>
@@ -72,7 +74,7 @@ function App() {
                 </Layout>
               </ProtectedRoute>
             } />
-            
+
             <Route
               path="/admin/*"
               element={
@@ -90,7 +92,7 @@ function App() {
                         <Route path="album-management" element={<AlbumManagement />} />
                         <Route path="song-management" element={<SongManagement />} />
                         <Route path="playlist-management" element={<PlaylistManagement />} />
-                        <Route path="genre-management" element={<GenreManagement />} /> 
+                        <Route path="genre-management" element={<GenreManagement />} />
                         <Route path="artist-add" element={<ArtistCreate />} />
                         {/* New admin routes */}
                         <Route path="podcast-management" element={<PodcastManagement />} />
@@ -109,7 +111,7 @@ function App() {
               }
             />
 
-        </Routes>
+          </Routes>
         </Router>
       </AuthInitializer>
     </>
