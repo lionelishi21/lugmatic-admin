@@ -73,6 +73,14 @@ const songService = {
   },
 
   /**
+   * Get song for admin view (details + populated data)
+   */
+  adminGetSongById: async (id: string): Promise<Song> => {
+    const response = await apiService.get<Song>(`/admin/songs/${id}`);
+    return extractResponseData<Song>(response);
+  },
+
+  /**
    * Create a new song with file uploads
    */
   createSong: async (songData: CreateSongData, audioFile?: File, coverArtFile?: File): Promise<Song> => {
@@ -141,6 +149,14 @@ const songService = {
 
     // Send PUT request with FormData
     const response = await apiService.put<Song>(`/song/update/${id}`, formData);
+    return extractResponseData<Song>(response);
+  },
+
+  /**
+   * Admin update song (partial updates)
+   */
+  adminUpdateSong: async (id: string, songData: UpdateSongData): Promise<Song> => {
+    const response = await apiService.patch<Song>(`/admin/songs/${id}`, songData);
     return extractResponseData<Song>(response);
   },
 

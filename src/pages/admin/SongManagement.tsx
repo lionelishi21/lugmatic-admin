@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import Preloader from '../../components/ui/Preloader';
 import { toast } from 'react-hot-toast';
 import songService, { Song, CreateSongData } from '../../services/songService';
@@ -11,6 +12,7 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { Plus, Edit, Trash2, Music2, Search, User, Disc, Tag, Clock, Calendar, FileText } from 'lucide-react';
 
 const SongManagement: React.FC = () => {
+  const navigate = useNavigate();
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -377,13 +379,14 @@ const SongManagement: React.FC = () => {
                       <div className="text-sm text-gray-900">{formatDuration(song.duration)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleOpenDialog(song)}
-                          className="text-indigo-600 hover:text-indigo-900"
-                        >
-                          <Edit className="w-5 h-5" />
-                        </button>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => navigate(`/admin/song-management/${song._id}`)}
+                            className="text-green-600 hover:text-green-800"
+                            title="View / Edit"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </button>
                         <button
                           onClick={() => setSongToDelete(song._id)}
                           className="text-red-600 hover:text-red-900"

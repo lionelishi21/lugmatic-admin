@@ -180,6 +180,9 @@ export const apiService = {
   delete: <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> =>
     api.delete(url, config),
 
+  patch: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> =>
+    api.patch(url, data, config),
+
   // Auth specific methods
   login: (email: string, password: string) =>
     api.post('/auth/login', { email, password }),

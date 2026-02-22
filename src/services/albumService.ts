@@ -60,6 +60,14 @@ const albumService = {
   },
 
   /**
+   * Get album for admin view (details + populated songs/artist)
+   */
+  adminGetAlbumById: async (id: string): Promise<Album> => {
+    const response = await apiService.get<Album>(`/admin/albums/${id}`);
+    return extractResponseData<Album>(response);
+  },
+
+  /**
    * Create a new album (JSON, no image)
    */
   createAlbum: async (albumData: CreateAlbumData): Promise<Album> => {
@@ -103,6 +111,14 @@ const albumService = {
    */
   updateAlbum: async (id: string, albumData: Partial<UpdateAlbumData>): Promise<Album> => {
     const response = await apiService.put<Album>(`/album/update/${id}`, albumData);
+    return extractResponseData<Album>(response);
+  },
+
+  /**
+   * Admin update album content
+   */
+  adminUpdateAlbum: async (id: string, albumData: Partial<UpdateAlbumData>): Promise<Album> => {
+    const response = await apiService.patch<Album>(`/admin/albums/${id}`, albumData);
     return extractResponseData<Album>(response);
   },
 

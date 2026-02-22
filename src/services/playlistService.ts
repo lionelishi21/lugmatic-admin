@@ -84,6 +84,14 @@ const playlistService = {
   },
 
   /**
+   * Get playlist for admin view (details + populated songs/owner)
+   */
+  adminGetPlaylistById: async (id: string): Promise<Playlist> => {
+    const response = await apiService.get<Playlist>(`/admin/playlists/${id}`);
+    return extractResponseData<Playlist>(response);
+  },
+
+  /**
    * Create a new playlist
    */
   createPlaylist: async (playlistData: CreatePlaylistData): Promise<Playlist> => {
@@ -104,6 +112,14 @@ const playlistService = {
    */
   updatePlaylist: async (id: string, playlistData: Partial<UpdatePlaylistData>): Promise<Playlist> => {
     const response = await apiService.put<Playlist>(`/playlist/update/${id}`, playlistData);
+    return extractResponseData<Playlist>(response);
+  },
+
+  /**
+   * Admin update playlist content
+   */
+  adminUpdatePlaylist: async (id: string, playlistData: Partial<UpdatePlaylistData>): Promise<Playlist> => {
+    const response = await apiService.patch<Playlist>(`/admin/playlists/${id}`, playlistData);
     return extractResponseData<Playlist>(response);
   },
 
