@@ -92,7 +92,13 @@ const AlbumManagement: React.FC = () => {
       setFormData({
         name: album.name,
         artist: typeof album.artist === 'string' ? album.artist : album.artist._id,
-        releaseDate: album.releaseDate ? new Date(album.releaseDate).toISOString().split('T')[0] : '',
+        releaseDate: (() => {
+          if (!album.releaseDate) return '';
+          try {
+            const d = new Date(album.releaseDate);
+            return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : '';
+          } catch { return ''; }
+        })(),
         genre: typeof album.genre === 'string' ? album.genre : album.genre?._id || '',
         coverArt: album.coverArt,
         songs: album.songs || [],

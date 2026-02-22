@@ -7,23 +7,23 @@ import Preloader from '../../components/ui/Preloader';
 const ArtistDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { 
-    fetchArtistById, 
+  const {
+    fetchArtistById,
     fetchArtistAlbums,
     fetchArtistSongs,
-    selectedArtist, 
+    selectedArtist,
     albums,
     songs,
-    loading, 
-    error, 
+    loading,
+    error,
     albumsLoading,
     songsLoading,
     albumsError,
     songsError,
-    approveArtist, 
+    approveArtist,
     rejectArtist,
     clearSelectedArtist,
-    clearDiscography 
+    clearDiscography
   } = useArtistContext();
 
   // Fetch artist details when component mounts
@@ -89,7 +89,7 @@ const ArtistDetails: React.FC = () => {
         <div className="bg-red-100 p-4 rounded-lg text-red-700 mb-4">
           Error: {error}
         </div>
-        <button 
+        <button
           onClick={handleBack}
           className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
         >
@@ -115,7 +115,7 @@ const ArtistDetails: React.FC = () => {
         <div className="bg-yellow-100 p-4 rounded-lg text-yellow-700 mb-4">
           Artist not found
         </div>
-        <button 
+        <button
           onClick={handleBack}
           className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
         >
@@ -126,9 +126,9 @@ const ArtistDetails: React.FC = () => {
   }
 
   const displayName =
-    selectedArtist.name ||
-    selectedArtist.fullName ||
-    [selectedArtist.firstName, selectedArtist.lastName].filter(Boolean).join(' ') ||
+    selectedArtist?.name ||
+    selectedArtist?.fullName ||
+    [selectedArtist?.firstName, selectedArtist?.lastName].filter(Boolean).join(' ') ||
     'Unknown Artist';
   const displayEmail = selectedArtist.email || (selectedArtist as any).contactEmail || '—';
   const avatarSrc =
@@ -137,8 +137,8 @@ const ArtistDetails: React.FC = () => {
     (selectedArtist.image as string) ||
     'https://placehold.co/200x200/gray/white?text=Artist';
   const statusValue =
-    selectedArtist.status ||
-    (selectedArtist.isApproved ? 'active' : selectedArtist.isVerified ? 'verified' : 'pending');
+    selectedArtist?.status ||
+    (selectedArtist?.isApproved ? 'active' : selectedArtist?.isVerified ? 'verified' : 'pending');
   const normalizedStatus = (statusValue || '').toLowerCase();
   const statusClass =
     normalizedStatus === 'active' || normalizedStatus === 'approved'
@@ -146,9 +146,13 @@ const ArtistDetails: React.FC = () => {
       : normalizedStatus === 'pending'
         ? 'bg-yellow-100 text-yellow-800'
         : 'bg-red-100 text-red-800';
-  const joinDate = selectedArtist.createdAt
-    ? new Date(selectedArtist.createdAt).toLocaleDateString()
-    : '—';
+  const joinDate = (() => {
+    if (!selectedArtist.createdAt) return '—';
+    try {
+      const d = new Date(selectedArtist.createdAt);
+      return !isNaN(d.getTime()) ? d.toLocaleDateString() : '—';
+    } catch { return '—'; }
+  })();
   const genres =
     Array.isArray(selectedArtist.genres) && selectedArtist.genres.length > 0
       ? selectedArtist.genres
@@ -162,7 +166,7 @@ const ArtistDetails: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Page Header */}
-      <motion.div 
+      <motion.div
         className="mb-6 flex justify-between items-center"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -173,13 +177,13 @@ const ArtistDetails: React.FC = () => {
           <p className="text-gray-600">{displayEmail}</p>
         </div>
         <div className="flex space-x-3">
-          <button 
+          <button
             onClick={handleBack}
             className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
           >
             Back
           </button>
-          <button 
+          <button
             onClick={handleEdit}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
           >
@@ -189,7 +193,7 @@ const ArtistDetails: React.FC = () => {
       </motion.div>
 
       {/* Artist Card */}
-      <motion.div 
+      <motion.div
         className="bg-white rounded-lg shadow-md overflow-hidden mb-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -199,13 +203,13 @@ const ArtistDetails: React.FC = () => {
           <div className="flex flex-col md:flex-row">
             {/* Artist Image */}
             <div className="md:w-1/4 flex justify-center mb-4 md:mb-0">
-              <img 
-                src={avatarSrc} 
-                alt={displayName} 
+              <img
+                src={avatarSrc}
+                alt={displayName}
                 className="w-48 h-48 rounded-full object-cover"
               />
             </div>
-            
+
             {/* Artist Info */}
             <div className="md:w-3/4 md:pl-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -226,17 +230,17 @@ const ArtistDetails: React.FC = () => {
                   <p>{joinDate}</p>
                 </div>
               </div>
-              
+
               {/* Actions based on artist status */}
               {canReviewArtist && (
                 <div className="mt-6 flex space-x-3">
-                  <button 
+                  <button
                     onClick={handleApprove}
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                   >
                     Approve
                   </button>
-                  <button 
+                  <button
                     onClick={handleReject}
                     className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                   >
@@ -244,10 +248,10 @@ const ArtistDetails: React.FC = () => {
                   </button>
                 </div>
               )}
-              
+
               {/* Analytics button */}
               <div className="mt-6">
-                <button 
+                <button
                   onClick={handleViewAnalytics}
                   className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
                 >
@@ -295,9 +299,13 @@ const ArtistDetails: React.FC = () => {
                       <h3 className="text-lg font-medium text-gray-900">{album.title}</h3>
                       <p className="text-sm text-gray-500">
                         Released:{' '}
-                        {album.releaseDate
-                          ? new Date(album.releaseDate).toLocaleDateString()
-                          : '—'}
+                        {(() => {
+                          if (!album.releaseDate) return '—';
+                          try {
+                            const d = new Date(album.releaseDate);
+                            return !isNaN(d.getTime()) ? d.toLocaleDateString() : '—';
+                          } catch { return '—'; }
+                        })()}
                       </p>
                       <p className="text-sm text-gray-500">
                         Tracks:{' '}
@@ -352,8 +360,8 @@ const ArtistDetails: React.FC = () => {
                         Duration:{' '}
                         {song.duration
                           ? `${Math.floor(song.duration / 60)}:${(song.duration % 60)
-                              .toString()
-                              .padStart(2, '0')}`
+                            .toString()
+                            .padStart(2, '0')}`
                           : (song as any).formattedDuration || '—'}
                       </p>
                     </div>

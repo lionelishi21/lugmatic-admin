@@ -62,18 +62,31 @@ const SongDetail: React.FC = () => {
   };
 
   const populateForm = (s: Song, artistList: Artist[], albumList: Album[], genreList: Genre[]) => {
-    const artistId = typeof s.artist === 'object' ? s.artist._id :
+    const artistId = typeof s.artist === 'object' ? s.artist?._id :
       artistList.find(a => a._id === s.artist || a.name === s.artist)?._id || s.artist;
     const albumId = typeof s.album === 'object' ? s.album?._id :
       albumList.find(a => a._id === s.album || a.name === s.album)?._id || s.album || '';
     const genreId = genreList.find(g => g._id === s.genre || g.name === s.genre)?._id || s.genre || '';
+
+    let formattedDate = '';
+    if (s.releaseDate) {
+      try {
+        const d = new Date(s.releaseDate);
+        if (!isNaN(d.getTime())) {
+          formattedDate = d.toISOString().split('T')[0];
+        }
+      } catch (e) {
+        console.error('Failed to parse release date:', e);
+      }
+    }
+
     setFormData({
       name: s.name,
       artist: artistId,
       album: albumId,
       duration: s.duration,
       genre: genreId,
-      releaseDate: s.releaseDate ? new Date(s.releaseDate).toISOString().split('T')[0] : '',
+      releaseDate: formattedDate,
       lyrics: s.lyrics,
       coverArt: s.coverArt,
       audioFile: s.audioFile,
@@ -159,6 +172,7 @@ const SongDetail: React.FC = () => {
   const genreName = genres.find(g => g._id === song.genre)?.name || song.genre || '—';
   const coverUrl = song.coverArtUrl || song.coverArt || null;
   const audioUrl = song.audioFileUrl || song.audioFile || null;
+  const sDate = song.releaseDate ? new Date(song.releaseDate) : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50/20 to-gray-100 p-6">
@@ -272,7 +286,7 @@ const SongDetail: React.FC = () => {
               { icon: <Disc className="w-4 h-4 text-purple-500" />, label: 'Album', value: albumName },
               { icon: <Tag className="w-4 h-4 text-amber-500" />, label: 'Genre', value: genreName },
               { icon: <Clock className="w-4 h-4 text-green-500" />, label: 'Duration', value: formatDuration(song.duration) },
-              { icon: <Calendar className="w-4 h-4 text-rose-500" />, label: 'Released', value: song.releaseDate ? new Date(song.releaseDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—' },
+              { icon: <Calendar className="w-4 h-4 text-rose-500" />, label: 'Released', value: sDate && !isNaN(sDate.getTime()) ? sDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—' },
               { icon: song.isActive !== false ? <CheckCircle className="w-4 h-4 text-green-500" /> : <XCircle className="w-4 h-4 text-red-400" />, label: 'Status', value: song.isActive !== false ? 'Active' : 'Inactive' },
             ].map(({ icon, label, value }) => (
               <div key={label} className="flex items-center gap-3">
