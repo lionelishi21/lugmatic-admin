@@ -1,162 +1,98 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Users, 
-  Music2, 
-  Radio, 
-  DollarSign, 
-  TrendingUp, 
-  Clock, 
-  ExternalLink, 
-  Heart, 
+import {
+  Users,
+  Music2,
+  Radio,
+  DollarSign,
+  TrendingUp,
+  Clock,
+  ExternalLink,
+  Heart,
   Headphones,
   Globe,
-  PlayCircle
+  PlayCircle,
+  Loader2,
+  AlertCircle,
+  UserPlus
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { adminService } from '../../services/adminService';
 
-// Typescript Types
-interface PlatformStats {
+// Types matching the API response
+interface DashboardOverview {
+  totalUsers: number;
   totalArtists: number;
-  totalTracks: number;
+  totalSongs: number;
+  totalAlbums: number;
+  totalPodcasts: number;
+  totalGifts: number;
+  totalComments: number;
+  totalSubscriptions: number;
   activeLiveStreams: number;
-  totalRevenue: number;
-  totalListeners: number;
 }
 
-interface Artist {
-  id: string;
+interface TopArtist {
+  _id: string;
   name: string;
-  total_listeners: number;
-  profile_image?: string;
+  image?: string;
   genres: string[];
+  followerCount: number;
 }
 
 interface RecentActivity {
   id: string;
   type: 'track_upload' | 'live_stream' | 'artist_signup' | 'playlist_created';
   artistName: string;
-  title?: string;
+  title?: string | null;
   timestamp: string;
 }
 
-// Custom hook for data fetching
-function useFetch<T>(initialData: T, fetchFunction: () => T) {
-  const [data, setData] = useState<T>(initialData);
-  const [loading, setLoading] = useState<boolean>(false);
+interface Revenue {
+  total: number;
+  monthly: number;
+  totalTransactions: number;
+}
+
+interface DashboardData {
+  overview: DashboardOverview;
+  topArtists: TopArtist[];
+  recentActivity: RecentActivity[];
+  revenue: Revenue;
+}
+
+export default function MusicAdminDashboard() {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    const fetchDashboard = async () => {
       try {
-        // In a real app, this would be an async API call
-        const result = fetchFunction();
-        setData(result);
+        setLoading(true);
         setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        const response = await adminService.getDashboardData();
+        setData(response.data.data);
+      } catch (err: any) {
+        console.error('Error fetching dashboard data:', err);
+        setError(err?.response?.data?.message || err?.message || 'Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, [fetchFunction]);
+    fetchDashboard();
+  }, []);
 
-  return { data, loading, error };
-}
-
-// (removed unused useFetchArtist helper)
-
-export default function MusicAdminDashboard() {
-  // Generate mock data functions
-  const fetchStats = () => {
-    return {
-      totalArtists: 1245,
-      totalTracks: 45678,
-      activeLiveStreams: 23,
-      totalRevenue: 345678,
-      totalListeners: 562345
-    };
-  };
-
-  const fetchTopArtists = () => {
-    return [
-      {
-        id: '1',
-        name: 'Aria Waves',
-        total_listeners: 345678,
-        profile_image: '/api/placeholder/50/50',
-        genres: ['Electronic', 'Ambient']
-      },
-      {
-        id: '2',
-        name: 'Jazz Horizons',
-        total_listeners: 234567,
-        profile_image: '/api/placeholder/50/50',
-        genres: ['Jazz', 'Fusion']
-      },
-      {
-        id: '3',
-        name: 'Rock Pulse',
-        total_listeners: 156789,
-        profile_image: '/api/placeholder/50/50',
-        genres: ['Rock', 'Alternative']
-      }
-    ];
-  };
-
-  const fetchRecentActivity = (): RecentActivity[] => {
-    return [
-      {
-        id: '1',
-        type: 'track_upload',
-        artistName: 'Aria Waves',
-        title: 'Ethereal Echoes',
-        timestamp: new Date().toISOString()
-      },
-      {
-        id: '2',
-        type: 'live_stream',
-        artistName: 'Jazz Horizons',
-        title: 'Late Night Jazz Session',
-        timestamp: new Date().toISOString()
-      },
-      {
-        id: '3',
-        type: 'playlist_created',
-        artistName: 'Rock Pulse',
-        title: 'Weekend Rock Mix',
-        timestamp: new Date().toISOString()
-      }
-    ];
-  };
-
-  // Use the custom hook to fetch data
-  const { data: stats } = useFetch<PlatformStats>({
-    totalArtists: 0,
-    totalTracks: 0,
-    activeLiveStreams: 0,
-    totalRevenue: 0,
-    totalListeners: 0
-  }, fetchStats);
-
-  const { data: topArtists } = useFetch<Artist[]>([], fetchTopArtists);
-  const { data: recentActivity } = useFetch<RecentActivity[]>([], fetchRecentActivity);
-
-  // Example of using the artist-specific hook (not used in the UI yet)
-  // const { artist: featuredArtist, loading: loadingFeatured } = useFetchArtist('featured');
-
-  const StatCard = ({ 
-    icon: Icon, 
-    title, 
-    value, 
+  const StatCard = ({
+    icon: Icon,
+    title,
+    value,
     trend,
     color = 'green'
-  }: { 
-    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>, 
-    title: string, 
-    value: string | number, 
+  }: {
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>,
+    title: string,
+    value: string | number,
     trend?: string,
     color?: 'green' | 'emerald' | 'blue' | 'amber' | 'rose'
   }) => {
@@ -189,6 +125,50 @@ export default function MusicAdminDashboard() {
     );
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-1">Overview of your music platform</p>
+        </div>
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 text-green-600 animate-spin mx-auto" />
+            <p className="text-sm text-gray-500 mt-3">Loading dashboard...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !data) {
+    return (
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-1">Overview of your music platform</p>
+        </div>
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <AlertCircle className="h-8 w-8 text-red-500 mx-auto" />
+            <p className="text-sm text-red-600 mt-3">{error || 'Failed to load dashboard data'}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const { overview, topArtists, recentActivity, revenue } = data;
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
@@ -199,38 +179,34 @@ export default function MusicAdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <StatCard 
-          icon={Users} 
-          title="Total Artists" 
-          value={stats.totalArtists.toLocaleString()} 
-          trend="+5.2%"
+        <StatCard
+          icon={Users}
+          title="Total Artists"
+          value={overview.totalArtists.toLocaleString()}
           color="green"
         />
-        <StatCard 
-          icon={Headphones} 
-          title="Total Listeners" 
-          value={stats.totalListeners.toLocaleString()} 
-          trend="+8.7%"
+        <StatCard
+          icon={Headphones}
+          title="Total Listeners"
+          value={overview.totalUsers.toLocaleString()}
           color="blue"
         />
-        <StatCard 
-          icon={Music2} 
-          title="Total Tracks" 
-          value={stats.totalTracks.toLocaleString()}
+        <StatCard
+          icon={Music2}
+          title="Total Tracks"
+          value={overview.totalSongs.toLocaleString()}
           color="emerald"
         />
-        <StatCard 
-          icon={Radio} 
-          title="Live Streams" 
-          value={stats.activeLiveStreams} 
-          trend="+12.3%"
+        <StatCard
+          icon={Radio}
+          title="Live Streams"
+          value={overview.activeLiveStreams}
           color="rose"
         />
-        <StatCard 
-          icon={DollarSign} 
-          title="Total Revenue" 
-          value={`$${stats.totalRevenue.toLocaleString()}`} 
-          trend="+9.1%"
+        <StatCard
+          icon={DollarSign}
+          title="Total Revenue"
+          value={`$${(revenue.total / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           color="amber"
         />
       </div>
@@ -245,40 +221,47 @@ export default function MusicAdminDashboard() {
             </button>
           </div>
           <div className="divide-y divide-gray-50">
-            {topArtists.map((artist, index) => (
-              <div 
-                key={artist.id} 
-                className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-gray-300 w-5 text-center">{index + 1}</span>
-                  <img
-                    src={artist.profile_image || '/api/placeholder/50/50'}
-                    alt={artist.name}
-                    className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                  />
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900">{artist.name}</h3>
-                    <p className="text-xs text-gray-500">
-                      {artist.total_listeners.toLocaleString()} listeners
-                    </p>
+            {topArtists.length === 0 ? (
+              <div className="px-5 py-8 text-center text-sm text-gray-400">
+                No artists found
+              </div>
+            ) : (
+              topArtists.map((artist, index) => (
+                <div
+                  key={artist._id}
+                  className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50/50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-gray-300 w-5 text-center">{index + 1}</span>
+                    <img
+                      src={artist.image || '/api/placeholder/50/50'}
+                      alt={artist.name}
+                      className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
+                      onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&background=22c55e&color=fff`; }}
+                    />
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900">{artist.name}</h3>
+                      <p className="text-xs text-gray-500">
+                        {artist.followerCount.toLocaleString()} followers
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {artist.genres.slice(0, 2).map((genre) => (
+                      <span
+                        key={genre}
+                        className="text-[10px] font-medium bg-green-50 text-green-700 px-2 py-0.5 rounded-full"
+                      >
+                        {genre}
+                      </span>
+                    ))}
+                    <button className="text-gray-300 hover:text-green-500 transition-colors ml-1">
+                      <PlayCircle className="h-5 w-5" />
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {artist.genres.map((genre) => (
-                    <span 
-                      key={genre} 
-                      className="text-[10px] font-medium bg-green-50 text-green-700 px-2 py-0.5 rounded-full"
-                    >
-                      {genre}
-                    </span>
-                  ))}
-                  <button className="text-gray-300 hover:text-green-500 transition-colors ml-1">
-                    <PlayCircle className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -288,37 +271,45 @@ export default function MusicAdminDashboard() {
             <h2 className="text-base font-semibold text-gray-900">Recent Activity</h2>
           </div>
           <div className="divide-y divide-gray-50">
-            {recentActivity.map((activity) => (
-              <div 
-                key={activity.id} 
-                className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-gray-50/50 transition-colors"
-              >
-                <div className={`p-2 rounded-lg flex-shrink-0 ${
-                  activity.type === 'track_upload' ? 'bg-blue-50 ring-1 ring-blue-100' :
-                  activity.type === 'live_stream' ? 'bg-green-50 ring-1 ring-green-100' : 
-                  activity.type === 'playlist_created' ? 'bg-amber-50 ring-1 ring-amber-100' : 'bg-gray-50 ring-1 ring-gray-100'
-                }`}>
-                  {activity.type === 'track_upload' ? <Music2 className="h-4 w-4 text-blue-600" /> :
-                   activity.type === 'live_stream' ? <Radio className="h-4 w-4 text-green-600" /> :
-                   activity.type === 'playlist_created' ? <Heart className="h-4 w-4 text-amber-600" /> :
-                   <Globe className="h-4 w-4 text-gray-600" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900 truncate">
-                    <span className="font-medium">{activity.artistName}</span>{' '}
-                    {activity.type === 'track_upload' ? 'uploaded' :
-                      activity.type === 'live_stream' ? 'started live stream' :
-                      activity.type === 'playlist_created' ? 'created playlist' : 'performed action'
-                    }{' '}
-                    <span className="text-gray-600">"{activity.title}"</span>
-                  </p>
-                  <p className="text-xs text-gray-400 flex items-center mt-0.5">
-                    <Clock className="h-3 w-3 mr-1" />
-                    {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
-                  </p>
-                </div>
+            {recentActivity.length === 0 ? (
+              <div className="px-5 py-8 text-center text-sm text-gray-400">
+                No recent activity
               </div>
-            ))}
+            ) : (
+              recentActivity.map((activity) => (
+                <div
+                  key={activity.id}
+                  className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-gray-50/50 transition-colors"
+                >
+                  <div className={`p-2 rounded-lg flex-shrink-0 ${activity.type === 'track_upload' ? 'bg-blue-50 ring-1 ring-blue-100' :
+                      activity.type === 'live_stream' ? 'bg-green-50 ring-1 ring-green-100' :
+                        activity.type === 'artist_signup' ? 'bg-purple-50 ring-1 ring-purple-100' :
+                          activity.type === 'playlist_created' ? 'bg-amber-50 ring-1 ring-amber-100' : 'bg-gray-50 ring-1 ring-gray-100'
+                    }`}>
+                    {activity.type === 'track_upload' ? <Music2 className="h-4 w-4 text-blue-600" /> :
+                      activity.type === 'live_stream' ? <Radio className="h-4 w-4 text-green-600" /> :
+                        activity.type === 'artist_signup' ? <UserPlus className="h-4 w-4 text-purple-600" /> :
+                          activity.type === 'playlist_created' ? <Heart className="h-4 w-4 text-amber-600" /> :
+                            <Globe className="h-4 w-4 text-gray-600" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-900 truncate">
+                      <span className="font-medium">{activity.artistName}</span>{' '}
+                      {activity.type === 'track_upload' ? 'uploaded' :
+                        activity.type === 'live_stream' ? 'started live stream' :
+                          activity.type === 'artist_signup' ? 'joined as artist' :
+                            activity.type === 'playlist_created' ? 'created playlist' : 'performed action'
+                      }{' '}
+                      {activity.title && <span className="text-gray-600">"{activity.title}"</span>}
+                    </p>
+                    <p className="text-xs text-gray-400 flex items-center mt-0.5">
+                      <Clock className="h-3 w-3 mr-1" />
+                      {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
