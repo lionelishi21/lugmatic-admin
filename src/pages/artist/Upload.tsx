@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import genreService, { Genre } from '../../services/genreService';
 import songService, { CreateSongData } from '../../services/songService';
+import artistService, { Artist } from '../../services/artistService';
 import { useAuth } from '../../hooks/useAuth';
 
 interface UploadForm {
@@ -30,10 +31,15 @@ export default function Upload() {
   const [isUploading, setIsUploading] = useState(false);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loadingGenres, setLoadingGenres] = useState(true);
+  const [artistsList, setArtistsList] = useState<Artist[]>([]);
+  const [selectedArtistId, setSelectedArtistId] = useState<string>('');
+  const [loadingArtists, setLoadingArtists] = useState(false);
   const [dragOverAudio, setDragOverAudio] = useState(false);
   const [dragOverCover, setDragOverCover] = useState(false);
   const audioInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+
+  const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -49,7 +55,24 @@ export default function Upload() {
       }
     };
     fetchGenres();
-  }, []);
+
+    // Fetch artists list for admin users
+    if (isAdmin) {
+      const fetchArtists = async () => {
+        try {
+          setLoadingArtists(true);
+          const artists = await artistService.getAllArtists();
+          setArtistsList(artists);
+        } catch (error) {
+          console.error('Failed to fetch artists:', error);
+          toast.error('Failed to load artists list.');
+        } finally {
+          setLoadingArtists(false);
+        }
+      };
+      fetchArtists();
+    }
+  }, [isAdmin]);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -111,10 +134,19 @@ export default function Upload() {
       return;
     }
 
-    const artistId = user.artistId || (user.role === 'artist' ? user.id : null);
-    if (!artistId) {
-      toast.error('Artist profile not found. Please log out and log in again.');
-      return;
+    let artistId: string | null;
+    if (isAdmin) {
+      artistId = selectedArtistId || null;
+      if (!artistId) {
+        toast.error('Please select an artist to upload the song for.');
+        return;
+      }
+    } else {
+      artistId = user.artistId || (user.role === 'artist' ? user.id : null);
+      if (!artistId) {
+        toast.error('Artist profile not found. Please log out and log in again.');
+        return;
+      }
     }
 
     if (!audioFile || !coverImage) {
@@ -342,6 +374,30 @@ export default function Upload() {
               </h2>
 
               <div className="space-y-4">
+                {/* Artist selector for admins */}
+                {isAdmin && (
+                  <div>
+                    <label htmlFor="artistSelect" className={labelClass}>Artist <span className="text-red-400">*</span></label>
+                    <select
+                      id="artistSelect"
+                      value={selectedArtistId}
+                      onChange={(e) => setSelectedArtistId(e.target.value)}
+                      className={inputClass}
+                      required
+                      disabled={loadingArtists}
+                    >
+                      <option value="">
+                        {loadingArtists ? 'Loading artists...' : 'Select an artist'}
+                      </option>
+                      {artistsList.map(artist => (
+                        <option key={artist._id} value={artist._id}>
+                          {artist.name || artist.fullName || [artist.firstName, artist.lastName].filter(Boolean).join(' ') || artist.email}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 {/* Title */}
                 <div>
                   <label htmlFor="title" className={labelClass}>Track Title <span className="text-red-400">*</span></label>
