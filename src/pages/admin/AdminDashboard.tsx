@@ -71,7 +71,12 @@ export default function MusicAdminDashboard() {
         setLoading(true);
         setError(null);
         const response = await adminService.getDashboardData();
-        setData(response.data.data);
+        const raw = response.data as any;
+        const dashData: DashboardData = raw?.data || raw;
+        if (!dashData || (!dashData.overview && !dashData.topArtists)) {
+          throw new Error('Invalid dashboard data received');
+        }
+        setData(dashData);
       } catch (err: any) {
         console.error('Error fetching dashboard data:', err);
         setError(err?.response?.data?.message || err?.message || 'Failed to load dashboard data');
@@ -167,7 +172,10 @@ export default function MusicAdminDashboard() {
     );
   }
 
-  const { overview, topArtists, recentActivity, revenue } = data;
+  const overview = data.overview || {} as DashboardOverview;
+  const topArtists = data.topArtists || [];
+  const recentActivity = data.recentActivity || [];
+  const revenue = data.revenue || { total: 0, monthly: 0, totalTransactions: 0 };
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -182,25 +190,25 @@ export default function MusicAdminDashboard() {
         <StatCard
           icon={Users}
           title="Total Artists"
-          value={overview.totalArtists.toLocaleString()}
+          value={(overview.totalArtists ?? 0).toLocaleString()}
           color="green"
         />
         <StatCard
           icon={Headphones}
           title="Total Listeners"
-          value={overview.totalUsers.toLocaleString()}
+          value={(overview.totalUsers ?? 0).toLocaleString()}
           color="blue"
         />
         <StatCard
           icon={Music2}
           title="Total Tracks"
-          value={overview.totalSongs.toLocaleString()}
+          value={(overview.totalSongs ?? 0).toLocaleString()}
           color="emerald"
         />
         <StatCard
           icon={Radio}
           title="Live Streams"
-          value={overview.activeLiveStreams}
+          value={overview.activeLiveStreams ?? 0}
           color="rose"
         />
         <StatCard
@@ -242,12 +250,12 @@ export default function MusicAdminDashboard() {
                     <div>
                       <h3 className="text-sm font-semibold text-gray-900">{artist.name}</h3>
                       <p className="text-xs text-gray-500">
-                        {artist.followerCount.toLocaleString()} followers
+                        {(artist.followerCount ?? 0).toLocaleString()} followers
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {artist.genres.slice(0, 2).map((genre) => (
+                    {(artist.genres || []).slice(0, 2).map((genre) => (
                       <span
                         key={genre}
                         className="text-[10px] font-medium bg-green-50 text-green-700 px-2 py-0.5 rounded-full"
@@ -282,9 +290,9 @@ export default function MusicAdminDashboard() {
                   className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-gray-50/50 transition-colors"
                 >
                   <div className={`p-2 rounded-lg flex-shrink-0 ${activity.type === 'track_upload' ? 'bg-blue-50 ring-1 ring-blue-100' :
-                      activity.type === 'live_stream' ? 'bg-green-50 ring-1 ring-green-100' :
-                        activity.type === 'artist_signup' ? 'bg-purple-50 ring-1 ring-purple-100' :
-                          activity.type === 'playlist_created' ? 'bg-amber-50 ring-1 ring-amber-100' : 'bg-gray-50 ring-1 ring-gray-100'
+                    activity.type === 'live_stream' ? 'bg-green-50 ring-1 ring-green-100' :
+                      activity.type === 'artist_signup' ? 'bg-purple-50 ring-1 ring-purple-100' :
+                        activity.type === 'playlist_created' ? 'bg-amber-50 ring-1 ring-amber-100' : 'bg-gray-50 ring-1 ring-gray-100'
                     }`}>
                     {activity.type === 'track_upload' ? <Music2 className="h-4 w-4 text-blue-600" /> :
                       activity.type === 'live_stream' ? <Radio className="h-4 w-4 text-green-600" /> :
