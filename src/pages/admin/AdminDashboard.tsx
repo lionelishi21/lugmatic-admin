@@ -173,8 +173,8 @@ export default function MusicAdminDashboard() {
   }
 
   const overview = data.overview || {} as DashboardOverview;
-  const topArtists = data.topArtists || [];
-  const recentActivity = data.recentActivity || [];
+  const topArtists = Array.isArray(data.topArtists) ? data.topArtists : [];
+  const recentActivity = Array.isArray(data.recentActivity) ? data.recentActivity : [];
   const revenue = data.revenue || { total: 0, monthly: 0, totalTransactions: 0 };
 
   return (
