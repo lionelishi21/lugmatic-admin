@@ -29,11 +29,16 @@ const ArtistEdit: React.FC = () => {
   useEffect(() => {
     if (selectedArtist) {
       setFormData({
-        name: selectedArtist.name,
-        email: selectedArtist.email,
-        genres: selectedArtist.genres,
-        status: selectedArtist.status,
+        firstName: selectedArtist.firstName || (selectedArtist.user as any)?.firstName || '',
+        lastName: selectedArtist.lastName || (selectedArtist.user as any)?.lastName || '',
+        name: selectedArtist.name || '',
+        email: selectedArtist.email || selectedArtist.contactEmail || (selectedArtist.user as any)?.email || '',
+        genres: selectedArtist.genres || [],
+        status: selectedArtist.status || 'pending',
         image: selectedArtist.image || '',
+        bio: selectedArtist.bio || '',
+        gender: selectedArtist.gender || (selectedArtist.user as any)?.gender || '',
+        socialLinks: selectedArtist.socialLinks || { website: '', facebook: '', twitter: '', instagram: '' }
       });
       setImagePreview(selectedArtist.image || null);
     }
@@ -62,9 +67,34 @@ const ArtistEdit: React.FC = () => {
   };
 
   // Handle form input changes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+
+    if (name.startsWith('socialLinks.')) {
+      const socialLinkField = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        socialLinks: {
+          ...(prev.socialLinks as any),
+          [socialLinkField]: value
+        }
+      }));
+    } else {
+      setFormData(prev => {
+        if (name === 'firstName' || name === 'lastName') {
+          const firstName = name === 'firstName' ? value : prev.firstName;
+          const lastName = name === 'lastName' ? value : prev.lastName;
+          if (firstName || lastName) {
+            return {
+              ...prev,
+              [name]: value,
+              name: `${firstName || ''} ${lastName || ''}`.trim()
+            };
+          }
+        }
+        return { ...prev, [name]: value };
+      });
+    }
 
     // Clear any errors for this field
     if (formErrors[name]) {
@@ -174,129 +204,210 @@ const ArtistEdit: React.FC = () => {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <form onSubmit={handleSubmit}>
-          {/* Name Field */}
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-              Name
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              value={formData.name || ''}
-              onChange={handleInputChange}
-              className={`w-full px-3 py-2 border ${formErrors.name ? 'border-red-500' : 'border-gray-300'
-                } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
-            />
-            {formErrors.name && (
-              <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>
-            )}
-          </div>
-
-          {/* Email Field */}
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email || ''}
-              onChange={handleInputChange}
-              className={`w-full px-3 py-2 border ${formErrors.email ? 'border-red-500' : 'border-gray-300'
-                } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
-            />
-            {formErrors.email && (
-              <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
-            )}
-          </div>
-
-          {/* Genres Field */}
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="genres">
-              Genres (comma separated)
-            </label>
-            <input
-              id="genres"
-              name="genres"
-              type="text"
-              value={Array.isArray(formData.genres) ? formData.genres.join(', ') : ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, genres: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }))}
-              className={`w-full px-3 py-2 border ${formErrors.genre ? 'border-red-500' : 'border-gray-300'
-                } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
-            />
-            {formErrors.genre && (
-              <p className="text-red-500 text-xs mt-1">{formErrors.genre}</p>
-            )}
-          </div>
-
-          {/* Status Field */}
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="status">
-              Status
-            </label>
-            <select
-              id="status"
-              name="status"
-              value={formData.status || 'pending'}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              <option value="active">Active</option>
-              <option value="pending">Pending</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
-          {/* Profile Image Field */}
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Profile Image
-            </label>
-            <div className="flex items-start space-x-6">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-50 flex shrink-0 items-center justify-center relative group">
-                {imagePreview ? (
-                  <img
-                    src={imagePreview}
-                    alt="Profile preview"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-gray-400 text-xs">No Image</span>
-                )}
-                {/* Overlay for hover */}
-                <label htmlFor="image-upload" className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              {/* First Name Field */}
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstName">
+                  First Name
                 </label>
-              </div>
-              <div className="flex-1">
                 <input
-                  id="image-upload"
-                  name="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer"
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  value={formData.firstName || ''}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border ${formErrors.firstName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
                 />
-                <p className="text-xs text-gray-500 mt-2">
-                  Select a new profile image. Format: JPG, PNG.
-                </p>
-                {imagePreview ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setImagePreview(null);
-                      setFormData(prev => ({ ...prev, image: '' }));
-                    }}
-                    className="mt-3 text-xs text-red-500 font-medium hover:text-red-700 transition-colors"
-                  >
-                    Remove Image
-                  </button>
-                ) : null}
+              </div>
+
+              {/* Last Name Field */}
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="lastName">
+                  Last Name
+                </label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  value={formData.lastName || ''}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border ${formErrors.lastName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
+                />
+              </div>
+
+              {/* Stage/Artist Name Field */}
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+                  Artist/Stage Name
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={formData.name || ''}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border ${formErrors.name ? 'border-red-500' : 'border-gray-300'
+                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
+                />
+                {formErrors.name && (
+                  <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>
+                )}
+              </div>
+
+              {/* Email Field */}
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email || ''}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border ${formErrors.email ? 'border-red-500' : 'border-gray-300'
+                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
+                />
+                {formErrors.email && (
+                  <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
+                )}
+              </div>
+
+              {/* Gender Field */}
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="gender">
+                  Gender
+                </label>
+                <select
+                  id="gender"
+                  name="gender"
+                  value={formData.gender || ''}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border ${formErrors.gender ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="non-binary">Non-binary</option>
+                  <option value="other">Other</option>
+                  <option value="prefer-not-to-say">Prefer not to say</option>
+                </select>
+              </div>
+
+              {/* Bio Field */}
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="bio">
+                  Biography
+                </label>
+                <textarea
+                  id="bio"
+                  name="bio"
+                  value={formData.bio || ''}
+                  onChange={handleInputChange}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Tell us about yourself as an artist"
+                />
+              </div>
+
+              {/* Status Field */}
+              <div className="mb-6">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="status">
+                  Status
+                </label>
+                <select
+                  id="status"
+                  name="status"
+                  value={formData.status || 'pending'}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="active">Active</option>
+                  <option value="pending">Pending</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              {/* Genres Field */}
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="genres">
+                  Genres (comma separated)
+                </label>
+                <input
+                  id="genres"
+                  name="genres"
+                  type="text"
+                  value={Array.isArray(formData.genres) ? formData.genres.join(', ') : ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, genres: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }))}
+                  className={`w-full px-3 py-2 border ${formErrors.genre ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
+                />
+                {formErrors.genre && (
+                  <p className="text-red-500 text-xs mt-1">{formErrors.genre}</p>
+                )}
+              </div>
+
+              {/* Social Links Section */}
+              <div className="mb-6">
+                <h3 className="text-gray-700 font-bold mb-3 border-b pb-2">Social Links</h3>
+
+                {/* Website */}
+                <div className="mb-3">
+                  <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="website">Website</label>
+                  <input
+                    id="website"
+                    name="socialLinks.website"
+                    type="url"
+                    value={(formData.socialLinks as any)?.website || ''}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="https://yourwebsite.com"
+                  />
+                </div>
+
+                {/* Facebook */}
+                <div className="mb-3">
+                  <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="facebook">Facebook</label>
+                  <input
+                    id="facebook"
+                    name="socialLinks.facebook"
+                    type="url"
+                    value={(formData.socialLinks as any)?.facebook || ''}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="https://facebook.com/yourpage"
+                  />
+                </div>
+
+                {/* Twitter */}
+                <div className="mb-3">
+                  <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="twitter">Twitter</label>
+                  <input
+                    id="twitter"
+                    name="socialLinks.twitter"
+                    type="url"
+                    value={(formData.socialLinks as any)?.twitter || ''}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="https://twitter.com/yourhandle"
+                  />
+                </div>
+
+                {/* Instagram */}
+                <div className="mb-3">
+                  <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="instagram">Instagram</label>
+                  <input
+                    id="instagram"
+                    name="socialLinks.instagram"
+                    type="url"
+                    value={(formData.socialLinks as any)?.instagram || ''}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="https://instagram.com/yourprofile"
+                  />
+                </div>
               </div>
             </div>
           </div>

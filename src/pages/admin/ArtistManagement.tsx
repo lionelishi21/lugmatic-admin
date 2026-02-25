@@ -5,9 +5,9 @@ import { toast, Toaster } from 'react-hot-toast';
 import useFetchArtists, { Artist } from '../../hooks/artist/useFetchArtists';
 import { Link, useNavigate } from 'react-router-dom';
 import { useArtistContext } from '../../context/ArtistContext';
-import { 
-  CheckCircle, XCircle, Search, Filter, Plus, Eye, Pencil, Trash2, 
-  Users, UserCheck, UserX, Clock, MoreHorizontal, Music2, ChevronDown 
+import {
+  CheckCircle, XCircle, Search, Filter, Plus, Eye, Pencil, Trash2,
+  Users, UserCheck, UserX, Clock, MoreHorizontal, Music2, ChevronDown
 } from 'lucide-react';
 
 // Types
@@ -48,7 +48,7 @@ const StatusBadge: React.FC<{ status?: string }> = ({ status }) => {
   );
 };
 
-const ModalContainer: React.FC<{children: React.ReactNode}> = ({ children }) => (
+const ModalContainer: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <motion.div
     className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
     {...fadeIn}
@@ -220,7 +220,7 @@ const FormField: React.FC<{
   type?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  }> = ({ name, type = 'text', value, onChange }) => (
+}> = ({ name, type = 'text', value, onChange }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 mb-1.5 capitalize">
       {name}
@@ -244,7 +244,7 @@ const ArtistManagement: React.FC = () => {
   const [formData, setFormData] = useState<Partial<Artist>>({});
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
-  
+
   // Get artists data with filters
   const { artists, loading } = useFetchArtists();
   const navigate = useNavigate();
@@ -252,7 +252,7 @@ const ArtistManagement: React.FC = () => {
 
   // Update filter params with debounce
   useEffect(() => {
-    const timer = setTimeout(() => {}, 300);
+    const timer = setTimeout(() => { }, 300);
     return () => clearTimeout(timer);
   }, [searchTerm, filterStatus]);
 
@@ -262,8 +262,8 @@ const ArtistManagement: React.FC = () => {
     return artists.filter((artist) => {
       const name = artist.name || artist.fullName || [artist.firstName, artist.lastName].filter(Boolean).join(' ') || '';
       const email = artist.email || '';
-      const matchesSearch = searchTerm === '' || 
-        name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      const matchesSearch = searchTerm === '' ||
+        name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         email.toLowerCase().includes(searchTerm.toLowerCase());
       const status = artist.status || (artist.isApproved ? 'active' : 'pending');
       const matchesStatus = filterStatus === 'all' || status === filterStatus;
@@ -308,11 +308,9 @@ const ArtistManagement: React.FC = () => {
     e.preventDefault();
     if (modalOpen === 'add') {
       toast.success('Artist added successfully!');
-    } else if (modalOpen === 'edit' && selectedArtist) {
-      toast.success('Artist updated successfully!');
     }
     handleCloseModal();
-  }, [modalOpen, selectedArtist, handleCloseModal]);
+  }, [modalOpen, handleCloseModal]);
 
   const handleDeleteArtist = useCallback(() => {
     if (selectedArtist) {
@@ -328,6 +326,15 @@ const ArtistManagement: React.FC = () => {
       return;
     }
     navigate(`/admin/artist-details/${artistId}`);
+  }, [navigate]);
+
+  const handleEditArtist = useCallback((artist: Artist) => {
+    const artistId = (artist._id as string) || (artist as any).id;
+    if (!artistId) {
+      toast.error('Unable to edit artist (missing id).');
+      return;
+    }
+    navigate(`/admin/artists/${artistId}/edit`);
   }, [navigate]);
 
   const handleApproveArtist = useCallback(async (artist: Artist) => {
@@ -373,11 +380,11 @@ const ArtistManagement: React.FC = () => {
               const displayStatus = artist.status || (artist.isApproved ? 'active' : 'pending');
               const isPending = displayStatus === 'pending';
               return (
-                <ArtistRow 
-                  key={(artist._id as string) || (artist as any).id} 
-                  artist={artist} 
+                <ArtistRow
+                  key={(artist._id as string) || (artist as any).id}
+                  artist={artist}
                   onView={() => handleViewDetails(artist)}
-                  onEdit={() => handleOpenModal('edit', artist)}
+                  onEdit={() => handleEditArtist(artist)}
                   onDelete={() => handleOpenModal('delete', artist)}
                   onApprove={isPending ? () => handleApproveArtist(artist) : undefined}
                   onReject={isPending ? () => handleRejectArtist(artist) : undefined}
@@ -407,7 +414,7 @@ const ArtistManagement: React.FC = () => {
       <FormField name="name" value={formData.name || ''} onChange={handleInputChange} />
       <FormField name="email" type="email" value={formData.email || ''} onChange={handleInputChange} />
       <FormField name="genre" value={formData.genre || ''} onChange={handleInputChange} />
-      
+
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
         <select
@@ -422,7 +429,7 @@ const ArtistManagement: React.FC = () => {
           <option value="inactive">Inactive</option>
         </select>
       </div>
-      
+
       <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
         <button
           type="button"
@@ -444,9 +451,9 @@ const ArtistManagement: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto">
       <Toaster position="top-right" toastOptions={{ className: 'text-sm' }} />
-      
+
       {loading && <Preloader isVisible={loading} text="Loading artists..." />}
-      
+
       {/* Page Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
@@ -469,7 +476,7 @@ const ArtistManagement: React.FC = () => {
         <StatCard label="Pending" value={stats.pending} icon={<Clock className="h-5 w-5" />} color="text-amber-600" bgColor="bg-amber-50" />
         <StatCard label="Inactive" value={stats.inactive} icon={<UserX className="h-5 w-5" />} color="text-red-600" bgColor="bg-red-50" />
       </div>
-      
+
       {/* Table Card */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         {/* Action Bar */}
@@ -506,17 +513,17 @@ const ArtistManagement: React.FC = () => {
             {filteredArtists.length} {filteredArtists.length === 1 ? 'artist' : 'artists'}
           </p>
         </div>
-        
+
         {/* Table */}
         {ArtistTable}
       </div>
 
-      {/* Add/Edit Modal */}
+      {/* Add Modal */}
       <AnimatePresence>
-        {(modalOpen === 'add' || modalOpen === 'edit') && (
+        {modalOpen === 'add' && (
           <ModalContainer>
             <h2 className="text-lg font-bold text-gray-900 mb-4">
-              {modalOpen === 'add' ? 'Add New Artist' : 'Edit Artist'}
+              Add New Artist
             </h2>
             {ArtistForm}
           </ModalContainer>
@@ -536,7 +543,7 @@ const ArtistManagement: React.FC = () => {
                 Are you sure you want to delete <span className="font-medium text-gray-700">"{selectedArtist.name}"</span>? This action cannot be undone.
               </p>
             </div>
-            
+
             <div className="flex gap-3">
               <button
                 onClick={handleCloseModal}
