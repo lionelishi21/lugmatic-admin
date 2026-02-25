@@ -167,7 +167,7 @@ const ArtistEdit: React.FC = () => {
       const success = await updateArtist(id, formData);
       if (success) {
         toast.success('Artist updated successfully');
-        navigate(`/admin/artist-details/${id}`);
+        navigate('/admin/artist-management');
       }
     } finally {
       setIsSubmitting(false);
@@ -176,7 +176,7 @@ const ArtistEdit: React.FC = () => {
 
   // Cancel editing and go back
   const handleCancel = () => {
-    navigate(`/admin/artist-details/${id}`);
+    navigate('/admin/artist-management');
   };
 
   // Show loading state
