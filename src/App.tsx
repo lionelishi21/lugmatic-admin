@@ -8,6 +8,7 @@ import Live from './pages/artist/Live';
 import Gifts from './pages/artist/Giifts';
 import Earnings from './pages/artist/Earnings';
 import ArtistManagement from './pages/admin/ArtistManagement';
+import ArtistEdit from './pages/admin/ArtistEdit';
 import UserManagement from './pages/admin/UserManagement';
 import FinancialManagement from './pages/admin/FinancialManagement';
 import LiveStreamManagement from './pages/admin/LiveStreamManagement';
@@ -87,12 +88,13 @@ function App() {
                         <Route path="approvals" element={<Approvals />} />
                         <Route path="artist-management" element={<ArtistManagement />} />
                         <Route path="artist-details/:id" element={<ArtistDetails />} />
+                        <Route path="artists/:id/edit" element={<ArtistEdit />} />
                         <Route path="user-management" element={<UserManagement />} />
                         <Route path="financial-management" element={<FinancialManagement />} />
                         <Route path="live-stream-management" element={<LiveStreamManagement />} />
                         <Route path="album-management" element={<AlbumManagement />} />
-                          <Route path="song-management" element={<SongManagement />} />
-                          <Route path="song-management/:id" element={<SongDetail />} />
+                        <Route path="song-management" element={<SongManagement />} />
+                        <Route path="song-management/:id" element={<SongDetail />} />
                         <Route path="playlist-management" element={<PlaylistManagement />} />
                         <Route path="genre-management" element={<GenreManagement />} />
                         <Route path="artist-add" element={<ArtistCreate />} />
