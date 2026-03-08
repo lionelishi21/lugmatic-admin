@@ -4,14 +4,14 @@ import { GiftResponse, AdminGiftPayload } from '../../services/adminGiftService'
 import { getAccessToken } from '../../services/api';
 import { toast } from 'react-hot-toast';
 import {
-    Upload,
-    Calendar,
-    Image as ImageIcon,
-    Coins,
+  Upload,
+  Calendar,
+  Image as ImageIcon,
+  Coins,
   DollarSign,
   Tag,
   Type as TypeIcon,
-  } from 'lucide-react';
+} from 'lucide-react';
 import FileUpload from '../ui/FileUpload';
 import { useCreateGift } from '../../hooks/gift/useCreateGift';
 import { createGiftWithImage, createGiftJson, updateGift, updateGiftWithImage, UpdateGiftWithImagePayload } from '../../store/slices/giftSlice';
@@ -28,6 +28,7 @@ interface GiftFormData {
   category: string;
   image: string;
   isActive: boolean;
+  isAnimated: boolean;
   isSeasonal: boolean;
   seasonalStart: string;
   seasonalEnd: string;
@@ -41,18 +42,19 @@ interface GiftDialogProps {
 }
 
 const INITIAL_FORM_DATA: GiftFormData = {
-    name: '',
-    description: '',
-    value: 0,
-    coinCost: 0,
-    type: 'coin',
-    rarity: 'common',
+  name: '',
+  description: '',
+  value: 0,
+  coinCost: 0,
+  type: 'coin',
+  rarity: 'common',
   category: 'support',
-    image: '',
-    isActive: true,
-    isSeasonal: false,
-    seasonalStart: '',
-    seasonalEnd: '',
+  image: '',
+  isActive: true,
+  isAnimated: false,
+  isSeasonal: false,
+  seasonalStart: '',
+  seasonalEnd: '',
 };
 
 const GIFT_TYPES: Array<{ value: AdminGiftPayload['type']; label: string }> = [
@@ -94,6 +96,7 @@ const GiftDialog: React.FC<GiftDialogProps> = ({ open, onClose, editingGift, onS
           category: editingGift.category,
           image: editingGift.image,
           isActive: editingGift.isActive,
+          isAnimated: editingGift.isAnimated ?? false,
           isSeasonal: editingGift.isSeasonal,
           seasonalStart: editingGift.seasonalStart ? editingGift.seasonalStart.split('T')[0] : '',
           seasonalEnd: editingGift.seasonalEnd ? editingGift.seasonalEnd.split('T')[0] : '',
@@ -155,6 +158,7 @@ const GiftDialog: React.FC<GiftDialogProps> = ({ open, onClose, editingGift, onS
           category: formData.category as AdminGiftPayload['category'],
           rarity: formData.rarity,
           isActive: formData.isActive,
+          isAnimated: formData.isAnimated,
           isSeasonal: formData.isSeasonal,
           seasonalStart: formData.isSeasonal ? formData.seasonalStart || undefined : undefined,
           seasonalEnd: formData.isSeasonal ? formData.seasonalEnd || undefined : undefined,
@@ -266,65 +270,64 @@ const GiftDialog: React.FC<GiftDialogProps> = ({ open, onClose, editingGift, onS
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-          <div className="p-6 border-b border-gray-100">
-              <h2 className="text-lg font-bold text-gray-900">
-              {editingGift ? 'Edit Gift' : 'Add New Gift'}
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                {editingGift ? 'Update gift details below' : 'Fill in the details to create a new gift'}
-              </p>
-          </div>
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-100">
+          <h2 className="text-lg font-bold text-gray-900">
+            {editingGift ? 'Edit Gift' : 'Add New Gift'}
+          </h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {editingGift ? 'Update gift details below' : 'Fill in the details to create a new gift'}
+          </p>
+        </div>
         <form onSubmit={handleSubmit} className="p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Column */}
             <div className="space-y-4">
               {/* Gift Name */}
-            <div>
+              <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Gift Name *
+                  Gift Name *
                 </label>
                 <input
-                type="text"
-                    placeholder="Enter gift name"
-                value={formData.name}
+                  type="text"
+                  placeholder="Enter gift name"
+                  value={formData.name}
                   onChange={(e) => updateFormField('name', e.target.value)}
-                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-colors ${
-                    !formData.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-colors ${!formData.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
-                    required
+                  required
                 />
                 {!formData.name && (
-                    <p className="text-xs text-red-600 mt-1">Gift name is required</p>
+                  <p className="text-xs text-red-600 mt-1">Gift name is required</p>
                 )}
-                </div>
+              </div>
 
               {/* Description */}
-                <div>
+              <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
                 <textarea
-                    placeholder="Enter gift description (optional)"
-                value={formData.description}
+                  placeholder="Enter gift description (optional)"
+                  value={formData.description}
                   onChange={(e) => updateFormField('description', e.target.value)}
-                rows={3}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-400 resize-none"
+                  rows={3}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-400 resize-none"
                 />
-                </div>
+              </div>
 
               {/* Type and Rarity */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                     <TypeIcon className="w-4 h-4" />
                     Type *
-                    </label>
-                    <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3">
+                  </label>
+                  <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3">
                     <select
-                        value={formData.type}
+                      value={formData.type}
                       onChange={(e) =>
                         updateFormField('type', e.target.value as AdminGiftPayload['type'])
                       }
-                        className="w-full py-2 focus:outline-none bg-transparent"
+                      className="w-full py-2 focus:outline-none bg-transparent"
                     >
                       {GIFT_TYPES.map((type) => (
                         <option key={type.value} value={type.value}>
@@ -332,20 +335,20 @@ const GiftDialog: React.FC<GiftDialogProps> = ({ open, onClose, editingGift, onS
                         </option>
                       ))}
                     </select>
-                    </div>
+                  </div>
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                     <Tag className="w-4 h-4" />
                     Rarity *
-                    </label>
-                    <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3">
+                  </label>
+                  <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3">
                     <select
-                        value={formData.rarity}
+                      value={formData.rarity}
                       onChange={(e) =>
                         updateFormField('rarity', e.target.value as AdminGiftPayload['rarity'])
                       }
-                        className="w-full py-2 focus:outline-none bg-transparent"
+                      className="w-full py-2 focus:outline-none bg-transparent"
                     >
                       {GIFT_RARITIES.map((rarity) => (
                         <option key={rarity.value} value={rarity.value}>
@@ -353,22 +356,21 @@ const GiftDialog: React.FC<GiftDialogProps> = ({ open, onClose, editingGift, onS
                         </option>
                       ))}
                     </select>
-                    </div>
+                  </div>
                 </div>
-                </div>
+              </div>
 
               {/* Category */}
-                <div>
+              <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Category *</label>
                 <select
-                value={formData.category}
+                  value={formData.category}
                   onChange={(e) => updateFormField('category', e.target.value)}
-                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-colors ${
-                    !formData.category ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-colors ${!formData.category ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
-                    required
+                  required
                 >
-                    <option value="">Select a category</option>
+                  <option value="">Select a category</option>
                   {GIFT_CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -376,192 +378,201 @@ const GiftDialog: React.FC<GiftDialogProps> = ({ open, onClose, editingGift, onS
                   ))}
                 </select>
                 {!formData.category && (
-                    <p className="text-xs text-red-600 mt-1">Category is required</p>
+                  <p className="text-xs text-red-600 mt-1">Category is required</p>
                 )}
-                </div>
+              </div>
             </div>
 
             {/* Right Column */}
             <div>
               {/* Value and Coin Cost */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                     <DollarSign className="w-4 h-4" />
                     Value (USD) *
-                    </label>
-                <input
+                  </label>
+                  <input
                     type="number"
                     step="0.01"
                     min="0.01"
                     placeholder="0.00"
                     value={formData.value || ''}
                     onChange={(e) => handleNumberChange('value', e.target.value)}
-                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-colors ${
-                        formData.value <= 0 ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                    }`}
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-colors ${formData.value <= 0 ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
                     required
-                    />
-                    {formData.value <= 0 && (
+                  />
+                  {formData.value <= 0 && (
                     <p className="text-xs text-red-600 mt-1">Value must be greater than 0</p>
-                    )}
+                  )}
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                     <Coins className="w-4 h-4" />
                     Coin Cost *
-                    </label>
-                <input
-                type="number"
+                  </label>
+                  <input
+                    type="number"
                     step="1"
                     min="1"
                     placeholder="0"
                     value={formData.coinCost || ''}
                     onChange={(e) => handleNumberChange('coinCost', e.target.value)}
-                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-colors ${
-                        formData.coinCost <= 0 ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                    }`}
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-colors ${formData.coinCost <= 0 ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
                     required
-                    />
-                    {formData.coinCost <= 0 && (
+                  />
+                  {formData.coinCost <= 0 && (
                     <p className="text-xs text-red-600 mt-1">Coin cost must be greater than 0</p>
-                    )}
+                  )}
                 </div>
-                </div>
+              </div>
 
               {/* Image Upload */}
-                <div className="mt-4">
+              <div className="mt-4">
                 <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4" />
-                    Gift Icon * (PNG, SVG, GIF)
+                  <ImageIcon className="w-4 h-4" />
+                  Gift Icon * (PNG, SVG, GIF)
                 </label>
                 <FileUpload
-                    label="Upload Icon"
-                    accept="image/png,image/svg+xml,image/gif,image/jpeg,image/jpg"
-                    maxSize={5}
-                    onFileSelect={handleIconSelect}
-                    onFileRemove={() => {
+                  label="Upload Icon"
+                  accept="image/png,image/svg+xml,image/gif,image/jpeg,image/jpg"
+                  maxSize={5}
+                  onFileSelect={handleIconSelect}
+                  onFileRemove={() => {
                     updateFormField('image', '');
                     setPendingIconFile(null);
                     toast('Icon file removed', { icon: '🗑️' });
-                    }}
+                  }}
                   currentFile={
                     formData.image || (pendingIconFile ? pendingIconFile.name : undefined)
                   }
-                    error={!formData.image && !pendingIconFile ? 'Icon is required' : undefined}
+                  error={!formData.image && !pendingIconFile ? 'Icon is required' : undefined}
                 />
                 {pendingIconFile && !iconUploading && (
-                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <p className="text-xs text-yellow-700 flex items-center gap-2">
-                        <ImageIcon className="w-4 h-4" />
-                        File selected: {pendingIconFile.name} (will be uploaded on submit)
+                      <ImageIcon className="w-4 h-4" />
+                      File selected: {pendingIconFile.name} (will be uploaded on submit)
                     </p>
                     <p className="text-xs text-gray-600 mt-1">
-                        Size: {(pendingIconFile.size / 1024).toFixed(2)} KB
+                      Size: {(pendingIconFile.size / 1024).toFixed(2)} KB
                     </p>
-                    </div>
+                  </div>
                 )}
                 {iconUploading && (
-                    <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-xs text-blue-700 flex items-center gap-2">
-                        <ImageIcon className="w-4 h-4 animate-pulse" />
-                        Uploading icon... Please wait
+                      <ImageIcon className="w-4 h-4 animate-pulse" />
+                      Uploading icon... Please wait
                     </p>
-                    </div>
+                  </div>
                 )}
                 {formData.image && !iconUploading && !pendingIconFile && (
-                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
                     <p className="text-xs text-green-700 flex items-center gap-2">
-                        <ImageIcon className="w-4 h-4" />
-                        Icon URL ready
+                      <ImageIcon className="w-4 h-4" />
+                      Icon URL ready
                     </p>
                     <p
                       className="text-xs text-gray-600 mt-1 break-all truncate"
                       title={formData.image}
                     >
-                        {formData.image}
+                      {formData.image}
                     </p>
-                    </div>
+                  </div>
                 )}
-                </div>
+              </div>
 
               {/* Active Checkbox */}
-                <label className="flex items-center mt-4">
+              <label className="flex items-center mt-4">
                 <input
-                    type="checkbox"
-                    checked={formData.isActive}
+                  type="checkbox"
+                  checked={formData.isActive}
                   onChange={(e) => updateFormField('isActive', e.target.checked)}
-                    className="mr-3"
+                  className="mr-3"
                 />
                 <span>Active</span>
-                </label>
+              </label>
+
+              {/* Animated Checkbox */}
+              <label className="flex items-center mt-4">
+                <input
+                  type="checkbox"
+                  checked={formData.isAnimated}
+                  onChange={(e) => updateFormField('isAnimated', e.target.checked)}
+                  className="mr-3"
+                />
+                <span>Is Animated</span>
+              </label>
 
               {/* Seasonal Checkbox */}
-                <label className="flex items-center mt-4">
+              <label className="flex items-center mt-4">
                 <input
-                    type="checkbox"
-                    checked={formData.isSeasonal}
+                  type="checkbox"
+                  checked={formData.isSeasonal}
                   onChange={(e) => updateFormField('isSeasonal', e.target.checked)}
-                    className="mr-3"
+                  className="mr-3"
                 />
                 <span>Seasonal availability</span>
-                </label>
+              </label>
 
               {/* Seasonal Dates */}
-                {formData.isSeasonal && (
+              {formData.isSeasonal && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                    <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3">
+                  <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3">
                     <Calendar className="w-4 h-4 text-gray-500" />
-                <input
-                        type="date"
-                        value={formData.seasonalStart}
+                    <input
+                      type="date"
+                      value={formData.seasonalStart}
                       onChange={(e) => updateFormField('seasonalStart', e.target.value)}
-                        className="w-full py-2 focus:outline-none"
+                      className="w-full py-2 focus:outline-none"
                     />
-                    </div>
-                    <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3">
+                  </div>
+                  <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3">
                     <Calendar className="w-4 h-4 text-gray-500" />
-                <input
-                        type="date"
-                        value={formData.seasonalEnd}
+                    <input
+                      type="date"
+                      value={formData.seasonalEnd}
                       onChange={(e) => updateFormField('seasonalEnd', e.target.value)}
-                        className="w-full py-2 focus:outline-none"
+                      className="w-full py-2 focus:outline-none"
                     />
-                    </div>
+                  </div>
                 </div>
-                )}
+              )}
             </div>
-            </div>
+          </div>
 
           {/* Form Actions */}
           <div className="p-6 border-t border-gray-200 flex justify-end gap-4 mt-6">
             <button
-            type="button"
+              type="button"
               onClick={handleClose}
-            className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 font-medium rounded-xl transition-colors"
+              className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-50 font-medium rounded-xl transition-colors"
             >
-            Cancel
+              Cancel
             </button>
             <button
-            type="submit"
+              type="submit"
               disabled={isSubmitting}
-            className="flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px] justify-center"
+              className="flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px] justify-center"
             >
               {isSubmitting ? (
                 <>
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                <span>{iconUploading ? 'Uploading...' : 'Saving...'}</span>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                  <span>{iconUploading ? 'Uploading...' : 'Saving...'}</span>
                 </>
-            ) : (
+              ) : (
                 <>
-                <Upload className="w-5 h-5" />
-                <span>{editingGift ? 'Update Gift' : 'Create Gift'}</span>
+                  <Upload className="w-5 h-5" />
+                  <span>{editingGift ? 'Update Gift' : 'Create Gift'}</span>
                 </>
-            )}
+              )}
             </button>
-        </div>
+          </div>
         </form>
-        </div>
+      </div>
     </div>
   );
 };

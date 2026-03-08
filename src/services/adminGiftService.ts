@@ -26,6 +26,7 @@ export interface GiftResponse {
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
   category: 'music' | 'celebration' | 'love' | 'support' | 'funny' | 'custom';
   isActive: boolean;
+  isAnimated?: boolean;
   isSeasonal: boolean;
   seasonalStart?: string;
   seasonalEnd?: string;
@@ -43,6 +44,7 @@ export interface AdminGiftPayload {
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
   category: 'music' | 'celebration' | 'love' | 'support' | 'funny' | 'custom';
   isActive: boolean;
+  isAnimated?: boolean;
   isSeasonal: boolean;
   seasonalStart?: string;
   seasonalEnd?: string;
