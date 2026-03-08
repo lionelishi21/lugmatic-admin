@@ -1,15 +1,15 @@
 import { apiService } from './api';
-import { 
-  User, 
-  Artist, 
-  Podcast, 
-  Comment, 
-  Gift, 
+import {
+  User,
+  Artist,
+  Podcast,
+  Comment,
+  Gift,
   GiftTransaction,
   AdminDashboardData,
   ContentModerationData,
   PaginatedResponse,
-  ApiResponse 
+  ApiResponse
 } from '../types';
 
 export const adminService = {
@@ -79,7 +79,15 @@ export const adminService = {
     return apiService.get<ApiResponse<ContentModerationData>>('/admin/moderation');
   },
 
-  moderateContent: async (contentId: string, contentType: 'comment' | 'podcast' | 'user', action: 'approve' | 'reject', reason?: string) => {
+  getContentForModeration: async (contentType: string, page = 1, limit = 20) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString()
+    });
+    return apiService.get<any>(`/admin/moderation/${contentType}?${params}`);
+  },
+
+  moderateContent: async (contentType: string, contentId: string, action: 'approve' | 'reject' | 'delete', reason?: string) => {
     return apiService.put<ApiResponse<any>>(`/admin/moderation/${contentType}/${contentId}`, { action, reason });
   },
 

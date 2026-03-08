@@ -18,6 +18,7 @@ import {
 import adminGiftService, {
   GiftResponse,
 } from '../../services/adminGiftService';
+import { getFullImageUrl } from '../../services/api';
 import toast from 'react-hot-toast';
 import GiftDialog from '../../components/gift/GiftDialog';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
@@ -277,7 +278,7 @@ const GiftManagement: React.FC = () => {
                       <div className="relative h-36 bg-gray-50 flex items-center justify-center">
                         {gift.image ? (
                           <img
-                            src={gift.image.startsWith('http') ? gift.image : gift.image}
+                            src={getFullImageUrl(gift.image)}
                             alt={gift.name}
                             className="h-24 w-24 object-contain"
                             onError={(e) => {

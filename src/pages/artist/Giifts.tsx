@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Gift, TrendingUp, Calendar, DollarSign, ChevronDown, Search } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
-import apiService from '../../services/api';
+import apiService, { getFullImageUrl } from '../../services/api';
 
 interface GiftStats {
   totalGifts: number;
@@ -55,7 +55,7 @@ export default function Gifts() {
           created_at: transaction.createdAt,
           stream_title: transaction.streamId?.title || undefined,
           song_title: transaction.songId?.title || undefined,
-          gift_image: transaction.gift?.image ? `${import.meta.env.VITE_API_URL || 'http://localhost:3008/api'}${transaction.gift.image}` : '/placeholder-gift.png'
+          gift_image: transaction.gift?.image ? getFullImageUrl(transaction.gift.image) : '/placeholder-gift.png'
         }));
 
         setGifts(fetchedGifts);

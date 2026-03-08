@@ -50,7 +50,7 @@ export interface AdminGiftPayload {
 
 const adminGiftService = {
   getAllGifts: async (): Promise<GiftResponse[]> => {
-    const response = await apiService.get<GiftResponse[]>('/gift');
+    const response = await apiService.get<GiftResponse[]>('/gift/admin/all');
     return extractResponseData(response);
   },
 
@@ -84,24 +84,24 @@ const adminGiftService = {
     const formData = new FormData();
     // Backend expects field name 'image' (as per uploadGiftImage.single('image'))
     formData.append('image', file);
-    
+
     console.log('Uploading file:', {
       name: file.name,
       type: file.type,
       size: file.size,
       formDataKeys: Array.from(formData.keys())
     });
-    
+
     try {
       // Don't set Content-Type header - let axios set it automatically with boundary for FormData
       const response = await apiService.post<{ success: boolean; url?: string; data?: { url: string; filename: string; originalName: string; size: number; mimetype: string } }>('/gift/upload-image', formData);
-      
+
       console.log('Upload response:', response);
       console.log('Response data:', response.data);
-      
+
       // Backend returns: { success: true, url: '/uploads/gifts/filename', data: { url: '/uploads/gifts/filename', ... } }
       const responseData = response.data;
-      
+
       // Handle the response structure - check top-level url first (new format)
       if (responseData && typeof responseData === 'object') {
         // Check top-level url (new format)
@@ -118,7 +118,7 @@ const adminGiftService = {
           }
         }
       }
-      
+
       // Try extractResponseData as fallback
       const extracted = extractResponseData(response);
       if (extracted && typeof extracted === 'object') {
@@ -134,7 +134,7 @@ const adminGiftService = {
           }
         }
       }
-      
+
       console.error('Unexpected response structure:', responseData);
       throw new Error('Unexpected response structure from upload endpoint - URL not found');
     } catch (error: any) {

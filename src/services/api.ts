@@ -40,6 +40,19 @@ export const clearTokens = (): void => {
   localStorage.removeItem(REFRESH_TOKEN_KEY);
 };
 
+export const getFullImageUrl = (imagePath?: string): string => {
+  if (!imagePath) return '';
+  if (imagePath.startsWith('http')) return imagePath;
+
+  // Remove /api from API_URL to get the base domain
+  const baseUrl = API_URL.replace(/\/api\/?$/, '');
+
+  // Ensure we don't end up with double slashes
+  const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+
+  return `${baseUrl}${cleanPath}`;
+};
+
 interface RetryConfig extends AxiosRequestConfig {
   _retry?: boolean;
 }
