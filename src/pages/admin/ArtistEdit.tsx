@@ -98,20 +98,7 @@ const ArtistEdit: React.FC = () => {
         }
       }));
     } else {
-      setFormData(prev => {
-        if (name === 'firstName' || name === 'lastName') {
-          const firstName = name === 'firstName' ? value : prev.firstName;
-          const lastName = name === 'lastName' ? value : prev.lastName;
-          if (firstName || lastName) {
-            return {
-              ...prev,
-              [name]: value,
-              name: `${firstName || ''} ${lastName || ''}`.trim()
-            };
-          }
-        }
-        return { ...prev, [name]: value };
-      });
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
 
     // Clear any errors for this field
@@ -395,7 +382,7 @@ const ArtistEdit: React.FC = () => {
                 >
                   <option value="active">Active</option>
                   <option value="pending">Pending</option>
-                  <option value="inactive">Inactive</option>
+                  <option value="suspended">Suspended</option>
                 </select>
               </div>
             </div>

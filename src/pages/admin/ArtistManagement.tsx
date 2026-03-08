@@ -426,7 +426,7 @@ const ArtistManagement: React.FC = () => {
         >
           <option value="active">Active</option>
           <option value="pending">Pending</option>
-          <option value="inactive">Inactive</option>
+          <option value="suspended">Suspended</option>
         </select>
       </div>
 
@@ -504,7 +504,7 @@ const ArtistManagement: React.FC = () => {
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
                 <option value="pending">Pending</option>
-                <option value="inactive">Inactive</option>
+                <option value="suspended">Suspended</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
             </div>
