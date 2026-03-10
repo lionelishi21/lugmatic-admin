@@ -125,12 +125,26 @@ const songService = {
     const formData = new FormData();
 
     // Add text fields
-    if (songData.name) formData.append('name', songData.name);
-    if (songData.artist) formData.append('artist', songData.artist);
-    if (songData.album) formData.append('album', songData.album);
+    if (songData.name !== undefined) formData.append('name', songData.name);
+    if (songData.artist !== undefined) formData.append('artist', songData.artist);
+
+    // Explicitly handle null/empty for album to allow clearing it
+    if (songData.album === null || songData.album === '') {
+      formData.append('album', ''); // Sending empty string which backend treats as null for ObjectId
+    } else if (songData.album) {
+      formData.append('album', songData.album);
+    }
+
     if (songData.duration !== undefined) formData.append('duration', songData.duration.toString());
-    if (songData.genre) formData.append('genre', songData.genre);
-    if (songData.releaseDate) formData.append('releaseDate', songData.releaseDate);
+    if (songData.genre !== undefined) formData.append('genre', songData.genre);
+
+    // Handle releaseDate
+    if (songData.releaseDate === null || songData.releaseDate === '') {
+      formData.append('releaseDate', '');
+    } else if (songData.releaseDate) {
+      formData.append('releaseDate', songData.releaseDate);
+    }
+
     if (songData.lyrics !== undefined) formData.append('lyrics', songData.lyrics);
     if (songData.isActive !== undefined) formData.append('isActive', songData.isActive.toString());
 

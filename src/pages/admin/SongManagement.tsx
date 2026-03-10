@@ -9,12 +9,13 @@ import artistService, { Artist } from '../../services/artistService';
 import genreService, { Genre } from '../../services/genreService';
 import FileUpload from '../../components/ui/FileUpload';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import { Plus, Edit, Trash2, Music2, Search, User, Disc, Tag, Clock, Calendar, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, Music2, Search, User, Disc, Tag, Clock, Calendar, FileText, Eye, Loader2 } from 'lucide-react';
 
 const SongManagement: React.FC = () => {
   const navigate = useNavigate();
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
@@ -120,11 +121,12 @@ const SongManagement: React.FC = () => {
         duration: song.duration,
         genre: genreId,
         releaseDate: song.releaseDate ? new Date(song.releaseDate).toISOString().split('T')[0] : '',
-        lyrics: song.lyrics,
+        lyrics: song.lyrics || '',
         coverArt: song.coverArt,
         audioFile: song.audioFile,
       });
       setCoverArtFile(null);
+      setAudioFile(null);
     } else {
       setSelectedSong(null);
       setFormData({
@@ -194,25 +196,32 @@ const SongManagement: React.FC = () => {
     }
 
     try {
-      // Clean up form data - convert empty album string to undefined
-      const cleanedFormData = {
+      setSubmitting(true);
+
+      // Build cleaned data - ensure album is null if empty
+      const cleanedData = {
         ...formData,
         album: formData.album && formData.album.trim() !== '' ? formData.album : null,
       };
 
       if (selectedSong) {
-        // Update song
-        await songService.updateSong(
-          selectedSong._id,
-          cleanedFormData as Partial<CreateSongData>,
-          audioFile || undefined,
-          coverArtFile || undefined
-        );
+        // If no new files are selected, use the simpler JSON-based adminUpdateSong
+        if (!audioFile && !coverArtFile) {
+          await songService.adminUpdateSong(selectedSong._id, cleanedData as any);
+        } else {
+          // Use multipart update for file uploads
+          await songService.updateSong(
+            selectedSong._id,
+            cleanedData as any,
+            audioFile || undefined,
+            coverArtFile || undefined
+          );
+        }
         toast.success('Song updated successfully');
       } else {
-        // Create song with file uploads
+        // New song creation always uses multipart
         await songService.createSong(
-          cleanedFormData as CreateSongData,
+          cleanedData as any,
           audioFile || undefined,
           coverArtFile || undefined
         );
@@ -221,8 +230,9 @@ const SongManagement: React.FC = () => {
       handleCloseDialog();
       fetchSongs();
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to save song';
-      toast.error(errorMessage);
+      toast.error(err.response?.data?.message || 'Failed to save song');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -385,8 +395,15 @@ const SongManagement: React.FC = () => {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => navigate(`/admin/song-management/${song._id}`)}
+                          className="text-blue-600 hover:text-blue-800"
+                          title="View Details"
+                        >
+                          <Eye className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleOpenDialog(song)}
                           className="text-green-600 hover:text-green-800"
-                          title="View / Edit"
+                          title="Edit Song"
                         >
                           <Edit className="w-5 h-5" />
                         </button>
@@ -603,9 +620,17 @@ const SongManagement: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  disabled={submitting}
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]"
                 >
-                  {selectedSong ? 'Update' : 'Create'}
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {selectedSong ? 'Updating...' : 'Creating...'}
+                    </>
+                  ) : (
+                    selectedSong ? 'Update Song' : 'Create Song'
+                  )}
                 </button>
               </div>
             </form>
