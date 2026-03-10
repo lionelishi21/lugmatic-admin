@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Music2, Users, Upload, Radio, Gift, DollarSign, LogOut, Shield,
   Settings, BarChart2, Film, Disc, Music, Tag, Menu, X, ChevronRight,
-  MessageCircle, Bell, Search, User, Podcast, MessageSquare, TrendingUp, Video,
+  MessageCircle, Bell, Search, User, Podcast, MessageSquare, TrendingUp, Video as VideoIcon,
   Users as UsersIcon, FileText, AlertTriangle, Zap, Award, Cog, HelpCircle, ListMusic
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -145,7 +145,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     {
       path: '/admin/video-management',
       label: 'Videos',
-      icon: <Video className="h-5 w-5" />
+      icon: <VideoIcon className="h-5 w-5" />
     },
     {
       path: '/admin/notification-management',
