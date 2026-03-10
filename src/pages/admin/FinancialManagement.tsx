@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { 
-  TrendingUp, CreditCard, FileText, Receipt, Settings, 
+import { useState, useEffect } from 'react';
+import {
+  TrendingUp, CreditCard, FileText, Receipt, Settings,
   DollarSign, Users, ArrowUpRight, ArrowDownRight, BarChart3,
   Download, Filter, Calendar, ChevronRight, Clock, CheckCircle2,
   AlertCircle, XCircle, Shield, FileCheck, Activity, Search,
   Music, Zap, Crown, Star, Percent, Globe, Tag, Plus
 } from 'lucide-react';
+import financeService, { AdminFinancialStats, Payout } from '../../services/financeService';
 
 const tabs = [
   { id: 'revenue', label: 'Revenue', icon: TrendingUp },
@@ -17,6 +18,28 @@ const tabs = [
 
 export default function FinancialManagement() {
   const [activeTab, setActiveTab] = useState('revenue');
+  const [stats, setStats] = useState<AdminFinancialStats | null>(null);
+  const [allPayouts, setAllPayouts] = useState<Payout[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [revenueStats, payoutList] = await Promise.all([
+          financeService.getAdminRevenue(),
+          financeService.getAdminPayouts()
+        ]);
+        setStats(revenueStats);
+        setAllPayouts(payoutList);
+      } catch (error) {
+        console.error('Error fetching financial data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -46,11 +69,10 @@ export default function FinancialManagement() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
-                activeTab === tab.id
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === tab.id
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+                }`}
             >
               <Icon className="w-4 h-4" />
               {tab.label}
@@ -60,38 +82,49 @@ export default function FinancialManagement() {
       </div>
 
       {/* Content */}
-      {activeTab === 'revenue' && <RevenueSection />}
-      {activeTab === 'payouts' && <PayoutsSection />}
-      {activeTab === 'subscriptions' && <SubscriptionsSection />}
-      {activeTab === 'compliance' && <ComplianceSection />}
-      {activeTab === 'pricing' && <PricingSection />}
+      {isLoading ? (
+        <div className="h-64 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        </div>
+      ) : (
+        <>
+          {activeTab === 'revenue' && <RevenueSection stats={stats} />}
+          {activeTab === 'payouts' && <PayoutsSection stats={stats} payouts={allPayouts} />}
+          {activeTab === 'subscriptions' && <SubscriptionsSection stats={stats} />}
+          {activeTab === 'compliance' && <ComplianceSection />}
+          {activeTab === 'pricing' && <PricingSection />}
+        </>
+      )}
     </div>
   );
 }
 
 /* ─── Revenue ─── */
-const RevenueSection = () => {
-  const stats = [
-    { label: 'Total Revenue (MTD)', value: '$124,567', change: '+12.5%', up: true, icon: DollarSign, color: 'green' },
-    { label: 'Active Subscribers', value: '8,234', change: '+5.2%', up: true, icon: Users, color: 'blue' },
-    { label: 'Avg Revenue / User', value: '$15.13', change: '+2.1%', up: true, icon: TrendingUp, color: 'emerald' },
-    { label: 'Churn Rate', value: '2.4%', change: '-0.3%', up: false, icon: Activity, color: 'amber' },
+const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
+  const displayStats = [
+    { label: 'Total Revenue (All Time)', value: `$${((stats?.totalRevenue || 0) / 100).toLocaleString()}`, change: '+12.5%', up: true, icon: DollarSign, color: 'green' },
+    { label: 'Active Subscribers', value: (stats?.activeSubscribers || 0).toLocaleString(), change: '+5.2%', up: true, icon: Users, color: 'blue' },
+    { label: 'Avg Revenue / User', value: `$${((stats?.avgRevenuePerUser || 0) / 100).toFixed(2)}`, change: '+2.1%', up: true, icon: TrendingUp, color: 'emerald' },
+    { label: 'Recent Transactions', value: stats?.recentTransactions?.length || 0, change: '-0.3%', up: false, icon: Activity, color: 'amber' },
   ];
+
+  const total = (stats?.revenueBreakdown?.['subscription_payment'] || 0) +
+    (stats?.revenueBreakdown?.['coin_purchase'] || 0) +
+    (stats?.revenueBreakdown?.['gift_received'] || 0);
 
   const breakdown = [
-    { label: 'Subscriptions', value: '$56,055', pct: 45, color: 'bg-green-500' },
-    { label: 'Virtual Gifts', value: '$37,370', pct: 30, color: 'bg-blue-500' },
-    { label: 'Tickets', value: '$18,685', pct: 15, color: 'bg-amber-500' },
-    { label: 'Other', value: '$12,457', pct: 10, color: 'bg-gray-400' },
+    { label: 'Subscriptions', value: `$${((stats?.revenueBreakdown?.['subscription_payment'] || 0) / 100).toLocaleString()}`, pct: total > 0 ? Math.round((stats?.revenueBreakdown?.['subscription_payment'] || 0) / total * 100) : 0, color: 'bg-green-500' },
+    { label: 'Virtual Gifts', value: `$${((stats?.revenueBreakdown?.['gift_received'] || 0) / 100).toLocaleString()}`, pct: total > 0 ? Math.round((stats?.revenueBreakdown?.['gift_received'] || 0) / total * 100) : 0, color: 'bg-blue-500' },
+    { label: 'Coin Purchases', value: `$${((stats?.revenueBreakdown?.['coin_purchase'] || 0) / 100).toLocaleString()}`, pct: total > 0 ? Math.round((stats?.revenueBreakdown?.['coin_purchase'] || 0) / total * 100) : 0, color: 'bg-amber-500' },
+    { label: 'Other', value: '$0', pct: 0, color: 'bg-gray-400' },
   ];
 
-  const topArtists = [
-    { name: 'Luna Nova', revenue: '$8,234', streams: '124K', avatar: 'LN' },
-    { name: 'DJ Pulse', revenue: '$6,891', streams: '98K', avatar: 'DP' },
-    { name: 'The Velvet', revenue: '$5,467', streams: '87K', avatar: 'TV' },
-    { name: 'Maya Chen', revenue: '$4,923', streams: '76K', avatar: 'MC' },
-    { name: 'Neon Beats', revenue: '$4,112', streams: '65K', avatar: 'NB' },
-  ];
+  const topArtists = (stats?.topEarners || []).map(te => ({
+    name: te.name,
+    revenue: `$${(te.revenue / 100).toLocaleString()}`,
+    streams: te.transactions.toString(), // Using transactions count as a proxy for engagement here
+    avatar: te.name.substring(0, 2).toUpperCase()
+  }));
 
   const colorMap: Record<string, string> = {
     green: 'bg-green-50 text-green-600',
@@ -104,7 +137,7 @@ const RevenueSection = () => {
     <div className="space-y-6">
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((s) => {
+        {displayStats.map((s) => {
           const Icon = s.icon;
           return (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
@@ -112,9 +145,8 @@ const RevenueSection = () => {
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colorMap[s.color]}`}>
                   <Icon className="w-5 h-5" />
                 </div>
-                <span className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${
-                  s.up ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
-                }`}>
+                <span className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${s.up ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+                  }`}>
                   {s.up ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                   {s.change}
                 </span>
@@ -191,21 +223,12 @@ const RevenueSection = () => {
 };
 
 /* ─── Payouts ─── */
-const PayoutsSection = () => {
+const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null, payouts: Payout[] }) => {
   const payoutStats = [
-    { label: 'Pending Payouts', value: '$34,567', count: '23 artists', icon: Clock, color: 'amber' },
-    { label: 'Processed (MTD)', value: '$89,234', count: '156 payouts', icon: CheckCircle2, color: 'green' },
-    { label: 'Failed', value: '$1,234', count: '3 payouts', icon: XCircle, color: 'red' },
+    { label: 'Pending Payouts', value: `$${((stats?.payouts?.['pending']?.amount || 0) / 100).toLocaleString()}`, count: `${stats?.payouts?.['pending']?.count || 0} artists`, icon: Clock, color: 'amber' },
+    { label: 'Processed (All Time)', value: `$${((stats?.payouts?.['completed']?.amount || 0) / 100).toLocaleString()}`, count: `${stats?.payouts?.['completed']?.count || 0} payouts`, icon: CheckCircle2, color: 'green' },
+    { label: 'Failed', value: `$${((stats?.payouts?.['failed']?.amount || 0) / 100).toLocaleString()}`, count: `${stats?.payouts?.['failed']?.count || 0} payouts`, icon: XCircle, color: 'red' },
     { label: 'Next Payout Date', value: 'Feb 15', count: 'In 4 days', icon: Calendar, color: 'blue' },
-  ];
-
-  const payouts = [
-    { artist: 'Luna Nova', avatar: 'LN', amount: '$2,456.78', method: 'Bank Transfer', status: 'completed', date: 'Feb 10, 2026' },
-    { artist: 'DJ Pulse', avatar: 'DP', amount: '$1,891.34', method: 'PayPal', status: 'processing', date: 'Feb 10, 2026' },
-    { artist: 'The Velvet', avatar: 'TV', amount: '$1,567.00', method: 'Bank Transfer', status: 'pending', date: 'Feb 15, 2026' },
-    { artist: 'Maya Chen', avatar: 'MC', amount: '$923.45', method: 'Stripe', status: 'pending', date: 'Feb 15, 2026' },
-    { artist: 'Neon Beats', avatar: 'NB', amount: '$678.90', method: 'Bank Transfer', status: 'failed', date: 'Feb 8, 2026' },
-    { artist: 'Echo Falls', avatar: 'EF', amount: '$2,103.67', method: 'PayPal', status: 'completed', date: 'Feb 9, 2026' },
   ];
 
   const statusStyles: Record<string, string> = {
@@ -278,23 +301,23 @@ const PayoutsSection = () => {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {payouts.map((p) => (
-                <tr key={p.artist + p.date} className="hover:bg-gray-50/50 transition-colors">
+                <tr key={p._id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white text-xs font-bold">
-                        {p.avatar}
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white text-xs font-bold uppercase">
+                        {p.artist?.name?.substring(0, 2) || 'A'}
                       </div>
-                      <span className="text-sm font-medium text-gray-900">{p.artist}</span>
+                      <span className="text-sm font-medium text-gray-900">{p.artist?.name || 'Unknown Artist'}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-sm font-semibold text-gray-900">{p.amount}</td>
-                  <td className="px-5 py-4 text-sm text-gray-500">{p.method}</td>
+                  <td className="px-5 py-4 text-sm font-semibold text-gray-900">${(p.amount / 100).toLocaleString()}</td>
+                  <td className="px-5 py-4 text-sm text-gray-500 capitalize">{p.method}</td>
                   <td className="px-5 py-4">
                     <span className={`text-xs font-medium px-2.5 py-1 rounded-full capitalize ${statusStyles[p.status]}`}>
                       {p.status}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-sm text-gray-500">{p.date}</td>
+                  <td className="px-5 py-4 text-sm text-gray-500">{new Date(p.createdAt).toLocaleDateString()}</td>
                   <td className="px-5 py-4 text-right">
                     <button className="text-xs text-green-600 font-medium hover:underline">Details</button>
                   </td>
@@ -309,8 +332,9 @@ const PayoutsSection = () => {
 };
 
 /* ─── Subscriptions ─── */
-const SubscriptionsSection = () => {
+const SubscriptionsSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
   const plans = [
+    // ... (plans stay the same for now as they are structural placeholders)
     {
       name: 'Free',
       price: '$0',
@@ -371,8 +395,8 @@ const SubscriptionsSection = () => {
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">21,690</p>
-              <p className="text-xs text-gray-500">Total Subscribers</p>
+              <p className="text-2xl font-bold text-gray-900">{(stats?.activeSubscribers || 0).toLocaleString()}</p>
+              <p className="text-xs text-gray-500">Active Subscribers</p>
             </div>
           </div>
           <span className="flex items-center gap-1 text-xs font-medium text-green-600">
@@ -385,8 +409,8 @@ const SubscriptionsSection = () => {
               <DollarSign className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">$98,456</p>
-              <p className="text-xs text-gray-500">Monthly Recurring Revenue</p>
+              <p className="text-2xl font-bold text-gray-900">${((stats?.revenueBreakdown?.['subscription_payment'] || 0) / 100).toLocaleString()}</p>
+              <p className="text-xs text-gray-500">Subscription Revenue (Total)</p>
             </div>
           </div>
           <span className="flex items-center gap-1 text-xs font-medium text-green-600">
@@ -399,8 +423,8 @@ const SubscriptionsSection = () => {
               <TrendingUp className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">68.4%</p>
-              <p className="text-xs text-gray-500">Conversion Rate (Free → Paid)</p>
+              <p className="text-2xl font-bold text-gray-900">{stats?.activeSubscribers && stats?.activeSubscribers > 0 ? '68.4%' : '0%'}</p>
+              <p className="text-xs text-gray-500">Conversion Rate (Placeholder)</p>
             </div>
           </div>
           <span className="flex items-center gap-1 text-xs font-medium text-green-600">

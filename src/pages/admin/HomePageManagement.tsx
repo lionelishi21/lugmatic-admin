@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Users, Filter, Star, Search } from 'lucide-react';
+import { API_URL } from '../../services/api';
 
 interface Artist {
     _id: string;
@@ -27,7 +28,7 @@ export default function HomePageManagement() {
         try {
             setLoading(true);
             // Construct URL with query params
-            const baseUrl = 'http://localhost:5000/api/artists';
+            const baseUrl = `${API_URL}/artists`;
             const params = new URLSearchParams();
             if (showFeaturedOnly) params.append('featured', 'true');
 
@@ -43,7 +44,7 @@ export default function HomePageManagement() {
 
     const toggleFeatured = async (artistId: string, currentStatus: boolean) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/artists/${artistId}`, {
+            const response = await fetch(`${API_URL}/artists/${artistId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ featured: !currentStatus }),
@@ -75,8 +76,8 @@ export default function HomePageManagement() {
                     <button
                         onClick={() => setShowFeaturedOnly(!showFeaturedOnly)}
                         className={`flex items-center px-4 py-2 rounded-lg transition-colors ${showFeaturedOnly
-                                ? 'bg-purple-100 text-purple-700'
-                                : 'bg-white text-gray-600 border hover:bg-gray-50'
+                            ? 'bg-purple-100 text-purple-700'
+                            : 'bg-white text-gray-600 border hover:bg-gray-50'
                             }`}
                     >
                         <Filter className="h-4 w-4 mr-2" />
