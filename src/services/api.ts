@@ -165,9 +165,16 @@ const api = createApiInstance();
 
 // API interface for common methods
 export interface ApiResponse<T = unknown> {
+  success: boolean;
   data: T;
-  status: number;
+  status?: number;
   message?: string;
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
 }
 
 // Type for responses with pagination

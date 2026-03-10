@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Music2, Users, Upload, Radio, Gift, DollarSign, LogOut, Shield,
   Settings, BarChart2, Film, Disc, Music, Tag, Menu, X, ChevronRight,
-  MessageCircle, Bell, Search, User, Podcast, MessageSquare, TrendingUp,
+  MessageCircle, Bell, Search, User, Podcast, MessageSquare, TrendingUp, Video,
   Users as UsersIcon, FileText, AlertTriangle, Zap, Award, Cog, HelpCircle, ListMusic
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -340,14 +340,14 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                       <button
                         onClick={() => toggleExpand(item.path)}
                         className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive(item.path)
-                            ? 'bg-green-500/10 text-green-400'
-                            : 'hover:bg-gray-800/80 text-gray-400 hover:text-gray-200'
+                          ? 'bg-green-500/10 text-green-400'
+                          : 'hover:bg-gray-800/80 text-gray-400 hover:text-gray-200'
                           }`}
                       >
                         <div className="flex items-center">
                           <span className={`flex-shrink-0 mr-3 p-1.5 rounded-md transition-all duration-200 ${isActive(item.path)
-                              ? 'bg-green-500/20 text-green-400'
-                              : 'text-gray-500 group-hover:text-gray-300'
+                            ? 'bg-green-500/20 text-green-400'
+                            : 'text-gray-500 group-hover:text-gray-300'
                             }`}>
                             {item.icon}
                           </span>
@@ -388,8 +388,8 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                                   <Link
                                     to={subItem.path}
                                     className={`flex items-center px-3 py-2 rounded-md transition-all duration-200 text-sm ${isActive(subItem.path)
-                                        ? 'text-green-400 font-medium bg-green-500/10'
-                                        : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/50'
+                                      ? 'text-green-400 font-medium bg-green-500/10'
+                                      : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/50'
                                       }`}
                                   >
                                     {subItem.icon && (
@@ -410,14 +410,14 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                     <Link
                       to={item.path}
                       className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive(item.path)
-                          ? 'bg-green-500/10 text-green-400'
-                          : 'hover:bg-gray-800/80 text-gray-400 hover:text-gray-200'
+                        ? 'bg-green-500/10 text-green-400'
+                        : 'hover:bg-gray-800/80 text-gray-400 hover:text-gray-200'
                         }`}
                     >
                       <div className="flex items-center">
                         <span className={`flex-shrink-0 mr-3 p-1.5 rounded-md transition-all duration-200 ${isActive(item.path)
-                            ? 'bg-green-500/20 text-green-400'
-                            : 'text-gray-500 group-hover:text-gray-300'
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'text-gray-500 group-hover:text-gray-300'
                           }`}>
                           {item.icon}
                         </span>

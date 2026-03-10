@@ -15,7 +15,7 @@ import {
 export const adminService = {
   // Dashboard data
   getDashboardData: async () => {
-    return apiService.get<ApiResponse<AdminDashboardData>>('/admin/dashboard');
+    return apiService.get<AdminDashboardData>('/admin/dashboard');
   },
 
   // User management
@@ -29,19 +29,19 @@ export const adminService = {
   },
 
   getUserById: async (id: string) => {
-    return apiService.get<ApiResponse<User>>(`/admin/users/${id}`);
+    return apiService.get<User>(`/admin/users/${id}`);
   },
 
   updateUser: async (id: string, data: Partial<User>) => {
-    return apiService.put<ApiResponse<User>>(`/admin/users/${id}`, data);
+    return apiService.put<User>(`/admin/users/${id}`, data);
   },
 
   deleteUser: async (id: string) => {
-    return apiService.delete<ApiResponse<void>>(`/admin/users/${id}`);
+    return apiService.delete<void>(`/admin/users/${id}`);
   },
 
   toggleUserStatus: async (id: string, isActive: boolean) => {
-    return apiService.put<ApiResponse<User>>(`/admin/users/${id}/status`, { isActive });
+    return apiService.put<User>(`/admin/users/${id}/status`, { isActive });
   },
 
   // Artist management
@@ -55,28 +55,28 @@ export const adminService = {
   },
 
   getArtistById: async (id: string) => {
-    return apiService.get<ApiResponse<Artist>>(`/admin/artists/${id}`);
+    return apiService.get<Artist>(`/admin/artists/${id}`);
   },
 
   updateArtist: async (id: string, data: Partial<Artist>) => {
-    return apiService.put<ApiResponse<Artist>>(`/admin/artists/${id}`, data);
+    return apiService.put<Artist>(`/admin/artists/${id}`, data);
   },
 
   deleteArtist: async (id: string) => {
-    return apiService.delete<ApiResponse<void>>(`/admin/artists/${id}`);
+    return apiService.delete<void>(`/admin/artists/${id}`);
   },
 
   approveArtist: async (id: string) => {
-    return apiService.put<ApiResponse<Artist>>(`/admin/artists/${id}/approve`);
+    return apiService.put<Artist>(`/admin/artists/${id}/approve`);
   },
 
   rejectArtist: async (id: string, reason: string) => {
-    return apiService.put<ApiResponse<Artist>>(`/admin/artists/${id}/reject`, { reason });
+    return apiService.put<Artist>(`/admin/artists/${id}/reject`, { reason });
   },
 
   // Content moderation
   getContentModerationData: async () => {
-    return apiService.get<ApiResponse<ContentModerationData>>('/admin/moderation');
+    return apiService.get<ContentModerationData>('/admin/moderation');
   },
 
   getContentForModeration: async (contentType: string, page = 1, limit = 20) => {
@@ -88,7 +88,7 @@ export const adminService = {
   },
 
   moderateContent: async (contentType: string, contentId: string, action: 'approve' | 'reject' | 'delete', reason?: string) => {
-    return apiService.put<ApiResponse<any>>(`/admin/moderation/${contentType}/${contentId}`, { action, reason });
+    return apiService.put<any>(`/admin/moderation/${contentType}/${contentId}`, { action, reason });
   },
 
   getFlaggedContent: async (page = 1, pageSize = 10) => {

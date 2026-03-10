@@ -20,6 +20,8 @@ import {
   DialogContentText,
   DialogActions,
   Snackbar,
+  TextField,
+  Pagination,
 } from '@mui/material';
 import {
   CheckCircle as ApproveIcon,
@@ -88,13 +90,13 @@ const ContentModeration: React.FC = () => {
       const contentType = tabConfigs[activeTab].type;
       const response = await adminService.getContentForModeration(contentType, page, 12);
 
-      if (response.success && response.data) {
-        setItems(response.data);
-        if (response.pagination) {
-          setTotalPages(response.pagination.pages);
+      if (response.data.success && response.data.data) {
+        setItems(response.data.data);
+        if (response.data.pagination) {
+          setTotalPages(response.data.pagination.pages);
         }
       } else {
-        throw new Error('Failed to fetch content');
+        throw new Error(response.data.message || 'Failed to fetch content');
       }
     } catch (err: any) {
       console.error('Error fetching moderation content:', err);
@@ -118,12 +120,12 @@ const ContentModeration: React.FC = () => {
       const contentType = tabConfigs[activeTab].type;
       const response = await adminService.moderateContent(contentType, itemId, action, reason);
 
-      if (response.success) {
+      if (response.data.success) {
         showSnackbar(`Content successfully ${action}d`, 'success');
         // Remove item from UI
         setItems((prev) => prev.filter((item) => item._id !== itemId));
       } else {
-        throw new Error(response.message || `Failed to ${action} content`);
+        throw new Error(response.data.message || `Failed to ${action} content`);
       }
     } catch (err: any) {
       console.error(`Error moderating content:`, err);
@@ -153,7 +155,7 @@ const ContentModeration: React.FC = () => {
       : (typeof item.artist === 'object' ? item.artist?.name : item.artist) || 'Unknown Artist';
 
     return (
-      <Grid item xs={12} sm={6} md={4} lg={3} key={item._id}>
+      <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={item._id}>
         <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
           {isComment && item.isFlagged && (
             <Chip
