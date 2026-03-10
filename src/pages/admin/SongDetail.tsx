@@ -169,18 +169,16 @@ const SongDetail: React.FC = () => {
   );
 
   const artistName = typeof song.artist === 'object' && song.artist !== null
-    ? (song.artist.name || song.artist.fullName || '—')
-    : (artists.find(a => a._id === song.artist)?.name || song.artist || '—');
+    ? song.artist.name
+    : (artists.find(a => a._id === song.artist)?.name || (typeof song.artist === 'string' ? song.artist : 'Unknown Artist'));
 
-  const albumName = song.album
-    ? (typeof song.album === 'object'
-      ? (song.album.name || '—')
-      : (albums.find(a => a._id === song.album)?.name || song.album))
-    : 'Single';
+  const albumName = typeof song.album === 'object' && song.album !== null
+    ? song.album.name
+    : (albums.find(a => a._id === song.album)?.name || (typeof song.album === 'string' ? song.album : 'No Album'));
 
   const genreName = typeof song.genre === 'object' && song.genre !== null
-    ? (song.genre.name || '—')
-    : (genres.find(g => g._id === song.genre)?.name || song.genre || '—');
+    ? song.genre.name
+    : (genres.find(g => g._id === (typeof song.genre === 'string' ? song.genre : ''))?.name || (typeof song.genre === 'string' ? song.genre : 'Unknown Genre'));
   const coverUrl = song.coverArtUrl || song.coverArt || null;
   const audioUrl = song.audioFileUrl || song.audioFile || null;
   const sDate = song.releaseDate ? new Date(song.releaseDate) : null;

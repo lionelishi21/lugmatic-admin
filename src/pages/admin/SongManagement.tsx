@@ -357,13 +357,17 @@ const SongManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {typeof song.artist === 'string' ? song.artist : song.artist?.name || 'Unknown'}
+                        {typeof song.artist === 'object' && song.artist !== null
+                          ? (song.artist.name || 'Unknown')
+                          : (artists.find(a => a._id === song.artist)?.name || (typeof song.artist === 'string' ? song.artist : 'Unknown'))}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
                         {song.album
-                          ? (typeof song.album === 'string' ? song.album : song.album.name || 'N/A')
+                          ? (typeof song.album === 'object' && song.album !== null
+                            ? (song.album.name || 'N/A')
+                            : (albums.find(a => a._id === song.album)?.name || (typeof song.album === 'string' ? song.album : 'N/A')))
                           : 'No Album'}
                       </div>
                     </td>
@@ -371,7 +375,7 @@ const SongManagement: React.FC = () => {
                       <div className="text-sm text-gray-900">
                         {typeof song.genre === 'object' && song.genre !== null
                           ? (song.genre.name || '—')
-                          : (genres.find(g => g._id === song.genre)?.name || song.genre || '—')}
+                          : (genres.find(g => g._id === (typeof song.genre === 'string' ? song.genre : ''))?.name || (typeof song.genre === 'string' ? song.genre : '—'))}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

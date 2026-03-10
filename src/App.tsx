@@ -37,6 +37,7 @@ import Support from './pages/artist/Support';
 import PodcastManagement from './pages/admin/PodcastManagement';
 import CommentManagement from './pages/admin/CommentManagement';
 import GiftManagement from './pages/admin/GiftManagement';
+import VideoManagement from './pages/admin/VideoManagement';
 import NotificationManagement from './pages/admin/NotificationManagement';
 import ContentModeration from './pages/admin/ContentModeration';
 import Analytics from './pages/admin/Analytics';
@@ -96,6 +97,7 @@ function App() {
                         <Route path="song-management" element={<SongManagement />} />
                         <Route path="song-management/:id" element={<SongDetail />} />
                         <Route path="playlist-management" element={<PlaylistManagement />} />
+                        <Route path="video-management" element={<VideoManagement />} />
                         <Route path="genre-management" element={<GenreManagement />} />
                         <Route path="artist-add" element={<ArtistCreate />} />
                         {/* New admin routes */}
