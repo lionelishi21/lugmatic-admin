@@ -438,7 +438,7 @@ const GiftDialog: React.FC<GiftDialogProps> = ({ open, onClose, editingGift, onS
                 <FileUpload
                   label="Upload Icon"
                   accept="image/png,image/svg+xml,image/gif,image/jpeg,image/jpg"
-                  maxSize={5}
+                  maxSize={10}
                   onFileSelect={handleIconSelect}
                   onFileRemove={() => {
                     updateFormField('image', '');

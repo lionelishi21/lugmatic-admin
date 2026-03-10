@@ -15,7 +15,7 @@ interface FileUploadProps {
 
 const FileUpload: React.FC<FileUploadProps> = ({
   accept,
-  maxSize = 5,
+  maxSize = 10,
   onFileSelect,
   onFileRemove,
   currentFile,
@@ -30,7 +30,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   // Set default accept based on fileType
   const defaultAccept = accept || (fileType === 'audio' ? 'audio/*' : 'image/*');
-  const defaultMaxSize = fileType === 'audio' ? 50 : 5; // 50MB for audio, 5MB for images
+  const defaultMaxSize = fileType === 'audio' ? 50 : 10; // 50MB for audio, 10MB for images
   const actualMaxSize = maxSize || defaultMaxSize;
 
   const handleFileChange = (file: File) => {
@@ -120,10 +120,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
       <div
         className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${dragActive
-            ? 'border-green-500 bg-green-50'
-            : error
-              ? 'border-red-300 bg-red-50'
-              : 'border-gray-300 bg-gray-50 hover:border-gray-400'
+          ? 'border-green-500 bg-green-50'
+          : error
+            ? 'border-red-300 bg-red-50'
+            : 'border-gray-300 bg-gray-50 hover:border-gray-400'
           }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}

@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { 
-  Upload, 
-  X, 
+import {
+  Upload,
+  X,
   Save,
   AlertCircle
 } from 'lucide-react';
@@ -67,7 +67,7 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
       'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp']
     },
     multiple: false,
-    maxSize: 5 * 1024 * 1024 // 5MB
+    maxSize: 10 * 1024 * 1024 // 10MB
   });
 
   const validateForm = (): boolean => {
@@ -126,9 +126,9 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
       };
 
       const response = await giftService.createGift(giftData);
-      
+
       toast.success('Gift created successfully!');
-      
+
       if (onGiftCreated) {
         onGiftCreated(response.data);
       }
@@ -172,7 +172,7 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
       ...prev,
       [field]: value
     }));
-    
+
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
@@ -222,11 +222,10 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
             ) : (
               <div
                 {...getRootProps()}
-                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 ${
-                  isDragActive 
-                    ? 'border-purple-500 bg-purple-50' 
+                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 ${isDragActive
+                    ? 'border-purple-500 bg-purple-50'
                     : 'border-gray-300 hover:border-purple-500 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 <input {...getInputProps()} />
                 <Upload className="h-12 w-12 text-purple-600 mx-auto mb-4" />
@@ -235,7 +234,7 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                 </h4>
                 <p className="text-gray-600 mb-2">or click to select</p>
                 <p className="text-sm text-gray-500">
-                  Supports: JPG, PNG, GIF, WebP (max 5MB)
+                  Supports: JPG, PNG, GIF, WebP (max 10MB)
                 </p>
               </div>
             )}
@@ -253,7 +252,7 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
         <div className="lg:col-span-2">
           <div className="bg-white/80 backdrop-blur-xl border border-white/30 rounded-3xl p-6 shadow-xl">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Gift Details</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Gift Name */}
               <div>
@@ -264,9 +263,8 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                    errors.name ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.name ? 'border-red-300' : 'border-gray-300'
+                    }`}
                   placeholder="Enter gift name"
                 />
                 {errors.name && (
@@ -282,9 +280,8 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                 <select
                   value={formData.category}
                   onChange={(e) => handleInputChange('category', e.target.value)}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                    errors.category ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.category ? 'border-red-300' : 'border-gray-300'
+                    }`}
                 >
                   <option value="">Select category</option>
                   <option value="virtual">Virtual</option>
@@ -308,9 +305,8 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                   type="number"
                   value={formData.price}
                   onChange={(e) => handleInputChange('price', Number(e.target.value))}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                    errors.price ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.price ? 'border-red-300' : 'border-gray-300'
+                    }`}
                   placeholder="0.00"
                   min="0"
                   step="0.01"
@@ -345,9 +341,8 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 rows={4}
-                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  errors.description ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.description ? 'border-red-300' : 'border-gray-300'
+                  }`}
                 placeholder="Enter gift description..."
               />
               {errors.description && (
@@ -368,8 +363,8 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                     value={formData.rules?.minAmount || 1}
                     onChange={(e) => setFormData({
                       ...formData,
-                      rules: { 
-                        ...formData.rules, 
+                      rules: {
+                        ...formData.rules,
                         minAmount: Number(e.target.value),
                         maxAmount: formData.rules?.maxAmount || 100,
                         cooldownMinutes: formData.rules?.cooldownMinutes || 0,
@@ -390,8 +385,8 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                     value={formData.rules?.maxAmount || 100}
                     onChange={(e) => setFormData({
                       ...formData,
-                      rules: { 
-                        ...formData.rules, 
+                      rules: {
+                        ...formData.rules,
                         maxAmount: Number(e.target.value),
                         minAmount: formData.rules?.minAmount || 1,
                         cooldownMinutes: formData.rules?.cooldownMinutes || 0,
@@ -412,8 +407,8 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                     value={formData.rules?.dailyLimit || 10}
                     onChange={(e) => setFormData({
                       ...formData,
-                      rules: { 
-                        ...formData.rules, 
+                      rules: {
+                        ...formData.rules,
                         dailyLimit: Number(e.target.value),
                         minAmount: formData.rules?.minAmount || 1,
                         maxAmount: formData.rules?.maxAmount || 100,
@@ -434,8 +429,8 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                     value={formData.rules?.cooldownMinutes || 0}
                     onChange={(e) => setFormData({
                       ...formData,
-                      rules: { 
-                        ...formData.rules, 
+                      rules: {
+                        ...formData.rules,
                         cooldownMinutes: Number(e.target.value),
                         minAmount: formData.rules?.minAmount || 1,
                         maxAmount: formData.rules?.maxAmount || 100,
@@ -462,21 +457,19 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                   <button
                     onClick={() => setFormData({
                       ...formData,
-                      effects: { 
-                        ...formData.effects, 
+                      effects: {
+                        ...formData.effects,
                         showAnimation: !formData.effects?.showAnimation,
                         playSound: formData.effects?.playSound || true,
                         specialEffect: formData.effects?.specialEffect || 'none'
                       }
                     })}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      formData.effects?.showAnimation ? 'bg-purple-600' : 'bg-gray-300'
-                    }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.effects?.showAnimation ? 'bg-purple-600' : 'bg-gray-300'
+                      }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        formData.effects?.showAnimation ? 'translate-x-6' : 'translate-x-1'
-                      }`}
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.effects?.showAnimation ? 'translate-x-6' : 'translate-x-1'
+                        }`}
                     />
                   </button>
                 </div>
@@ -488,25 +481,23 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                   <button
                     onClick={() => setFormData({
                       ...formData,
-                      effects: { 
-                        ...formData.effects, 
+                      effects: {
+                        ...formData.effects,
                         playSound: !formData.effects?.playSound,
                         showAnimation: formData.effects?.showAnimation || true,
                         specialEffect: formData.effects?.specialEffect || 'none'
                       }
                     })}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      formData.effects?.playSound ? 'bg-purple-600' : 'bg-gray-300'
-                    }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.effects?.playSound ? 'bg-purple-600' : 'bg-gray-300'
+                      }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        formData.effects?.playSound ? 'translate-x-6' : 'translate-x-1'
-                      }`}
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.effects?.playSound ? 'translate-x-6' : 'translate-x-1'
+                        }`}
                     />
                   </button>
                 </div>
-                            </div>
+              </div>
             </div>
           </div>
         </div>
