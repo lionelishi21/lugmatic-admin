@@ -5,10 +5,10 @@ import apiService from './api';
 export interface Song {
   _id: string;
   name: string;
-  artist: string | { _id: string; name: string };
-  album?: string | { _id: string; name: string };
+  artist: string | { _id: string; name?: string; fullName?: string; firstName?: string; lastName?: string };
+  album?: string | { _id: string; name?: string; coverArt?: string };
   duration: number;
-  genre: string;
+  genre: string | { _id: string; name?: string };
   releaseDate: string;
   lyrics: string;
   coverArt: string;

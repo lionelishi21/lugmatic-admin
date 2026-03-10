@@ -106,15 +106,12 @@ const SongManagement: React.FC = () => {
     if (song) {
       setSelectedSong(song);
       // Handle artist - could be ID or name string
-      const artistId = typeof song.artist === 'object' ? song.artist._id :
-        artists.find(a => a._id === song.artist || a.name === song.artist)?._id || song.artist;
-
-      // Handle album - could be ID or name string
-      const albumId = typeof song.album === 'object' ? song.album._id :
-        albums.find(a => a._id === song.album || a.name === song.album)?._id || song.album || '';
-
-      // Handle genre - could be ID or name string
-      const genreId = genres.find(g => g._id === song.genre || g.name === song.genre)?._id || song.genre || '';
+      const artistId = typeof song.artist === 'object' && song.artist !== null ? song.artist._id :
+        artists.find(a => a._id === song.artist || a.name === song.artist)?._id || (song.artist as string);
+      const albumId = typeof song.album === 'object' && song.album !== null ? song.album._id :
+        albums.find(a => a._id === song.album || a.name === song.album)?._id || (song.album as string) || '';
+      const genreId = typeof song.genre === 'object' && song.genre !== null ? song.genre._id :
+        genres.find(g => g._id === song.genre || g.name === song.genre)?._id || (song.genre as string) || '';
 
       setFormData({
         name: song.name,
@@ -372,21 +369,23 @@ const SongManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {genres.find(g => g._id === song.genre)?.name || song.genre}
+                        {typeof song.genre === 'object' && song.genre !== null
+                          ? (song.genre.name || '—')
+                          : (genres.find(g => g._id === song.genre)?.name || song.genre || '—')}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{formatDuration(song.duration)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => navigate(`/admin/song-management/${song._id}`)}
-                            className="text-green-600 hover:text-green-800"
-                            title="View / Edit"
-                          >
-                            <Edit className="w-5 h-5" />
-                          </button>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => navigate(`/admin/song-management/${song._id}`)}
+                          className="text-green-600 hover:text-green-800"
+                          title="View / Edit"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
                         <button
                           onClick={() => setSongToDelete(song._id)}
                           className="text-red-600 hover:text-red-900"

@@ -62,11 +62,12 @@ const SongDetail: React.FC = () => {
   };
 
   const populateForm = (s: Song, artistList: Artist[], albumList: Album[], genreList: Genre[]) => {
-    const artistId = typeof s.artist === 'object' ? s.artist?._id :
-      artistList.find(a => a._id === s.artist || a.name === s.artist)?._id || s.artist;
-    const albumId = typeof s.album === 'object' ? s.album?._id :
-      albumList.find(a => a._id === s.album || a.name === s.album)?._id || s.album || '';
-    const genreId = genreList.find(g => g._id === s.genre || g.name === s.genre)?._id || s.genre || '';
+    const artistId = typeof s.artist === 'object' && s.artist !== null ? s.artist._id :
+      artistList.find(a => a._id === s.artist || a.name === s.artist)?._id || (s.artist as string);
+    const albumId = typeof s.album === 'object' && s.album !== null ? s.album._id :
+      albumList.find(a => a._id === s.album || a.name === s.album)?._id || (s.album as string) || '';
+    const genreId = typeof s.genre === 'object' && s.genre !== null ? s.genre._id :
+      genreList.find(g => g._id === s.genre || g.name === s.genre)?._id || (s.genre as string) || '';
 
     let formattedDate = '';
     if (s.releaseDate) {
@@ -167,9 +168,19 @@ const SongDetail: React.FC = () => {
     </div>
   );
 
-  const artistName = typeof song.artist === 'object' ? song.artist.name : artists.find(a => a._id === song.artist)?.name || song.artist || '—';
-  const albumName = song.album ? (typeof song.album === 'object' ? song.album.name : albums.find(a => a._id === song.album)?.name || song.album) : 'Single';
-  const genreName = genres.find(g => g._id === song.genre)?.name || song.genre || '—';
+  const artistName = typeof song.artist === 'object' && song.artist !== null
+    ? (song.artist.name || song.artist.fullName || '—')
+    : (artists.find(a => a._id === song.artist)?.name || song.artist || '—');
+
+  const albumName = song.album
+    ? (typeof song.album === 'object'
+      ? (song.album.name || '—')
+      : (albums.find(a => a._id === song.album)?.name || song.album))
+    : 'Single';
+
+  const genreName = typeof song.genre === 'object' && song.genre !== null
+    ? (song.genre.name || '—')
+    : (genres.find(g => g._id === song.genre)?.name || song.genre || '—');
   const coverUrl = song.coverArtUrl || song.coverArt || null;
   const audioUrl = song.audioFileUrl || song.audioFile || null;
   const sDate = song.releaseDate ? new Date(song.releaseDate) : null;
