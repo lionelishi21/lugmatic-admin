@@ -197,7 +197,7 @@ const SongManagement: React.FC = () => {
       // Clean up form data - convert empty album string to undefined
       const cleanedFormData = {
         ...formData,
-        album: formData.album && formData.album.trim() !== '' ? formData.album : undefined,
+        album: formData.album && formData.album.trim() !== '' ? formData.album : null,
       };
 
       if (selectedSong) {

@@ -112,7 +112,7 @@ const SongDetail: React.FC = () => {
     if (!song) return;
     setSubmitting(true);
     try {
-      const cleanedData = { ...formData, album: formData.album?.trim() || undefined };
+      const cleanedData = { ...formData, album: formData.album?.trim() || null };
 
       let updated;
       if (coverArtFile || audioFile) {
