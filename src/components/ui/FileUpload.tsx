@@ -153,7 +153,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
               <X className="w-4 h-4" />
             </button>
           </div>
-        ) : selectedFile ? (
+        ) : selectedFile || (currentFile && fileType === 'audio') ? (
           <div className="relative p-4 bg-gray-100 rounded-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -165,9 +165,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
                   )}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{selectedFile.name}</p>
+                  <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                    {selectedFile ? selectedFile.name : (typeof currentFile === 'string' ? currentFile.split('/').pop() : 'Existing Audio')}
+                  </p>
                   <p className="text-xs text-gray-500">
-                    {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                    {selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : 'Existing file'}
                   </p>
                 </div>
               </div>

@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Users, Search, Filter, Plus, MoreHorizontal, Shield, Music2, User as UserIcon, Mail, ChevronDown, X, UserPlus, UserCheck, UserX, Ban, Loader2 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { User } from '../../types';
-import { toast } from 'sonner';
+import { toast } from 'react-hot-toast';
 
 // Role configuration for UI display
 const roleConfig: Record<string, any> = {
@@ -13,18 +13,6 @@ const roleConfig: Record<string, any> = {
 };
 
 const statusConfig: Record<string, any> = {
-  active: { label: 'Active', bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-500' },
-  inactive: { label: 'Inactive', bg: 'bg-gray-100', text: 'text-gray-500', dot: 'bg-gray-400' },
-  suspended: { label: 'Suspended', bg: 'bg-red-50', text: 'text-red-600', dot: 'bg-red-500' },
-};
-
-const roleConfig = {
-  admin: { label: 'Admin', icon: Shield, bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-400' },
-  artist: { label: 'Artist', icon: Music2, bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-400' },
-  user: { label: 'User', icon: UserIcon, bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' },
-};
-
-const statusConfig = {
   active: { label: 'Active', bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-500' },
   inactive: { label: 'Inactive', bg: 'bg-gray-100', text: 'text-gray-500', dot: 'bg-gray-400' },
   suspended: { label: 'Suspended', bg: 'bg-red-50', text: 'text-red-600', dot: 'bg-red-500' },
@@ -271,7 +259,28 @@ export default function UserManagement() {
           </div>
         )}
 
-        <tbody className="divide-y divide-gray-50">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-gray-50/50 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <tr>
+                <th className="pl-4 pr-2 py-4 w-10">
+                  <input
+                    type="checkbox"
+                    checked={users.length > 0 && selectedUsers.size === users.length}
+                    onChange={toggleAll}
+                    className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500/20"
+                  />
+                </th>
+                <th className="px-4 py-4">User</th>
+                <th className="px-4 py-4">Role</th>
+                <th className="px-4 py-4">Status</th>
+                <th className="px-4 py-4">Type</th>
+                <th className="px-4 py-4">Balance</th>
+                <th className="px-4 py-4">Last Active</th>
+                <th className="px-4 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
           {loading ? (
             <tr>
               <td colSpan={8} className="py-20 text-center">
@@ -371,9 +380,9 @@ export default function UserManagement() {
               </tr>
             );
           })}
-        </tbody>
-      </table>
-    </div>
+            </tbody>
+          </table>
+        </div>
 
         {/* Footer / pagination */ }
   {
@@ -410,7 +419,7 @@ export default function UserManagement() {
       </div>
     )
   }
-      </div >
+      </div>
     </div >
   );
 }
