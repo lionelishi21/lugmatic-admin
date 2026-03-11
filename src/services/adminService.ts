@@ -25,7 +25,7 @@ export const adminService = {
       pageSize: pageSize.toString(),
       ...filters
     });
-    return apiService.get<PaginatedResponse<User>>(`/admin/users?${params}`);
+    return apiService.get<User[]>(`/admin/users?${params}`);
   },
 
   getUserById: async (id: string) => {
@@ -51,7 +51,7 @@ export const adminService = {
       pageSize: pageSize.toString(),
       ...filters
     });
-    return apiService.get<PaginatedResponse<Artist>>(`/admin/artists?${params}`);
+    return apiService.get<Artist[]>(`/admin/artists?${params}`);
   },
 
   getArtistById: async (id: string) => {
@@ -106,7 +106,7 @@ export const adminService = {
       pageSize: pageSize.toString(),
       ...filters
     });
-    return apiService.get<PaginatedResponse<Podcast>>(`/admin/podcasts?${params}`);
+    return apiService.get<Podcast[]>(`/admin/podcasts?${params}`);
   },
 
   moderatePodcast: async (id: string, action: 'approve' | 'reject', reason?: string) => {
@@ -120,7 +120,7 @@ export const adminService = {
       pageSize: pageSize.toString(),
       ...filters
     });
-    return apiService.get<PaginatedResponse<Comment>>(`/admin/comments?${params}`);
+    return apiService.get<Comment[]>(`/admin/comments?${params}`);
   },
 
   moderateComment: async (id: string, action: 'approve' | 'reject', reason?: string) => {

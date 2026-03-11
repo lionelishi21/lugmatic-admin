@@ -76,12 +76,14 @@ export default function UserManagement() {
       if (statusFilter !== 'all') filters.status = statusFilter;
 
       const response = await adminService.getAllUsers(page, pageSize, filters);
-      // The API response structure is { success: true, data: [...], pagination: { ... } }
-      // adminService.getAllUsers returns the response data directly
-      const usersData = response.data || [];
+      // The API response structure is AxiosResponse<ApiResponse<User[]>>
+      // response.data is the ApiResponse object: { success, data (User[]), pagination }
+      const apiResponse = response.data;
+      const usersData = apiResponse.data || [];
+      
       setUsers(Array.isArray(usersData) ? usersData : []);
-      setTotalUsers(response.pagination?.total || 0);
-      setTotalPages(response.pagination?.pages || 0);
+      setTotalUsers(apiResponse.pagination?.total || 0);
+      setTotalPages(apiResponse.pagination?.pages || 0);
     } catch (error: any) {
       toast.error(error.message || 'Failed to fetch users');
     } finally {
