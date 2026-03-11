@@ -76,9 +76,12 @@ export default function UserManagement() {
       if (statusFilter !== 'all') filters.status = statusFilter;
 
       const response = await adminService.getAllUsers(page, pageSize, filters);
-      setUsers(response.data);
-      setTotalUsers(response.total);
-      setTotalPages(Math.ceil(response.total / pageSize));
+      // The API response structure is { success: true, data: [...], pagination: { ... } }
+      // adminService.getAllUsers returns the response data directly
+      const usersData = response.data || [];
+      setUsers(Array.isArray(usersData) ? usersData : []);
+      setTotalUsers(response.pagination?.total || 0);
+      setTotalPages(response.pagination?.pages || 0);
     } catch (error: any) {
       toast.error(error.message || 'Failed to fetch users');
     } finally {
@@ -94,12 +97,12 @@ export default function UserManagement() {
   }, [fetchUsers]);
 
   const stats = useMemo(() => {
-    // These could also come from the API, but for now we'll sum from the current list or total count if available
+    const userList = Array.isArray(users) ? users : [];
     return {
       total: totalUsers,
-      active: users.filter(u => u.isActive).length, // Current page count
-      artists: users.filter(u => u.role === 'artist').length,
-      suspended: users.filter(u => !u.isActive).length,
+      active: userList.filter(u => u.isActive).length,
+      artists: userList.filter(u => u.role === 'artist').length,
+      suspended: userList.filter(u => !u.isActive).length,
     };
   }, [users, totalUsers]);
 
