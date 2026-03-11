@@ -1,29 +1,22 @@
-import { useState, useMemo } from 'react';
-import { Users, Search, Filter, Plus, MoreHorizontal, Shield, Music2, User as UserIcon, Mail, ChevronDown, X, UserPlus, UserCheck, UserX, Ban } from 'lucide-react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { Users, Search, Filter, Plus, MoreHorizontal, Shield, Music2, User as UserIcon, Mail, ChevronDown, X, UserPlus, UserCheck, UserX, Ban, Loader2 } from 'lucide-react';
+import { adminService } from '../../services/adminService';
+import { User } from '../../types';
+import { toast } from 'sonner';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  role: 'admin' | 'user' | 'artist';
-  status: 'active' | 'inactive' | 'suspended';
-  joinDate: string;
-  lastActive: string;
-  streams?: number;
-  subscription: 'free' | 'premium' | 'pro';
-}
+// Role configuration for UI display
+const roleConfig: Record<string, any> = {
+  admin: { label: 'Admin', icon: Shield, bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-400' },
+  'super admin': { label: 'Super Admin', icon: Shield, bg: 'bg-purple-50', text: 'text-purple-700', dot: 'bg-purple-400' },
+  artist: { label: 'Artist', icon: Music2, bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-400' },
+  user: { label: 'User', icon: UserIcon, bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' },
+};
 
-const mockUsers: User[] = [
-  { id: '1', name: 'John Doe', email: 'john@example.com', role: 'user', status: 'active', joinDate: '2024-03-01', lastActive: '2 hours ago', streams: 1240, subscription: 'premium' },
-  { id: '2', name: 'Jane Smith', email: 'jane@example.com', role: 'artist', status: 'active', joinDate: '2024-03-15', lastActive: '5 min ago', streams: 45200, subscription: 'pro' },
-  { id: '3', name: 'Admin User', email: 'admin@example.com', role: 'admin', status: 'active', joinDate: '2024-02-01', lastActive: 'Just now', streams: 0, subscription: 'pro' },
-  { id: '4', name: 'Mike Johnson', email: 'mike@example.com', role: 'user', status: 'suspended', joinDate: '2024-04-10', lastActive: '3 days ago', streams: 320, subscription: 'free' },
-  { id: '5', name: 'Sarah Williams', email: 'sarah@example.com', role: 'artist', status: 'active', joinDate: '2024-01-20', lastActive: '1 hour ago', streams: 89100, subscription: 'pro' },
-  { id: '6', name: 'Tom Brown', email: 'tom@example.com', role: 'user', status: 'inactive', joinDate: '2024-05-05', lastActive: '2 weeks ago', streams: 50, subscription: 'free' },
-  { id: '7', name: 'Emily Davis', email: 'emily@example.com', role: 'user', status: 'active', joinDate: '2024-06-12', lastActive: '30 min ago', streams: 2100, subscription: 'premium' },
-  { id: '8', name: 'Alex Chen', email: 'alex@example.com', role: 'artist', status: 'active', joinDate: '2024-02-28', lastActive: '10 min ago', streams: 127500, subscription: 'pro' },
-];
+const statusConfig: Record<string, any> = {
+  active: { label: 'Active', bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-500' },
+  inactive: { label: 'Inactive', bg: 'bg-gray-100', text: 'text-gray-500', dot: 'bg-gray-400' },
+  suspended: { label: 'Suspended', bg: 'bg-red-50', text: 'text-red-600', dot: 'bg-red-500' },
+};
 
 const roleConfig = {
   admin: { label: 'Admin', icon: Shield, bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-400' },
@@ -62,11 +55,23 @@ const avatarColors = [
 ];
 
 function getAvatarColor(id: string) {
-  const idx = parseInt(id) % avatarColors.length;
+  if (!id) return avatarColors[0];
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const idx = Math.abs(hash) % avatarColors.length;
   return avatarColors[idx];
 }
 
 export default function UserManagement() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -74,21 +79,41 @@ export default function UserManagement() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
 
-  const filteredUsers = useMemo(() => {
-    return mockUsers.filter(u => {
-      const matchSearch = !search || u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
-      const matchRole = roleFilter === 'all' || u.role === roleFilter;
-      const matchStatus = statusFilter === 'all' || u.status === statusFilter;
-      return matchSearch && matchRole && matchStatus;
-    });
-  }, [search, roleFilter, statusFilter]);
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const filters: Record<string, string> = {};
+      if (search) filters.search = search;
+      if (roleFilter !== 'all') filters.role = roleFilter;
+      if (statusFilter !== 'all') filters.status = statusFilter;
 
-  const stats = useMemo(() => ({
-    total: mockUsers.length,
-    active: mockUsers.filter(u => u.status === 'active').length,
-    artists: mockUsers.filter(u => u.role === 'artist').length,
-    suspended: mockUsers.filter(u => u.status === 'suspended').length,
-  }), []);
+      const response = await adminService.getAllUsers(page, pageSize, filters);
+      setUsers(response.data);
+      setTotalUsers(response.total);
+      setTotalPages(Math.ceil(response.total / pageSize));
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to fetch users');
+    } finally {
+      setLoading(false);
+    }
+  }, [page, pageSize, search, roleFilter, statusFilter]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchUsers();
+    }, 500); // Debounce search
+    return () => clearTimeout(timeoutId);
+  }, [fetchUsers]);
+
+  const stats = useMemo(() => {
+    // These could also come from the API, but for now we'll sum from the current list or total count if available
+    return {
+      total: totalUsers,
+      active: users.filter(u => u.isActive).length, // Current page count
+      artists: users.filter(u => u.role === 'artist').length,
+      suspended: users.filter(u => !u.isActive).length,
+    };
+  }, [users, totalUsers]);
 
   const toggleSelect = (id: string) => {
     setSelectedUsers(prev => {
@@ -99,10 +124,10 @@ export default function UserManagement() {
   };
 
   const toggleAll = () => {
-    if (selectedUsers.size === filteredUsers.length) {
+    if (selectedUsers.size === users.length) {
       setSelectedUsers(new Set());
     } else {
-      setSelectedUsers(new Set(filteredUsers.map(u => u.id)));
+      setSelectedUsers(new Set(users.map(u => u.id || u._id || '')));
     }
   };
 
@@ -183,7 +208,11 @@ export default function UserManagement() {
 
             {/* Result count */}
             <span className="text-xs text-gray-400 ml-auto">
-              {filteredUsers.length} of {mockUsers.length} users
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
+              ) : (
+                `${users.length} of ${totalUsers} users`
+              )}
             </span>
           </div>
 
@@ -242,151 +271,146 @@ export default function UserManagement() {
           </div>
         )}
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-100">
-                <th className="pl-4 pr-2 py-3 text-left">
+        <tbody className="divide-y divide-gray-50">
+          {loading ? (
+            <tr>
+              <td colSpan={8} className="py-20 text-center">
+                <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
+                <p className="text-sm text-gray-500 font-medium">Loading platform users...</p>
+              </td>
+            </tr>
+          ) : users.map(user => {
+            const userId = user.id || user._id || '';
+            const role = roleConfig[user.role] || roleConfig.user;
+            const statusKey = user.isActive ? 'active' : 'suspended';
+            const status = statusConfig[statusKey];
+            const fullName = user.fullName || `${user.firstName} ${user.lastName}`;
+            return (
+              <tr key={userId} className="group hover:bg-gray-50/50 transition-colors">
+                <td className="pl-4 pr-2 py-3">
                   <input
                     type="checkbox"
-                    checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
-                    onChange={toggleAll}
+                    checked={selectedUsers.has(userId)}
+                    onChange={() => toggleSelect(userId)}
                     className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500/20"
                   />
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Streams</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Active</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${getAvatarColor(userId)} flex items-center justify-center text-white text-xs font-bold ring-2 ring-white`}>
+                      {getInitials(fullName)}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">{fullName}</div>
+                      <div className="text-xs text-gray-400 flex items-center gap-1">
+                        <Mail className="w-3 h-3" />
+                        {user.email}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg ${role.bg} ${role.text}`}>
+                    <role.icon className="w-3 h-3" />
+                    {role.label}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg ${status.bg} ${status.text}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
+                    {status.label}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-lg bg-gray-100 text-gray-600`}>
+                    {user.isArtist ? 'Artist' : 'User'}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <span className="text-sm text-gray-700 font-medium">{formatNumber(user.coins || 0)}</span>
+                </td>
+                <td className="px-4 py-3">
+                  <span className="text-xs text-gray-500">{user.lastActive ? new Date(user.lastActive).toLocaleDateString() : 'Never'}</span>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <div className="relative inline-block">
+                    <button
+                      onClick={() => setOpenMenu(openMenu === userId ? null : userId)}
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                    >
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                    {openMenu === userId && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
+                        <div className="absolute right-0 mt-1 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20">
+                          <button className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                            <UserIcon className="w-3.5 h-3.5" /> View Profile
+                          </button>
+                          <button className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                            <Shield className="w-3.5 h-3.5" /> Change Role
+                          </button>
+                          {!user.isActive ? (
+                            <button className="w-full px-3 py-2 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2">
+                              <UserCheck className="w-3.5 h-3.5" /> Reactivate
+                            </button>
+                          ) : (
+                            <button className="w-full px-3 py-2 text-left text-sm text-amber-600 hover:bg-amber-50 flex items-center gap-2">
+                              <Ban className="w-3.5 h-3.5" /> Suspend
+                            </button>
+                          )}
+                          <div className="border-t border-gray-100 my-1" />
+                          <button className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                            <UserX className="w-3.5 h-3.5" /> Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {filteredUsers.map(user => {
-                const role = roleConfig[user.role];
-                const status = statusConfig[user.status];
-                const sub = subConfig[user.subscription];
-                return (
-                  <tr key={user.id} className="group hover:bg-gray-50/50 transition-colors">
-                    <td className="pl-4 pr-2 py-3">
-                      <input
-                        type="checkbox"
-                        checked={selectedUsers.has(user.id)}
-                        onChange={() => toggleSelect(user.id)}
-                        className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500/20"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${getAvatarColor(user.id)} flex items-center justify-center text-white text-xs font-bold ring-2 ring-white`}>
-                          {getInitials(user.name)}
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-gray-900">{user.name}</div>
-                          <div className="text-xs text-gray-400 flex items-center gap-1">
-                            <Mail className="w-3 h-3" />
-                            {user.email}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg ${role.bg} ${role.text}`}>
-                        <role.icon className="w-3 h-3" />
-                        {role.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg ${status.bg} ${status.text}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
-                        {status.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-lg ${sub.bg} ${sub.text}`}>
-                        {sub.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm text-gray-700 font-medium">{formatNumber(user.streams || 0)}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-xs text-gray-500">{user.lastActive}</span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="relative inline-block">
-                        <button
-                          onClick={() => setOpenMenu(openMenu === user.id ? null : user.id)}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                        >
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
-                        {openMenu === user.id && (
-                          <>
-                            <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
-                            <div className="absolute right-0 mt-1 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20">
-                              <button className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                                <UserIcon className="w-3.5 h-3.5" /> View Profile
-                              </button>
-                              <button className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                                <Shield className="w-3.5 h-3.5" /> Change Role
-                              </button>
-                              {user.status === 'suspended' ? (
-                                <button className="w-full px-3 py-2 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2">
-                                  <UserCheck className="w-3.5 h-3.5" /> Reactivate
-                                </button>
-                              ) : (
-                                <button className="w-full px-3 py-2 text-left text-sm text-amber-600 hover:bg-amber-50 flex items-center gap-2">
-                                  <Ban className="w-3.5 h-3.5" /> Suspend
-                                </button>
-                              )}
-                              <div className="border-t border-gray-100 my-1" />
-                              <button className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                <UserX className="w-3.5 h-3.5" /> Delete
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Empty state */}
-        {filteredUsers.length === 0 && (
-          <div className="py-16 text-center">
-            <Users className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm font-medium text-gray-500">No users found</p>
-            <p className="text-xs text-gray-400 mt-1">Try adjusting your search or filters</p>
-          </div>
-        )}
-
-        {/* Footer / pagination hint */}
-        {filteredUsers.length > 0 && (
-          <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
-            <span className="text-xs text-gray-400">
-              Showing {filteredUsers.length} of {mockUsers.length} users
-            </span>
-            <div className="flex gap-1">
-              {[1, 2, 3].map(p => (
-                <button
-                  key={p}
-                  className={`w-8 h-8 text-xs font-medium rounded-lg transition-colors ${p === 1 ? 'bg-green-600 text-white' : 'text-gray-500 hover:bg-gray-100'}`}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
+
+        {/* Footer / pagination */ }
+  {
+    !loading && users.length > 0 && (
+      <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
+        <span className="text-xs text-gray-400">
+          Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalUsers)} of {totalUsers} users
+        </span>
+        <div className="flex gap-1">
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-3 py-1.5 text-xs font-medium rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-50 transition-colors"
+          >
+            Prev
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={`w-8 h-8 text-xs font-medium rounded-lg transition-colors ${p === page ? 'bg-green-600 text-white' : 'text-gray-500 hover:bg-gray-100'}`}
+            >
+              {p}
+            </button>
+          ))}
+          <button
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="px-3 py-1.5 text-xs font-medium rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-50 transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    )
+  }
+      </div >
+    </div >
   );
 }
