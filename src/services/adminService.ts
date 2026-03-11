@@ -28,6 +28,10 @@ export const adminService = {
     return apiService.get<User[]>(`/admin/users?${params}`);
   },
 
+  createUser: async (data: { firstName: string; lastName: string; email: string; role: string }) => {
+    return apiService.post<ApiResponse<User>>('/admin/users', data);
+  },
+
   getUserById: async (id: string) => {
     return apiService.get<User>(`/admin/users/${id}`);
   },

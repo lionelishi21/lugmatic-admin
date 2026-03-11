@@ -67,6 +67,16 @@ export default function UserManagement() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
 
+  // Add User Modal State
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newUser, setNewUser] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    role: 'user'
+  });
+
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
@@ -124,6 +134,24 @@ export default function UserManagement() {
     }
   };
 
+  const handleAddUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const response = await adminService.createUser(newUser);
+      if (response.data.success) {
+        toast.success(response.data.message || 'User created and invitation sent!');
+        setIsAddModalOpen(false);
+        setNewUser({ firstName: '', lastName: '', email: '', role: 'user' });
+        fetchUsers(); // Refresh the list
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || 'Failed to create user');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const hasActiveFilters = roleFilter !== 'all' || statusFilter !== 'all';
 
   return (
@@ -134,7 +162,10 @@ export default function UserManagement() {
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
           <p className="text-sm text-gray-500 mt-1">Manage platform users, roles and permissions</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors">
+        <button 
+          onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors"
+        >
           <Plus className="w-4 h-4" />
           Add User
         </button>
@@ -425,6 +456,116 @@ export default function UserManagement() {
     )
   }
       </div>
+      
+      {/* Add User Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Add New User</h3>
+                  <p className="text-xs text-gray-500">Create account and send invitation</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsAddModalOpen(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddUser} className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label htmlFor="firstName" className="text-xs font-semibold text-gray-700 uppercase tracking-wider ml-1">First Name</label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    required
+                    value={newUser.firstName}
+                    onChange={e => setNewUser({ ...newUser, firstName: e.target.value })}
+                    className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all placeholder:text-gray-400"
+                    placeholder="John"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="lastName" className="text-xs font-semibold text-gray-700 uppercase tracking-wider ml-1">Last Name</label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    required
+                    value={newUser.lastName}
+                    onChange={e => setNewUser({ ...newUser, lastName: e.target.value })}
+                    className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all placeholder:text-gray-400"
+                    placeholder="Doe"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="email" className="text-xs font-semibold text-gray-700 uppercase tracking-wider ml-1">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    value={newUser.email}
+                    onChange={e => setNewUser({ ...newUser, email: e.target.value })}
+                    className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all placeholder:text-gray-400"
+                    placeholder="john.doe@example.com"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="role" className="text-xs font-semibold text-gray-700 uppercase tracking-wider ml-1">User Role</label>
+                <div className="relative">
+                  <select
+                    id="role"
+                    value={newUser.role}
+                    onChange={e => setNewUser({ ...newUser, role: e.target.value })}
+                    className="w-full appearance-none px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
+                  >
+                    <option value="user">Standard User</option>
+                    <option value="artist">Artist</option>
+                    <option value="admin">Administrator</option>
+                    <option value="super admin">Super Admin</option>
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-xl shadow-lg shadow-green-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <UserPlus className="w-4 h-4" />
+                  )}
+                  {isSubmitting ? 'Creating...' : 'Create User'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div >
   );
 }
