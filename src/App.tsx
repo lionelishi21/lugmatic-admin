@@ -15,6 +15,7 @@ import LiveStreamManagement from './pages/admin/LiveStreamManagement';
 import AlbumManagement from './pages/admin/AlbumManagement';
 import SongManagement from './pages/admin/SongManagement';
 import SongDetail from './pages/admin/SongDetail';
+import SongCreate from './pages/admin/SongCreate';
 import GenreManagement from './pages/admin/GenreManagement';
 import Layout from './components/Layout';
 import ArtistDetails from './pages/admin/ArtistDetails';
@@ -95,6 +96,7 @@ function App() {
                         <Route path="live-stream-management" element={<LiveStreamManagement />} />
                         <Route path="album-management" element={<AlbumManagement />} />
                         <Route path="song-management" element={<SongManagement />} />
+                        <Route path="song-management/add" element={<SongCreate />} />
                         <Route path="song-management/:id" element={<SongDetail />} />
                         <Route path="playlist-management" element={<PlaylistManagement />} />
                         <Route path="video-management" element={<VideoManagement />} />

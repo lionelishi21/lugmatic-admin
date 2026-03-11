@@ -1,45 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Preloader from '../../components/ui/Preloader';
 import { toast } from 'react-hot-toast';
-import songService, { Song, CreateSongData } from '../../services/songService';
+import songService, { Song } from '../../services/songService';
 import albumService, { Album } from '../../services/albumService';
 import artistService, { Artist } from '../../services/artistService';
 import genreService, { Genre } from '../../services/genreService';
-import FileUpload from '../../components/ui/FileUpload';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import { Plus, Edit, Trash2, Music2, Search, User, Disc, Tag, Clock, Calendar, FileText, Eye, Loader2 } from 'lucide-react';
+import { Plus, Music2, Search, Trash2, Eye } from 'lucide-react';
 
 const SongManagement: React.FC = () => {
   const navigate = useNavigate();
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [songToDelete, setSongToDelete] = useState<string | null>(null);
-  const [selectedSong, setSelectedSong] = useState<Song | null>(null);
-  const [formData, setFormData] = useState<Partial<CreateSongData>>({
-    name: '',
-    artist: '',
-    album: '',
-    duration: 0,
-    genre: '',
-    releaseDate: new Date().toISOString().split('T')[0],
-    lyrics: '',
-    coverArt: '',
-    audioFile: '',
-  });
-  const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
-  const [audioFile, setAudioFile] = useState<File | null>(null);
   const [artists, setArtists] = useState<Artist[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
-  const [artistsLoading, setArtistsLoading] = useState<boolean>(false);
-  const [albumsLoading, setAlbumsLoading] = useState<boolean>(false);
-  const [genresLoading, setGenresLoading] = useState<boolean>(false);
 
   // Fetch songs, artists, albums, and genres
   useEffect(() => {
@@ -50,41 +29,29 @@ const SongManagement: React.FC = () => {
   }, []);
 
   const fetchArtists = async () => {
-    setArtistsLoading(true);
     try {
       const data = await artistService.getAllArtists();
       setArtists(data);
     } catch (err: any) {
       console.error('Failed to fetch artists:', err);
-      toast.error('Failed to load artists');
-    } finally {
-      setArtistsLoading(false);
     }
   };
 
   const fetchAlbums = async () => {
-    setAlbumsLoading(true);
     try {
       const data = await albumService.getAllAlbums();
       setAlbums(data);
     } catch (err: any) {
       console.error('Failed to fetch albums:', err);
-      toast.error('Failed to load albums');
-    } finally {
-      setAlbumsLoading(false);
     }
   };
 
   const fetchGenres = async () => {
-    setGenresLoading(true);
     try {
       const data = await genreService.getAllGenres();
       setGenres(data);
     } catch (err: any) {
       console.error('Failed to fetch genres:', err);
-      toast.error('Failed to load genres');
-    } finally {
-      setGenresLoading(false);
     }
   };
 
@@ -100,139 +67,6 @@ const SongManagement: React.FC = () => {
       toast.error(errorMessage);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleOpenDialog = (song?: Song) => {
-    if (song) {
-      setSelectedSong(song);
-      // Handle artist - could be ID or name string
-      const artistId = typeof song.artist === 'object' && song.artist !== null ? song.artist._id :
-        artists.find(a => a._id === song.artist || a.name === song.artist)?._id || (song.artist as string);
-      const albumId = typeof song.album === 'object' && song.album !== null ? song.album._id :
-        albums.find(a => a._id === song.album || a.name === song.album)?._id || (song.album as string) || '';
-      const genreId = typeof song.genre === 'object' && song.genre !== null ? song.genre._id :
-        genres.find(g => g._id === song.genre || g.name === song.genre)?._id || (song.genre as string) || '';
-
-      setFormData({
-        name: song.name,
-        artist: artistId,
-        album: albumId,
-        duration: song.duration,
-        genre: genreId,
-        releaseDate: song.releaseDate ? new Date(song.releaseDate).toISOString().split('T')[0] : '',
-        lyrics: song.lyrics || '',
-        coverArt: song.coverArt,
-        audioFile: song.audioFile,
-      });
-      setCoverArtFile(null);
-      setAudioFile(null);
-    } else {
-      setSelectedSong(null);
-      setFormData({
-        name: '',
-        artist: '',
-        album: '',
-        duration: 0,
-        genre: '',
-        releaseDate: new Date().toISOString().split('T')[0],
-        lyrics: '',
-        coverArt: '',
-        audioFile: '',
-      });
-      setCoverArtFile(null);
-      setAudioFile(null);
-    }
-    setIsDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setSelectedSong(null);
-    setFormData({
-      name: '',
-      artist: '',
-      album: '',
-      duration: 0,
-      genre: '',
-      releaseDate: new Date().toISOString().split('T')[0],
-      lyrics: '',
-      coverArt: '',
-      audioFile: '',
-    });
-    setCoverArtFile(null);
-    setAudioFile(null);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === 'duration' ? parseFloat(value) || 0 : value,
-    }));
-  };
-
-  const handleCoverArtSelect = async (file: File) => {
-    setCoverArtFile(file);
-    try {
-      const base64 = await songService.uploadCoverArt(file);
-      setFormData((prev) => ({ ...prev, coverArt: base64 }));
-    } catch (err) {
-      toast.error('Failed to process cover art image');
-    }
-  };
-
-  const handleAudioFileSelect = (file: File) => {
-    setAudioFile(file);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate audio file for new songs
-    if (!selectedSong && !audioFile) {
-      toast.error('Please upload an audio file');
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-
-      // Build cleaned data - ensure album is null if empty
-      const cleanedData = {
-        ...formData,
-        album: formData.album && formData.album.trim() !== '' ? formData.album : null,
-      };
-
-      if (selectedSong) {
-        // If no new files are selected, use the simpler JSON-based adminUpdateSong
-        if (!audioFile && !coverArtFile) {
-          await songService.adminUpdateSong(selectedSong._id, cleanedData as any);
-        } else {
-          // Use multipart update for file uploads
-          await songService.updateSong(
-            selectedSong._id,
-            cleanedData as any,
-            audioFile || undefined,
-            coverArtFile || undefined
-          );
-        }
-        toast.success('Song updated successfully');
-      } else {
-        // New song creation always uses multipart
-        await songService.createSong(
-          cleanedData as any,
-          audioFile || undefined,
-          coverArtFile || undefined
-        );
-        toast.success('Song created successfully');
-      }
-      handleCloseDialog();
-      fetchSongs();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to save song');
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -282,8 +116,8 @@ const SongManagement: React.FC = () => {
           <p className="text-gray-600 mt-2">Manage all songs in your system</p>
         </div>
         <button
-          onClick={() => handleOpenDialog()}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+          onClick={() => navigate('/admin/song-management/add')}
+          className="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 flex items-center gap-2 shadow-sm font-medium transition-all"
         >
           <Plus className="w-5 h-5" />
           Add New Song
@@ -299,117 +133,98 @@ const SongManagement: React.FC = () => {
             placeholder="Search songs..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all bg-white"
           />
         </div>
       </div>
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6 text-sm">
           {error}
         </div>
       )}
 
       {/* Songs Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {filteredSongs.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <Music2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <p>No songs found. {searchTerm ? 'Try adjusting your search.' : 'Create your first song!'}</p>
+          <div className="p-12 text-center text-gray-500">
+            <Music2 className="w-16 h-16 mx-auto mb-4 text-gray-200" />
+            <p className="text-lg font-medium">No songs found.</p>
+            <p className="text-sm">{searchTerm ? 'Try adjusting your search filters.' : 'Start by adding your first song!'}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-100">
+              <thead className="bg-gray-50/50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cover
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Title
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Artist
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Album
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Genre
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Duration
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cover</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Title</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Artist</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Album</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Genre</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Duration</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-50">
                 {filteredSongs.map((song) => (
-                  <tr key={song._id} className="hover:bg-gray-50">
+                  <tr key={song._id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       {song.coverArtUrl || song.coverArt ? (
                         <img
                           src={song.coverArtUrl || song.coverArt}
                           alt={song.name}
-                          className="w-12 h-12 rounded object-cover"
+                          className="w-12 h-12 rounded-lg object-cover shadow-sm"
                         />
                       ) : (
-                        <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                          <Music2 className="w-6 h-6 text-gray-400" />
+                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                          <Music2 className="w-6 h-6 text-gray-300" />
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{song.name}</div>
+                      <div className="text-sm font-semibold text-gray-900">{song.name}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm text-gray-600">
                         {typeof song.artist === 'object' && song.artist !== null
                           ? (song.artist.name || 'Unknown')
                           : (artists.find(a => a._id === song.artist)?.name || (typeof song.artist === 'string' ? song.artist : 'Unknown'))}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm text-gray-600">
                         {song.album
                           ? (typeof song.album === 'object' && song.album !== null
                             ? (song.album.name || 'N/A')
                             : (albums.find(a => a._id === song.album)?.name || (typeof song.album === 'string' ? song.album : 'N/A')))
-                          : 'No Album'}
+                          : 'Single'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+                      <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
                         {typeof song.genre === 'object' && song.genre !== null
                           ? (song.genre.name || '—')
                           : (genres.find(g => g._id === (typeof song.genre === 'string' ? song.genre : ''))?.name || (typeof song.genre === 'string' ? song.genre : '—'))}
-                      </div>
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{formatDuration(song.duration)}</div>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDuration(song.duration)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-3">
                         <button
                           onClick={() => navigate(`/admin/song-management/${song._id}`)}
-                          className="text-blue-600 hover:text-blue-800"
-                          title="View Details"
+                          className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                          title="View & Edit"
                         >
                           <Eye className="w-5 h-5" />
                         </button>
                         <button
-                          onClick={() => handleOpenDialog(song)}
-                          className="text-green-600 hover:text-green-800"
-                          title="Edit Song"
-                        >
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        <button
                           onClick={() => setSongToDelete(song._id)}
-                          className="text-red-600 hover:text-red-900"
+                          className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                          title="Delete"
                         >
                           <Trash2 className="w-5 h-5" />
                         </button>
@@ -423,221 +238,6 @@ const SongManagement: React.FC = () => {
         )}
       </div>
 
-      {/* Create/Edit Dialog */}
-      {isDialogOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-          >
-            <div className="mb-6 pb-4 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-800">
-                {selectedSong ? 'Edit Song' : 'Add New Song'}
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                {selectedSong ? 'Update song information and files' : 'Fill in the details to create a new song'}
-              </p>
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <FileUpload
-                label="Cover Art"
-                currentFile={formData.coverArt || undefined}
-                onFileSelect={handleCoverArtSelect}
-                onFileRemove={() => {
-                  setCoverArtFile(null);
-                  setFormData((prev) => ({ ...prev, coverArt: '' }));
-                }}
-              />
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                  <Music2 className="w-4 h-4" />
-                  Song Title
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Enter song title"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Artist
-                </label>
-                <select
-                  name="artist"
-                  value={formData.artist}
-                  onChange={handleInputChange}
-                  required
-                  disabled={artistsLoading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
-                >
-                  <option value="">Select an artist...</option>
-                  {artists.map((artist) => {
-                    const displayName = artist.name || artist.fullName ||
-                      [artist.firstName, artist.lastName].filter(Boolean).join(' ') ||
-                      'Unknown Artist';
-                    return (
-                      <option key={artist._id} value={artist._id}>
-                        {displayName}
-                      </option>
-                    );
-                  })}
-                </select>
-                {artistsLoading && (
-                  <p className="text-xs text-gray-500 mt-1">Loading artists...</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                  <Disc className="w-4 h-4" />
-                  Album
-                </label>
-                <select
-                  name="album"
-                  value={formData.album}
-                  onChange={handleInputChange}
-                  disabled={albumsLoading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
-                >
-                  <option value="">No Album</option>
-                  {albums.map((album) => {
-                    let artistName = '';
-                    if (typeof album.artist === 'object' && album.artist.name) {
-                      artistName = album.artist.name;
-                    } else if (typeof album.artist === 'string') {
-                      const artist = artists.find(a => a._id === album.artist);
-                      artistName = artist ? (artist.name || artist.fullName || 'Unknown') : '';
-                    }
-                    return (
-                      <option key={album._id} value={album._id}>
-                        {album.name}{artistName ? ` (${artistName})` : ''}
-                      </option>
-                    );
-                  })}
-                </select>
-                {albumsLoading && (
-                  <p className="text-xs text-gray-500 mt-1">Loading albums...</p>
-                )}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                    <Tag className="w-4 h-4" />
-                    Genre
-                  </label>
-                  <select
-                    name="genre"
-                    value={formData.genre}
-                    onChange={handleInputChange}
-                    required
-                    disabled={genresLoading}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  >
-                    <option value="">Select a genre...</option>
-                    {genres.map((genre) => (
-                      <option key={genre._id} value={genre._id}>
-                        {genre.name}
-                      </option>
-                    ))}
-                  </select>
-                  {genresLoading && (
-                    <p className="text-xs text-gray-500 mt-1">Loading genres...</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Duration (seconds)
-                  </label>
-                  <input
-                    type="number"
-                    name="duration"
-                    value={formData.duration}
-                    onChange={handleInputChange}
-                    required
-                    min="0"
-                    step="1"
-                    placeholder="0"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  Release Date
-                </label>
-                <input
-                  type="date"
-                  name="releaseDate"
-                  value={formData.releaseDate}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Lyrics
-                </label>
-                <textarea
-                  name="lyrics"
-                  value={formData.lyrics}
-                  onChange={handleInputChange}
-                  rows={4}
-                  placeholder="Enter song lyrics (optional)"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors resize-none"
-                />
-              </div>
-              <FileUpload
-                label="Audio File"
-                fileType="audio"
-                maxSize={50}
-                onFileSelect={handleAudioFileSelect}
-                onFileRemove={() => {
-                  setAudioFile(null);
-                  setFormData((prev) => ({ ...prev, audioFile: '' }));
-                }}
-                currentFile={selectedSong?.audioFile || undefined}
-              />
-              {!selectedSong && !audioFile && (
-                <p className="text-sm text-red-600">Audio file is required</p>
-              )}
-              <div className="flex justify-end space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={handleCloseDialog}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {selectedSong ? 'Updating...' : 'Creating...'}
-                    </>
-                  ) : (
-                    selectedSong ? 'Update Song' : 'Create Song'
-                  )}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
-
       <ConfirmDialog
         isOpen={!!songToDelete}
         title="Delete Song"
@@ -650,4 +250,5 @@ const SongManagement: React.FC = () => {
   );
 };
 
-export default SongManagement; 
+export default SongManagement;
+
