@@ -7,7 +7,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useArtistContext } from '../../context/ArtistContext';
 import {
   CheckCircle, XCircle, Search, Filter, Plus, Eye, Pencil, Trash2,
-  Users, UserCheck, UserX, Clock, MoreHorizontal, Music2, ChevronDown
+  Users, UserCheck, UserX, Clock, MoreHorizontal, Music2, ChevronDown,
+  BadgeCheck, ShieldCheck, ShieldAlert
 } from 'lucide-react';
 
 // Types
@@ -91,7 +92,8 @@ const ArtistRow = React.memo(({
   onEdit,
   onDelete,
   onApprove,
-  onReject
+  onReject,
+  onVerify
 }: {
   artist: Artist;
   onView: () => void;
@@ -99,6 +101,7 @@ const ArtistRow = React.memo(({
   onDelete: () => void;
   onApprove?: () => void;
   onReject?: () => void;
+  onVerify?: (isVerified: boolean) => void;
 }) => {
   const [showActions, setShowActions] = useState(false);
 
@@ -138,7 +141,12 @@ const ArtistRow = React.memo(({
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
+              {artist.isVerified && (
+                <BadgeCheck className="h-4 w-4 text-blue-500 fill-blue-50/50" />
+              )}
+            </div>
             <p className="text-xs text-gray-500 truncate">{displayEmail}</p>
           </div>
         </div>
@@ -201,6 +209,18 @@ const ArtistRow = React.memo(({
                   <button onClick={() => { onEdit(); setShowActions(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                     <Pencil className="h-3.5 w-3.5 text-gray-400" /> Edit
                   </button>
+                  {onVerify && (
+                    <button
+                      onClick={() => { onVerify(!artist.isVerified); setShowActions(false); }}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${artist.isVerified ? 'text-amber-600 hover:bg-amber-50' : 'text-blue-600 hover:bg-blue-50'}`}
+                    >
+                      {artist.isVerified ? (
+                        <><ShieldAlert className="h-3.5 w-3.5" /> Unverify</>
+                      ) : (
+                        <><ShieldCheck className="h-3.5 w-3.5" /> Verify</>
+                      )}
+                    </button>
+                  )}
                   <hr className="my-1 border-gray-100" />
                   <button onClick={() => { onDelete(); setShowActions(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
                     <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -248,7 +268,7 @@ const ArtistManagement: React.FC = () => {
   // Get artists data with filters
   const { artists, loading } = useFetchArtists();
   const navigate = useNavigate();
-  const { approveArtist, rejectArtist } = useArtistContext();
+  const { approveArtist, rejectArtist, verifyArtist } = useArtistContext();
 
   // Update filter params with debounce
   useEffect(() => {
@@ -362,6 +382,15 @@ const ArtistManagement: React.FC = () => {
     }
   }, [rejectArtist]);
 
+  const handleVerifyArtist = useCallback(async (artist: Artist, isVerified: boolean) => {
+    const artistId = (artist._id as string) || (artist as any).id;
+    if (!artistId) {
+      toast.error('Unable to verify artist (missing id).');
+      return;
+    }
+    await verifyArtist(artistId, isVerified);
+  }, [verifyArtist]);
+
   const ArtistTable = useMemo(() => (
     <div className="overflow-x-auto">
       <table className="min-w-full">
@@ -388,6 +417,7 @@ const ArtistManagement: React.FC = () => {
                   onDelete={() => handleOpenModal('delete', artist)}
                   onApprove={isPending ? () => handleApproveArtist(artist) : undefined}
                   onReject={isPending ? () => handleRejectArtist(artist) : undefined}
+                  onVerify={(isVerified) => handleVerifyArtist(artist, isVerified)}
                 />
               );
             })

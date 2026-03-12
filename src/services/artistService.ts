@@ -233,6 +233,13 @@ const artistService = {
   reactivateArtist: async (id: string | number) => {
     const response = await apiService.post(`/artists/${id}/reactivate`);
     return response.data;
+  },
+  /**
+   * Toggle artist verification badge
+   */
+  verifyArtist: async (id: string, isVerified: boolean): Promise<Artist> => {
+    const response = await apiService.put<Artist>(`/admin/artists/${id}/verify`, { isVerified });
+    return extractResponseData<Artist>(response);
   }
 };
 

@@ -26,6 +26,7 @@ interface ArtistContextState {
   deleteArtist: (id: string) => Promise<boolean>;
   approveArtist: (id: string) => Promise<boolean>;
   rejectArtist: (id: string, reason: string) => Promise<boolean>;
+  verifyArtist: (id: string, isVerified: boolean) => Promise<boolean>;
   setQueryParams: (params: ArtistQueryParams) => void;
   clearSelectedArtist: () => void;
   clearDiscography: () => void;
@@ -59,6 +60,7 @@ const ArtistContext = createContext<ArtistContextState>({
   deleteArtist: async () => false,
   approveArtist: async () => false,
   rejectArtist: async () => false,
+  verifyArtist: async () => false,
   setQueryParams: () => {},
   clearSelectedArtist: () => {},
   clearDiscography: () => {}
@@ -308,33 +310,38 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
     }
   }, [selectedArtist]);
 
-  // Reject a pending artist
-  const rejectArtist = useCallback(async (id: string, reason: string): Promise<boolean> => {
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedArtist]);
+
+  // Toggle artist verification
+  const verifyArtist = useCallback(async (id: string, isVerified: boolean): Promise<boolean> => {
     setLoading(true);
     setError(null);
     
     try {
-      await artistService.rejectArtist(id, reason);
+      const result = await artistService.verifyArtist(id, isVerified);
       
       // Update the local state to reflect changes
       setArtists(prevArtists => 
         prevArtists.map(artist => 
-          artist._id === id ? { ...artist, status: 'inactive' } : artist
+          artist._id === id ? { ...artist, isVerified: result.isVerified } : artist
         )
       );
       
-      // If the rejected artist is currently selected, update it
+      // If the updated artist is currently selected, update it
       if (selectedArtist && selectedArtist._id === id) {
-        setSelectedArtist({ ...selectedArtist, status: 'inactive' } as Artist);
+        setSelectedArtist({ ...selectedArtist, isVerified: result.isVerified } as Artist);
       }
       
-      toast.success('Artist rejected successfully!');
+      toast.success(isVerified ? 'Artist verified successfully!' : 'Artist verification removed');
       return true;
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.error ||
-        `Failed to reject artist with ID ${id}`;
+        `Failed to toggle verification for artist with ID ${id}`;
       setError(errorMessage);
       toast.error(errorMessage);
       return false;
@@ -379,6 +386,7 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
     deleteArtist,
     approveArtist,
     rejectArtist,
+    verifyArtist,
     setQueryParams,
     clearSelectedArtist,
     clearDiscography

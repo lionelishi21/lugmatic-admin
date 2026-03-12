@@ -2,18 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import artistService, { Artist } from '../../services/artistService';
+import songService, { Song } from '../../services/songService';
+import uploadService from '../../services/uploadService';
+import { getFullImageUrl } from '../../services/api';
+
 import {
     Film, Plus, Search, Edit, Trash2,
     Play, CheckCircle2,
-    Music, Eye, Video, XCircle
+    Music, Eye, Video, XCircle, Upload, Check
 } from 'lucide-react';
 
 import Preloader from '../../components/ui/Preloader';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import videoService, { Video as VideoType, VideoFormData } from '../../services/videoService';
-import artistService, { Artist } from '../../services/artistService';
-import songService, { Song } from '../../services/songService';
-import { getFullImageUrl } from '../../services/api';
 
 const VideoManagement: React.FC = () => {
     const navigate = useNavigate();
@@ -26,6 +28,16 @@ const VideoManagement: React.FC = () => {
     const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
     const [videoToDelete, setVideoToDelete] = useState<string | null>(null);
     const [selectedVideo, setSelectedVideo] = useState<VideoType | null>(null);
+
+    // File upload state
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+    const [videoProgress, setVideoProgress] = useState<number>(0);
+    const [thumbnailProgress, setThumbnailProgress] = useState<number>(0);
+    const [uploading, setUploading] = useState<boolean>(false);
+
+    const videoInputRef = React.useRef<HTMLInputElement>(null);
+    const thumbInputRef = React.useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState<VideoFormData>({
         title: '',
@@ -70,6 +82,11 @@ const VideoManagement: React.FC = () => {
     });
 
     const handleOpenForm = (video?: VideoType) => {
+        setVideoFile(null);
+        setThumbnailFile(null);
+        setVideoProgress(0);
+        setThumbnailProgress(0);
+
         if (video) {
             setSelectedVideo(video);
             setFormData({
@@ -98,20 +115,55 @@ const VideoManagement: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setUploading(true);
         setLoading(true);
+
         try {
+            let finalVideoUrl = formData.videoUrl;
+            let finalThumbnailUrl = formData.thumbnailUrl;
+
+            // 1. Upload video if selected
+            if (videoFile) {
+                const presign = await uploadService.getPresignedVideoUrl(videoFile.name, videoFile.type);
+                await uploadService.uploadToS3(presign.uploadUrl, videoFile, (progress) => {
+                    setVideoProgress(progress);
+                });
+                finalVideoUrl = presign.publicUrl;
+            } else if (!selectedVideo && !videoFile) {
+                toast.error('Please select a video file');
+                setUploading(false);
+                setLoading(false);
+                return;
+            }
+
+            // 2. Upload thumbnail if selected
+            if (thumbnailFile) {
+                const presign = await uploadService.getPresignedThumbnailUrl(thumbnailFile.name, thumbnailFile.type);
+                await uploadService.uploadToS3(presign.uploadUrl, thumbnailFile, (progress) => {
+                    setThumbnailProgress(progress);
+                });
+                finalThumbnailUrl = presign.publicUrl;
+            }
+
+            const videoPayload = {
+                ...formData,
+                videoUrl: finalVideoUrl,
+                thumbnailUrl: finalThumbnailUrl
+            };
+
             if (selectedVideo) {
-                await videoService.updateVideo(selectedVideo._id, formData);
+                await videoService.updateVideo(selectedVideo._id, videoPayload);
                 toast.success('Video updated successfully');
             } else {
-                await videoService.createVideo(formData);
+                await videoService.createVideo(videoPayload);
                 toast.success('Video created successfully');
             }
             setIsFormOpen(false);
             fetchInitialData();
         } catch (err: any) {
-            toast.error(err.response?.data?.message || 'Action failed');
+            toast.error(err.response?.data?.message || err.message || 'Action failed');
         } finally {
+            setUploading(false);
             setLoading(false);
         }
     };
@@ -134,7 +186,7 @@ const VideoManagement: React.FC = () => {
 
     return (
         <div className="space-y-6">
-            <Preloader isVisible={loading} />
+            <Preloader isVisible={loading && !uploading} />
 
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -314,9 +366,13 @@ const VideoManagement: React.FC = () => {
                                 <div className="flex items-center justify-between mb-8">
                                     <div>
                                         <h2 className="text-2xl font-bold text-gray-900">{selectedVideo ? 'Edit Video' : 'Add New Video'}</h2>
-                                        <p className="text-sm text-gray-500">Configure video details and link it to a track</p>
+                                        <p className="text-sm text-gray-500">Video files will be uploaded directly to secure storage</p>
                                     </div>
-                                    <button onClick={() => setIsFormOpen(false)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                                    <button
+                                        disabled={uploading}
+                                        onClick={() => setIsFormOpen(false)}
+                                        className="p-2 hover:bg-gray-100 rounded-xl transition-colors disabled:opacity-50"
+                                    >
                                         <XCircle className="text-gray-400" size={24} />
                                     </button>
                                 </div>
@@ -352,78 +408,142 @@ const VideoManagement: React.FC = () => {
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold text-gray-500 uppercase">Description</label>
                                         <textarea
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                                            disabled={uploading}
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium disabled:opacity-50"
                                             placeholder="Enter video description..."
-                                            rows={3}
+                                            rows={2}
                                             value={formData.description}
                                             onChange={e => setFormData({ ...formData, description: e.target.value })}
                                         />
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    {/* File Upload Section */}
+                                    <div className="space-y-4">
                                         <div className="space-y-2">
-                                            <label className="text-xs font-bold text-gray-500 uppercase">Video URL</label>
-                                            <input
-                                                required
-                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
-                                                placeholder="https://s3.lugmatic.com/videos/..."
-                                                value={formData.videoUrl}
-                                                onChange={e => setFormData({ ...formData, videoUrl: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-gray-500 uppercase">Linked Song (Optional)</label>
-                                            <select
-                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium appearance-none"
-                                                value={formData.songId}
-                                                disabled={!formData.artistId}
-                                                onChange={e => setFormData({ ...formData, songId: e.target.value })}
+                                            <label className="text-xs font-bold text-gray-500 uppercase">Video File</label>
+                                            <div
+                                                onClick={() => !uploading && videoInputRef.current?.click()}
+                                                className={`border-2 border-dashed rounded-2xl p-4 flex flex-col items-center justify-center transition-all cursor-pointer ${videoFile ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 hover:border-emerald-400 bg-gray-50'} ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                             >
-                                                <option value="">No Song Link</option>
-                                                {filteredSongs.map(s => (
-                                                    <option key={s._id} value={s._id}>{s.name}</option>
-                                                ))}
-                                            </select>
+                                                <input
+                                                    type="file"
+                                                    ref={videoInputRef}
+                                                    className="hidden"
+                                                    accept="video/*"
+                                                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                                                />
+                                                {videoFile ? (
+                                                    <div className="flex items-center gap-3">
+                                                        <Video className="text-emerald-600" size={24} />
+                                                        <div className="text-left">
+                                                            <p className="text-sm font-bold text-gray-900">{videoFile.name}</p>
+                                                            <p className="text-xs text-gray-500">{(videoFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                                                        </div>
+                                                        {videoProgress === 100 && <CheckCircle2 className="text-emerald-600" size={20} />}
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center">
+                                                        <Upload className="text-gray-400 mb-2" size={24} />
+                                                        <p className="text-sm font-medium text-gray-600">
+                                                            {selectedVideo ? 'Click to replace video' : 'Click to select video file'}
+                                                        </p>
+                                                        <p className="text-xs text-gray-400 mt-1">MP4, WEBM, MOV up to 200MB</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {videoProgress > 0 && videoProgress < 100 && (
+                                                <div className="w-full bg-gray-100 rounded-full h-2 mt-2">
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${videoProgress}%` }}
+                                                        className="bg-emerald-500 h-2 rounded-full"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold text-gray-500 uppercase">Linked Song (Optional)</label>
+                                                <select
+                                                    disabled={uploading}
+                                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium appearance-none disabled:opacity-50"
+                                                    value={formData.songId}
+                                                    onChange={e => setFormData({ ...formData, songId: e.target.value })}
+                                                >
+                                                    <option value="">No Song Link</option>
+                                                    {filteredSongs.map(s => (
+                                                        <option key={s._id} value={s._id}>{s.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold text-gray-500 uppercase">Thumbnail</label>
+                                                <div
+                                                    onClick={() => !uploading && thumbInputRef.current?.click()}
+                                                    className={`h-[46px] border rounded-xl flex items-center px-4 cursor-pointer transition-all ${thumbnailFile ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 bg-gray-50'} ${uploading ? 'opacity-50' : ''}`}
+                                                >
+                                                    <input
+                                                        type="file"
+                                                        ref={thumbInputRef}
+                                                        className="hidden"
+                                                        accept="image/*"
+                                                        onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                                                    />
+                                                    <div className="flex items-center gap-2 truncate">
+                                                        {thumbnailFile ? (
+                                                            <>
+                                                                <Check className="text-emerald-600 shrink-0" size={14} />
+                                                                <span className="text-xs font-bold text-gray-900 truncate">{thumbnailFile.name}</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Upload size={14} className="text-gray-400 shrink-0" />
+                                                                <span className="text-xs font-medium text-gray-500 truncate">Select Image</span>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-gray-500 uppercase">Thumbnail URL (Optional)</label>
+                                    <div className="flex items-center justify-between pt-2">
+                                        <label className="relative inline-flex items-center cursor-pointer">
                                             <input
-                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
-                                                placeholder="https://s3.lugmatic.com/images/..."
-                                                value={formData.thumbnailUrl}
-                                                onChange={e => setFormData({ ...formData, thumbnailUrl: e.target.value })}
+                                                type="checkbox"
+                                                disabled={uploading}
+                                                className="sr-only peer"
+                                                checked={formData.pushedToFeed}
+                                                onChange={e => setFormData({ ...formData, pushedToFeed: e.target.checked })}
                                             />
-                                        </div>
-                                        <div className="flex items-center gap-4 pt-6">
-                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    className="sr-only peer"
-                                                    checked={formData.pushedToFeed}
-                                                    onChange={e => setFormData({ ...formData, pushedToFeed: e.target.checked })}
-                                                />
-                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                                                <span className="ml-3 text-sm font-bold text-gray-700">Push to Feed</span>
-                                            </label>
-                                        </div>
+                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                                            <span className="ml-3 text-sm font-bold text-gray-700">Push to Home Feed</span>
+                                        </label>
+                                        
+                                        {uploading && (
+                                            <div className="animate-pulse flex items-center gap-2 text-emerald-600">
+                                                <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" />
+                                                <span className="text-xs font-bold uppercase tracking-wider">Uploading...</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="flex gap-4 pt-4">
                                         <button
                                             type="button"
+                                            disabled={uploading}
                                             onClick={() => setIsFormOpen(false)}
-                                            className="flex-1 py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-bold transition-all"
+                                            className="flex-1 py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-bold transition-all disabled:opacity-50"
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             type="submit"
-                                            className="flex-1 py-4 px-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold shadow-lg shadow-emerald-600/20 transition-all"
+                                            disabled={uploading || (!selectedVideo && !videoFile)}
+                                            className="flex-1 py-4 px-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold shadow-lg shadow-emerald-600/20 transition-all disabled:opacity-50 disabled:grayscale"
                                         >
-                                            {selectedVideo ? 'Update Video' : 'Save Video'}
+                                            {uploading ? 'Processing Media...' : (selectedVideo ? 'Update Video' : 'Begin Upload')}
                                         </button>
                                     </div>
                                 </form>

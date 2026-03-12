@@ -84,6 +84,11 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       icon: <BarChart2 className="h-5 w-5" />
     },
     {
+      path: '/admin/home-page-management',
+      label: 'Home Page',
+      icon: <LayoutGrid className="h-5 w-5" />
+    },
+    {
       path: '/admin/approvals',
       label: 'Approvals',
       icon: <Shield className="h-5 w-5" />,
