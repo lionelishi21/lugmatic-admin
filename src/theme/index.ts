@@ -1,28 +1,28 @@
 export const theme = {
   colors: {
     primary: {
-      50: '#fdf4ff',
-      100: '#fae8ff',
-      200: '#f5d0fe',
-      300: '#f0abfc',
-      400: '#e879f9',
-      500: '#d946ef',
-      600: '#c026d3',
-      700: '#a21caf',
-      800: '#86198f',
-      900: '#701a75',
+      50: '#ecfdf5',
+      100: '#d1fae5',
+      200: '#a7f3d0',
+      300: '#6ee7b7',
+      400: '#34d399',
+      500: '#10b981', // Brand Green
+      600: '#059669',
+      700: '#047857',
+      800: '#065f46',
+      900: '#064e3b',
     },
     secondary: {
-      50: '#fef7ff',
-      100: '#fdf2ff',
-      200: '#fce7ff',
-      300: '#fbcfe8',
-      400: '#f7a8d4',
-      500: '#f175b9',
-      600: '#e31b54',
-      700: '#c71f5d',
-      800: '#a61e4d',
-      900: '#8b1d3b',
+      50: '#f5f3ff',
+      100: '#ede9fe',
+      200: '#ddd6fe',
+      300: '#c4b5fd',
+      400: '#a78bfa',
+      500: '#8b5cf6', // Violet
+      600: '#7c3aed',
+      700: '#6d28d9',
+      800: '#5b21b6',
+      900: '#4c1d95',
     },
     gray: {
       50: '#f8fafc',
@@ -79,7 +79,7 @@ export const theme = {
     lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
     xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
     '2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
-    glass: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+    glass: '0 8px 32px 0 rgba(16, 185, 129, 0.25)',
   },
   borderRadius: {
     none: '0',
@@ -99,30 +99,31 @@ export const theme = {
     '2xl': 'blur(24px)',
   },
   gradients: {
-    primary: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    secondary: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    soft: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-    glass: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
+    primary: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    secondary: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+    soft: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+    glass: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)',
   },
 };
 
 export const glassmorphicStyles = {
   glass: {
-    background: 'rgba(255, 255, 255, 0.25)',
+    background: 'rgba(15, 23, 42, 0.8)',
     backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(255, 255, 255, 0.18)',
-    boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+    border: '1px solid rgba(16, 185, 129, 0.2)',
+    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
   },
   soft: {
-    background: 'rgba(255, 255, 255, 0.7)',
+    background: 'rgba(15, 23, 42, 0.7)',
     backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(16, 185, 129, 0.1)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
   },
   card: {
-    background: 'rgba(255, 255, 255, 0.8)',
+    background: 'rgba(30, 41, 59, 0.9)',
     backdropFilter: 'blur(16px)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    border: '1px solid rgba(16, 185, 129, 0.1)',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1)',
   },
-}; 
+};
+ 
