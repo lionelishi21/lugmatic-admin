@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Music2, Users, Upload, Radio, Gift, DollarSign, LogOut, Shield,
-  Settings, BarChart2, Film, Disc, Music, Tag, Menu, X, ChevronRight,
+  Settings, BarChart2, Film, Disc, Music, Tag, Menu, X, ChevronRight, LayoutGrid,
   MessageCircle, Bell, Search, User, Podcast, MessageSquare, TrendingUp, Video as VideoIcon,
   Users as UsersIcon, FileText, AlertTriangle, Zap, Award, Cog, HelpCircle, ListMusic
 } from 'lucide-react';
