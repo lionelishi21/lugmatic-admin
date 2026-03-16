@@ -109,7 +109,7 @@ const adminGiftService = {
         // Check top-level url (new format)
         if ('url' in responseData && responseData.url) {
           console.log('Found URL at top level:', responseData.url);
-          return { url: responseData.url };
+          return { url: responseData.url as string };
         }
         // Check nested data.url
         if ('data' in responseData && responseData.data && typeof responseData.data === 'object') {
@@ -149,7 +149,35 @@ const adminGiftService = {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to upload icon';
       throw new Error(errorMessage);
     }
-  }
+  },
+
+  /**
+   * Get a presigned URL for uploading a file to S3
+   */
+  getPresignedUrl: async (type: 'gift-image', filename: string, contentType: string) => {
+    const response = await apiService.post<{
+      uploadUrl: string;
+      key: string;
+      publicUrl: string;
+    }>(`/upload/presign/${type}`, { filename, contentType });
+    return extractResponseData<{
+      uploadUrl: string;
+      key: string;
+      publicUrl: string;
+    }>(response);
+  },
+
+  /**
+   * Directly upload a file to S3 via presigned URL
+   */
+  uploadToS3: async (uploadUrl: string, file: File, contentType: string): Promise<void> => {
+    const axios = (await import('axios')).default;
+    await axios.put(uploadUrl, file, {
+      headers: {
+        'Content-Type': contentType,
+      },
+    });
+  },
 };
 
 export default adminGiftService;

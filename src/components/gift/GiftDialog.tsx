@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GiftResponse, AdminGiftPayload } from '../../services/adminGiftService';
+import adminGiftService, { GiftResponse, AdminGiftPayload } from '../../services/adminGiftService';
 import { getAccessToken } from '../../services/api';
 import { toast } from 'react-hot-toast';
 import {
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import FileUpload from '../ui/FileUpload';
 import { useCreateGift } from '../../hooks/gift/useCreateGift';
-import { createGiftWithImage, createGiftJson, updateGift, updateGiftWithImage, UpdateGiftWithImagePayload } from '../../store/slices/giftSlice';
+import { createGiftJson, updateGift } from '../../store/slices/giftSlice';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store';
 
@@ -147,63 +147,46 @@ const GiftDialog: React.FC<GiftDialogProps> = ({ open, onClose, editingGift, onS
       }
 
       try {
-        setUploading(true);
+        let finalImageUrl = formData.image;
 
-        const giftPayload = {
+        if (pendingIconFile) {
+          toast.loading('Uploading gift icon to S3...', { id: 'gift-upload' });
+          const presign = await adminGiftService.getPresignedUrl('gift-image', pendingIconFile.name, pendingIconFile.type);
+          await adminGiftService.uploadToS3(presign.uploadUrl, pendingIconFile, pendingIconFile.type);
+          finalImageUrl = presign.publicUrl;
+          toast.loading('Saving gift details...', { id: 'gift-upload' });
+        }
+
+        const giftPayload: AdminGiftPayload = {
+          ...formData,
           name: formData.name.trim(),
           description: formData.description?.trim() || undefined,
-          type: formData.type,
           value: Number(formData.value),
           coinCost: Number(formData.coinCost),
+          image: finalImageUrl,
           category: formData.category as AdminGiftPayload['category'],
-          rarity: formData.rarity,
-          isActive: formData.isActive,
-          isAnimated: formData.isAnimated,
-          isSeasonal: formData.isSeasonal,
           seasonalStart: formData.isSeasonal ? formData.seasonalStart || undefined : undefined,
           seasonalEnd: formData.isSeasonal ? formData.seasonalEnd || undefined : undefined,
         };
 
-        let resultAction;
-
         if (editingGift) {
-          // UPDATE existing gift
-          if (pendingIconFile) {
-            // Update with new image
-            const updatePayload: UpdateGiftWithImagePayload = {
-              id: editingGift._id,
-              image: pendingIconFile,
-              ...giftPayload,
-            };
-            resultAction = await dispatch(updateGiftWithImage(updatePayload));
-            if (updateGiftWithImage.rejected.match(resultAction)) {
-              throw new Error((resultAction.payload as string) || 'Failed to update gift');
-            }
-          } else {
-            // Update without image change
-            resultAction = await dispatch(updateGift({
-              id: editingGift._id,
-              data: {
-                ...giftPayload,
-                image: formData.image,
-              } as AdminGiftPayload,
-            }));
-            if (updateGift.rejected.match(resultAction)) {
-              throw new Error((resultAction.payload as string) || 'Failed to update gift');
-            }
+          const resultAction = await dispatch(updateGift({
+            id: editingGift._id,
+            data: giftPayload,
+          }));
+          if (updateGift.rejected.match(resultAction)) {
+            throw new Error((resultAction.payload as string) || 'Failed to update gift');
           }
         } else {
-          // CREATE new gift
-          resultAction = await createGiftHandler(giftPayload, pendingIconFile || undefined);
-          if (createGiftWithImage.rejected.match(resultAction) || createGiftJson.rejected.match(resultAction)) {
+          // We use the JSON flow now even if there was a file, because we've already uploaded to S3
+          const resultAction = await dispatch(createGiftJson(giftPayload));
+          if (createGiftJson.rejected.match(resultAction)) {
             throw new Error((resultAction.payload as string) || 'Failed to create gift');
           }
         }
 
         toast.success(editingGift ? 'Gift updated successfully!' : 'Gift created successfully!', {
-          duration: 4000,
-          icon: '✅',
-          style: { background: '#10b981', color: '#fff' },
+          id: 'gift-upload',
         });
         onSuccess?.();
         onClose();

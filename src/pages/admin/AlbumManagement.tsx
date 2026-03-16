@@ -147,27 +147,37 @@ const AlbumManagement: React.FC = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
+      let coverArtUrl = formData.coverArt || '';
+      let coverArtKey = '';
+
+      if (coverArtFile) {
+        toast.loading('Uploading cover art to S3...', { id: 'album-upload' });
+        const presign = await albumService.getPresignedUrl('cover-art', coverArtFile.name, coverArtFile.type);
+        await albumService.uploadToS3(presign.uploadUrl, coverArtFile, coverArtFile.type);
+        coverArtUrl = presign.publicUrl;
+        coverArtKey = presign.key;
+        toast.loading('Saving album details...', { id: 'album-upload' });
+      }
+
       if (selectedAlbum) {
-        let coverArtUrl = formData.coverArt || '';
-        if (coverArtFile) {
-          coverArtUrl = await albumService.uploadCoverArt(coverArtFile);
-        }
-        await albumService.adminUpdateAlbum(selectedAlbum._id, { ...formData, coverArt: coverArtUrl });
-        toast.success('Album updated successfully');
+        await albumService.adminUpdateAlbum(selectedAlbum._id, { 
+          ...formData, 
+          coverArt: coverArtUrl,
+          // If we have a new key, we might want to store it, but backend mostly uses the URL for now
+        });
+        toast.success('Album updated successfully', { id: 'album-upload' });
       } else {
-        if (coverArtFile) {
-          const { coverArt, ...rest } = formData as CreateAlbumData;
-          await albumService.createAlbumWithImage(rest, coverArtFile);
-        } else {
-          await albumService.createAlbum(formData as CreateAlbumData);
-        }
-        toast.success('Album created successfully');
+        await albumService.createAlbum({ 
+          ...formData as CreateAlbumData, 
+          coverArt: coverArtUrl 
+        });
+        toast.success('Album created successfully', { id: 'album-upload' });
       }
       handleCloseDialog();
       fetchAlbums();
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to save album';
-      toast.error(errorMessage);
+      toast.error(errorMessage, { id: 'album-upload' });
     } finally {
       setSubmitting(false);
     }

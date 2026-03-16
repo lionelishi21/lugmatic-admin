@@ -128,6 +128,34 @@ const albumService = {
   deleteAlbum: async (id: string): Promise<void> => {
     await apiService.delete(`/album/delete/${id}`);
   },
+
+  /**
+   * Get a presigned URL for uploading a file to S3
+   */
+  getPresignedUrl: async (type: 'cover-art', filename: string, contentType: string) => {
+    const response = await apiService.post<{
+      uploadUrl: string;
+      key: string;
+      publicUrl: string;
+    }>(`/upload/presign/${type}`, { filename, contentType });
+    return extractResponseData<{
+      uploadUrl: string;
+      key: string;
+      publicUrl: string;
+    }>(response);
+  },
+
+  /**
+   * Directly upload a file to S3 via presigned URL
+   */
+  uploadToS3: async (uploadUrl: string, file: File, contentType: string): Promise<void> => {
+    const axios = (await import('axios')).default;
+    await axios.put(uploadUrl, file, {
+      headers: {
+        'Content-Type': contentType,
+      },
+    });
+  },
 };
 
 export default albumService;

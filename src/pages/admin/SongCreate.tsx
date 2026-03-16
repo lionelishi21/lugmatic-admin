@@ -79,21 +79,37 @@ const SongCreate: React.FC = () => {
 
         setSubmitting(true);
         try {
-            const cleanedData = {
+            const cleanedData: Partial<CreateSongData> = {
                 ...formData,
-                album: formData.album && formData.album.trim() !== '' ? formData.album : null,
+                album: formData.album && formData.album.trim() !== '' ? formData.album : undefined,
             };
 
-            await songService.createSong(
-                cleanedData as any,
-                audioFile,
-                coverArtFile || undefined
-            );
+            // 1. Get Presigned URLs & Upload to S3
+            toast.loading('Uploading media to S3...', { id: 'upload' });
+            
+            // Audio Upload
+            const audioPresign = await songService.getPresignedUrl('song-audio', audioFile.name, audioFile.type);
+            await songService.uploadToS3(audioPresign.uploadUrl, audioFile, audioFile.type);
+            cleanedData.audioFileKey = audioPresign.key;
+            cleanedData.audioFile = audioPresign.publicUrl;
 
-            toast.success('Song created successfully');
+            // Cover Art Upload (if applicable)
+            if (coverArtFile) {
+                const coverPresign = await songService.getPresignedUrl('cover-art', coverArtFile.name, coverArtFile.type);
+                await songService.uploadToS3(coverPresign.uploadUrl, coverArtFile, coverArtFile.type);
+                cleanedData.coverArtKey = coverPresign.key;
+                cleanedData.coverArt = coverPresign.publicUrl;
+            }
+
+            toast.loading('Saving song details...', { id: 'upload' });
+
+            // 2. Create Song Record in DB
+            await songService.createSong(cleanedData as CreateSongData);
+
+            toast.success('Song created successfully', { id: 'upload' });
             navigate('/admin/song-management');
         } catch (err: any) {
-            toast.error(err.response?.data?.message || 'Failed to create song');
+            toast.error(err.response?.data?.message || 'Failed to create song', { id: 'upload' });
         } finally {
             setSubmitting(false);
         }
