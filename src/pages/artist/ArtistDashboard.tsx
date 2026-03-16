@@ -1,59 +1,42 @@
-import React from 'react';
-import { Music2, Headphones, DollarSign, TrendingUp, Clock, ExternalLink, Mic2, Album, Users } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Music2, Headphones, DollarSign, TrendingUp, Clock, ExternalLink, Users } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-// import useFetchArtist from '../../hooks/artist/useFetchArtist';
-
-interface ArtistStats {
-  totalTracks: number;
-  monthlyListeners: number;
-  totalEarnings: number;
-  socialMediaFollowers: number;
-}
-
-interface Track {
-  id: string;
-  title: string;
-  plays: number;
-  cover_url: string;
-}
-
-interface RecentActivity {
-  id: string;
-  type: 'track_upload' | 'live_stream' | 'playlist_add';
-  title: string;
-  timestamp: string;
-}
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../../store';
+import { fetchArtistById, fetchArtistStats, fetchArtistSongs } from '../../store/slices/artistSlice';
+import { fetchArtistEarnings } from '../../store/slices/financeSlice';
+import { Skeleton } from '../../components/ui/skeleton';
 
 export default function ArtistDashboard() {
-  // const { artists: featuredArtists, loading: loadingFeatured } = useFetchArtist('featured');
- 
-  const stats: ArtistStats = {
-    totalTracks: 100,
-    monthlyListeners: 1000,
-    totalEarnings: 10000,
-    socialMediaFollowers: 10000,
-  };
+  const dispatch = useDispatch<AppDispatch>();
+  const { user } = useSelector((state: RootState) => state.auth);
+  const { stats, songs, loading: artistLoading } = useSelector((state: RootState) => state.artist);
+  const { earnings, loading: financeLoading } = useSelector((state: RootState) => state.finance);
 
-  const latestTracks: Track[] = [
-    { id: '1', title: 'Track 1', plays: 1000, cover_url: '/track1-cover.jpg' },
-    { id: '2', title: 'Track 2', plays: 2000, cover_url: '/track2-cover.jpg' },
-  ];
+  useEffect(() => {
+    if (user?.artistId) {
+      const artistId = String(user.artistId);
+      dispatch(fetchArtistById(artistId));
+      dispatch(fetchArtistStats(artistId));
+      dispatch(fetchArtistSongs(artistId));
+      dispatch(fetchArtistEarnings());
+    }
+  }, [dispatch, user?.artistId]);
 
-  const recentActivity: RecentActivity[] = [
-    { id: '1', type: 'track_upload', title: 'Track 1', timestamp: '2022-01-01' },
-    { id: '2', type: 'live_stream', title: 'Live Stream 1', timestamp: '2022-02-01' },
-  ];
+  const isLoading = artistLoading || financeLoading;
 
   const StatCard = ({ 
     icon: Icon, 
     title, 
     value, 
-    trend 
+    trend,
+    loading
   }: { 
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>, 
     title: string, 
     value: string | number, 
-    trend?: string 
+    trend?: string,
+    loading?: boolean
   }) => (
     <div className="bg-white rounded-lg p-6 shadow-md">
       <div className="flex items-center justify-between">
@@ -63,10 +46,14 @@ export default function ArtistDashboard() {
           </div>
           <div className="ml-4">
             <p className="text-sm text-gray-500">{title}</p>
-            <p className="text-2xl font-semibold text-gray-900">{value}</p>
+            {loading ? (
+              <Skeleton className="h-8 w-24" />
+            ) : (
+              <p className="text-2xl font-semibold text-gray-900">{value}</p>
+            )}
           </div>
         </div>
-        {trend && (
+        {trend && !loading && (
           <span className="text-green-500 text-sm">
             <TrendingUp className="h-4 w-4 inline mr-1" />
             {trend}
@@ -83,24 +70,26 @@ export default function ArtistDashboard() {
           <StatCard
             icon={Music2}
             title="Total Tracks"
-            value={stats.totalTracks}
-            trend="+2 this month"
+            value={stats?.totalTracks ?? 0}
+            loading={isLoading}
           />
           <StatCard
             icon={Headphones}
             title="Monthly Listeners"
-            value={stats.monthlyListeners.toLocaleString()}
+            value={(stats?.monthlyListeners ?? 0).toLocaleString()}
+            loading={isLoading}
           />
           <StatCard
             icon={DollarSign}
             title="Total Earnings"
-            value={`$${stats.totalEarnings.toLocaleString()}`}
+            value={`$${(earnings?.totalEarnings ?? 0).toLocaleString()}`}
+            loading={isLoading}
           />
           <StatCard
             icon={Users}
             title="Social Followers"
-            value={stats.socialMediaFollowers.toLocaleString()}
-            trend="+15%"
+            value={(stats?.socialMediaFollowers ?? 0).toLocaleString()}
+            loading={isLoading}
           />
         </div>
 
@@ -109,28 +98,44 @@ export default function ArtistDashboard() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Latest Releases</h2>
             <div className="space-y-4">
-              {latestTracks.map((track) => (
-                <div key={track.id} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <img
-                      src={track.cover_url || '/default-track-cover.jpg'}
-                      alt={track.title}
-                      className="w-12 h-12 rounded-lg object-cover"
-                    />
-                    <div>
-                      <h3 className="font-medium text-gray-900">{track.title}</h3>
-                      <p className="text-sm text-gray-500">
-                        {track.plays?.toLocaleString() || 0} plays
-                      </p>
+              {isLoading ? (
+                [1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center space-x-3">
+                    <Skeleton className="w-12 h-12 rounded-lg" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-20" />
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <button className="text-purple-600 hover:text-purple-700">
-                      <ExternalLink className="h-5 w-5" />
-                    </button>
+                ))
+              ) : songs && songs.length > 0 ? (
+                songs.slice(0, 5).map((track: any) => (
+                  <div key={track._id} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <img
+                        src={track.coverArt || '/default-track-cover.jpg'}
+                        alt={track.title}
+                        className="w-12 h-12 rounded-lg object-cover"
+                      />
+                      <div>
+                        <h3 className="font-medium text-gray-900">{track.title}</h3>
+                        <p className="text-sm text-gray-500">
+                          {track.plays?.toLocaleString() || 0} plays
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button className="text-purple-600 hover:text-purple-700">
+                        <ExternalLink className="h-5 w-5" />
+                      </button>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-10 text-gray-500">
+                  No tracks uploaded yet.
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -138,29 +143,41 @@ export default function ArtistDashboard() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Activity</h2>
             <div className="space-y-4">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-center space-x-3">
-                  <div className={`p-2 rounded-lg ${
-                    activity.type === 'track_upload' ? 'bg-blue-100' :
-                    activity.type === 'live_stream' ? 'bg-green-100' : 'bg-purple-100'
-                  }`}>
-                    {activity.type === 'track_upload' ? <Music2 className="h-5 w-5 text-blue-600" /> :
-                     activity.type === 'live_stream' ? <Mic2 className="h-5 w-5 text-green-600" /> :
-                     <Album className="h-5 w-5 text-purple-600" />}
+              {isLoading ? (
+                [1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center space-x-3">
+                    <Skeleton className="w-10 h-10 rounded-lg" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-48" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-900">
-                      You {activity.type === 'track_upload' ? 'uploaded' : 
-                          activity.type === 'live_stream' ? 'hosted a live stream' : 
-                          'added to playlist'} {activity.title}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      <Clock className="h-3 w-3 inline mr-1" />
-                      {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
-                    </p>
+                ))
+              ) : earnings?.history && earnings.history.length > 0 ? (
+                earnings.history.slice(0, 5).map((activity: any) => (
+                  <div key={activity._id} className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg ${
+                      activity.type === 'gift_received' ? 'bg-green-100' : 'bg-purple-100'
+                    }`}>
+                      {activity.type === 'gift_received' ? <DollarSign className="h-5 w-5 text-green-600" /> :
+                       <Music2 className="h-5 w-5 text-purple-600" />}
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-900">
+                        {activity.description}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        <Clock className="h-3 w-3 inline mr-1" />
+                        {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
+                      </p>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-10 text-gray-500">
+                  No recent activity found.
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -170,12 +187,20 @@ export default function ArtistDashboard() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Earnings Overview</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">This Month</p>
-              <p className="text-2xl font-semibold">$2,450</p>
+              <p className="text-sm text-gray-500">Total Earnings</p>
+              {isLoading ? (
+                <Skeleton className="h-8 w-24 mt-1" />
+              ) : (
+                <p className="text-2xl font-semibold">${(earnings?.totalEarnings ?? 0).toLocaleString()}</p>
+              )}
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">Last Month</p>
-              <p className="text-2xl font-semibold">$3,120</p>
+              <p className="text-sm text-gray-500">This Month</p>
+              {isLoading ? (
+                <Skeleton className="h-8 w-24 mt-1" />
+              ) : (
+                <p className="text-2xl font-semibold">${(earnings?.monthlyEarnings ?? 0).toLocaleString()}</p>
+              )}
             </div>
           </div>
         </div>

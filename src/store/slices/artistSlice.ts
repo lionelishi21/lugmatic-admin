@@ -7,6 +7,7 @@ interface ArtistState {
   currentArtist: Artist | null;
   albums: Album[];
   songs: Song[];
+  stats: any | null;
   loading: boolean;
   error: string | null;
 }
@@ -16,6 +17,7 @@ const initialState: ArtistState = {
   currentArtist: null,
   albums: [],
   songs: [],
+  stats: null,
   loading: false,
   error: null,
 };
@@ -65,6 +67,19 @@ export const fetchArtistSongs = createAsyncThunk(
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       return rejectWithValue(err.response?.data?.message || 'Failed to fetch songs');
+    }
+  }
+);
+
+export const fetchArtistStats = createAsyncThunk(
+  'artist/fetchStats',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await artistService.getArtistStats(id);
+      return response.data ?? response;
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch stats');
     }
   }
 );
@@ -172,6 +187,20 @@ const artistSlice = createSlice({
         state.songs = action.payload;
       })
       .addCase(fetchArtistSongs.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      
+      // fetchArtistStats
+      .addCase(fetchArtistStats.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchArtistStats.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.stats = action.payload;
+      })
+      .addCase(fetchArtistStats.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

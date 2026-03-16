@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, AxiosError } from 'axios';
 
 // Base API URL — reads from Vite env, falls back to localhost for dev
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3008/api';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3008/api';
 
 // Token storage keys
 const ACCESS_TOKEN_KEY = 'access_token';

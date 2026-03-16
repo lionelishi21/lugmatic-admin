@@ -28,8 +28,10 @@ export interface CreateSongData {
   genre: string;
   releaseDate: string;
   lyrics: string;
-  coverArt: string;
-  audioFile: string;
+  coverArt?: string;
+  audioFile?: string;
+  audioFileKey?: string;
+  coverArtKey?: string;
 }
 
 export interface UpdateSongData {
@@ -84,12 +86,18 @@ const songService = {
    * Create a new song with file uploads
    */
   createSong: async (songData: CreateSongData, audioFile?: File, coverArtFile?: File): Promise<Song> => {
+    // If keys are provided, use JSON flow
+    if (songData.audioFileKey) {
+      const response = await apiService.post<Song>('/song/create', songData);
+      return extractResponseData<Song>(response);
+    }
+
+    // Otherwise use legacy FormData flow
     const formData = new FormData();
 
     // Add text fields
     formData.append('name', songData.name);
     formData.append('artist', songData.artist);
-    // Only append album if it has a value
     if (songData.album) {
       formData.append('album', songData.album);
     }
@@ -101,21 +109,40 @@ const songService = {
     // Add files if provided
     if (audioFile) {
       formData.append('audioFile', audioFile);
-    } else if (songData.audioFile) {
-      // Fallback to URL if no file provided
-      formData.append('audioFile', songData.audioFile);
     }
-
     if (coverArtFile) {
       formData.append('coverArt', coverArtFile);
-    } else if (songData.coverArt) {
-      // Fallback to base64 or URL if no file provided
-      formData.append('coverArt', songData.coverArt);
     }
 
-    // Don't set Content-Type header - let axios set it automatically with boundary for FormData
     const response = await apiService.post<Song>('/song/create', formData);
     return extractResponseData<Song>(response);
+  },
+
+  /**
+   * Get a presigned URL for uploading a file to S3
+   */
+  getPresignedUrl: async (type: 'song-audio' | 'cover-art' | 'profile-image', filename: string, contentType: string) => {
+    const response = await apiService.post<{
+      uploadUrl: string;
+      key: string;
+      publicUrl: string;
+    }>(`/upload/presign/${type}`, { filename, contentType });
+    return extractResponseData<{
+      uploadUrl: string;
+      key: string;
+      publicUrl: string;
+    }>(response);
+  },
+
+  /**
+   * Directly upload a file to S3 via presigned URL
+   */
+  uploadToS3: async (uploadUrl: string, file: File, contentType: string): Promise<void> => {
+    await axios.put(uploadUrl, file, {
+      headers: {
+        'Content-Type': contentType,
+      },
+    });
   },
 
   /**

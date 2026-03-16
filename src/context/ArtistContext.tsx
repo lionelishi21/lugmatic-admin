@@ -310,6 +310,36 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
     }
   }, [selectedArtist]);
 
+  // Reject a pending artist
+  const rejectArtist = useCallback(async (id: string, reason: string): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      await artistService.rejectArtist(id, reason);
+      
+      // Update the local state to reflect changes
+      setArtists(prevArtists => 
+        prevArtists.map(artist => 
+          artist._id === id ? { ...artist, status: 'rejected' } : artist
+        )
+      );
+      
+      // If the rejected artist is currently selected, update it
+      if (selectedArtist && selectedArtist._id === id) {
+        setSelectedArtist({ ...selectedArtist, status: 'rejected' } as Artist);
+      }
+      
+      toast.success('Artist rejected successfully');
+      return true;
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        `Failed to reject artist with ID ${id}`;
+      setError(errorMessage);
+      toast.error(errorMessage);
+      return false;
     } finally {
       setLoading(false);
     }

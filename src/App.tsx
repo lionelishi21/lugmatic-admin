@@ -44,7 +44,7 @@ import ContentModeration from './pages/admin/ContentModeration';
 import Analytics from './pages/admin/Analytics';
 import SystemSettings from './pages/admin/SystemSettings';
 import Promotions from './pages/admin/Promotions';
-import Reports from './pages/reports/Reports'; // Adjusted based on existing imports
+import Reports from './pages/admin/Reports';
 import PlaylistManagement from './pages/admin/PlaylistManagement';
 import HomePageManagement from './pages/admin/HomePageManagement';
 

@@ -161,6 +161,19 @@ export default function Upload() {
 
     setIsUploading(true);
     try {
+      // Step 1: Get presigned URLs & Step 2: Upload to S3
+      toast.loading('Fetching upload permissions...', { id: 'upload' });
+      
+      const audioRes = await songService.getPresignedUrl('song-audio', audioFile.name, audioFile.type);
+      toast.loading('Uploading audio to S3...', { id: 'upload' });
+      await songService.uploadToS3(audioRes.uploadUrl, audioFile, audioFile.type);
+
+      const coverRes = await songService.getPresignedUrl('cover-art', coverImage.name, coverImage.type);
+      toast.loading('Uploading cover art to S3...', { id: 'upload' });
+      await songService.uploadToS3(coverRes.uploadUrl, coverImage, coverImage.type);
+
+      // Step 3: Create song with S3 keys
+      toast.loading('Finalizing track details...', { id: 'upload' });
       const songData: CreateSongData = {
         name: form.title,
         artist: String(artistId),
@@ -168,13 +181,12 @@ export default function Upload() {
         genre: form.genre,
         releaseDate: form.releaseDate,
         lyrics: form.lyrics,
-        coverArt: '',
-        audioFile: '',
-        album: ''
+        audioFileKey: audioRes.key,
+        coverArtKey: coverRes.key,
       };
 
-      await songService.createSong(songData, audioFile, coverImage);
-      toast.success('Track uploaded successfully!');
+      await songService.createSong(songData);
+      toast.success('Track uploaded successfully!', { id: 'upload' });
 
       setForm({
         title: '',

@@ -6,6 +6,7 @@ import { combineReducers } from 'redux';
 import authReducer from './slices/authSlice';
 import artistReducer from './slices/artistSlice';
 import giftReducer from './slices/giftSlice';
+import financeReducer from './slices/financeSlice';
 
 const persistConfig = {
   key: 'root',
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   artist: artistReducer,
   gift: giftReducer,
+  finance: financeReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
