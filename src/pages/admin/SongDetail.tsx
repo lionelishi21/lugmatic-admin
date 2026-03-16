@@ -112,25 +112,43 @@ const SongDetail: React.FC = () => {
     if (!song) return;
     setSubmitting(true);
     try {
-      const cleanedData = { ...formData, album: formData.album?.trim() || null };
+      const cleanedData: Partial<CreateSongData> = {
+        ...formData,
+        album: formData.album && formData.album.trim() !== '' ? formData.album : undefined,
+      };
 
-      let updated;
+      // Handle media updates via S3
       if (coverArtFile || audioFile) {
-        // Use multipart for file uploads
-        updated = await songService.updateSong(song._id, cleanedData, audioFile || undefined, coverArtFile || undefined);
-      } else {
-        // Use admin patch for JSON-only updates
-        updated = await songService.adminUpdateSong(song._id, cleanedData as any);
+        toast.loading('Uploading media to S3...', { id: 'edit-upload' });
+        
+        if (audioFile) {
+          const audioPresign = await songService.getPresignedUrl('song-audio', audioFile.name, audioFile.type);
+          await songService.uploadToS3(audioPresign.uploadUrl, audioFile, audioFile.type);
+          cleanedData.audioFileKey = audioPresign.key;
+          cleanedData.audioFile = audioPresign.publicUrl;
+        }
+
+        if (coverArtFile) {
+          const coverPresign = await songService.getPresignedUrl('cover-art', coverArtFile.name, coverArtFile.type);
+          await songService.uploadToS3(coverPresign.uploadUrl, coverArtFile, coverArtFile.type);
+          cleanedData.coverArtKey = coverPresign.key;
+          cleanedData.coverArt = coverPresign.publicUrl;
+        }
+        
+        toast.loading('Saving song details...', { id: 'edit-upload' });
       }
+
+      // Use adminUpdateSong (PATCH) for JSON updates with S3 keys/URLs
+      const updated = await songService.adminUpdateSong(song._id, cleanedData as any);
 
       setSong(updated);
       populateForm(updated, artists, albums, genres);
       setIsEditing(false);
       setCoverArtFile(null);
       setAudioFile(null);
-      toast.success('Song updated successfully');
+      toast.success('Song updated successfully', { id: 'edit-upload' });
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to update song');
+      toast.error(err.response?.data?.message || 'Failed to update song', { id: 'edit-upload' });
     } finally {
       setSubmitting(false);
     }
