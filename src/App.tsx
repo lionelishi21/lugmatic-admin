@@ -47,6 +47,7 @@ import Promotions from './pages/admin/Promotions';
 import Reports from './pages/admin/Reports';
 import PlaylistManagement from './pages/admin/PlaylistManagement';
 import HomePageManagement from './pages/admin/HomePageManagement';
+import Landing from './pages/Landing';
 
 function App() {
   return (
@@ -55,8 +56,8 @@ function App() {
       <AuthInitializer>
         <Router>
           <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/" element={<Navigate to="/login" replace />} />
 
             <Route path="/artist/*" element={
               <ProtectedRoute requiredRole="artist">

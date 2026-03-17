@@ -49,8 +49,13 @@ export default function Login() {
     }
   };
 
-  // No redirect useEffect - login function handles navigation after successful login
-  // This prevents infinite loops
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const targetPath = user.role === 'admin' ? '/admin' : '/artist';
+      navigate(targetPath, { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handlePasswordVisibility = () => {
     setShowPassword(!showPassword);
