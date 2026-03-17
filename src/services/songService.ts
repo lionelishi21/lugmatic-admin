@@ -149,6 +149,12 @@ const songService = {
    * Update an existing song (if backend supports it)
    */
   updateSong: async (id: string, songData: Partial<UpdateSongData>, audioFile?: File, coverArtFile?: File): Promise<Song> => {
+    // If keys are provided, use JSON flow
+    if (songData.audioFileKey || songData.coverArtKey) {
+      const response = await apiService.put<Song>(`/song/update/${id}`, songData);
+      return extractResponseData<Song>(response);
+    }
+
     const formData = new FormData();
 
     // Add text fields
