@@ -236,21 +236,23 @@ const SongDetail: React.FC = () => {
           ) : (
             <>
               <button
-                type="button"
-                onClick={() => { setIsEditing(false); populateForm(song, artists, albums, genres); setCoverArtFile(null); setAudioFile(null); }}
-                className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl transition-colors"
-              >
-                <X className="w-4 h-4" />
-                Cancel
-              </button>
-              <button
+                key="save-button"
                 form="edit-form"
                 type="submit"
                 disabled={submitting}
-                className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-sm disabled:opacity-60"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-sm disabled:opacity-60 order-1"
               >
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 Save Changes
+              </button>
+              <button
+                key="cancel-button"
+                type="button"
+                onClick={() => { setIsEditing(false); populateForm(song, artists, albums, genres); setCoverArtFile(null); setAudioFile(null); }}
+                className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl transition-colors order-2"
+              >
+                <X className="w-4 h-4" />
+                Cancel
               </button>
             </>
           )}

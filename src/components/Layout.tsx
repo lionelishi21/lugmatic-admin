@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Music2, Users, Upload, Radio, Gift, DollarSign, LogOut, Shield,
   Settings, BarChart2, Film, Disc, Music, Tag, Menu, X, ChevronRight, LayoutGrid,
   MessageCircle, Bell, Search, User, Podcast, MessageSquare, TrendingUp, Video as VideoIcon,
-  Users as UsersIcon, FileText, AlertTriangle, Zap, Award, Cog, HelpCircle, ListMusic
+  Users as UsersIcon, FileText, AlertTriangle, Zap, Award, Cog, HelpCircle, ListMusic, Swords
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
@@ -23,7 +23,6 @@ type NavItemType = {
 };
 
 export default function Layout({ children, userRole: userRoleProp }: LayoutProps) {
-  const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuth();
   const [userRole, setUserRole] = useState(userRoleProp ?? 'admin');
@@ -118,6 +117,11 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       path: '/admin/live-stream-management',
       label: 'Live Streams',
       icon: <Film className="h-5 w-5" />
+    },
+    {
+      path: '/admin/clash-management',
+      label: 'Live Clash',
+      icon: <Swords className="h-5 w-5" />
     },
     {
       path: '/admin/content',

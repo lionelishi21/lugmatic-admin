@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/auth/Login'
 import ArtistDashboard from './pages/artist/ArtistDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -47,6 +47,7 @@ import Promotions from './pages/admin/Promotions';
 import Reports from './pages/admin/Reports';
 import PlaylistManagement from './pages/admin/PlaylistManagement';
 import HomePageManagement from './pages/admin/HomePageManagement';
+import ClashManagement from './pages/admin/ClashManagement';
 import Landing from './pages/Landing';
 
 function App() {
@@ -115,6 +116,7 @@ function App() {
                         <Route path="promotions" element={<Promotions />} />
                         <Route path="reports" element={<Reports />} />
                         <Route path="home-page-management" element={<HomePageManagement />} />
+                        <Route path="clash-management" element={<ClashManagement />} />
                       </Routes>
                     </Layout>
                   </ArtistProvider>

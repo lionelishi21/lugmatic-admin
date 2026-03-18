@@ -32,6 +32,8 @@ interface GiftFormData {
   isSeasonal: boolean;
   seasonalStart: string;
   seasonalEnd: string;
+  clashPoints: number;
+  clashAction: AdminGiftPayload['clashAction'];
 }
 
 interface GiftDialogProps {
@@ -55,6 +57,8 @@ const INITIAL_FORM_DATA: GiftFormData = {
   isSeasonal: false,
   seasonalStart: '',
   seasonalEnd: '',
+  clashPoints: 0,
+  clashAction: 'none',
 };
 
 const GIFT_TYPES: Array<{ value: AdminGiftPayload['type']; label: string }> = [
@@ -72,6 +76,14 @@ const GIFT_RARITIES: Array<{ value: AdminGiftPayload['rarity']; label: string }>
 ];
 
 const GIFT_CATEGORIES: string[] = ['support', 'music', 'celebration', 'love', 'funny', 'custom'];
+
+const CLASH_ACTIONS: Array<{ value: AdminGiftPayload['clashAction']; label: string }> = [
+  { value: 'none', label: 'None' },
+  { value: 'mute_opponent', label: 'Mute Opponent' },
+  { value: 'flame_overlay', label: 'Flame Overlay' },
+  { value: 'sound_effect', label: 'Sound Effect' },
+  { value: 'noise', label: 'Vuvuzela/Noise' },
+];
 
 const GiftDialog: React.FC<GiftDialogProps> = ({ open, onClose, editingGift, onSuccess }) => {
   const navigate = useNavigate();
@@ -100,6 +112,8 @@ const GiftDialog: React.FC<GiftDialogProps> = ({ open, onClose, editingGift, onS
           isSeasonal: editingGift.isSeasonal,
           seasonalStart: editingGift.seasonalStart ? editingGift.seasonalStart.split('T')[0] : '',
           seasonalEnd: editingGift.seasonalEnd ? editingGift.seasonalEnd.split('T')[0] : '',
+          clashPoints: editingGift.clashPoints || 0,
+          clashAction: editingGift.clashAction || 'none',
         });
       } else {
         setFormData(INITIAL_FORM_DATA);
@@ -524,6 +538,47 @@ const GiftDialog: React.FC<GiftDialogProps> = ({ open, onClose, editingGift, onS
                   </div>
                 </div>
               )}
+
+              {/* Clash Attributes */}
+              <div className="mt-6 p-4 bg-purple-50 rounded-2xl border border-purple-100">
+                <h3 className="text-sm font-bold text-purple-900 mb-3 flex items-center gap-2">
+                  <Star className="w-4 h-4" />
+                  Live Clash (Battle) Attributes
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-purple-700 mb-1">
+                      Clash Points
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Points"
+                      value={formData.clashPoints || ''}
+                      onChange={(e) => handleNumberChange('clashPoints', e.target.value)}
+                      className="w-full p-2 text-sm border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-purple-700 mb-1">
+                      Clash Action
+                    </label>
+                    <select
+                      value={formData.clashAction}
+                      onChange={(e) => updateFormField('clashAction', e.target.value as AdminGiftPayload['clashAction'])}
+                      className="w-full p-2 text-sm border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white"
+                    >
+                      {CLASH_ACTIONS.map((action) => (
+                        <option key={action.value} value={action.value}>
+                          {action.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <p className="text-[10px] text-purple-600 mt-2">
+                  Points move the Battle Bar. Actions trigger real-time effects during a clash.
+                </p>
+              </div>
             </div>
           </div>
 

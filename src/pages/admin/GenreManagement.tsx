@@ -54,6 +54,7 @@ const GenreManagement: React.FC = () => {
     const description = formData.get('description') as string;
     const color = formData.get('color') as string;
     const isActive = formData.get('status') === 'active';
+    const image = formData.get('image') as string; // Get image from form data
 
     if (!name.trim()) {
       toast.error('Please enter a genre name');
@@ -66,6 +67,7 @@ const GenreManagement: React.FC = () => {
         name: name.trim(),
         description: description?.trim() || '',
         color: color || 'emerald',
+        image: image?.trim() || '', // Include image in data
         isActive,
       };
 
@@ -413,7 +415,43 @@ const GenreManagement: React.FC = () => {
                   <option value="cyan">Cyan</option>
                   <option value="amber">Amber</option>
                   <option value="emerald">Emerald</option>
+                  <option value="blue">Blue</option>
+                  <option value="indigo">Indigo</option>
                 </select>
+              </div>
+
+              {/* Image URL & Generation */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Background Image URL</label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      name="image"
+                      defaultValue={selectedGenre?.image}
+                      className="w-full rounded-xl bg-gray-50/80 border-0 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:bg-white transition-colors"
+                      placeholder="https://images.unsplash.com/..."
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nameInput = formRef.current?.elements.namedItem('name') as HTMLInputElement;
+                      const name = nameInput?.value;
+                      if (!name) {
+                        toast.error('Enter genre name first to generate');
+                        return;
+                      }
+                      const generatedUrl = `https://source.unsplash.com/featured/?${encodeURIComponent(name)},music`;
+                      const imageInput = formRef.current?.elements.namedItem('image') as HTMLInputElement;
+                      if (imageInput) imageInput.value = generatedUrl;
+                      toast.success('Generated placeholder image!');
+                    }}
+                    className="px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors text-sm whitespace-nowrap"
+                  >
+                    Generate
+                  </button>
+                </div>
+                <p className="mt-1.5 text-[11px] text-gray-400 italic">If no image is provided, the category color theme will be used as the background.</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
@@ -454,9 +492,9 @@ const GenreManagement: React.FC = () => {
             <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
             </div>
-            <h3 className="text-lg font-bold text-gray-900 text-center mb-1">Delete "{deleteDialog.name}"?</h3>
+            <h3 className="text-lg font-bold text-gray-900 text-center mb-1">Delete "{deleteDialog?.name}"?</h3>
             <p className="text-sm text-gray-500 text-center mb-6">
-              This will remove the genre and unlink {deleteDialog.songCount} songs. This action cannot be undone.
+              This will remove the genre and unlink {deleteDialog?.songCount} songs. This action cannot be undone.
             </p>
             <div className="flex items-center gap-3">
               <button

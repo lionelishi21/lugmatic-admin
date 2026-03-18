@@ -30,6 +30,8 @@ export interface GiftResponse {
   isSeasonal: boolean;
   seasonalStart?: string;
   seasonalEnd?: string;
+  clashPoints?: number;
+  clashAction?: 'none' | 'mute_opponent' | 'flame_overlay' | 'sound_effect' | 'noise';
   createdAt?: string;
   updatedAt?: string;
 }
@@ -48,6 +50,8 @@ export interface AdminGiftPayload {
   isSeasonal: boolean;
   seasonalStart?: string;
   seasonalEnd?: string;
+  clashPoints?: number;
+  clashAction?: 'none' | 'mute_opponent' | 'flame_overlay' | 'sound_effect' | 'noise';
 }
 
 const adminGiftService = {
