@@ -206,6 +206,11 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       icon: <Radio className="h-5 w-5" />
     },
     {
+      path: '/artist/clashes',
+      label: 'Live Clash',
+      icon: <Swords className="h-5 w-5" />
+    },
+    {
       path: '/artist/podcasts',
       label: 'Podcasts',
       icon: <Podcast className="h-5 w-5" />

@@ -49,6 +49,7 @@ import PlaylistManagement from './pages/admin/PlaylistManagement';
 import HomePageManagement from './pages/admin/HomePageManagement';
 import ClashManagement from './pages/admin/ClashManagement';
 import Landing from './pages/Landing';
+import Clashes from './pages/artist/Clashes';
 
 function App() {
   return (
@@ -67,6 +68,7 @@ function App() {
                     <Route index element={<ArtistDashboard />} />
                     <Route path="upload" element={<Upload />} />
                     <Route path="live" element={<Live />} />
+                    <Route path="clashes" element={<Clashes />} />
                     <Route path="gifts" element={<Gifts />} />
                     <Route path="earnings" element={<Earnings />} />
                     {/* New artist routes */}
