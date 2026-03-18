@@ -44,12 +44,14 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                         <p className="text-sm text-gray-500 text-center mb-6">{message}</p>
                         <div className="flex items-center gap-3">
                             <button
+                                type="button"
                                 onClick={onCancel}
                                 className="flex-1 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
                             >
                                 {cancelLabel}
                             </button>
                             <button
+                                type="button"
                                 onClick={onConfirm}
                                 className={`flex-1 py-2.5 text-sm font-medium text-white rounded-xl transition-colors shadow-sm ${isDestructive ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'
                                     }`}

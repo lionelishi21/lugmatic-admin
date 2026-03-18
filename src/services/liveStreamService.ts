@@ -147,6 +147,21 @@ export const getActiveStreams = async (page = 1, limit = 20, category?: string) 
 };
 
 /**
+ * Admin: Get all live streams with pagination and filtering.
+ */
+export const adminGetAllStreams = async (params: { status?: string; category?: string; search?: string; page?: number; limit?: number }) => {
+  const queryParams = new URLSearchParams();
+  if (params.status) queryParams.set('status', params.status);
+  if (params.category) queryParams.set('category', params.category);
+  if (params.search) queryParams.set('search', params.search);
+  if (params.page) queryParams.set('page', String(params.page));
+  if (params.limit) queryParams.set('limit', String(params.limit));
+
+  const res = await apiService.get<LiveStream[]>(`/admin/live-streams?${queryParams}`);
+  return res.data;
+};
+
+/**
  * Update stream settings (title, description, chat/gifts toggles).
  */
 export const updateStreamSettings = async (
@@ -164,5 +179,6 @@ export default {
   endStream,
   getStreamDetails,
   getActiveStreams,
+  adminGetAllStreams,
   updateStreamSettings,
 };

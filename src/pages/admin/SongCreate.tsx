@@ -120,6 +120,7 @@ const SongCreate: React.FC = () => {
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
             <button
+                type="button"
                 onClick={() => navigate('/admin/song-management')}
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
             >

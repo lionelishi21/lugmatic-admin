@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Check, Play, Headphones, Radio, Gift, Sparkles, ArrowRight, ChevronDown, Music, Disc3, Mic2, Menu, X } from "lucide-react";
+import { Check, Headphones, Radio, Gift, Sparkles, ArrowRight, ChevronDown, Music, Music2, Mic2, Menu, X, TrendingUp, Users, DollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useRef, useState } from "react";
 import logo from '../assets/logo.png';
@@ -184,7 +184,7 @@ export default function Landing() {
               {i % 3 === 0 ? (
                 <Music style={{ width: note.size, height: note.size }} />
               ) : i % 3 === 1 ? (
-                <Disc3 style={{ width: note.size, height: note.size }} />
+                <Music2 style={{ width: note.size, height: note.size }} />
               ) : (
                 <Mic2 style={{ width: note.size, height: note.size }} />
               )}
@@ -244,8 +244,8 @@ export default function Landing() {
                 className="text-[clamp(3.5rem,8vw,7.5rem)] font-bold tracking-[-0.04em] leading-[0.9]"
                 style={{ fontFamily: "'Bebas Neue', sans-serif" }}
               >
-                <span className="block italic">FEEL THE</span>
-                <span className="block text-green-500 drop-shadow-[0_0_40px_rgba(100,220,80,0.3)] italic">RIDDIM</span>
+                <span className="block italic">LUGMATIC FOR</span>
+                <span className="block text-green-500 drop-shadow-[0_0_40px_rgba(100,220,80,0.3)] italic">ARTISTS</span>
               </motion.h1>
 
               <motion.p
@@ -254,8 +254,8 @@ export default function Landing() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="mt-6 text-zinc-400 text-lg md:text-xl max-w-lg leading-relaxed font-light"
               >
-                Stream, discover, and support Caribbean artists.
-                Live sessions, AI mixing, and direct artist gifting.
+                Manage your music, engage with fans, and grow your career.
+                Advanced analytics, live streaming, and direct fan gifting.
               </motion.p>
 
               {/* CTA */}
@@ -319,10 +319,75 @@ export default function Landing() {
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_70%_at_50%_50%,rgba(34,197,94,0.15),transparent_70%)]" />
 
               <div className="relative w-full max-w-[500px] aspect-[3/4] rounded-[2.5rem] overflow-hidden border border-white/[0.08] bg-zinc-900/50">
-                <div className="w-full h-full bg-gradient-to-br from-green-500/20 via-black to-emerald-500/20 flex items-center justify-center">
-                   <Disc3 className="w-24 h-24 text-green-500/40 animate-spin-slow" />
+                <div className="w-full h-full bg-gradient-to-br from-green-500/10 via-black to-emerald-500/10 p-8 flex flex-col gap-6">
+                  {/* Artist Header Mockup */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-zinc-800 border-2 border-green-500/50 flex-shrink-0 overflow-hidden">
+                      <div className="w-full h-full bg-gradient-to-tr from-green-500/20 to-purple-500/20" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="h-4 w-32 bg-zinc-800 rounded mb-2" />
+                      <div className="h-3 w-20 bg-zinc-800/50 rounded" />
+                    </div>
+                    <motion.div 
+                      animate={{ opacity: [1, 0.5, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="px-3 py-1 rounded-full bg-green-500/20 text-green-500 text-[10px] font-bold"
+                    >
+                      LIVE
+                    </motion.div>
+                  </div>
+
+                  {/* Stats Cards Mockup */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <motion.div 
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.8 }}
+                      className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <Users className="w-3 h-3 text-zinc-500" />
+                        <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Listeners</p>
+                      </div>
+                      <p className="text-2xl font-bold">12.4K</p>
+                      <p className="text-[10px] text-green-500 mt-1">+12% vs last week</p>
+                    </motion.div>
+                    <motion.div 
+                      initial={{ opacity: 0, x: 20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 1 }}
+                      className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <DollarSign className="w-3 h-3 text-zinc-500" />
+                        <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Gifts</p>
+                      </div>
+                      <p className="text-2xl font-bold">$3.2K</p>
+                      <p className="text-[10px] text-zinc-400 mt-1">24 new gifts</p>
+                    </motion.div>
+                  </div>
+
+                  {/* Activity Chart Mockup */}
+                  <div className="flex-1 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm flex flex-col">
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Engagement Growth</p>
+                      <TrendingUp className="w-3 h-3 text-green-500" />
+                    </div>
+                    <div className="flex-1 flex items-end gap-2 px-2">
+                      {[40, 60, 45, 80, 55, 90, 75].map((h, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ height: 0 }}
+                          whileInView={{ height: `${h}%` }}
+                          transition={{ delay: 1.2 + (i * 0.1), duration: 0.8 }}
+                          className="flex-1 bg-green-500/20 border-t border-green-500/50 rounded-t-sm"
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
 
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -332,11 +397,11 @@ export default function Landing() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                      <Play className="w-5 h-5 text-green-500 fill-green-500" />
+                      <Music2 className="w-5 h-5 text-green-500" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">Now Playing</p>
-                      <p className="text-xs text-zinc-400 truncate">Dancehall Vibes Mix</p>
+                      <p className="text-sm font-medium truncate">Artist Portal Active</p>
+                      <p className="text-xs text-zinc-400 truncate">Monitoring performance</p>
                     </div>
                     <div className="flex items-end gap-[2px] h-6">
                       {[0, 1, 2, 3].map((bar) => (

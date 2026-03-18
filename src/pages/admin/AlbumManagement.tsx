@@ -148,14 +148,12 @@ const AlbumManagement: React.FC = () => {
     setSubmitting(true);
     try {
       let coverArtUrl = formData.coverArt || '';
-      let coverArtKey = '';
 
       if (coverArtFile) {
         toast.loading('Uploading cover art to S3...', { id: 'album-upload' });
         const presign = await albumService.getPresignedUrl('cover-art', coverArtFile.name, coverArtFile.type);
         await albumService.uploadToS3(presign.uploadUrl, coverArtFile, coverArtFile.type);
         coverArtUrl = presign.publicUrl;
-        coverArtKey = presign.key;
         toast.loading('Saving album details...', { id: 'album-upload' });
       }
 
@@ -408,6 +406,7 @@ const AlbumManagement: React.FC = () => {
                     {/* Actions menu */}
                     <div className="absolute top-2 left-2" ref={openMenuId === album._id ? menuRef : undefined}>
                       <button
+                        type="button"
                         onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === album._id ? null : album._id); }}
                         className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >
@@ -423,6 +422,7 @@ const AlbumManagement: React.FC = () => {
                             className="absolute left-0 top-9 w-36 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-20"
                           >
                             <button
+                              type="button"
                               onClick={() => handleOpenDialog(album)}
                               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                             >
@@ -430,6 +430,7 @@ const AlbumManagement: React.FC = () => {
                               Edit
                             </button>
                             <button
+                              type="button"
                               onClick={() => { setAlbumToDelete(album._id); setOpenMenuId(null); }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                             >
@@ -516,6 +517,7 @@ const AlbumManagement: React.FC = () => {
                   </div>
                   <div className="col-span-5 sm:col-span-1 flex items-center justify-end gap-1">
                     <button
+                      type="button"
                       onClick={() => handleOpenDialog(album)}
                       className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                       title="Edit"
@@ -523,6 +525,7 @@ const AlbumManagement: React.FC = () => {
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => setAlbumToDelete(album._id)}
                       className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete"

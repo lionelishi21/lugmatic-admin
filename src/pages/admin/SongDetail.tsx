@@ -182,7 +182,7 @@ const SongDetail: React.FC = () => {
   if (!song) return (
     <div className="p-8 text-center">
       <p className="text-gray-500 mb-4">Song not found.</p>
-      <button onClick={() => navigate('/admin/song-management')} className="text-green-600 hover:underline">← Back to songs</button>
+      <button type="button" onClick={() => navigate('/admin/song-management')} className="text-green-600 hover:underline">← Back to songs</button>
     </div>
   );
 
@@ -206,6 +206,7 @@ const SongDetail: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button
+          type="button"
           onClick={() => navigate('/admin/song-management')}
           className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
         >
@@ -216,6 +217,7 @@ const SongDetail: React.FC = () => {
           {!isEditing ? (
             <>
               <button
+                type="button"
                 onClick={() => setDeleteOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 text-sm border border-red-200 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
               >
@@ -223,6 +225,7 @@ const SongDetail: React.FC = () => {
                 Delete
               </button>
               <button
+                type="button"
                 onClick={() => setIsEditing(true)}
                 className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-sm"
               >
@@ -233,6 +236,7 @@ const SongDetail: React.FC = () => {
           ) : (
             <>
               <button
+                type="button"
                 onClick={() => { setIsEditing(false); populateForm(song, artists, albums, genres); setCoverArtFile(null); setAudioFile(null); }}
                 className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl transition-colors"
               >
@@ -283,6 +287,7 @@ const SongDetail: React.FC = () => {
                 <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} />
                 <div className="flex items-center gap-3">
                   <button
+                    type="button"
                     onClick={togglePlay}
                     className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white shadow-sm hover:shadow-md transition-all flex-shrink-0"
                   >

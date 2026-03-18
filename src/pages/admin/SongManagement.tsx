@@ -116,6 +116,7 @@ const SongManagement: React.FC = () => {
           <p className="text-gray-600 mt-2">Manage all songs in your system</p>
         </div>
         <button
+          type="button"
           onClick={() => navigate('/admin/song-management/add')}
           className="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 flex items-center gap-2 shadow-sm font-medium transition-all"
         >
@@ -215,6 +216,7 @@ const SongManagement: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-3">
                         <button
+                          type="button"
                           onClick={() => navigate(`/admin/song-management/${song._id}`)}
                           className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                           title="View & Edit"
@@ -222,6 +224,7 @@ const SongManagement: React.FC = () => {
                           <Eye className="w-5 h-5" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => setSongToDelete(song._id)}
                           className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
                           title="Delete"
