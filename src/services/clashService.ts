@@ -29,6 +29,21 @@ const clashService = {
   getClashDetails: async (clashId: string): Promise<ClashResponse> => {
     const response = await apiService.get<ClashResponse>(`/clash/${clashId}`);
     return response.data.data;
+  },
+
+  inviteToClash: async (opponentArtistId: string, duration = 300): Promise<ClashResponse> => {
+    const response = await apiService.post<ClashResponse>('/clash/invite', { opponentArtistId, duration });
+    return response.data.data;
+  },
+
+  acceptClash: async (clashId: string): Promise<ClashResponse> => {
+    const response = await apiService.post<ClashResponse>(`/clash/${clashId}/accept`);
+    return response.data.data;
+  },
+
+  rejectClash: async (clashId: string): Promise<{ success: boolean; message: string }> => {
+    const response = await apiService.post<{ success: boolean; message: string }>(`/clash/${clashId}/reject`);
+    return response.data.data;
   }
 };
 

@@ -27,7 +27,11 @@ import {
   Wifi,
   WifiOff,
   ChevronRight,
+  Swords,
+  Trophy,
+  Zap
 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
 
 import {
@@ -39,6 +43,8 @@ import {
 } from '../../services/liveStreamService';
 import socketService, { type ChatMessage, type StreamState } from '../../services/socketService';
 import apiService from '../../services/api';
+import clashService from '../../services/clashService';
+import ChallengeModal from '../../components/clash/ChallengeModal';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -82,6 +88,9 @@ export default function Live() {
   const [liveSince, setLiveSince] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState('0:00');
   const [liveKitConnected, setLiveKitConnected] = useState(false);
+  const [isChallengeModalOpen, setIsChallengeModalOpen] = useState(false);
+  const [activeClash, setActiveClash] = useState<any>(null);
+  const [clashScores, setClashScores] = useState({ challenger: 0, opponent: 0 });
 
   const isLive = phase === 'live';
   const isBusy = ['creating', 'getting_token', 'connecting', 'publishing', 'ending'].includes(phase);
@@ -211,6 +220,74 @@ export default function Live() {
       socketService.onViewerLeft((data) => setViewerCount(data.currentViewers));
       socketService.onStreamEnded(() => toast('Stream has ended'));
       socketService.onError((data) => { console.error('[Socket] Error:', data.message); });
+      
+      // ─── Clash Listeners ───
+      socketService.onClashInvitation((data) => {
+        toast((t) => (
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <p className="text-sm font-bold">{data.challenger.name} challenged you to a War!</p>
+              <p className="text-xs text-gray-500">{data.duration / 60} minutes</p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={async () => {
+                  try {
+                    await clashService.acceptClash(data.clashId);
+                    toast.dismiss(t.id);
+                  } catch (err: any) {
+                    toast.error(err.response?.data?.message || 'Failed to accept');
+                  }
+                }}
+                className="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-lg"
+              >
+                Accept
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await clashService.rejectClash(data.clashId);
+                    toast.dismiss(t.id);
+                  } catch (err) {}
+                }}
+                className="px-3 py-1 bg-gray-200 text-gray-700 text-xs font-bold rounded-lg"
+              >
+                Decline
+              </button>
+            </div>
+          </div>
+        ), { duration: 10000, icon: '⚔️' });
+      });
+
+      socketService.onClashStarted((data) => {
+        setActiveClash(data);
+        setClashScores({ challenger: 0, opponent: 0 });
+        toast.success('Clash started! Get those bars ready!', { icon: '🔥' });
+      });
+
+      socketService.onClashScoreUpdate((data) => {
+        setClashScores({
+          challenger: data.challengerScore,
+          opponent: data.opponentScore
+        });
+      });
+
+      socketService.onClashEnded((data) => {
+        setActiveClash(null);
+        const isWinner = data.winnerId === streamData?.host?._id;
+        if (isWinner) {
+          toast.success('Victory! You won the Lyrical War!', { icon: <Trophy className="h-5 w-5 text-yellow-500" />, duration: 5000 });
+        } else if (data.winnerId) {
+          toast.error('Gave it your best! Your opponent won this round.', { icon: '💀', duration: 5000 });
+        } else {
+          toast('It was a draw!', { icon: '🤝' });
+        }
+      });
+
+      socketService.onClashRejected(() => {
+        toast.error('Your challenge was declined.');
+      });
+
       socketService.joinStream(streamId);
     } catch (err) {
       console.warn('[Socket] Setup failed (chat may not work):', err);
@@ -386,7 +463,7 @@ export default function Live() {
       </div>
 
       {/* ── Live status banner ── */}
-      {isLive && (
+      {(isLive || phase === 'ending') && (
         <div className="flex items-center justify-between bg-red-600 text-white rounded-2xl px-5 py-3 shadow-sm">
           <div className="flex items-center gap-4 flex-wrap">
             <span className="flex items-center gap-2 font-bold text-base">
@@ -417,6 +494,45 @@ export default function Live() {
             {phase === 'ending' && <Loader2 className="animate-spin h-4 w-4" />}
             End Stream
           </button>
+        </div>
+      )}
+
+      {/* ── Clash Score Overlay (Global) ── */}
+      {activeClash && isLive && (
+        <div className="bg-gradient-to-r from-purple-700 via-indigo-800 to-purple-900 text-white rounded-2xl px-6 py-4 shadow-lg border border-white/20 flex items-center justify-between overflow-hidden relative">
+          <div className="absolute inset-0 bg-black/10 opacity-10" />
+          
+          <div className="flex items-center gap-4 relative z-10 flex-1">
+            <div className="text-right flex-1">
+              <p className="text-[10px] uppercase tracking-tighter font-bold text-purple-300">Challenger</p>
+              <p className="text-2xl font-black italic">{clashScores.challenger}</p>
+            </div>
+            <div className="flex flex-col items-center px-4">
+              <div className="bg-white/10 p-2 rounded-full mb-1">
+                <Swords className="h-5 w-5 text-yellow-400" />
+              </div>
+              <div className="h-1.5 w-24 bg-white/20 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-yellow-400 transition-all duration-500" 
+                  style={{ width: `${(clashScores.challenger / (clashScores.challenger + clashScores.opponent || 1)) * 100}%` }}
+                />
+              </div>
+            </div>
+            <div className="text-left flex-1">
+              <p className="text-[10px] uppercase tracking-tighter font-bold text-indigo-300">Opponent</p>
+              <p className="text-2xl font-black italic">{clashScores.opponent}</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end gap-1 relative z-10 ml-6 pl-6 border-l border-white/10 font-black">
+            <div className="flex items-center gap-1 text-yellow-400 text-xs animate-pulse">
+               <Zap className="h-3.5 w-3.5 fill-current" />
+               WAR IN PROGRESS
+            </div>
+            <div className="text-xl text-white/90">
+              {activeClash.endTime ? formatDistanceToNow(new Date(activeClash.endTime)).replace('about ', '') : 'LIVE'}
+            </div>
+          </div>
         </div>
       )}
 
@@ -517,7 +633,7 @@ export default function Live() {
             )}
 
             {/* Live overlays */}
-            {isLive && (
+            {(isLive || phase === 'ending') && (
               <div className="absolute top-3 left-3 flex items-center gap-2">
                 <span className="flex items-center gap-1.5 px-2.5 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
                   <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
@@ -543,7 +659,7 @@ export default function Live() {
             )}
 
             {/* Stream controls */}
-            {isLive && (
+            {(isLive || phase === 'ending') && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
                 <button
                   onClick={toggleMic}
@@ -560,11 +676,20 @@ export default function Live() {
                   {isCameraOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
                 </button>
                 <button
+                  onClick={() => setIsChallengeModalOpen(true)}
+                  disabled={!!activeClash}
+                  title="Challenge another artist"
+                  className={`p-3 rounded-full transition-colors ${activeClash ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg'}`}
+                >
+                  <Swords className="h-5 w-5" />
+                </button>
+                <button
                   onClick={handleEndStream}
                   disabled={phase === 'ending'}
                   className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold transition-colors text-sm disabled:opacity-60"
                 >
-                  {phase === 'ending' ? <Loader2 className="animate-spin h-4 w-4" /> : 'End Stream'}
+                  {phase === 'ending' && <Loader2 className="animate-spin h-3.5 w-3.5" />}
+                  End Stream
                 </button>
               </div>
             )}
@@ -581,7 +706,7 @@ export default function Live() {
                   {streamData?.description || streamSettings.description || 'No description set'}
                 </p>
               </div>
-              {isLive && (
+              {(isLive || phase === 'ending') && (
                 <span className="flex-shrink-0 flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
                   <Wifi className="h-3 w-3" />
                   {liveKitConnected ? 'Connected' : 'Reconnecting...'}
@@ -778,6 +903,13 @@ export default function Live() {
           </div>
         </div>
       )}
+
+      {/* ── Challenge Modal ── */}
+      <ChallengeModal 
+        isOpen={isChallengeModalOpen}
+        onClose={() => setIsChallengeModalOpen(false)}
+        currentStreamId={streamData?._id || ''}
+      />
     </div>
   );
 }

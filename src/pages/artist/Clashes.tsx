@@ -44,9 +44,14 @@ export default function Clashes() {
         } else {
           setError('Failed to load clash history');
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching clashes:', err);
-        setError('An error occurred while fetching your clashes');
+        const status = err.response?.status ? `[Status ${err.response.status}] ` : '';
+        const backendMessage = err.response?.data?.message || '';
+        const axiosMessage = err.message || '';
+        const url = err.config?.url ? ` on ${err.config.url}` : '';
+        
+        setError(`${status}${backendMessage || axiosMessage}${url}` || 'Unknown error occurred');
       } finally {
         setLoading(false);
       }

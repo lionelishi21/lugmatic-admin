@@ -236,6 +236,50 @@ class SocketService {
     this.on('error', callback);
   }
 
+  // ─── Clash Events ────────────────────────────────────────────────────────
+
+  /**
+   * Listen for incoming clash invitations.
+   */
+  onClashInvitation(callback: (data: any) => void): void {
+    this.on('clash:invitation', callback);
+  }
+
+  /**
+   * Listen for clash start event.
+   */
+  onClashStarted(callback: (data: any) => void): void {
+    this.on('clash:started', callback);
+  }
+
+  /**
+   * Listen for clash rejection.
+   */
+  onClashRejected(callback: (data: any) => void): void {
+    this.on('clash:rejected', callback);
+  }
+
+  /**
+   * Listen for live score updates.
+   */
+  onClashScoreUpdate(callback: (data: any) => void): void {
+    this.on('clash:score-update', callback);
+  }
+
+  /**
+   * Listen for clash ended event.
+   */
+  onClashEnded(callback: (data: any) => void): void {
+    this.on('clash:ended', callback);
+  }
+
+  /**
+   * Listen for clash special actions (mute, etc.)
+   */
+  onClashAction(callback: (data: any) => void): void {
+    this.on('clash:action', callback);
+  }
+
   // ─── Generic Helpers ────────────────────────────────────────────────────
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -272,6 +316,12 @@ class SocketService {
       'stream:settings-updated',
       'stream:reaction',
       'stream:user-typing',
+      'clash:invitation',
+      'clash:started',
+      'clash:rejected',
+      'clash:score-update',
+      'clash:ended',
+      'clash:action',
       'error',
     ];
 
