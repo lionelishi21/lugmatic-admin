@@ -299,13 +299,14 @@ const SongDetail: React.FC = () => {
         <div className="lg:col-span-1 space-y-4">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 relative">
-              {coverUrl ? (
-                <img src={coverUrl} alt={song.name} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Music2 className="w-24 h-24 text-gray-300" />
-                </div>
-              )}
+              <img
+                src={coverUrl || '/assets/images/lugmaticIcon.png'}
+                alt={song.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/images/lugmaticIcon.png';
+                }}
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
                 <p className="text-white font-semibold text-lg leading-tight truncate">{song.name}</p>

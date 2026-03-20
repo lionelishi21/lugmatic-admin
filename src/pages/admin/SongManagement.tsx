@@ -7,7 +7,8 @@ import albumService, { Album } from '../../services/albumService';
 import artistService, { Artist } from '../../services/artistService';
 import genreService, { Genre } from '../../services/genreService';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import { Plus, Music2, Search, Trash2, Eye } from 'lucide-react';
+import { Plus, Music2, Search, Trash2, Eye, CheckCircle } from 'lucide-react';
+import { adminService } from '../../services/adminService';
 
 const SongManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -67,6 +68,19 @@ const SongManagement: React.FC = () => {
       toast.error(errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleApprove = async (songId: string) => {
+    try {
+      toast.loading('Approving song...', { id: 'approve-song' });
+      await adminService.moderateContent('songs', songId, 'approve');
+      toast.success('Song approved successfully', { id: 'approve-song' });
+      // Update local state instead of re-fetching everything
+      setSongs(prev => prev.map(s => s._id === songId ? { ...s, isApproved: true } : s));
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to approve song';
+      toast.error(errorMessage, { id: 'approve-song' });
     }
   };
 
@@ -172,20 +186,27 @@ const SongManagement: React.FC = () => {
                 {filteredSongs.map((song) => (
                   <tr key={song._id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {song.coverArtUrl || song.coverArt ? (
+                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-100 shadow-sm relative group">
                         <img
-                          src={song.coverArtUrl || song.coverArt}
+                          src={song.coverArtUrl || song.coverArt || '/assets/images/lugmaticIcon.png'}
                           alt={song.name}
-                          className="w-12 h-12 rounded-lg object-cover shadow-sm"
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/assets/images/lugmaticIcon.png';
+                          }}
                         />
-                      ) : (
-                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                          <Music2 className="w-6 h-6 text-gray-300" />
-                        </div>
-                      )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-semibold text-gray-900">{song.name}</div>
+                      <div className="flex flex-col">
+                        <div className="text-sm font-semibold text-gray-900">{song.name}</div>
+                        {!song.isApproved && (
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                            <span className="text-[10px] font-medium text-amber-600 uppercase tracking-wider">Pending Approval</span>
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-600">
@@ -214,7 +235,17 @@ const SongManagement: React.FC = () => {
                       {formatDuration(song.duration)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-3">
+                      <div className="flex items-center space-x-2">
+                        {!song.isApproved && (
+                          <button
+                            type="button"
+                            onClick={() => handleApprove(song._id)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Approve Song"
+                          >
+                            <CheckCircle className="w-5 h-5" />
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() => navigate(`/admin/song-management/${song._id}`)}
