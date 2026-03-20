@@ -11,6 +11,8 @@ interface Contributor {
   name: string;
   role: string;
   share: number;
+  userId?: string;
+  email?: string;
 }
 
 interface UploadForm {
@@ -52,6 +54,10 @@ export default function Upload() {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [activeSearchIndex, setActiveSearchIndex] = useState<number | null>(null);
 
   const isAdmin = user?.role === 'admin';
 
@@ -144,6 +150,44 @@ export default function Upload() {
     setContributors([...contributors, { name: '', role: 'Songwriter', share: 0 }]);
   };
 
+  const handleContributorSearch = async (index: number, query: string) => {
+    const newContributors = [...contributors];
+    newContributors[index].name = query;
+    setContributors(newContributors);
+
+    if (query.length < 2) {
+      setSearchResults([]);
+      setActiveSearchIndex(null);
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      setActiveSearchIndex(index);
+      const { userService } = await import('../../services/userService');
+      const response = await (userService as any).searchUsers(query);
+      setSearchResults(response.data);
+    } catch (error) {
+      console.error('Search failed:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const selectContributor = (index: number, selectedUser: any) => {
+    const newContributors = [...contributors];
+    newContributors[index] = {
+      name: `${selectedUser.firstName} ${selectedUser.lastName}`,
+      role: newContributors[index].role || 'Songwriter',
+      share: newContributors[index].share,
+      userId: selectedUser._id,
+      email: selectedUser.email
+    };
+    setContributors(newContributors);
+    setSearchResults([]);
+    setActiveSearchIndex(null);
+  };
+
   const removeContributor = (index: number) => {
     setContributors(contributors.filter((_, i) => i !== index));
   };
@@ -234,6 +278,7 @@ export default function Upload() {
         videoUrl: form.videoUrl || undefined,
         splitSheet: contributors.map(c => ({
           contributor: c.name,
+          userId: c.userId,
           role: c.role,
           share: Number(c.share)
         })),
@@ -621,53 +666,90 @@ export default function Upload() {
               
               <div className="space-y-3 mb-4">
                 {contributors.map((contributor, index) => (
-                  <div key={index} className="flex gap-2 items-end">
-                    <div className="flex-1">
-                      <label className="text-[10px] text-gray-400 font-medium mb-1 block">Contributor Name</label>
-                      <input
-                        type="text"
-                        value={contributor.name}
-                        onChange={(e) => updateContributor(index, 'name', e.target.value)}
-                        placeholder="Name"
-                        className={inputClass}
-                        required
-                      />
+                  <div key={index} className="space-y-2">
+                    <div className="flex gap-2 items-end">
+                      <div className="flex-1 relative">
+                        <label className="text-[10px] text-gray-400 font-medium mb-1 block">Contributor Name</label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={contributor.name}
+                            onChange={(e) => handleContributorSearch(index, e.target.value)}
+                            placeholder="Search by name or email..."
+                            className={`${inputClass} ${contributor.userId ? 'border-green-200 bg-green-50/30' : ''}`}
+                            required
+                          />
+                          {contributor.userId && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                               <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Search Results Dropdown */}
+                        {activeSearchIndex === index && searchResults.length > 0 && (
+                          <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden py-1 max-h-48 overflow-y-auto">
+                            {searchResults.map((result) => (
+                              <button
+                                key={result._id}
+                                type="button"
+                                onClick={() => selectContributor(index, result)}
+                                className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                              >
+                                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-xs font-bold uppercase">
+                                  {result.firstName[0]}{result.lastName[0]}
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-medium text-gray-800">{result.firstName} {result.lastName}</span>
+                                  <span className="text-[10px] text-gray-500">{result.email}</span>
+                                </div>
+                                <span className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 capitalize">{result.role}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {isSearching && activeSearchIndex === index && (
+                          <div className="absolute right-10 top-1/2 -translate-y-1/2">
+                            <Loader2 className="h-3.5 w-3.5 text-green-500 animate-spin" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="w-32">
+                        <label className="text-[10px] text-gray-400 font-medium mb-1 block">Role</label>
+                        <select
+                          value={contributor.role}
+                          onChange={(e) => updateContributor(index, 'role', e.target.value)}
+                          className={inputClass}
+                        >
+                          <option value="Artist">Artist</option>
+                          <option value="Songwriter">Songwriter</option>
+                          <option value="Producer">Producer</option>
+                          <option value="Vocalist">Vocalist</option>
+                          <option value="Composer">Composer</option>
+                        </select>
+                      </div>
+                      <div className="w-20">
+                        <label className="text-[10px] text-gray-400 font-medium mb-1 block">Share %</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={contributor.share}
+                          onChange={(e) => updateContributor(index, 'share', e.target.value)}
+                          className={inputClass}
+                          required
+                        />
+                      </div>
+                      {contributors.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeContributor(index)}
+                          className="p-3 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-xl mb-[2px]"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
-                    <div className="w-32">
-                      <label className="text-[10px] text-gray-400 font-medium mb-1 block">Role</label>
-                      <select
-                        value={contributor.role}
-                        onChange={(e) => updateContributor(index, 'role', e.target.value)}
-                        className={inputClass}
-                      >
-                        <option value="Artist">Artist</option>
-                        <option value="Songwriter">Songwriter</option>
-                        <option value="Producer">Producer</option>
-                        <option value="Vocalist">Vocalist</option>
-                        <option value="Composer">Composer</option>
-                      </select>
-                    </div>
-                    <div className="w-20">
-                      <label className="text-[10px] text-gray-400 font-medium mb-1 block">Share %</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={contributor.share}
-                        onChange={(e) => updateContributor(index, 'share', e.target.value)}
-                        className={inputClass}
-                        required
-                      />
-                    </div>
-                    {contributors.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeContributor(index)}
-                        className="p-3 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-xl mb-[2px]"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    )}
                   </div>
                 ))}
               </div>

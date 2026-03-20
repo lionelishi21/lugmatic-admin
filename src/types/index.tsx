@@ -45,7 +45,20 @@ export interface UserPreferences {
   theme: 'light' | 'dark';
 }
 
-export type UserRole = 'user' | 'admin' | 'artist' | 'super admin';
+export type UserRole = 'user' | 'admin' | 'artist' | 'super admin' | 'contributor';
+
+export interface PayoutInfo {
+  method: 'paypal' | 'bank_transfer' | 'stripe';
+  paypalEmail?: string;
+  bankAccount?: {
+    accountNumber: string;
+    routingNumber: string;
+    accountHolder: string;
+    bankName: string;
+  };
+  stripeAccountId?: string;
+  minimumPayout: number;
+}
 
 export interface User {
   _id: string;
@@ -60,6 +73,7 @@ export interface User {
   role: UserRole;
   profilePicture?: string;
   preferences: UserPreferences;
+  payoutInfo?: PayoutInfo;
   isArtist: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -567,6 +581,7 @@ export interface ProfileUpdateForm {
   address?: Address;
   profilePicture?: string;
   preferences?: UserPreferences;
+  payoutInfo?: PayoutInfo;
 }
 
 // Filter and sort types

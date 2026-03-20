@@ -11,7 +11,10 @@ import {
   Loader2,
   ChevronRight,
   Settings as SettingsIcon,
-  Smartphone
+  Smartphone,
+  Wallet,
+  CreditCard,
+  Check
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -34,6 +37,18 @@ export default function Settings() {
     pushLive: true,
     pushMessages: true
   });
+  
+  const [payoutData, setPayoutData] = useState({
+    method: 'bank_transfer',
+    paypalEmail: '',
+    bankAccount: {
+      accountNumber: '',
+      routingNumber: '',
+      accountHolder: '',
+      bankName: ''
+    }
+  });
+  const [isUpdatingPayout, setIsUpdatingPayout] = useState(false);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +66,19 @@ export default function Settings() {
       toast.error(error?.response?.data?.message || 'Failed to change password');
     } finally {
       setIsChangingPassword(false);
+    }
+  };
+
+  const handlePayoutSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsUpdatingPayout(true);
+    try {
+      await (userService as any).updatePayoutInfo(payoutData);
+      toast.success('Payout information updated successfully');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Failed to update payout info');
+    } finally {
+      setIsUpdatingPayout(false);
     }
   };
 
@@ -185,6 +213,117 @@ export default function Settings() {
                 >
                   {isChangingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
                   Update Password
+                </button>
+              </div>
+            </form>
+          </motion.div>
+
+          {/* Payout Settings */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm"
+          >
+            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-gray-400" />
+              Payout Settings
+            </h2>
+            
+            <form onSubmit={handlePayoutSubmit} className="space-y-6">
+              <div>
+                <label className={labelClass}>Payment Method</label>
+                <div className="flex gap-4">
+                  {(['bank_transfer', 'paypal'] as const).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setPayoutData({...payoutData, method: m})}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all text-xs font-bold ${
+                        payoutData.method === m
+                          ? 'bg-gray-900 border-gray-900 text-white shadow-md'
+                          : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      {m === 'paypal' ? <Mail className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
+                      {m === 'paypal' ? 'PayPal' : 'Bank Transfer'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {payoutData.method === 'paypal' ? (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <label className={labelClass}>PayPal Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
+                    <input
+                      type="email"
+                      className={inputClass}
+                      placeholder="paypal@example.com"
+                      value={payoutData.paypalEmail}
+                      onChange={(e) => setPayoutData({...payoutData, paypalEmail: e.target.value})}
+                      required
+                    />
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelClass}>Bank Name</label>
+                      <input
+                        type="text"
+                        className={inputClass.replace('pl-10', 'px-4')}
+                        value={payoutData.bankAccount.bankName}
+                        onChange={(e) => setPayoutData({...payoutData, bankAccount: {...payoutData.bankAccount, bankName: e.target.value}})}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Account Holder</label>
+                      <input
+                        type="text"
+                        className={inputClass.replace('pl-10', 'px-4')}
+                        value={payoutData.bankAccount.accountHolder}
+                        onChange={(e) => setPayoutData({...payoutData, bankAccount: {...payoutData.bankAccount, accountHolder: e.target.value}})}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelClass}>Account Number</label>
+                      <input
+                        type="text"
+                        className={inputClass.replace('pl-10', 'px-4')}
+                        value={payoutData.bankAccount.accountNumber}
+                        onChange={(e) => setPayoutData({...payoutData, bankAccount: {...payoutData.bankAccount, accountNumber: e.target.value}})}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Routing Number</label>
+                      <input
+                        type="text"
+                        className={inputClass.replace('pl-10', 'px-4')}
+                        value={payoutData.bankAccount.routingNumber}
+                        onChange={(e) => setPayoutData({...payoutData, bankAccount: {...payoutData.bankAccount, routingNumber: e.target.value}})}
+                        required
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isUpdatingPayout}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all disabled:opacity-50 shadow-lg shadow-green-100"
+                >
+                  {isUpdatingPayout ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                  Save Payout Info
                 </button>
               </div>
             </form>
