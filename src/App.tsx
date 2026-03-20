@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/auth/Login'
+import ContributorLogin from './pages/auth/ContributorLogin';
+import AcceptInvitation from './pages/auth/AcceptInvitation';
 import ArtistDashboard from './pages/artist/ArtistDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Approvals from './pages/admin/Approvals';
@@ -51,6 +53,7 @@ import ClashManagement from './pages/admin/ClashManagement';
 import Landing from './pages/Landing';
 import Clashes from './pages/artist/Clashes';
 import ContributorDashboard from './pages/contributor/ContributorDashboard';
+import PayoutSettings from './pages/contributor/PayoutSettings';
 
 function App() {
   return (
@@ -61,6 +64,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/contributor/login" element={<ContributorLogin />} />
+            <Route path="/accept-invitation" element={<AcceptInvitation />} />
 
             <Route path="/artist/*" element={
               <ProtectedRoute requiredRole="artist">
@@ -132,6 +137,7 @@ function App() {
                 <Layout>
                   <Routes>
                     <Route index element={<ContributorDashboard />} />
+                    <Route path="payouts" element={<PayoutSettings />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="support" element={<Support />} />
                     <Route path="notifications" element={<Notifications />} />

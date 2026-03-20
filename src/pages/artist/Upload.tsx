@@ -188,6 +188,27 @@ export default function Upload() {
     setActiveSearchIndex(null);
   };
 
+  const inviteContributor = async (index: number) => {
+    const email = contributors[index].name;
+    if (!email || !email.includes('@')) {
+      toast.error('Please enter a valid email to invite.');
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      const { userService } = await import('../../services/userService');
+      await (userService as any).sendContributorInvitation(email);
+      toast.success(`Invitation sent to ${email}`);
+      setSearchResults([]);
+      setActiveSearchIndex(null);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to send invitation.');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   const removeContributor = (index: number) => {
     setContributors(contributors.filter((_, i) => i !== index));
   };
@@ -706,6 +727,18 @@ export default function Upload() {
                                 <span className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 capitalize">{result.role}</span>
                               </button>
                             ))}
+                          </div>
+                        )}
+                        {activeSearchIndex === index && !isSearching && contributor.name.length >= 2 && searchResults.length === 0 && (
+                          <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden p-4 text-center">
+                             <p className="text-xs text-gray-500 mb-3">No user found with this name or email.</p>
+                             <button
+                               type="button"
+                               onClick={() => inviteContributor(index)}
+                               className="w-full bg-green-500 text-white py-2 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-green-600 transition-all"
+                             >
+                               Invite "{contributor.name}" via Email
+                             </button>
                           </div>
                         )}
                         {isSearching && activeSearchIndex === index && (

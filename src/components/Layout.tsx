@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Music2, Users, Upload, Radio, Gift, DollarSign, LogOut, Shield,
-  Settings, BarChart2, Film, Disc, Music, Tag, Menu, X, ChevronRight, LayoutGrid,
+  Settings, BarChart2, Film, Disc, Music, Tag, Menu, X, ChevronRight, LayoutGrid, CreditCard,
   MessageCircle, Bell, Search, User, Podcast, MessageSquare, TrendingUp, Video as VideoIcon,
   Users as UsersIcon, FileText, AlertTriangle, Zap, Award, Cog, HelpCircle, ListMusic, Swords
 } from 'lucide-react';
@@ -11,7 +11,7 @@ import { useAuth } from '../hooks/useAuth';
 import lugmaticIcon from '../assets/lugmaticIcon.png';
 interface LayoutProps {
   children: React.ReactNode;
-  userRole?: 'admin' | 'artist';
+  userRole?: 'admin' | 'artist' | 'contributor';
 }
 
 type NavItemType = {
@@ -37,7 +37,13 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     if (userRoleProp) {
       setUserRole(userRoleProp);
     } else {
-      setUserRole(location.pathname.startsWith('/admin') ? 'admin' : 'artist');
+      if (location.pathname.startsWith('/admin')) {
+        setUserRole('admin');
+      } else if (location.pathname.startsWith('/contributor')) {
+        setUserRole('contributor');
+      } else {
+        setUserRole('artist');
+      }
     }
 
     // Close sidebar on mobile when navigating
@@ -259,7 +265,36 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     }
   ];
 
-  const navItems = userRole === 'admin' ? adminNavItems : artistNavItems;
+  const contributorNavItems: NavItemType[] = [
+    {
+      path: '/contributor',
+      label: 'Dashboard',
+      icon: <BarChart2 className="h-5 w-5" />
+    },
+    {
+      path: '/contributor/payouts',
+      label: 'Payout Settings',
+      icon: <CreditCard className="h-5 w-5" />
+    },
+    {
+      path: '/contributor/notifications',
+      label: 'Notifications',
+      icon: <Bell className="h-5 w-5" />,
+      badge: '0'
+    },
+    {
+      path: '/contributor/settings',
+      label: 'Settings',
+      icon: <Settings className="h-5 w-5" />
+    },
+    {
+      path: '/contributor/support',
+      label: 'Support',
+      icon: <HelpCircle className="h-5 w-5" />
+    }
+  ];
+
+  const navItems = userRole === 'admin' ? adminNavItems : (userRole === 'contributor' ? contributorNavItems : artistNavItems);
 
   // Animation variants
   const sidebarVariants = {
@@ -342,7 +377,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
             {isSidebarOpen && (
               <div className="px-5 mb-4">
                 <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">
-                  {userRole === 'admin' ? 'Admin Panel' : 'Artist Dashboard'}
+                  {userRole === 'admin' ? 'Admin Panel' : (userRole === 'contributor' ? 'Contributor Hub' : 'Artist Dashboard')}
                 </p>
               </div>
             )}

@@ -13,7 +13,7 @@ export const userService = {
     return apiService.post<ApiResponse<{ user: User; accessToken: string; refreshToken: string }>>('/auth/login', data);
   },
 
-  register: async (data: RegisterForm) => {
+  register: async (data: RegisterForm & { invitationToken?: string }) => {
     return apiService.post<ApiResponse<{ user: User; accessToken: string; refreshToken: string }>>('/auth/register', data);
   },
 
@@ -185,21 +185,29 @@ export const userService = {
     return apiService.delete<ApiResponse<void>>('/users/delete-account');
   },
 
-  // Payout information
+  // Contributor Dashboard & Payouts
+  getContributorDashboard: async () => {
+    return apiService.get<ApiResponse<any>>('/users/contributor/dashboard');
+  },
+
   updatePayoutInfo: async (payoutInfo: any) => {
-    return apiService.put<ApiResponse<User>>('/users/profile/payout-info', { payoutInfo });
-  },
-
-  // Contributor Dashboard
-  getContributorStats: async () => {
-    return apiService.get<ApiResponse<any>>('/users/contributor/stats');
-  },
-
-  getContributorSongs: async () => {
-    return apiService.get<ApiResponse<any[]>>('/users/contributor/songs');
+    return apiService.put<ApiResponse<any>>('/users/contributor/payout-info', payoutInfo);
   },
 
   acceptContributorTerms: async (version: string = '1.0') => {
-    return apiService.post<ApiResponse<void>>('/users/contributor/accept-terms', { version });
+    return apiService.post<ApiResponse<any>>('/users/contributor/accept-terms', { version });
+  },
+
+  // Invitations
+  verifyInvitation: async (token: string) => {
+    return apiService.get<ApiResponse<{ email: string; role: string }>>(`/users/invitations/verify?token=${token}`);
+  },
+
+  registerContributor: async (userData: any) => {
+    return apiService.post<ApiResponse<{ user: User; accessToken: string; refreshToken: string }>>('/auth/register', userData);
+  },
+
+  sendContributorInvitation: async (email: string) => {
+    return apiService.post<ApiResponse<void>>('/users/invitations/send', { email });
   }
 };

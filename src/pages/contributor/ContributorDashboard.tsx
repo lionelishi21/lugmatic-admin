@@ -1,47 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { userService } from '../../services/userService';
 import { 
   BarChart3, 
   Music, 
-  Wallet, 
-  TrendingUp, 
-  CheckCircle2, 
-  AlertCircle,
-  FileText,
-  Loader2,
+  DollarSign, 
+  CreditCard, 
+  Clock, 
+  ExternalLink,
   ChevronRight,
+  AlertCircle,
+  CheckCircle2,
   ShieldCheck
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { userService } from '../../services/userService';
-import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
 
-export default function ContributorDashboard() {
-  const { user, refreshUser } = useAuth();
-  const [stats, setStats] = useState<any>(null);
-  const [songs, setSongs] = useState<any[]>([]);
+interface ContributorStats {
+  totalSongs: number;
+  totalEarnings: number;
+  pendingPayout: number;
+  acceptedTerms: boolean;
+}
+
+interface ContributedSong {
+  _id: string;
+  title: string;
+  artists: string[];
+  coverImage: string;
+  duration: number;
+}
+
+const ContributorDashboard: React.FC = () => {
+  const [stats, setStats] = useState<ContributorStats | null>(null);
+  const [songs, setSongs] = useState<ContributedSong[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showTerms, setShowTerms] = useState(false);
-  const [acceptingTerms, setAcceptingTerms] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   useEffect(() => {
-    if (user && !user.termsAccepted) {
-      setShowTerms(true);
-    }
-    fetchData();
-  }, [user]);
+    fetchDashboardData();
+  }, []);
 
-  const fetchData = async () => {
+  const fetchDashboardData = async () => {
     try {
-      setLoading(true);
-      const [statsRes, songsRes] = await Promise.all([
-        userService.getContributorStats(),
-        userService.getContributorSongs()
-      ]);
-      setStats(statsRes.data);
-      setSongs(songsRes.data);
+      const response = await userService.getContributorDashboard();
+      const { success, data } = response.data as any;
+      if (success) {
+        setStats(data.stats);
+        setSongs(data.songs);
+        if (!data.stats.acceptedTerms) {
+          setShowTermsModal(true);
+        }
+      }
     } catch (error) {
-      console.error('Failed to fetch contributor data:', error);
       toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
@@ -50,256 +59,166 @@ export default function ContributorDashboard() {
 
   const handleAcceptTerms = async () => {
     try {
-      setAcceptingTerms(true);
-      await userService.acceptContributorTerms('1.0');
-      if (refreshUser) await refreshUser();
-      setShowTerms(false);
-      toast.success('Terms accepted successfully');
+      const response = await userService.acceptContributorTerms('1.0');
+      if (response.data.success) {
+        toast.success('Terms accepted successfully');
+        setShowTermsModal(false);
+        setStats(prev => prev ? { ...prev, acceptedTerms: true } : null);
+      }
     } catch (error) {
       toast.error('Failed to accept terms');
-    } finally {
-      setAcceptingTerms(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 text-green-500 animate-spin mb-4" />
-        <p className="text-gray-500 text-sm font-medium">Loading your contributor dashboard...</p>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-20">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Contributor Dashboard</h1>
-          <p className="text-gray-500 mt-1">Monitor your contributions, revenue, and rights.</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Contributor Dashboard</h1>
+          <p className="text-gray-400 mt-1">Monitor your contributions and track your earnings.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="px-4 py-2 bg-green-50 border border-green-100 rounded-xl flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-green-600" />
-            <span className="text-xs font-bold text-green-700 uppercase tracking-wider">Verified Contributor</span>
-          </div>
-        </div>
+        <button 
+          onClick={() => window.location.href = '/contributor/payouts'}
+          className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl border border-white/10 transition-all active:scale-95"
+        >
+          <CreditCard className="w-4 h-4" />
+          Payout Settings
+        </button>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Total Contributions" 
-          value={stats?.totalTracks || 0} 
-          icon={<Music className="h-5 w-5 text-blue-500" />}
-          description="Songs with your credits"
-        />
-        <StatCard 
-          title="Estimated Streams" 
-          value={stats?.totalStreams?.toLocaleString() || 0} 
-          icon={<TrendingUp className="h-5 w-5 text-purple-500" />}
-          description="Pro-rated by your share"
-        />
-        <StatCard 
-          title="Active Revenue" 
-          value={`$${stats?.totalEarnings?.toFixed(2) || '0.00'}`} 
-          icon={<Wallet className="h-5 w-5 text-green-500" />}
-          description="Accumulated earnings"
-        />
-        <StatCard 
-          title="Revenue Share" 
-          value={`${songs.length > 0 ? (songs.reduce((acc, s) => {
-            const myShare = s.splitSheet?.find((e: any) => e.user === user?._id || e.email === user?.email);
-            return acc + (myShare?.share || 0);
-          }, 0) / songs.length).toFixed(1) : 0}%`}
-          icon={<BarChart3 className="h-5 w-5 text-orange-500" />}
-          description="Average share per song"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm group hover:border-purple-500/50 transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-purple-500/10 rounded-xl text-purple-400 group-hover:scale-110 transition-transform">
+              <DollarSign className="w-6 h-6" />
+            </div>
+            <span className="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">+12%</span>
+          </div>
+          <p className="text-gray-400 text-sm font-medium">Total Balance</p>
+          <h3 className="text-3xl font-bold text-white mt-1">L$ {stats?.totalEarnings.toLocaleString()}</h3>
+        </div>
+
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm group hover:border-blue-500/50 transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400 group-hover:scale-110 transition-transform">
+              <Music className="w-6 h-6" />
+            </div>
+          </div>
+          <p className="text-gray-400 text-sm font-medium">Tracks Contributed</p>
+          <h3 className="text-3xl font-bold text-white mt-1">{stats?.totalSongs}</h3>
+        </div>
+
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm group hover:border-orange-500/50 transition-all text-gray-400 italic">
+           <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-orange-500/10 rounded-xl text-orange-400 group-hover:scale-110 transition-transform">
+              <BarChart3 className="w-6 h-6" />
+            </div>
+          </div>
+          <p className="text-gray-400 text-sm font-medium">Monthly Insight</p>
+          <h3 className="text-3xl font-bold text-white mt-1">Coming Soon</h3>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Songs List */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <Music className="h-5 w-5 text-gray-400" />
-              Your Contributions
-            </h3>
-            <span className="text-xs font-medium text-gray-500">{songs.length} Tracks Found</span>
-          </div>
-          
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            {songs.length > 0 ? (
-              <div className="divide-y divide-gray-50">
-                {songs.map((song) => {
-                  const myShare = song.splitSheet?.find((e: any) => e.user === user?._id || e.email === user?.email);
-                  return (
-                    <div key={song._id} className="p-4 hover:bg-gray-50 transition-colors flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                        {song.coverArt ? (
-                          <img src={song.coverArt} alt={song.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Music className="h-6 w-6 text-gray-300" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-bold text-gray-900 truncate">{song.name}</h4>
-                        <p className="text-xs text-gray-500 mt-0.5">by {song.artist?.name || 'Unknown Artist'}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center gap-1.5 justify-end">
-                           <span className="text-xs font-bold text-gray-900">{myShare?.share || 0}%</span>
-                           <span className="text-[10px] font-medium text-gray-400 uppercase tracking-tighter">Share</span>
+      {/* Songs Table */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
+        <div className="p-6 border-b border-white/10 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-white">Your Contributions</h2>
+          <span className="text-sm text-gray-400 bg-white/5 px-3 py-1 rounded-full">{songs.length} Tracks</span>
+        </div>
+        
+        {songs.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-gray-400 text-sm border-b border-white/5">
+                  <th className="px-6 py-4 font-medium">Track</th>
+                  <th className="px-6 py-4 font-medium">Duration</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {songs.map((song) => (
+                  <tr key={song._id} className="hover:bg-white/[0.02] transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <img src={song.coverImage || 'https://via.placeholder.com/40'} className="w-10 h-10 rounded-lg object-cover" alt="" />
+                        <div>
+                          <p className="text-white font-medium group-hover:text-purple-400 transition-colors">{song.title}</p>
+                          <p className="text-xs text-gray-500">{Array.isArray(song.artists) ? song.artists.join(', ') : 'Various Artists'}</p>
                         </div>
-                        <p className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full mt-1 inline-block capitalize">
-                          {myShare?.role || 'Contributor'}
-                        </p>
                       </div>
-                      <ChevronRight className="h-4 w-4 text-gray-300 ml-2" />
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="p-12 text-center">
-                <Music className="h-10 w-10 text-gray-200 mx-auto mb-3" />
-                <p className="text-sm text-gray-500">You haven't been added to any split sheets yet.</p>
-              </div>
-            )}
+                    </td>
+                    <td className="px-6 py-4 text-gray-400 text-sm">
+                      {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, '0')}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="flex items-center gap-1.5 text-emerald-400 text-xs font-medium bg-emerald-400/10 px-2.5 py-1 rounded-full">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Active
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all">
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Banking Info Quick View */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center justify-between">
-              Payout Method
-              <Wallet className="h-4 w-4 text-gray-400" />
-            </h3>
-            {user?.payoutInfo?.method ? (
-              <div className="space-y-3">
-                <div className="p-3 bg-gray-50 rounded-xl flex items-center gap-3">
-                  <div className="p-2 bg-white rounded-lg shadow-sm">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-gray-900 capitalize">{user.payoutInfo.method.replace('_', ' ')}</p>
-                    <p className="text-[10px] text-gray-500">Active and ready for payouts</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => window.location.href = '/contributor/settings'}
-                  className="w-full py-2 text-xs font-bold text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors border border-dashed border-gray-200"
-                >
-                  Manage Payout Details
-                </button>
-              </div>
-            ) : (
-              <div className="text-center p-4">
-                <AlertCircle className="h-8 w-8 text-amber-500 mx-auto mb-2" />
-                <p className="text-xs text-gray-500 mb-4">You haven't added any banking details yet.</p>
-                <button 
-                   onClick={() => window.location.href = '/contributor/settings'}
-                   className="w-full py-2 bg-gray-900 text-white rounded-xl text-xs font-bold hover:bg-black transition-colors"
-                >
-                  Add Bank Details
-                </button>
-              </div>
-            )}
+        ) : (
+          <div className="p-12 text-center">
+            <div className="p-4 bg-white/5 rounded-full w-fit mx-auto mb-4">
+              <Music className="w-8 h-8 text-gray-500" />
+            </div>
+            <p className="text-gray-400">No tracks found. When artists credit you in splits, they will appear here.</p>
           </div>
-
-          <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100">
-             <h3 className="text-sm font-bold text-amber-900 mb-2 flex items-center gap-2">
-               <AlertCircle className="h-4 w-4" />
-               Rights Management
-             </h3>
-             <p className="text-xs text-amber-700 leading-relaxed mb-4">
-               As a contributor, you are entitled to revenue distribution based on approved split sheets. Ensure your banking information is up to date to avoid payment delays.
-             </p>
-             <button className="text-xs font-bold text-amber-900 hover:underline flex items-center gap-1">
-               View Rights Policy
-               <ChevronRight className="h-3 w-3" />
-             </button>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Terms Modal */}
-      <AnimatePresence>
-        {showTerms && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
-            >
-              <div className="p-8">
-                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
-                  <FileText className="h-8 w-8 text-green-600" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Terms and Conditions</h2>
-                <p className="text-gray-500 text-sm mb-6">Please review and accept our Contributor Terms and Conditions to access your dashboard and receive payouts.</p>
-                
-                <div className="max-h-60 overflow-y-auto bg-gray-50 rounded-2xl p-6 border border-gray-100 mb-8 text-xs text-gray-600 space-y-4 leading-relaxed scrollbar-hide">
-                  <p className="font-bold text-gray-900">1. Revenue Distribution</p>
-                  <p>Lugmatic acts as the intermediary for distributing revenue generated from song streams. You will receive payments pro-rated based on the share percentage agreed upon in the split sheet uploaded by the primary artist.</p>
-                  
-                  <p className="font-bold text-gray-900">2. Payout Eligibility</p>
-                  <p>To be eligible for payouts, you must provide valid banking or PayPal information. Payments are processed only after reaching the minimum payout threshold configured in your settings.</p>
-                  
-                  <p className="font-bold text-gray-900">3. Rights Ownership</p>
-                  <p>By accepting these terms, you confirm that you have the right to receive revenue for the contributions credited to you and that such credits do not infringe upon any third-party rights.</p>
-                  
-                  <p className="font-bold text-gray-900">4. Tax Responsibilities</p>
-                  <p>You are solely responsible for reporting and paying any taxes applicable to the revenue you receive through the platform.</p>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleAcceptTerms}
-                    disabled={acceptingTerms}
-                    className="flex-1 py-3.5 bg-green-600 text-white rounded-2xl font-bold hover:bg-green-700 transition-all shadow-lg shadow-green-100 disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {acceptingTerms ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                    Accept and Continue
-                  </button>
-                </div>
+      {showTermsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-[#121212] border border-white/10 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-gradient-to-br from-purple-600/20 to-blue-600/20 p-8 border-b border-white/10 text-center">
+              <div className="p-4 bg-purple-500/20 rounded-full w-fit mx-auto mb-4 text-purple-400 ring-8 ring-purple-500/5">
+                <ShieldCheck className="w-10 h-10" />
               </div>
-            </motion.div>
+              <h2 className="text-2xl font-bold text-white mb-2">Review Contributor Terms</h2>
+              <p className="text-gray-400 text-sm">To start receiving payouts, please accept our contributor terms.</p>
+            </div>
+            
+            <div className="p-8 space-y-4 max-h-[40vh] overflow-y-auto custom-scrollbar text-sm text-gray-300 leading-relaxed">
+              <p>1. <strong>Split Payments</strong>: You agree to receive payments based on the percentages defined by the track uploader.</p>
+              <p>2. <strong>Verification</strong>: Standard identity verification may be required for large payouts.</p>
+              <p>3. <strong>Content Rights</strong>: By accepting these terms, you confirm that your contribution does not infringe on any third-party intellectual property.</p>
+              <p>4. <strong>Fees</strong>: Any applicable processing fees (e.g., Stripe, PayPal, Currency conversion) will be deducted from the gross payout.</p>
+            </div>
+
+            <div className="p-6 bg-white/5 flex flex-col gap-3">
+              <button 
+                onClick={handleAcceptTerms}
+                className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20"
+              >
+                I Agree & Accept Terms
+              </button>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
-}
+};
 
-function StatCard({ title, value, icon, description }: { title: string; value: string | number; icon: React.ReactNode; description: string }) {
-  return (
-    <motion.div 
-      whileHover={{ y: -4 }}
-      className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all"
-    >
-      <div className="flex items-center justify-between mb-4">
-        <div className="p-2.5 bg-gray-50 rounded-xl transition-colors">
-          {icon}
-        </div>
-      </div>
-      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{title}</p>
-      <div className="flex items-baseline gap-2">
-        <h3 className="text-2xl font-black text-gray-900">{value}</h3>
-      </div>
-      <p className="text-[10px] text-gray-400 mt-2 font-medium">{description}</p>
-    </motion.div>
-  );
-}
+export default ContributorDashboard;

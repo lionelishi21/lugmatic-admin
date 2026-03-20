@@ -11,7 +11,7 @@ interface RootState {
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'admin' | 'artist';
+  requiredRole?: 'admin' | 'artist' | 'contributor';
 }
 
 export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
@@ -23,8 +23,11 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
     return <Navigate to="/login" replace />;
   }
 
-  // Block regular users entirely - only admin and artist can access this dashboard
-  if (user && user.role !== 'admin' && user.role !== 'artist') {
+  // Allowed roles
+  const allowedRoles = ['admin', 'artist', 'contributor', 'super admin'];
+
+  // Block regular users entirely
+  if (user && !allowedRoles.includes(user.role || '')) {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     return <Navigate to="/login" replace />;
@@ -32,11 +35,16 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
 
   // If a specific role is required, check the user's role
   if (requiredRole && user && user.role !== requiredRole) {
-    // Redirect non-admins away from admin pages, and vice versa
-    const fallback = user.role === 'admin' ? '/admin' : '/artist';
+    // If user is super admin, they can access admin pages
+    if (requiredRole === 'admin' && user.role === 'super admin') return <>{children}</>;
+
+    // Redirect to their respective dashboard
+    let fallback = '/artist';
+    if (user.role === 'admin' || user.role === 'super admin') fallback = '/admin';
+    else if (user.role === 'contributor') fallback = '/contributor';
+    
     return <Navigate to={fallback} replace />;
   }
 
   return <>{children}</>;
 }
-

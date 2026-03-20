@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Music2, Search, Filter, Play, Pause, CheckCircle, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
+import { adminService } from '@/services/adminService';
 
 interface Track {
   id: string;
@@ -38,14 +39,44 @@ export default function Approvals() {
         audio.src = '';
       });
     };
-  }, []);
+  }, [audioElements]);
 
   const fetchPendingTracks = async () => {
-    setTracks([] as Track[]);
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+      const response = await adminService.getContentForModeration('songs');
+      
+      // Map backend Song to UI Track interface
+      const mappedTracks: Track[] = (response.data.data as any[]).map((song: any) => ({
+        id: song._id,
+        title: song.name,
+        description: song.lyrics ? song.lyrics.substring(0, 100) + '...' : 'No description provided',
+        genre: song.genre?.name || 'Unknown',
+        cover_url: song.coverArtUrl || '',
+        audio_url: song.audioFileUrl || '',
+        created_at: song.createdAt,
+        artist: {
+          id: song.artist?._id || '',
+          name: song.artist?.name || 'Unknown Artist',
+          profile_image: song.artist?.image || ''
+        }
+      }));
+
+      setTracks(mappedTracks);
+    } catch (error) {
+      console.error('Error fetching tracks:', error);
+      toast.error('Failed to load pending tracks');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePlayPause = (trackId: string, audioUrl: string) => {
+    if (!audioUrl) {
+      toast.error('Audio URL not available');
+      return;
+    }
+
     if (!audioElements[trackId]) {
       audioElements[trackId] = new Audio(audioUrl);
       audioElements[trackId].addEventListener('ended', () => {
@@ -58,18 +89,34 @@ export default function Approvals() {
       setCurrentlyPlaying(null);
     } else {
       // Pause any currently playing audio
-      if (currentlyPlaying) {
+      if (currentlyPlaying && audioElements[currentlyPlaying]) {
         audioElements[currentlyPlaying].pause();
       }
-      audioElements[trackId].play();
+      audioElements[trackId].play().catch(err => {
+        console.error('Playback error:', err);
+        toast.error('Could not play audio');
+      });
       setCurrentlyPlaying(trackId);
     }
   };
 
-  const handleApproval = async (_trackId: string, approved: boolean) => {
-    // Simulate updating track status
-    // Assuming the tracks array is updated elsewhere or in a different context
-    toast.success(`Track ${approved ? 'approved' : 'rejected'} successfully`);
+  const handleApproval = async (trackId: string, approved: boolean) => {
+    try {
+      await adminService.moderateContent('songs', trackId, approved ? 'approve' : 'reject');
+      
+      // Update local state
+      setTracks(prev => prev.filter(t => t.id !== trackId));
+      
+      if (currentlyPlaying === trackId) {
+        audioElements[trackId].pause();
+        setCurrentlyPlaying(null);
+      }
+      
+      toast.success(`Track ${approved ? 'approved' : 'rejected'} successfully`);
+    } catch (error) {
+      console.error('Error moderating track:', error);
+      toast.error(`Failed to ${approved ? 'approve' : 'reject'} track`);
+    }
   };
 
   const filteredTracks = tracks.filter(track => {
