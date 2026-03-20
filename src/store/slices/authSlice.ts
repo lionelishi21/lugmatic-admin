@@ -4,6 +4,7 @@ import { AxiosError } from 'axios';
 
 interface AuthUser {
   id: string | number;
+  _id?: string; // Standard MongoDB ID
   email: string;
   role: string;
   firstName?: string;
@@ -12,6 +13,9 @@ interface AuthUser {
   artistId?: string;
   accessToken?: string;
   refreshToken?: string;
+  termsAccepted?: boolean;
+  termsVersion?: string;
+  payoutInfo?: any;
 }
 
 interface LoginCredentials {
@@ -76,7 +80,7 @@ export const initializeAuth = createAsyncThunk(
         return { isAuthenticated: false, user: null };
       }
       try {
-        const response = await apiService.get('/auth/me');
+        const response = await apiService.get('/users/profile');
         const userData = (response.data as any).data ?? response.data;
         return { isAuthenticated: true, user: userData };
       } catch (error) {
@@ -94,26 +98,34 @@ export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
-      const response = await apiService.login(credentials.email, credentials.password);
+      const response = await apiService.post('/auth/login', credentials);
       const raw = response.data as any;
-      // Backend now returns { success: true, data: { ...user, token, accessToken, refreshToken } }
       const payload = raw?.data ?? raw;
 
-      // Extract tokens from multiple possible shapes
-      // Backend returns token (not accessToken) and may not have refreshToken
-      const accessToken = payload?.accessToken || payload?.access_token || payload?.token || payload?.tokens?.accessToken || payload?.tokens?.access_token;
-      const refreshToken = payload?.refreshToken || payload?.refresh_token || payload?.tokens?.refreshToken || payload?.tokens?.refresh_token || accessToken; // Use accessToken as fallback
+      const accessToken = payload?.accessToken || payload?.token;
+      const refreshToken = payload?.refreshToken || accessToken;
 
       if (accessToken) {
-        // Store accessToken, use it as refreshToken if no refreshToken provided
-        setTokens(String(accessToken), String(refreshToken || accessToken));
+        setTokens(String(accessToken), String(refreshToken));
       } else {
         throw new Error('No token received from server');
       }
 
-      // Derive user object to store in state (some APIs return user under `user`)
       const user: AuthUser = (payload?.user ?? payload) as AuthUser;
       return user;
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  }
+);
+
+export const refreshUser = createAsyncThunk(
+  'auth/refresh',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiService.get('/users/profile');
+      const userData = (response.data as any).data ?? response.data;
+      return userData;
     } catch (error: unknown) {
       return rejectWithValue(getErrorMessage(error));
     }
@@ -169,9 +181,13 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+      // Refresh User
+      .addCase(refreshUser.fulfilled, (state, action) => {
+        state.user = { ...state.user, ...action.payload };
       });
   },
 });
 
 export const { clearError, logout } = authSlice.actions;
-export default authSlice.reducer; 
+export default authSlice.reducer;

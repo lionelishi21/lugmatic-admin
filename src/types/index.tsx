@@ -75,6 +75,8 @@ export interface User {
   preferences: UserPreferences;
   payoutInfo?: PayoutInfo;
   isArtist: boolean;
+  termsAccepted?: boolean;
+  termsVersion?: string;
   createdAt: Date;
   updatedAt: Date;
   fullName: string; // Virtual field
@@ -582,6 +584,8 @@ export interface ProfileUpdateForm {
   profilePicture?: string;
   preferences?: UserPreferences;
   payoutInfo?: PayoutInfo;
+  termsAccepted?: boolean;
+  termsVersion?: string;
 }
 
 // Filter and sort types

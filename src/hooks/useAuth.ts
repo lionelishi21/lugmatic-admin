@@ -5,9 +5,10 @@ import {
   loginUser,
   logout,
   clearError,
+  refreshUser as refreshUserThunk
 } from '../store/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
-import apiService from '../services/api';
+import { userService } from '../services/userService';
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -21,23 +22,21 @@ export const useAuth = () => {
       if (loginUser.fulfilled.match(resultAction)) {
         const userData = resultAction.payload;
         
-        // Only admin and artist roles can access the dashboard
-        if (userData.role !== 'admin' && userData.role !== 'artist') {
+        // Allowed roles for this dashboard
+        const allowedRoles = ['admin', 'artist', 'contributor', 'super admin'];
+        if (!allowedRoles.includes(userData.role)) {
           // Clear stored tokens since this user isn't allowed
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           dispatch(logout());
-          throw new Error('Access denied. Only admin and artist accounts can access this dashboard.');
+          throw new Error('Access denied. You do not have permission to access this portal.');
         }
         
-        // Verify token was stored before navigating
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-          throw new Error('Token not stored after login');
-        }
-        
-        // Navigate based on user role using React Router
-        const targetPath = userData.role === 'admin' ? '/admin' : '/artist';
+        // Navigate based on user role
+        let targetPath = '/artist';
+        if (userData.role === 'admin' || userData.role === 'super admin') targetPath = '/admin';
+        else if (userData.role === 'contributor') targetPath = '/contributor';
+
         navigate(targetPath, { replace: true });
         
         return userData;
@@ -51,24 +50,17 @@ export const useAuth = () => {
     [dispatch, navigate]
   );
 
+  const refreshUser = useCallback(async () => {
+    await dispatch(refreshUserThunk());
+  }, [dispatch]);
+
   const logoutUser = useCallback(async () => {
     try {
-      // Try to call backend logout endpoint (fire-and-forget)
-      // This helps invalidate the token on the server side
-      apiService.logout().catch((error) => {
-        // Silently fail - we still want to logout locally
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('Backend logout failed:', error);
-        }
-      });
+      // Try to call backend logout endpoint
+      userService.logout().catch(() => {});
     } catch (error) {
-      // Ignore errors - ensure local logout happens regardless
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Logout error:', error);
-      }
+      // Ignore errors
     } finally {
-      // Always clear local state and redirect
-      // This ensures logout works even if backend is unreachable
       dispatch(logout());
       navigate('/login');
     }
@@ -82,6 +74,7 @@ export const useAuth = () => {
     ...auth,
     login,
     logout: logoutUser,
+    refreshUser,
     clearAuthError,
   };
 }; 

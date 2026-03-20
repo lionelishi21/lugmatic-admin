@@ -183,5 +183,23 @@ export const userService = {
 
   cancelAccountDeletion: async () => {
     return apiService.delete<ApiResponse<void>>('/users/delete-account');
+  },
+
+  // Payout information
+  updatePayoutInfo: async (payoutInfo: any) => {
+    return apiService.put<ApiResponse<User>>('/users/profile/payout-info', { payoutInfo });
+  },
+
+  // Contributor Dashboard
+  getContributorStats: async () => {
+    return apiService.get<ApiResponse<any>>('/users/contributor/stats');
+  },
+
+  getContributorSongs: async () => {
+    return apiService.get<ApiResponse<any[]>>('/users/contributor/songs');
+  },
+
+  acceptContributorTerms: async (version: string = '1.0') => {
+    return apiService.post<ApiResponse<void>>('/users/contributor/accept-terms', { version });
   }
-}; 
+};

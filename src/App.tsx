@@ -50,6 +50,7 @@ import HomePageManagement from './pages/admin/HomePageManagement';
 import ClashManagement from './pages/admin/ClashManagement';
 import Landing from './pages/Landing';
 import Clashes from './pages/artist/Clashes';
+import ContributorDashboard from './pages/contributor/ContributorDashboard';
 
 function App() {
   return (
@@ -125,6 +126,19 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route path="/contributor/*" element={
+              <ProtectedRoute requiredRole="contributor">
+                <Layout>
+                  <Routes>
+                    <Route index element={<ContributorDashboard />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="support" element={<Support />} />
+                    <Route path="notifications" element={<Notifications />} />
+                  </Routes>
+                </Layout>
+              </ProtectedRoute>
+            } />
 
           </Routes>
         </Router>
