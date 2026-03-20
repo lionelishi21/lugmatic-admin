@@ -16,6 +16,9 @@ export interface Song {
   audioFile: string;
   audioFileUrl?: string;
   isActive?: boolean;
+  isApproved?: boolean;
+  splitSheet?: Array<{ contributor: string; role: string; share: number }>;
+  termsAccepted?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -27,24 +30,18 @@ export interface CreateSongData {
   duration: number;
   genre: string;
   releaseDate: string;
-  lyrics: string;
-  coverArt?: string;
-  audioFile?: string;
-  audioFileKey?: string;
-  coverArtKey?: string;
-}
-
-export interface UpdateSongData {
-  name?: string;
-  artist?: string;
-  album?: string;
-  duration?: number;
-  genre?: string;
-  releaseDate?: string;
   lyrics?: string;
   coverArt?: string;
   audioFile?: string;
   isActive?: boolean;
+  audioFileKey?: string;
+  coverArtKey?: string;
+  splitSheet?: Array<{ contributor: string; role: string; share: number }>;
+  termsAccepted?: boolean;
+}
+
+export interface UpdateSongData extends Partial<CreateSongData> {
+  isApproved?: boolean;
 }
 
 const extractResponseData = <T>(response: AxiosResponse<T | { data: T }>): T => {

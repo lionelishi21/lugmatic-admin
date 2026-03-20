@@ -183,7 +183,7 @@ const artistService = {
    * Get artist statistics
    */
   getArtistStats: async (id: string | number) => {
-    const response = await apiService.get(`/artists/${id}/stats`);
+    const response = await apiService.get(`/artist/${id}/stats`);
     return response.data;
   },
 

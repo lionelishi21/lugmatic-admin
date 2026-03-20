@@ -124,10 +124,21 @@ export default function ArtistDashboard() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <button className="text-purple-600 hover:text-purple-700">
-                        <ExternalLink className="h-5 w-5" />
-                      </button>
+                    <div className="flex items-center space-x-3">
+                      <div className="flex flex-col items-end gap-1">
+                        {track.isApproved ? (
+                          <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                            Approved
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                            Pending
+                          </span>
+                        )}
+                        <button className="text-purple-600 hover:text-purple-700">
+                          <ExternalLink className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))

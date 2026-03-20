@@ -6,6 +6,9 @@ interface AuthUser {
   id: string | number;
   email: string;
   role: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
   artistId?: string;
   accessToken?: string;
   refreshToken?: string;

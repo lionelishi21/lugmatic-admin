@@ -7,6 +7,12 @@ import songService, { CreateSongData } from '../../services/songService';
 import artistService, { Artist } from '../../services/artistService';
 import { useAuth } from '../../hooks/useAuth';
 
+interface Contributor {
+  name: string;
+  role: string;
+  share: number;
+}
+
 interface UploadForm {
   title: string;
   description: string;
@@ -29,6 +35,10 @@ export default function Upload() {
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
+  const [contributors, setContributors] = useState<Contributor[]>([
+    { name: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : (user?.name || user?.email || ''), role: 'Artist', share: 100 }
+  ]);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loadingGenres, setLoadingGenres] = useState(true);
   const [artistsList, setArtistsList] = useState<Artist[]>([]);
@@ -126,6 +136,20 @@ export default function Upload() {
     if (file) processCoverFile(file);
   };
 
+  const addContributor = () => {
+    setContributors([...contributors, { name: '', role: 'Songwriter', share: 0 }]);
+  };
+
+  const removeContributor = (index: number) => {
+    setContributors(contributors.filter((_, i) => i !== index));
+  };
+
+  const updateContributor = (index: number, field: keyof Contributor, value: string | number) => {
+    const newContributors = [...contributors];
+    newContributors[index] = { ...newContributors[index], [field]: value };
+    setContributors(newContributors);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -159,6 +183,17 @@ export default function Upload() {
       return;
     }
 
+    if (!termsAccepted) {
+      toast.error('You must agree to the Split Sheet Terms & Conditions');
+      return;
+    }
+
+    const totalShare = contributors.reduce((sum, c) => sum + Number(c.share), 0);
+    if (totalShare !== 100) {
+      toast.error(`Total shares must equal 100%. Current total: ${totalShare}%`);
+      return;
+    }
+
     setIsUploading(true);
     try {
       // Step 1: Get presigned URLs & Step 2: Upload to S3
@@ -174,15 +209,21 @@ export default function Upload() {
 
       // Step 3: Create song with S3 keys
       toast.loading('Finalizing track details...', { id: 'upload' });
-      const songData: CreateSongData = {
+       const songData: CreateSongData = {
         name: form.title,
         artist: String(artistId),
-        duration: audioDuration || 180,
+        duration: Number(audioDuration) || 0,
         genre: form.genre,
         releaseDate: form.releaseDate,
         lyrics: form.lyrics,
         audioFileKey: audioRes.key,
         coverArtKey: coverRes.key,
+        splitSheet: contributors.map(c => ({
+          contributor: c.name,
+          role: c.role,
+          share: Number(c.share)
+        })),
+        termsAccepted: true
       };
 
       await songService.createSong(songData);
@@ -225,6 +266,20 @@ export default function Upload() {
           <h1 className="text-2xl font-bold text-gray-900">Upload Your Track</h1>
         </div>
         <p className="text-gray-500 text-sm ml-14">Share your music with the world</p>
+        
+        {/* Admin Approval Notice */}
+        <div className="mt-4 ml-14 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+          <div className="p-1 bg-amber-100 rounded-lg">
+            <Sparkles className="h-4 w-4 text-amber-600" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-amber-900">Track Approval Required</p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              All uploaded tracks must be reviewed and approved by an administrator before they become public. 
+              Once uploaded, you will not be able to edit the track details.
+            </p>
+          </div>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -473,6 +528,95 @@ export default function Upload() {
                     placeholder="Paste or type your lyrics here..."
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Split Sheet Section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h2 className="text-sm font-semibold text-gray-800 mb-5 flex items-center gap-2">
+                <Music className="h-4 w-4 text-green-500" />
+                Split Sheet (Revenue Share)
+              </h2>
+              
+              <div className="space-y-3 mb-4">
+                {contributors.map((contributor, index) => (
+                  <div key={index} className="flex gap-2 items-end">
+                    <div className="flex-1">
+                      <label className="text-[10px] text-gray-400 font-medium mb-1 block">Contributor Name</label>
+                      <input
+                        type="text"
+                        value={contributor.name}
+                        onChange={(e) => updateContributor(index, 'name', e.target.value)}
+                        placeholder="Name"
+                        className={inputClass}
+                        required
+                      />
+                    </div>
+                    <div className="w-32">
+                      <label className="text-[10px] text-gray-400 font-medium mb-1 block">Role</label>
+                      <select
+                        value={contributor.role}
+                        onChange={(e) => updateContributor(index, 'role', e.target.value)}
+                        className={inputClass}
+                      >
+                        <option value="Artist">Artist</option>
+                        <option value="Songwriter">Songwriter</option>
+                        <option value="Producer">Producer</option>
+                        <option value="Vocalist">Vocalist</option>
+                        <option value="Composer">Composer</option>
+                      </select>
+                    </div>
+                    <div className="w-20">
+                      <label className="text-[10px] text-gray-400 font-medium mb-1 block">Share %</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={contributor.share}
+                        onChange={(e) => updateContributor(index, 'share', e.target.value)}
+                        className={inputClass}
+                        required
+                      />
+                    </div>
+                    {contributors.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeContributor(index)}
+                        className="p-3 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-xl mb-[2px]"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              <button
+                type="button"
+                onClick={addContributor}
+                className="text-xs font-medium text-green-600 hover:text-green-700 flex items-center gap-1.5 px-2 py-1 hover:bg-green-50 rounded-lg transition-colors"
+                disabled={contributors.reduce((sum, c) => sum + Number(c.share), 0) >= 100}
+              >
+                + Add Contributor
+              </button>
+
+              <div className="mt-6 pt-6 border-t border-gray-100">
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="relative flex items-center pt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-5 h-5 border-2 border-gray-300 rounded-md peer-checked:bg-green-500 peer-checked:border-green-500 transition-all duration-200" />
+                    <CheckCircle2 className="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 left-0.5" />
+                  </div>
+                  <span className="text-xs text-gray-500 leading-relaxed group-hover:text-gray-700 transition-colors">
+                    I have read and agree to the <strong>Split Sheet Agreement</strong> and <strong>Terms of Service</strong>. 
+                    I confirm that all revenue shares listed above are accurate and agreed upon by all parties.
+                  </span>
+                </label>
               </div>
             </div>
 

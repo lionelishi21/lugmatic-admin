@@ -14,6 +14,7 @@ import {
   FileText, Edit2, Trash2, Save, X, Play, Pause,
   CheckCircle, XCircle, Loader2, ExternalLink
 } from 'lucide-react';
+import { adminService } from '../../services/adminService';
 
 const SongDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -117,7 +118,6 @@ const SongDetail: React.FC = () => {
         album: formData.album && formData.album.trim() !== '' ? formData.album : undefined,
       };
 
-      // Handle media updates via S3
       if (coverArtFile || audioFile) {
         toast.loading('Uploading media to S3...', { id: 'edit-upload' });
         
@@ -138,9 +138,7 @@ const SongDetail: React.FC = () => {
         toast.loading('Saving song details...', { id: 'edit-upload' });
       }
 
-      // Use adminUpdateSong (PATCH) for JSON updates with S3 keys/URLs
       const updated = await songService.adminUpdateSong(song._id, cleanedData as any);
-
       setSong(updated);
       populateForm(updated, artists, albums, genres);
       setIsEditing(false);
@@ -162,6 +160,23 @@ const SongDetail: React.FC = () => {
       navigate('/admin/song-management');
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to delete song');
+    }
+  };
+  
+  const handleModerate = async (action: 'approve' | 'reject') => {
+    if (!song) return;
+    try {
+      toast.loading(`${action === 'approve' ? 'Approve' : 'Reject'}ing track...`, { id: 'moderate-action' });
+      const response = await adminService.moderateContent('songs', song._id, action);
+      
+      if (response.data.success) {
+        toast.success(`Track ${action === 'approve' ? 'approved' : 'rejected'} successfully`, { id: 'moderate-action' });
+        setSong({ ...song, isApproved: action === 'approve' });
+      } else {
+        throw new Error(response.data.message || `Failed to ${action} track`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || `Failed to ${action} track`, { id: 'moderate-action' });
     }
   };
 
@@ -197,13 +212,13 @@ const SongDetail: React.FC = () => {
   const genreName = typeof song.genre === 'object' && song.genre !== null
     ? song.genre.name
     : (genres.find(g => g._id === (typeof song.genre === 'string' ? song.genre : ''))?.name || (typeof song.genre === 'string' ? song.genre : 'Unknown Genre'));
+  
   const coverUrl = song.coverArtUrl || song.coverArt || null;
   const audioUrl = song.audioFileUrl || song.audioFile || null;
   const sDate = song.releaseDate ? new Date(song.releaseDate) : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50/20 to-gray-100 p-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button
           type="button"
@@ -227,14 +242,34 @@ const SongDetail: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-sm"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
               >
                 <Edit2 className="w-4 h-4" />
                 Edit Song
               </button>
+              {!song.isApproved && (
+                <div className="flex items-center gap-2 border-l border-gray-200 pl-3">
+                  <button
+                    type="button"
+                    onClick={() => handleModerate('approve')}
+                    className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-50 text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-100 transition-all font-medium"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Approve
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleModerate('reject')}
+                    className="flex items-center gap-2 px-4 py-2 text-sm bg-amber-50 text-amber-600 border border-amber-100 rounded-xl hover:bg-amber-100 transition-all font-medium"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    Reject
+                  </button>
+                </div>
+              )}
             </>
           ) : (
-            <>
+            <div className="flex items-center gap-3">
               <button
                 key="save-button"
                 form="edit-form"
@@ -254,20 +289,14 @@ const SongDetail: React.FC = () => {
                 <X className="w-4 h-4" />
                 Cancel
               </button>
-            </>
+            </div>
           )}
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Cover + Player */}
         <div className="lg:col-span-1 space-y-4">
-          {/* Cover Art */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-          >
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 relative">
               {coverUrl ? (
                 <img src={coverUrl} alt={song.name} className="w-full h-full object-cover" />
@@ -282,17 +311,11 @@ const SongDetail: React.FC = () => {
                 <p className="text-white/80 text-sm truncate">{artistName}</p>
               </div>
             </div>
-
-            {/* Audio Player */}
             {audioUrl && (
               <div className="p-4 border-t border-gray-50">
                 <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} />
                 <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={togglePlay}
-                    className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white shadow-sm hover:shadow-md transition-all flex-shrink-0"
-                  >
+                  <button type="button" onClick={togglePlay} className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white shadow-sm hover:shadow-md transition-all flex-shrink-0">
                     {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
                   </button>
                   <div className="flex-1 min-w-0">
@@ -307,13 +330,7 @@ const SongDetail: React.FC = () => {
             )}
           </motion.div>
 
-          {/* Quick Info */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4"
-          >
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Details</h3>
             {[
               { icon: <User className="w-4 h-4 text-blue-500" />, label: 'Artist', value: artistName },
@@ -324,7 +341,7 @@ const SongDetail: React.FC = () => {
               { icon: song.isActive !== false ? <CheckCircle className="w-4 h-4 text-green-500" /> : <XCircle className="w-4 h-4 text-red-400" />, label: 'Status', value: song.isActive !== false ? 'Active' : 'Inactive' },
             ].map(({ icon, label, value }) => (
               <div key={label} className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">{icon}</div>
+                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">{icon}</div>
                 <div className="min-w-0">
                   <p className="text-xs text-gray-400">{label}</p>
                   <p className="text-sm font-medium text-gray-800 truncate">{value}</p>
@@ -332,16 +349,39 @@ const SongDetail: React.FC = () => {
               </div>
             ))}
           </motion.div>
+
+          {song.splitSheet && song.splitSheet.length > 0 && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h2 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <Music2 className="h-4 w-4 text-green-500" />
+                Split Sheet Agreement
+              </h2>
+              <div className="space-y-3">
+                {song.splitSheet.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{item.contributor}</p>
+                      <p className="text-xs text-gray-500">{item.role}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-green-600">{item.share}%</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {song.termsAccepted && (
+                <div className="mt-4 flex items-center gap-2 text-[11px] text-green-600 bg-green-50 p-2 rounded-lg">
+                  <CheckCircle className="h-3 w-3" />
+                  Split Sheet Terms Accepted
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Right: Edit Form or Info Panels */}
         <div className="lg:col-span-2 space-y-4">
           {isEditing ? (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
-            >
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
                 <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
                   <Edit2 className="w-5 h-5 text-green-600" />
@@ -351,112 +391,52 @@ const SongDetail: React.FC = () => {
                   <p className="text-xs text-gray-500">Update song information and files</p>
                 </div>
               </div>
-
               <form id="edit-form" onSubmit={handleSubmit} className="space-y-5">
-                <FileUpload
-                  label="Cover Art"
-                  currentFile={formData.coverArt || undefined}
-                  onFileSelect={handleCoverArtSelect}
-                  onFileRemove={() => { setCoverArtFile(null); setFormData(p => ({ ...p, coverArt: '' })); }}
-                />
-
-                {/* Title */}
+                <FileUpload label="Cover Art" currentFile={formData.coverArt || undefined} onFileSelect={handleCoverArtSelect} onFileRemove={() => { setCoverArtFile(null); setFormData(p => ({ ...p, coverArt: '' })); }} />
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
-                    <Music2 className="w-3.5 h-3.5 text-gray-400" /> Song Title
-                  </label>
-                  <input type="text" name="name" value={formData.name || ''} onChange={handleInputChange} required placeholder="Enter song title"
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-colors" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><Music2 className="w-3.5 h-3.5 text-gray-400" /> Song Title</label>
+                  <input type="text" name="name" value={formData.name || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors" />
                 </div>
-
-                {/* Artist */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-gray-400" /> Artist
-                  </label>
-                  <select name="artist" value={formData.artist || ''} onChange={handleInputChange} required
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white transition-colors">
-                    <option value="">Select an artist…</option>
-                    {artists.map(a => (
-                      <option key={a._id} value={a._id}>
-                        {a.name || a.fullName || [a.firstName, a.lastName].filter(Boolean).join(' ') || 'Unknown'}
-                      </option>
-                    ))}
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-gray-400" /> Artist</label>
+                  <select name="artist" value={formData.artist || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 bg-white transition-colors">
+                    <option value="">Select an artist...</option>
+                    {artists.map(a => <option key={a._id} value={a._id}>{a.name || a.fullName || 'Unknown'}</option>)}
                   </select>
                 </div>
-
-                {/* Album */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
-                    <Disc className="w-3.5 h-3.5 text-gray-400" /> Album
-                  </label>
-                  <select name="album" value={formData.album || ''} onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white transition-colors">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><Disc className="w-3.5 h-3.5 text-gray-400" /> Album</label>
+                  <select name="album" value={formData.album || ''} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 bg-white transition-colors">
                     <option value="">No Album (Single)</option>
-                    {albums.map(al => {
-                      const aName = typeof al.artist === 'object' && al.artist?.name
-                        ? al.artist.name
-                        : artists.find(a => a._id === al.artist)?.name || '';
-                      return <option key={al._id} value={al._id}>{al.name}{aName ? ` (${aName})` : ''}</option>;
-                    })}
+                    {albums.map(al => <option key={al._id} value={al._id}>{al.name}</option>)}
                   </select>
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
-                  {/* Genre */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
-                      <Tag className="w-3.5 h-3.5 text-gray-400" /> Genre
-                    </label>
-                    <select name="genre" value={formData.genre || ''} onChange={handleInputChange} required
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white transition-colors">
-                      <option value="">Select genre…</option>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><Tag className="w-3.5 h-3.5 text-gray-400" /> Genre</label>
+                    <select name="genre" value={formData.genre || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 bg-white transition-colors">
+                      <option value="">Select genre...</option>
                       {genres.map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
                     </select>
                   </div>
-
-                  {/* Duration */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-gray-400" /> Duration (sec)
-                    </label>
-                    <input type="number" name="duration" value={formData.duration || 0} onChange={handleInputChange} required min="0"
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-gray-400" /> Duration (sec)</label>
+                    <input type="number" name="duration" value={formData.duration || 0} onChange={handleInputChange} required min="0" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors" />
                   </div>
                 </div>
-
-                {/* Release Date */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-gray-400" /> Release Date
-                  </label>
-                  <input type="date" name="releaseDate" value={formData.releaseDate || ''} onChange={handleInputChange} required
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-gray-400" /> Release Date</label>
+                  <input type="date" name="releaseDate" value={formData.releaseDate || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors" />
                 </div>
-
-                {/* Lyrics */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-gray-400" /> Lyrics
-                  </label>
-                  <textarea name="lyrics" value={formData.lyrics || ''} onChange={handleInputChange} rows={5} placeholder="Enter lyrics (optional)"
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors resize-none" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-gray-400" /> Lyrics</label>
+                  <textarea name="lyrics" value={formData.lyrics || ''} onChange={handleInputChange} rows={5} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors resize-none" placeholder="Enter lyrics..." />
                 </div>
-
-                {/* Audio File */}
-                <FileUpload
-                  label="Audio File"
-                  fileType="audio"
-                  maxSize={50}
-                  onFileSelect={file => setAudioFile(file)}
-                  onFileRemove={() => { setAudioFile(null); setFormData(p => ({ ...p, audioFile: '' })); }}
-                  currentFile={song.audioFile || undefined}
-                />
+                <FileUpload label="Audio File" fileType="audio" maxSize={50} onFileSelect={file => setAudioFile(file)} onFileRemove={() => { setAudioFile(null); setFormData(p => ({ ...p, audioFile: '' })); }} currentFile={song.audioFile || undefined} />
               </form>
             </motion.div>
           ) : (
             <>
-              {/* Song Info Card */}
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <h2 className="text-lg font-semibold text-gray-800 mb-1">{song.name}</h2>
                 <p className="text-sm text-gray-500 mb-4">by {artistName} · {albumName} · {genreName}</p>
@@ -474,33 +454,19 @@ const SongDetail: React.FC = () => {
                   ))}
                 </div>
               </motion.div>
-
-              {/* Lyrics */}
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-                    <FileText className="w-4 h-4 text-indigo-500" />
-                  </div>
+                  <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center"><FileText className="w-4 h-4 text-indigo-500" /></div>
                   <h3 className="text-sm font-semibold text-gray-700">Lyrics</h3>
                 </div>
-                {song.lyrics ? (
-                  <pre className="text-sm text-gray-600 whitespace-pre-wrap font-sans leading-relaxed max-h-80 overflow-y-auto">
-                    {song.lyrics}
-                  </pre>
-                ) : (
-                  <p className="text-sm text-gray-400 italic">No lyrics available.</p>
-                )}
+                {song.lyrics ? <pre className="text-sm text-gray-600 whitespace-pre-wrap font-sans leading-relaxed max-h-80 overflow-y-auto">{song.lyrics}</pre> : <p className="text-sm text-gray-400 italic">No lyrics available.</p>}
               </motion.div>
-
-              {/* Metadata */}
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Metadata</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   {[
                     { label: 'Song ID', value: song._id },
-                    { label: 'Release Date', value: song.releaseDate ? new Date(song.releaseDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—' },
-                    { label: 'Created', value: song.createdAt ? new Date(song.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—' },
-                    { label: 'Updated', value: song.updatedAt ? new Date(song.updatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—' },
+                    { label: 'Release Date', value: song.releaseDate ? new Date(song.releaseDate).toLocaleDateString() : '—' },
                   ].map(({ label, value }) => (
                     <div key={label}>
                       <p className="text-xs text-gray-400 mb-0.5">{label}</p>
@@ -513,15 +479,7 @@ const SongDetail: React.FC = () => {
           )}
         </div>
       </div>
-
-      <ConfirmDialog
-        isOpen={deleteOpen}
-        title="Delete Song"
-        message={`Are you sure you want to delete "${song.name}"? This action cannot be undone.`}
-        confirmLabel="Delete"
-        onConfirm={handleDelete}
-        onCancel={() => setDeleteOpen(false)}
-      />
+      <ConfirmDialog isOpen={deleteOpen} title="Delete Song" message={`Are you sure you want to delete "${song?.name}"?`} confirmLabel="Delete" onConfirm={handleDelete} onCancel={() => setDeleteOpen(false)} />
     </div>
   );
 };

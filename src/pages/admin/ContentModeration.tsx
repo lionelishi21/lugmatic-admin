@@ -29,7 +29,9 @@ import {
   Delete as DeleteIcon,
   PlayCircle as PlayIcon,
   Report as FlagIcon,
+  Edit as EditIcon,
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { adminService } from '../../services/adminService';
 
 interface ModerationItem {
@@ -51,6 +53,7 @@ const ContentModeration: React.FC = () => {
   const [items, setItems] = useState<ModerationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // Pagination state
   const [page, setPage] = useState(1);
@@ -227,6 +230,16 @@ const ContentModeration: React.FC = () => {
               >
                 <DeleteIcon />
               </IconButton>
+              {tabConfigs[activeTab].type === 'songs' && (
+                <IconButton
+                  size="small"
+                  color="info"
+                  title="Edit Song"
+                  onClick={() => navigate(`/admin/songs/${item._id}`)}
+                >
+                  <EditIcon />
+                </IconButton>
+              )}
             </Box>
           </CardActions>
         </Card>
