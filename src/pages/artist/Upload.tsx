@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload as UploadIcon, Music, ImageIcon, X, Loader2, CheckCircle2, FileAudio, Sparkles } from 'lucide-react';
+import { Upload as UploadIcon, Music, ImageIcon, X, Loader2, CheckCircle2, FileAudio, Sparkles, Film } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import genreService, { Genre } from '../../services/genreService';
@@ -19,6 +19,7 @@ interface UploadForm {
   genre: string;
   releaseDate: string;
   lyrics: string;
+  videoUrl: string;
 }
 
 export default function Upload() {
@@ -28,12 +29,14 @@ export default function Upload() {
     description: '',
     genre: '',
     releaseDate: new Date().toISOString().split('T')[0],
-    lyrics: ''
+    lyrics: '',
+    videoUrl: ''
   });
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioDuration, setAudioDuration] = useState<number>(0);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string>('');
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [contributors, setContributors] = useState<Contributor[]>([
     { name: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : (user?.name || user?.email || ''), role: 'Artist', share: 100 }
@@ -48,6 +51,7 @@ export default function Upload() {
   const [dragOverCover, setDragOverCover] = useState(false);
   const audioInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const isAdmin = user?.role === 'admin';
 
@@ -166,7 +170,7 @@ export default function Upload() {
         return;
       }
     } else {
-      artistId = user.artistId || (user.role === 'artist' ? user.id : null);
+      artistId = (user.artistId as string | null) || (user.role === 'artist' ? user.id : null);
       if (!artistId) {
         toast.error('Artist profile not found. Please log out and log in again.');
         return;
@@ -207,6 +211,14 @@ export default function Upload() {
       toast.loading('Uploading cover art to S3...', { id: 'upload' });
       await songService.uploadToS3(coverRes.uploadUrl, coverImage, coverImage.type);
 
+      let videoFileKey = '';
+      if (videoFile) {
+        const videoRes = await songService.getPresignedUrl('profile-image' as any, videoFile.name, videoFile.type); // Using profile-image as proxy or assuming backend handles any
+        toast.loading('Uploading video to S3...', { id: 'upload' });
+        await songService.uploadToS3(videoRes.uploadUrl, videoFile, videoFile.type);
+        videoFileKey = videoRes.key;
+      }
+
       // Step 3: Create song with S3 keys
       toast.loading('Finalizing track details...', { id: 'upload' });
        const songData: CreateSongData = {
@@ -218,6 +230,8 @@ export default function Upload() {
         lyrics: form.lyrics,
         audioFileKey: audioRes.key,
         coverArtKey: coverRes.key,
+        videoFileKey: videoFileKey || undefined,
+        videoUrl: form.videoUrl || undefined,
         splitSheet: contributors.map(c => ({
           contributor: c.name,
           role: c.role,
@@ -234,14 +248,17 @@ export default function Upload() {
         description: '',
         genre: '',
         releaseDate: new Date().toISOString().split('T')[0],
-        lyrics: ''
+        lyrics: '',
+        videoUrl: ''
       });
       setAudioFile(null);
       setAudioDuration(0);
       setCoverImage(null);
       setCoverPreview('');
+      setVideoFile(null);
       if (audioInputRef.current) audioInputRef.current.value = '';
       if (imageInputRef.current) imageInputRef.current.value = '';
+      if (videoInputRef.current) videoInputRef.current.value = '';
     } catch (error: any) {
       console.error('Upload error:', error);
       toast.error(error.message || 'Failed to upload track. Please try again.');
@@ -432,8 +449,72 @@ export default function Upload() {
             </div>
           </div>
 
-          {/* Right column — track details */}
-          <div className="lg:col-span-2 space-y-5">
+            {/* Music Video Section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h2 className="text-sm font-semibold text-gray-800 mb-5 flex items-center gap-2">
+                <Film className="h-4 w-4 text-green-500" />
+                Music Video (Optional)
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div 
+                  onClick={() => videoInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
+                    videoFile ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-green-200'
+                  }`}
+                >
+                  <input 
+                    type="file" 
+                    ref={videoInputRef}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 100 * 1024 * 1024) {
+                          toast.error('Video file is too large (max 100MB)');
+                          return;
+                        }
+                        setVideoFile(file);
+                      }
+                    }}
+                    accept="video/*"
+                    className="hidden"
+                  />
+                  {videoFile ? (
+                    <div className="flex flex-col items-center gap-1">
+                      <CheckCircle2 className="w-6 h-6 text-green-500" />
+                      <span className="text-xs font-medium text-gray-700 truncate max-w-[150px]">{videoFile.name}</span>
+                      <button 
+                         type="button"
+                        onClick={(e) => { e.stopPropagation(); setVideoFile(null); if(videoInputRef.current) videoInputRef.current.value=''; }}
+                        className="text-[10px] text-red-500 hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <UploadIcon className="w-6 h-6 text-gray-400" />
+                      <span className="text-xs text-gray-500">Upload video file</span>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Or Video URL</label>
+                  <input
+                    type="text"
+                    name="videoUrl"
+                    value={form.videoUrl}
+                    onChange={handleFormChange}
+                    placeholder="https://..."
+                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right column — track details */}
+            <div className="lg:col-span-2 space-y-5">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <h2 className="text-sm font-semibold text-gray-800 mb-5 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-green-500" />

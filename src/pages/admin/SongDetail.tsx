@@ -92,6 +92,7 @@ const SongDetail: React.FC = () => {
       lyrics: s.lyrics,
       coverArt: s.coverArt,
       audioFile: s.audioFile,
+      videoUrl: s.videoUrl || '',
     });
   };
 
@@ -432,6 +433,10 @@ const SongDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-gray-400" /> Lyrics</label>
                   <textarea name="lyrics" value={formData.lyrics || ''} onChange={handleInputChange} rows={5} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors resize-none" placeholder="Enter lyrics..." />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><ExternalLink className="w-3.5 h-3.5 text-gray-400" /> Music Video URL</label>
+                  <input type="text" name="videoUrl" value={formData.videoUrl || ''} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors" placeholder="https://..." />
+                </div>
                 <FileUpload label="Audio File" fileType="audio" maxSize={50} onFileSelect={file => setAudioFile(file)} onFileRemove={() => { setAudioFile(null); setFormData(p => ({ ...p, audioFile: '' })); }} currentFile={song.audioFile || undefined} />
               </form>
             </motion.div>
@@ -446,6 +451,7 @@ const SongDetail: React.FC = () => {
                     { label: 'Genre', value: genreName, bg: 'bg-amber-50', text: 'text-amber-700' },
                     { label: 'Album', value: albumName, bg: 'bg-purple-50', text: 'text-purple-700' },
                     { label: 'Status', value: song.isActive !== false ? 'Active' : 'Inactive', bg: song.isActive !== false ? 'bg-emerald-50' : 'bg-red-50', text: song.isActive !== false ? 'text-emerald-700' : 'text-red-600' },
+                    { label: 'Video', value: song.videoUrl ? 'Available' : 'None', bg: 'bg-blue-50', text: 'text-blue-700' },
                   ].map(({ label, value, bg, text }) => (
                     <div key={label} className={`${bg} rounded-xl p-3 text-center`}>
                       <p className={`text-base font-semibold ${text} truncate`}>{value}</p>

@@ -19,6 +19,7 @@ export interface Song {
   isApproved?: boolean;
   splitSheet?: Array<{ contributor: string; role: string; share: number }>;
   termsAccepted?: boolean;
+  videoUrl?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -38,6 +39,8 @@ export interface CreateSongData {
   coverArtKey?: string;
   splitSheet?: Array<{ contributor: string; role: string; share: number }>;
   termsAccepted?: boolean;
+  videoUrl?: string;
+  videoFileKey?: string;
 }
 
 export interface UpdateSongData extends Partial<CreateSongData> {
@@ -176,6 +179,7 @@ const songService = {
     }
 
     if (songData.lyrics !== undefined) formData.append('lyrics', songData.lyrics);
+    if (songData.videoUrl !== undefined) formData.append('videoUrl', songData.videoUrl);
     if (songData.isActive !== undefined) formData.append('isActive', songData.isActive.toString());
 
     // Add files if provided
