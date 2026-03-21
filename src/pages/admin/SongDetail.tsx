@@ -12,9 +12,10 @@ import Preloader from '../../components/ui/Preloader';
 import {
   ArrowLeft, Music2, User, Disc, Tag, Clock, Calendar,
   FileText, Edit2, Trash2, Save, X, Play, Pause,
-  CheckCircle, XCircle, Loader2, ExternalLink, Video, MonitorPlay
+  CheckCircle, XCircle, Loader2, ExternalLink
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
+import videoService, { Video } from '../../services/videoService';
 
 const SongDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,7 +36,7 @@ const SongDetail: React.FC = () => {
   const [formData, setFormData] = useState<Partial<CreateSongData>>({});
   const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [linkedVideo, setLinkedVideo] = useState<Video | null>(null);
 
   useEffect(() => {
     if (id) fetchAll(id);
@@ -45,16 +46,18 @@ const SongDetail: React.FC = () => {
   const fetchAll = async (songId: string) => {
     setLoading(true);
     try {
-      const [songData, artistData, albumData, genreData] = await Promise.all([
+      const [songData, artistData, albumData, genreData, videoData] = await Promise.all([
         songService.adminGetSongById(songId),
         artistService.getAllArtists(),
         albumService.getAllAlbums(),
         genreService.getAllGenres(),
+        videoService.getVideoBySongId(songId),
       ]);
       setSong(songData);
       setArtists(artistData);
       setAlbums(albumData);
       setGenres(genreData);
+      setLinkedVideo(videoData);
       populateForm(songData, artistData, albumData, genreData);
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to load song');
@@ -120,7 +123,7 @@ const SongDetail: React.FC = () => {
         album: formData.album && formData.album.trim() !== '' ? formData.album : undefined,
       };
 
-      if (coverArtFile || audioFile || videoFile) {
+      if (coverArtFile || audioFile) {
         toast.loading('Uploading media to S3...', { id: 'edit-upload' });
         
         if (audioFile) {
@@ -136,13 +139,6 @@ const SongDetail: React.FC = () => {
           cleanedData.coverArtKey = coverPresign.key;
           cleanedData.coverArt = coverPresign.publicUrl;
         }
-
-        if (videoFile) {
-          const videoPresign = await songService.getPresignedUrl('music-video' as any, videoFile.name, videoFile.type);
-          await songService.uploadToS3(videoPresign.uploadUrl, videoFile, videoFile.type);
-          cleanedData.videoFileKey = videoPresign.key;
-          cleanedData.videoUrl = videoPresign.publicUrl;
-        }
         
         toast.loading('Saving song details...', { id: 'edit-upload' });
       }
@@ -153,7 +149,6 @@ const SongDetail: React.FC = () => {
       setIsEditing(false);
       setCoverArtFile(null);
       setAudioFile(null);
-      setVideoFile(null);
       toast.success('Song updated successfully', { id: 'edit-upload' });
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to update song', { id: 'edit-upload' });
@@ -447,14 +442,13 @@ const SongDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><ExternalLink className="w-3.5 h-3.5 text-gray-400" /> Music Video URL</label>
                   <input type="text" name="videoUrl" value={formData.videoUrl || ''} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors" placeholder="https://..." />
                 </div>
-                <FileUpload 
-                  label="Music Video (Optional)" 
-                  fileType="video" 
-                  maxSize={200} 
-                  onFileSelect={file => setVideoFile(file)} 
-                  onFileRemove={() => { setVideoFile(null); setFormData(p => ({ ...p, videoUrl: '' })); }} 
-                  currentFile={song.videoUrl || undefined} 
-                />
+                <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
+                  <p className="text-sm font-medium text-blue-800 flex items-center gap-2">
+                    <Video className="w-4 h-4" />
+                    Videos are managed separately
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">To link or change the music video, please use the <strong>Video Management</strong> section.</p>
+                </div>
                 <FileUpload label="Audio File" fileType="audio" maxSize={50} onFileSelect={file => setAudioFile(file)} onFileRemove={() => { setAudioFile(null); setFormData(p => ({ ...p, audioFile: '' })); }} currentFile={song.audioFile || undefined} />
               </form>
             </motion.div>
@@ -499,15 +493,23 @@ const SongDetail: React.FC = () => {
                   ))}
                 </div>
               </motion.div>
-              {song.videoUrl && (
+              {linkedVideo && (
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center"><Video className="w-4 h-4 text-blue-500" /></div>
-                    <h3 className="text-sm font-semibold text-gray-700">Music Video</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center"><Video className="w-4 h-4 text-blue-500" /></div>
+                      <h3 className="text-sm font-semibold text-gray-700">Music Video</h3>
+                    </div>
+                    <button 
+                      onClick={() => navigate('/admin/video-management')}
+                      className="text-xs text-blue-600 hover:underline font-medium"
+                    >
+                      Manage Video
+                    </button>
                   </div>
-                  <div className="aspect-video rounded-xl overflow-hidden bg-black border border-gray-100">
+                  <div className="aspect-video rounded-xl overflow-hidden bg-black border border-gray-100 relative group">
                     <video 
-                      src={song.videoUrl} 
+                      src={linkedVideo.videoUrl} 
                       controls 
                       className="w-full h-full object-contain"
                     />
