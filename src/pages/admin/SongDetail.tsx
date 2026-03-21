@@ -12,7 +12,7 @@ import Preloader from '../../components/ui/Preloader';
 import {
   ArrowLeft, Music2, User, Disc, Tag, Clock, Calendar,
   FileText, Edit2, Trash2, Save, X, Play, Pause,
-  CheckCircle, XCircle, Loader2, ExternalLink
+  CheckCircle, XCircle, Loader2, ExternalLink, Video, MonitorPlay
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 
@@ -35,6 +35,7 @@ const SongDetail: React.FC = () => {
   const [formData, setFormData] = useState<Partial<CreateSongData>>({});
   const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (id) fetchAll(id);
@@ -119,7 +120,7 @@ const SongDetail: React.FC = () => {
         album: formData.album && formData.album.trim() !== '' ? formData.album : undefined,
       };
 
-      if (coverArtFile || audioFile) {
+      if (coverArtFile || audioFile || videoFile) {
         toast.loading('Uploading media to S3...', { id: 'edit-upload' });
         
         if (audioFile) {
@@ -135,6 +136,13 @@ const SongDetail: React.FC = () => {
           cleanedData.coverArtKey = coverPresign.key;
           cleanedData.coverArt = coverPresign.publicUrl;
         }
+
+        if (videoFile) {
+          const videoPresign = await songService.getPresignedUrl('music-video' as any, videoFile.name, videoFile.type);
+          await songService.uploadToS3(videoPresign.uploadUrl, videoFile, videoFile.type);
+          cleanedData.videoFileKey = videoPresign.key;
+          cleanedData.videoUrl = videoPresign.publicUrl;
+        }
         
         toast.loading('Saving song details...', { id: 'edit-upload' });
       }
@@ -145,6 +153,7 @@ const SongDetail: React.FC = () => {
       setIsEditing(false);
       setCoverArtFile(null);
       setAudioFile(null);
+      setVideoFile(null);
       toast.success('Song updated successfully', { id: 'edit-upload' });
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to update song', { id: 'edit-upload' });
@@ -438,6 +447,14 @@ const SongDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><ExternalLink className="w-3.5 h-3.5 text-gray-400" /> Music Video URL</label>
                   <input type="text" name="videoUrl" value={formData.videoUrl || ''} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors" placeholder="https://..." />
                 </div>
+                <FileUpload 
+                  label="Music Video (Optional)" 
+                  fileType="video" 
+                  maxSize={200} 
+                  onFileSelect={file => setVideoFile(file)} 
+                  onFileRemove={() => { setVideoFile(null); setFormData(p => ({ ...p, videoUrl: '' })); }} 
+                  currentFile={song.videoUrl || undefined} 
+                />
                 <FileUpload label="Audio File" fileType="audio" maxSize={50} onFileSelect={file => setAudioFile(file)} onFileRemove={() => { setAudioFile(null); setFormData(p => ({ ...p, audioFile: '' })); }} currentFile={song.audioFile || undefined} />
               </form>
             </motion.div>
@@ -482,6 +499,21 @@ const SongDetail: React.FC = () => {
                   ))}
                 </div>
               </motion.div>
+              {song.videoUrl && (
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center"><Video className="w-4 h-4 text-blue-500" /></div>
+                    <h3 className="text-sm font-semibold text-gray-700">Music Video</h3>
+                  </div>
+                  <div className="aspect-video rounded-xl overflow-hidden bg-black border border-gray-100">
+                    <video 
+                      src={song.videoUrl} 
+                      controls 
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </motion.div>
+              )}
             </>
           )}
         </div>
