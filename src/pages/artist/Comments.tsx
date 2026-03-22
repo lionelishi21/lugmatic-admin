@@ -33,6 +33,7 @@ import {
   TrendingUp as TrendingIcon,
   Warning as AlertIcon
 } from '@mui/icons-material';
+import { useAuth } from '../../hooks/useAuth';
 import { commentService } from '../../services/commentService';
 import { Comment } from '../../types';
 import toast from 'react-hot-toast';
@@ -68,15 +69,22 @@ const Comments: React.FC = () => {
   const [replyText, setReplyText] = useState('');
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
   const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     loadComments();
   }, []);
 
   const loadComments = async () => {
+    if (!user?.artistId) {
+      setComments([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const response = await commentService.getArtistComments('current-artist-id');
+      const response = await commentService.getArtistComments(user.artistId);
       if (response.data && Array.isArray(response.data.data)) {
         setComments(response.data.data as Comment[]);
       } else if (response.data && (response.data as any).data) {

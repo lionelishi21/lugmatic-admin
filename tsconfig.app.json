@@ -20,6 +20,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "noUncheckedSideEffectImports": true
   },
   "include": ["src", "../../NodeJS/lugmatic-api/src/routes/artistRoutes.tsx"]
