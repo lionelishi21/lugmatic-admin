@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Room,
   RoomEvent,
@@ -91,6 +92,8 @@ export default function Live() {
   const [isChallengeModalOpen, setIsChallengeModalOpen] = useState(false);
   const [activeClash, setActiveClash] = useState<any>(null);
   const [clashScores, setClashScores] = useState({ challenger: 0, opponent: 0 });
+  const [totalCoins, setTotalCoins] = useState(0);
+  const [lastGift, setLastGift] = useState<ChatMessage | null>(null);
 
   const isLive = phase === 'live';
   const isBusy = ['creating', 'getting_token', 'connecting', 'publishing', 'ending'].includes(phase);
@@ -214,6 +217,9 @@ export default function Live() {
       socketService.onGiftReceived((msg: ChatMessage) => {
         setMessages((prev) => [...prev, msg]);
         setGiftCount((prev) => prev + 1);
+        setTotalCoins((prev) => prev + (msg.giftValue || 0));
+        setLastGift(msg);
+        setTimeout(() => setLastGift(null), 4000);
         toast.success(`Gift received: ${msg.giftName}!`, { icon: '🎁' });
       });
       socketService.onViewerJoined((data) => setViewerCount(data.currentViewers));
@@ -345,6 +351,10 @@ export default function Live() {
       const camPub = room.localParticipant.getTrackPublication(Track.Source.Camera);
       if (camPub?.track && videoRef.current) {
         camPub.track.attach(videoRef.current);
+      } else if (room.localParticipant.videoTrackPublications.size > 0 && videoRef.current) {
+        // Fallback: attach any available video track
+        const track = Array.from(room.localParticipant.videoTrackPublications.values())[0]?.track;
+        if (track) track.attach(videoRef.current);
       }
 
       setupSocketListeners(stream._id);
@@ -693,6 +703,74 @@ export default function Live() {
                 </button>
               </div>
             )}
+
+            {/* TikTok-style Gift Alert Overlay */}
+            <AnimatePresence>
+              {lastGift && (
+                <motion.div
+                  initial={{ opacity: 0, x: -50, scale: 0.8 }}
+                  animate={{ opacity: 1, x: 20, scale: 1 }}
+                  exit={{ opacity: 0, x: 100, scale: 0.8, filter: 'blur(10px)' }}
+                  className="absolute bottom-24 left-0 z-50 pointer-events-none"
+                >
+                  <div className="flex items-center gap-3 bg-gradient-to-r from-purple-600/90 to-pink-500/70 backdrop-blur-md border border-white/30 p-1 pr-6 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.5)]">
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg border-2 border-purple-500 overflow-hidden">
+                      {lastGift.profilePicture ? (
+                        <img src={lastGift.profilePicture} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-lg font-black text-purple-600">{lastGift.username?.[0]?.toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black text-white/90 uppercase tracking-tighter leading-none mb-1">New Gift Received!</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-black text-white truncate max-w-[120px] drop-shadow-md">{lastGift.username}</span>
+                        <span className="text-xs font-bold text-white/80">sent {lastGift.giftName}</span>
+                      </div>
+                    </div>
+                    <motion.div
+                      animate={{ 
+                        rotate: [0, 20, -20, 0],
+                        scale: [1, 1.4, 1.4, 1],
+                      }}
+                      transition={{ repeat: Infinity, duration: 1.2 }}
+                      className="ml-3 text-3xl drop-shadow-lg"
+                    >
+                      🎁
+                    </motion.div>
+                    <div className="ml-2 px-2 py-0.5 bg-yellow-400 rounded-full text-[10px] font-black text-purple-900 shadow-sm">
+                      +{lastGift.giftValue || 0}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Premium Total Gift Counter Overlay */}
+            {isLive && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-16 right-3 z-40"
+              >
+                <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-2 px-4 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg">
+                    <Gift className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest leading-none">Total Earnings</p>
+                    <motion.p 
+                      key={totalCoins}
+                      initial={{ scale: 1.2 }}
+                      animate={{ scale: 1 }}
+                      className="text-lg font-black text-amber-400 leading-none mt-1"
+                    >
+                      {totalCoins.toLocaleString()} <span className="text-[10px] text-white/40 ml-0.5">COINS</span>
+                    </motion.p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
 
           {/* Stream info card */}
@@ -718,13 +796,27 @@ export default function Live() {
               {[
                 { icon: Users, label: 'Viewers', value: viewerCount, color: 'text-blue-600 bg-blue-50' },
                 { icon: MessageSquare, label: 'Messages', value: messages.length, color: 'text-green-600 bg-green-50' },
-                { icon: Gift, label: 'Gifts', value: giftCount, color: 'text-amber-600 bg-amber-50' },
+                { 
+                  icon: Gift, 
+                  label: 'Coins', 
+                  value: (
+                    <motion.span
+                      key={totalCoins}
+                      initial={{ scale: 1.5, color: '#f59e0b' }}
+                      animate={{ scale: 1, color: '#b45309' }}
+                      className="inline-block"
+                    >
+                      {totalCoins.toLocaleString()}
+                    </motion.span>
+                  ), 
+                  color: 'text-amber-600 bg-amber-50' 
+                },
               ].map(({ icon: Icon, label, value, color }) => (
-                <div key={label} className="rounded-xl bg-gray-50 border border-gray-100 p-4 text-center">
+                <div key={label} className="rounded-xl bg-gray-50 border border-gray-100 p-4 text-center overflow-hidden">
                   <div className={`w-9 h-9 rounded-lg ${color} flex items-center justify-center mx-auto mb-2`}>
                     <Icon className="h-4 w-4" />
                   </div>
-                  <p className="text-xl font-bold text-gray-900">{value}</p>
+                  <div className="text-xl font-bold text-gray-900">{value}</div>
                   <p className="text-xs text-gray-500 mt-0.5">{label}</p>
                 </div>
               ))}
