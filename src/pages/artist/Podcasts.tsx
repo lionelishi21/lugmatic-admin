@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../hooks/useAuth';
 import { podcastService } from '../../services/podcastService';
 import type { Podcast, CreatePodcastRequest } from '../../types';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
@@ -34,13 +35,20 @@ export default function Podcasts() {
   const [form, setForm] = useState<CreatePodcastRequest>({
     title: '', description: '', audioUrl: '', category: '', tags: [],
   });
+  const { user } = useAuth();
 
   useEffect(() => { void load(); }, []);
 
   async function load() {
+    if (!user?.artistId) {
+      setPodcasts([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const resp = await podcastService.getArtistPodcasts('current-artist-id');
+      const resp = await podcastService.getArtistPodcasts(user.artistId);
       const data = resp?.data?.data as unknown as Podcast[];
       setPodcasts(Array.isArray(data) ? data : []);
     } catch (err) {

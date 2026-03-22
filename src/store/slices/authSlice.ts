@@ -32,17 +32,11 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: {
-    id: 'mock-123',
-    email: 'artist@lugmatic.com',
-    role: 'artist',
-    name: 'Lugmatic Artist',
-    artistId: 'artist-123'
-  },
-  isAuthenticated: true,
+  user: null,
+  isAuthenticated: false,
   isLoading: false,
   error: null,
-  lastLogin: Date.now(),
+  lastLogin: null,
 };
 
 // Helper to extract meaningful error messages from API responses
