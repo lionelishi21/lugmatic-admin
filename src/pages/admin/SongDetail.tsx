@@ -12,10 +12,10 @@ import Preloader from '../../components/ui/Preloader';
 import {
   ArrowLeft, Music2, User, Disc, Tag, Clock, Calendar,
   FileText, Edit2, Trash2, Save, X, Play, Pause,
-  CheckCircle, XCircle, Loader2, ExternalLink
+  CheckCircle, XCircle, Loader2, ExternalLink, Video
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
-import videoService, { Video } from '../../services/videoService';
+import videoService, { type Video as VideoType } from '../../services/videoService';
 
 const SongDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,7 +36,7 @@ const SongDetail: React.FC = () => {
   const [formData, setFormData] = useState<Partial<CreateSongData>>({});
   const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [linkedVideo, setLinkedVideo] = useState<Video | null>(null);
+  const [linkedVideo, setLinkedVideo] = useState<VideoType | null>(null);
 
   useEffect(() => {
     if (id) fetchAll(id);
