@@ -339,7 +339,7 @@ export default function Upload() {
   const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5';
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1">
@@ -348,10 +348,10 @@ export default function Upload() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Upload Your Track</h1>
         </div>
-        <p className="text-gray-500 text-sm ml-14">Share your music with the world</p>
+        <p className="text-gray-500 text-sm sm:ml-14">Share your music with the world</p>
         
         {/* Admin Approval Notice */}
-        <div className="mt-4 ml-14 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+          <div className="sm:ml-14 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
           <div className="p-1 bg-amber-100 rounded-lg">
             <Sparkles className="h-4 w-4 text-amber-600" />
           </div>
@@ -366,7 +366,7 @@ export default function Upload() {
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
           {/* Left column — cover + audio */}
           <div className="lg:col-span-1 space-y-5">
@@ -513,8 +513,6 @@ export default function Upload() {
                 />
               </div>
             </div>
-          </div>
-
             {/* Music Video Section */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <h2 className="text-sm font-semibold text-gray-800 mb-5 flex items-center gap-2">
@@ -522,7 +520,7 @@ export default function Upload() {
                 Music Video (Optional)
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                 <div 
                   onClick={() => videoInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
@@ -578,9 +576,10 @@ export default function Upload() {
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Right column — track details */}
-            <div className="lg:col-span-2 space-y-5">
+          {/* Right column — track details */}
+          <div className="lg:col-span-2 space-y-5">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <h2 className="text-sm font-semibold text-gray-800 mb-5 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-green-500" />
@@ -687,9 +686,9 @@ export default function Upload() {
               
               <div className="space-y-3 mb-4">
                 {contributors.map((contributor, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex gap-2 items-end">
-                      <div className="flex-1 relative">
+                  <div key={index} className="space-y-2 p-4 bg-gray-50/50 rounded-xl border border-gray-100/50">
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                      <div className="sm:col-span-6 relative">
                         <label className="text-[10px] text-gray-400 font-medium mb-1 block">Contributor Name</label>
                         <div className="relative">
                           <input
@@ -746,8 +745,8 @@ export default function Upload() {
                             <Loader2 className="h-3.5 w-3.5 text-green-500 animate-spin" />
                           </div>
                         )}
-                      </div>
-                      <div className="w-32">
+                        </div>
+                      <div className="sm:col-span-3">
                         <label className="text-[10px] text-gray-400 font-medium mb-1 block">Role</label>
                         <select
                           value={contributor.role}
@@ -761,7 +760,7 @@ export default function Upload() {
                           <option value="Composer">Composer</option>
                         </select>
                       </div>
-                      <div className="w-20">
+                      <div className="sm:col-span-2">
                         <label className="text-[10px] text-gray-400 font-medium mb-1 block">Share %</label>
                         <input
                           type="number"
@@ -773,15 +772,17 @@ export default function Upload() {
                           required
                         />
                       </div>
-                      {contributors.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeContributor(index)}
-                          className="p-3 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-xl mb-[2px]"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      )}
+                      <div className="sm:col-span-1 flex justify-end">
+                        {contributors.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeContributor(index)}
+                            className="p-2.5 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-xl mb-[1px] transition-colors"
+                          >
+                            <X className="h-4.5 w-4.5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}

@@ -244,6 +244,15 @@ export default function Login() {
                 {errors.password.message}
               </p>
             )}
+            <div className="flex justify-end mt-2">
+              <button 
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="text-sm text-green-600 hover:text-green-700 font-medium transition-colors"
+              >
+                Forgot Password?
+              </button>
+            </div>
           </motion.div>
 
           <motion.button
