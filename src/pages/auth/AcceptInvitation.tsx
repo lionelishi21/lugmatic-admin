@@ -1,3 +1,9 @@
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 import { userService } from '../../services/userService';
 import toast from 'react-hot-toast';
 import { ShieldCheck, Lock, ArrowRight, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
