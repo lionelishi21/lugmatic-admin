@@ -1,7 +1,7 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Check, Headphones, Radio, Gift, Sparkles, ArrowRight, ChevronDown, Music, Music2, Mic2, Menu, X, TrendingUp, Users, DollarSign } from "lucide-react";
+import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
+import { Check, Headphones, Radio, Gift, Sparkles, ArrowRight, ChevronDown, Music2, Menu, X, TrendingUp, Users, DollarSign, Zap, Globe, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import logo from '../assets/logo.png';
 import { useAuth } from "../hooks/useAuth";
 
@@ -55,26 +55,99 @@ const pricingPlans = [
   }
 ];
 
-const featuresList = [
-  { icon: Headphones, label: "Hi-Fi Streaming", desc: "Lossless audio quality for every track" },
-  { icon: Radio, label: "Live Sessions", desc: "Watch artists perform in real-time" },
-  { icon: Gift, label: "Gift Artists", desc: "Support creators with direct gifts" },
-  { icon: Sparkles, label: "Discover Music", desc: "Find emerging talent before they blow up" },
+const featureCards = [
+  {
+    icon: Headphones,
+    title: "High-Fidelity Audio",
+    description: "Experience every beat and bassline exactly as the artist intended. Lossless quality streaming.",
+    span: "md:col-span-1"
+  },
+  {
+    icon: Radio,
+    title: "Live Artist Sessions",
+    description: "Watch your favorite dancehall and reggae artists perform live. Interact, request songs, and send gifts in real-time.",
+    span: "md:col-span-2"
+  },
+  {
+    icon: Gift,
+    title: "Direct Artist Support",
+    description: "Gift artists directly during streams and from their profiles. Higher payouts mean more music from creators you love.",
+    span: "md:col-span-2"
+  },
+  {
+    icon: Sparkles,
+    title: "Discover New Artists",
+    description: "Find emerging talent before they blow up. Explore curated playlists and personalized recommendations.",
+    span: "md:col-span-1"
+  }
 ];
 
+/* ─── Scroll-synced video hook ─── */
+function useScrollVideo(
+  containerRef: React.RefObject<HTMLElement | null>,
+  videoRef: React.RefObject<HTMLVideoElement | null>,
+) {
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    const video = videoRef.current;
+    if (!video || !video.duration || isNaN(video.duration)) return;
+    video.currentTime = v * video.duration;
+  });
+
+  return scrollYProgress;
+}
+
 export default function Landing() {
-  const heroRef = useRef<HTMLDivElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isAuthenticated, user } = useAuth();
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  
   const dashboardPath = user?.role === 'admin' ? '/admin' : '/artist';
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  /* ─── Video refs ─── */
+  const heroContainerRef = useRef<HTMLDivElement>(null);
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
+  const showcaseContainerRef = useRef<HTMLDivElement>(null);
+  const showcaseVideoRef = useRef<HTMLVideoElement>(null);
+
+  /* ─── Scroll-sync videos ─── */
+  const heroProgress = useScrollVideo(heroContainerRef, heroVideoRef);
+  const showcaseProgress = useScrollVideo(showcaseContainerRef, showcaseVideoRef);
+
+  /* ─── Derived parallax transforms ─── */
+  const heroTextOpacity = useTransform(heroProgress, [0, 0.25, 0.35], [1, 1, 0]);
+  const heroTextY = useTransform(heroProgress, [0, 0.35], [0, -80]);
+  const heroStatsOpacity = useTransform(heroProgress, [0.3, 0.45, 0.65], [0, 1, 0]);
+  const heroStatsY = useTransform(heroProgress, [0.3, 0.45, 0.65], [60, 0, -40]);
+  const heroCTAOpacity = useTransform(heroProgress, [0.6, 0.75, 0.95], [0, 1, 0]);
+  const heroCTAY = useTransform(heroProgress, [0.6, 0.75, 0.95], [80, 0, -60]);
+
+  const showcase1Opacity = useTransform(showcaseProgress, [0, 0.2, 0.4], [0, 1, 0]);
+  const showcase1Y = useTransform(showcaseProgress, [0, 0.2, 0.4], [60, 0, -60]);
+  const showcase2Opacity = useTransform(showcaseProgress, [0.35, 0.55, 0.7], [0, 1, 0]);
+  const showcase2Y = useTransform(showcaseProgress, [0.35, 0.55, 0.7], [60, 0, -60]);
+  const showcase3Opacity = useTransform(showcaseProgress, [0.65, 0.8, 0.95], [0, 1, 0]);
+  const showcase3Y = useTransform(showcaseProgress, [0.65, 0.8, 0.95], [60, 0, -60]);
+
+  /* ─── Preload videos ─── */
+  const preloadVideo = useCallback((ref: React.RefObject<HTMLVideoElement | null>) => {
+    const v = ref.current;
+    if (v) {
+      v.pause();
+      v.currentTime = 0;
+    }
+  }, []);
+
+  useEffect(() => {
+    preloadVideo(heroVideoRef);
+    preloadVideo(showcaseVideoRef);
+  }, [preloadVideo]);
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-green-500 selection:text-black overflow-x-hidden">
-      {/* Nav */}
+      {/* ═══ NAV ═══ */}
       <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-black/60 border-b border-white/[0.06]">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
@@ -109,12 +182,8 @@ export default function Landing() {
               </>
             )}
           </div>
-
           <div className="md:hidden">
-            <button 
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white p-2"
-            >
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white p-2">
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
@@ -122,7 +191,7 @@ export default function Landing() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="md:hidden absolute top-16 left-0 w-full bg-black/95 border-b border-white/10 backdrop-blur-xl p-6"
@@ -142,132 +211,115 @@ export default function Landing() {
         )}
       </nav>
 
-      {/* Hero */}
-      <section ref={heroRef} className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden">
-        {/* Background layers */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(100,220,80,0.12),transparent_60%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_80%_80%,rgba(140,80,220,0.08),transparent_50%)]" />
-          <motion.div
-            style={{ y: heroY }}
-            className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMiI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40"
+      {/* ═══ HERO: SCROLL-DRIVEN VIDEO SECTION ═══ */}
+      <section ref={heroContainerRef} className="relative" style={{ height: "300vh" }}>
+        {/* Sticky video container */}
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          {/* Video */}
+          <video
+            ref={heroVideoRef}
+            src="/lugmatic_3d1.mp4"
+            muted
+            playsInline
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ filter: "brightness(0.55) saturate(1.2)" }}
           />
 
-          {/* Dynamic floating music elements */}
-          {[
-            { x: "8%", y: "20%", size: 28, delay: 0, duration: 6 },
-            { x: "88%", y: "30%", size: 22, delay: 1.5, duration: 7 },
-            { x: "15%", y: "70%", size: 18, delay: 3, duration: 5.5 },
-            { x: "78%", y: "75%", size: 24, delay: 0.8, duration: 6.5 },
-            { x: "45%", y: "15%", size: 16, delay: 2.2, duration: 8 },
-            { x: "92%", y: "55%", size: 20, delay: 4, duration: 7.5 },
-            { x: "5%", y: "45%", size: 14, delay: 1, duration: 5 },
-            { x: "70%", y: "12%", size: 26, delay: 3.5, duration: 6.8 },
-          ].map((note, i) => (
-            <motion.div
-              key={`note-${i}`}
-              className="absolute text-green-500/[0.08] pointer-events-none"
-              style={{ left: note.x, top: note.y }}
-              animate={{
-                y: [0, -30, 0, 20, 0],
-                x: [0, 15, -10, 5, 0],
-                rotate: [0, 15, -10, 5, 0],
-                opacity: [0.06, 0.12, 0.08, 0.14, 0.06],
-              }}
-              transition={{
-                duration: note.duration,
-                repeat: Infinity,
-                delay: note.delay,
-                ease: "easeInOut",
-              }}
-            >
-              {i % 3 === 0 ? (
-                <Music style={{ width: note.size, height: note.size }} />
-              ) : i % 3 === 1 ? (
-                <Music2 style={{ width: note.size, height: note.size }} />
-              ) : (
-                <Mic2 style={{ width: note.size, height: note.size }} />
-              )}
-            </motion.div>
-          ))}
+          {/* Gradient overlays for readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/80 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent pointer-events-none" />
 
-          {/* Animated equalizer bars */}
-          <div className="absolute bottom-0 left-0 right-0 flex items-end justify-center gap-[3px] h-32 opacity-[0.04] pointer-events-none overflow-hidden">
-            {Array.from({ length: 60 }).map((_, i) => (
-              <motion.div
-                key={`eq-${i}`}
-                className="w-[3px] bg-green-500 rounded-full origin-bottom"
-                animate={{
-                  scaleY: [
-                    0.2 + Math.random() * 0.3,
-                    0.5 + Math.random() * 0.5,
-                    0.1 + Math.random() * 0.4,
-                    0.6 + Math.random() * 0.4,
-                    0.2 + Math.random() * 0.3,
-                  ],
-                }}
-                transition={{
-                  duration: 1.2 + Math.random() * 0.8,
-                  repeat: Infinity,
-                  delay: Math.random() * 1.5,
-                  ease: "easeInOut",
-                }}
-                style={{ height: 80 + Math.random() * 40 }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <motion.div
-          style={{ opacity: heroOpacity }}
-          className="relative z-10 max-w-6xl mx-auto px-6 w-full"
-        >
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-[80vh]">
-            {/* Left - Text Content */}
-            <div>
+          {/* ─── Overlay 1: Hero text ─── */}
+          <motion.div
+            style={{ opacity: heroTextOpacity, y: heroTextY }}
+            className="absolute inset-0 flex items-center z-10"
+          >
+            <div className="max-w-6xl mx-auto px-6 w-full">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
                 className="flex items-center mb-8"
               >
-                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-[12px] text-zinc-400">
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/[0.06] backdrop-blur-md text-[12px] text-zinc-300">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                   Dancehall &middot; Reggae &middot; Afrobeats
                 </div>
               </motion.div>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.1 }}
-                className="text-[clamp(3.5rem,8vw,7.5rem)] font-bold tracking-[-0.04em] leading-[0.9]"
+              <h1
+                className="text-[clamp(3.5rem,8vw,8rem)] font-bold tracking-[-0.04em] leading-[0.9]"
                 style={{ fontFamily: "'Bebas Neue', sans-serif" }}
               >
                 <span className="block italic">LUGMATIC FOR</span>
-                <span className="block text-green-500 drop-shadow-[0_0_40px_rgba(100,220,80,0.3)] italic">ARTISTS</span>
-              </motion.h1>
+                <span className="block text-green-500 drop-shadow-[0_0_60px_rgba(100,220,80,0.4)] italic">ARTISTS</span>
+              </h1>
 
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="mt-6 text-zinc-400 text-lg md:text-xl max-w-lg leading-relaxed font-light"
-              >
+              <p className="mt-6 text-zinc-300 text-lg md:text-xl max-w-lg leading-relaxed font-light">
                 Manage your music, engage with fans, and grow your career.
                 Advanced analytics, live streaming, and direct fan gifting.
-              </motion.p>
+              </p>
 
-              {/* CTA */}
+              {/* Scroll hint */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.45 }}
-                className="mt-10 flex flex-col sm:flex-row items-start gap-4"
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="mt-16 flex items-center gap-2 text-zinc-500 text-sm"
               >
+                <ChevronDown className="w-4 h-4" />
+                <span>Scroll to explore</span>
+              </motion.div>
+            </div>
+          </motion.div>
+
+          {/* ─── Overlay 2: Platform stats ─── */}
+          <motion.div
+            style={{ opacity: heroStatsOpacity, y: heroStatsY }}
+            className="absolute inset-0 flex items-center justify-center z-10"
+          >
+            <div className="max-w-4xl mx-auto px-6 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  { value: "50K+", label: "Active Listeners", icon: Users, color: "text-green-400" },
+                  { value: "10K+", label: "Tracks Uploaded", icon: Music2, color: "text-emerald-400" },
+                  { value: "500+", label: "Artists Worldwide", icon: Globe, color: "text-teal-400" },
+                ].map((stat, i) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="p-8 rounded-3xl bg-white/[0.06] backdrop-blur-xl border border-white/[0.08] text-center hover:bg-white/[0.1] transition-all group"
+                  >
+                    <stat.icon className={`w-8 h-8 ${stat.color} mx-auto mb-4 group-hover:scale-110 transition-transform`} />
+                    <p className="text-4xl md:text-5xl font-bold tracking-tight mb-2">{stat.value}</p>
+                    <p className="text-sm text-zinc-400 tracking-wider uppercase">{stat.label}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* ─── Overlay 3: CTA ─── */}
+          <motion.div
+            style={{ opacity: heroCTAOpacity, y: heroCTAY }}
+            className="absolute inset-0 flex items-center justify-center z-10"
+          >
+            <div className="text-center max-w-2xl mx-auto px-6">
+              <h2
+                className="text-5xl md:text-7xl font-bold tracking-[-0.03em] italic mb-6"
+                style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+              >
+                <span className="text-green-500">YOUR MUSIC.</span> YOUR STAGE.
+              </h2>
+              <p className="text-zinc-400 text-lg mb-10 max-w-md mx-auto">
+                Join thousands of artists already growing their career on Lugmatic.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 {isAuthenticated ? (
                   <Link to={dashboardPath}>
-                    <button className="bg-green-500 hover:bg-green-400 text-black font-bold h-14 px-10 text-base rounded-full shadow-[0_0_30px_-5px_rgba(100,220,80,0.4)] hover:shadow-[0_0_40px_-5px_rgba(100,220,80,0.6)] transition-all flex items-center gap-2">
+                    <button className="bg-green-500 hover:bg-green-400 text-black font-bold h-14 px-10 text-base rounded-full shadow-[0_0_40px_-5px_rgba(100,220,80,0.5)] hover:shadow-[0_0_60px_-5px_rgba(100,220,80,0.7)] transition-all flex items-center gap-2">
                       Dashboard
                       <ArrowRight className="w-4 h-4" />
                     </button>
@@ -275,203 +327,119 @@ export default function Landing() {
                 ) : (
                   <>
                     <Link to="/login">
-                      <button className="bg-green-500 hover:bg-green-400 text-black font-bold h-14 px-10 text-base rounded-full shadow-[0_0_30px_-5px_rgba(100,220,80,0.4)] hover:shadow-[0_0_40px_-5px_rgba(100,220,80,0.6)] transition-all flex items-center gap-2">
+                      <button className="bg-green-500 hover:bg-green-400 text-black font-bold h-14 px-10 text-base rounded-full shadow-[0_0_40px_-5px_rgba(100,220,80,0.5)] hover:shadow-[0_0_60px_-5px_rgba(100,220,80,0.7)] transition-all flex items-center gap-2">
                         Start Free
                         <ArrowRight className="w-4 h-4" />
                       </button>
                     </Link>
                     <Link to="/login">
-                      <button className="h-14 px-10 text-base rounded-full border border-white/10 hover:bg-white/5 text-zinc-300 transition-all">
+                      <button className="h-14 px-10 text-base rounded-full border border-white/15 hover:bg-white/10 text-zinc-300 backdrop-blur-md transition-all">
                         Log In
                       </button>
                     </Link>
                   </>
                 )}
-              </motion.div>
-
-              {/* Stats row */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 0.8 }}
-                className="mt-14 flex items-center gap-10 md:gap-14"
-              >
-                {[
-                  { value: "50K+", label: "Listeners" },
-                  { value: "10K+", label: "Tracks" },
-                  { value: "500+", label: "Artists" },
-                ].map((stat) => (
-                  <div key={stat.label}>
-                    <p className="text-2xl md:text-3xl font-bold tracking-tight">{stat.value}</p>
-                    <p className="text-[11px] text-zinc-500 mt-1 tracking-wider uppercase">{stat.label}</p>
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-
-            {/* Right - Hero Image Placeholder */}
-            <motion.div
-              initial={{ opacity: 0, x: 40, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ duration: 1, delay: 0.3 }}
-              className="relative flex items-center justify-center"
-            >
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_70%_at_50%_50%,rgba(34,197,94,0.15),transparent_70%)]" />
-
-              <div className="relative w-full max-w-[500px] aspect-[3/4] rounded-[2.5rem] overflow-hidden border border-white/[0.08] bg-zinc-900/50">
-                <div className="w-full h-full bg-gradient-to-br from-green-500/10 via-black to-emerald-500/10 p-8 flex flex-col gap-6">
-                  {/* Artist Header Mockup */}
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-zinc-800 border-2 border-green-500/50 flex-shrink-0 overflow-hidden">
-                      <div className="w-full h-full bg-gradient-to-tr from-green-500/20 to-purple-500/20" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="h-4 w-32 bg-zinc-800 rounded mb-2" />
-                      <div className="h-3 w-20 bg-zinc-800/50 rounded" />
-                    </div>
-                    <motion.div 
-                      animate={{ opacity: [1, 0.5, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="px-3 py-1 rounded-full bg-green-500/20 text-green-500 text-[10px] font-bold"
-                    >
-                      LIVE
-                    </motion.div>
-                  </div>
-
-                  {/* Stats Cards Mockup */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <motion.div 
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.8 }}
-                      className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <Users className="w-3 h-3 text-zinc-500" />
-                        <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Listeners</p>
-                      </div>
-                      <p className="text-2xl font-bold">12.4K</p>
-                      <p className="text-[10px] text-green-500 mt-1">+12% vs last week</p>
-                    </motion.div>
-                    <motion.div 
-                      initial={{ opacity: 0, x: 20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 1 }}
-                      className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <DollarSign className="w-3 h-3 text-zinc-500" />
-                        <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Gifts</p>
-                      </div>
-                      <p className="text-2xl font-bold">$3.2K</p>
-                      <p className="text-[10px] text-zinc-400 mt-1">24 new gifts</p>
-                    </motion.div>
-                  </div>
-
-                  {/* Activity Chart Mockup */}
-                  <div className="flex-1 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm flex flex-col">
-                    <div className="flex items-center justify-between mb-4">
-                      <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Engagement Growth</p>
-                      <TrendingUp className="w-3 h-3 text-green-500" />
-                    </div>
-                    <div className="flex-1 flex items-end gap-2 px-2">
-                      {[40, 60, 45, 80, 55, 90, 75].map((h, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ height: 0 }}
-                          whileInView={{ height: `${h}%` }}
-                          transition={{ delay: 1.2 + (i * 0.1), duration: 0.8 }}
-                          className="flex-1 bg-green-500/20 border-t border-green-500/50 rounded-t-sm"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.2, duration: 0.6 }}
-                  className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/[0.08]"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                      <Music2 className="w-5 h-5 text-green-500" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">Artist Portal Active</p>
-                      <p className="text-xs text-zinc-400 truncate">Monitoring performance</p>
-                    </div>
-                    <div className="flex items-end gap-[2px] h-6">
-                      {[0, 1, 2, 3].map((bar) => (
-                        <motion.div
-                          key={`mini-eq-${bar}`}
-                          className="w-[3px] bg-green-500 rounded-full"
-                          animate={{
-                            height: ["8px", "20px", "12px", "24px", "8px"],
-                          }}
-                          transition={{
-                            duration: 0.8 + bar * 0.15,
-                            repeat: Infinity,
-                            delay: bar * 0.1,
-                            ease: "easeInOut",
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
               </div>
-            </motion.div>
-          </div>
-
-          {/* Feature pills */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-8 flex flex-wrap items-center justify-center gap-3"
-          >
-            {featuresList.map((f, i) => (
-              <motion.div
-                key={f.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.7 + i * 0.08 }}
-                className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 transition-all cursor-default group"
-              >
-                <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center group-hover:bg-green-500/15 transition-colors">
-                  <f.icon className="w-4 h-4 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-[13px] font-medium text-white">{f.label}</p>
-                  <p className="text-[11px] text-zinc-500 hidden sm:block">{f.desc}</p>
-                </div>
-              </motion.div>
-            ))}
+            </div>
           </motion.div>
-        </motion.div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <ChevronDown className="w-5 h-5 text-zinc-600" />
-          </motion.div>
-        </motion.div>
+        </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-32 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_50%_0%,rgba(34,197,94,0.04),transparent)]" />
+      {/* ═══ SHOWCASE: SECOND SCROLL-DRIVEN VIDEO ═══ */}
+      <section ref={showcaseContainerRef} className="relative" style={{ height: "300vh" }}>
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          {/* Video */}
+          <video
+            ref={showcaseVideoRef}
+            src="/lugmatic_3d2.mp4"
+            muted
+            playsInline
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ filter: "brightness(0.5) saturate(1.3)" }}
+          />
+
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/80 pointer-events-none" />
+
+          {/* ─── Showcase slide 1 ─── */}
+          <motion.div
+            style={{ opacity: showcase1Opacity, y: showcase1Y }}
+            className="absolute inset-0 flex items-center justify-center z-10"
+          >
+            <div className="text-center max-w-3xl mx-auto px-6">
+              <div className="w-16 h-16 rounded-2xl bg-green-500/15 backdrop-blur-xl flex items-center justify-center mx-auto mb-6 border border-green-500/20">
+                <Zap className="w-8 h-8 text-green-500" />
+              </div>
+              <h3 className="text-4xl md:text-6xl font-bold tracking-[-0.03em] italic" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                BUILT FOR THE CULTURE
+              </h3>
+              <p className="text-zinc-400 text-lg mt-4 max-w-md mx-auto">
+                From the streets of Kingston to the world stage — a platform designed for Caribbean music first.
+              </p>
+            </div>
+          </motion.div>
+
+          {/* ─── Showcase slide 2 ─── */}
+          <motion.div
+            style={{ opacity: showcase2Opacity, y: showcase2Y }}
+            className="absolute inset-0 flex items-center z-10"
+          >
+            <div className="max-w-5xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-3 gap-5">
+              {[
+                { icon: TrendingUp, title: "Real-Time Analytics", desc: "Track streams, engagement, and revenue as it happens." },
+                { icon: DollarSign, title: "Direct Earnings", desc: "Fans gift you directly. Higher payouts, no middlemen." },
+                { icon: Shield, title: "Artist Control", desc: "You own your content. Full control over releases and distribution." },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.12 }}
+                  className="p-6 rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.1] transition-all group"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4 group-hover:bg-green-500/20 group-hover:scale-105 transition-all">
+                    <item.icon className="w-5 h-5 text-green-500" />
+                  </div>
+                  <h4 className="text-lg font-semibold mb-2">{item.title}</h4>
+                  <p className="text-sm text-zinc-500 leading-relaxed">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* ─── Showcase slide 3 ─── */}
+          <motion.div
+            style={{ opacity: showcase3Opacity, y: showcase3Y }}
+            className="absolute inset-0 flex items-center justify-center z-10"
+          >
+            <div className="text-center max-w-2xl mx-auto px-6">
+              <h3 className="text-4xl md:text-6xl font-bold tracking-[-0.03em] italic mb-6" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                <span className="text-green-500">GO LIVE.</span> GET GIFTED.
+              </h3>
+              <p className="text-zinc-400 text-lg mb-8 max-w-md mx-auto">
+                Stream live to your fans. Receive gifts in real-time. Build connections that last.
+              </p>
+              <div className="flex items-center justify-center gap-6">
+                {[
+                  { val: "$12K+", lbl: "Daily Gifts" },
+                  { val: "1.2K", lbl: "Live Daily" },
+                  { val: "99%", lbl: "Payout Rate" },
+                ].map((s) => (
+                  <div key={s.lbl} className="px-6 py-4 rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/[0.08]">
+                    <p className="text-2xl font-bold text-green-400">{s.val}</p>
+                    <p className="text-[11px] text-zinc-500 tracking-wider uppercase mt-1">{s.lbl}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══ FEATURES ═══ */}
+      <section id="features" className="py-32 relative bg-black">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_50%_0%,rgba(34,197,94,0.06),transparent)]" />
         <div className="max-w-6xl mx-auto px-6 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -481,7 +449,7 @@ export default function Landing() {
           >
             <p className="text-[12px] tracking-[0.2em] uppercase text-green-500 mb-4">Platform</p>
             <h2 className="text-5xl md:text-6xl font-bold tracking-[-0.03em] italic" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-              BUILT FOR THE CULTURE
+              EVERYTHING YOU NEED
             </h2>
             <p className="text-zinc-500 mt-4 max-w-md mx-auto">
               Everything you need to experience the best of Caribbean music.
@@ -489,32 +457,7 @@ export default function Landing() {
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-4">
-            {[
-              {
-                icon: Headphones,
-                title: "High-Fidelity Audio",
-                description: "Experience every beat and bassline exactly as the artist intended. Lossless quality streaming.",
-                span: "md:col-span-1"
-              },
-              {
-                icon: Radio,
-                title: "Live Artist Sessions",
-                description: "Watch your favorite dancehall and reggae artists perform live. Interact, request songs, and send gifts in real-time.",
-                span: "md:col-span-2"
-              },
-              {
-                icon: Gift,
-                title: "Direct Artist Support",
-                description: "Gift artists directly during streams and from their profiles. Higher payouts mean more music from creators you love.",
-                span: "md:col-span-2"
-              },
-              {
-                icon: Sparkles,
-                title: "Discover New Artists",
-                description: "Find emerging talent before they blow up. Explore curated playlists and personalized recommendations.",
-                span: "md:col-span-1"
-              }
-            ].map((feature, i) => (
+            {featureCards.map((feature, i) => (
               <motion.div
                 key={feature.title}
                 initial={{ opacity: 0, y: 20 }}
@@ -534,10 +477,9 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Pricing Section */}
+      {/* ═══ PRICING ═══ */}
       <section id="pricing" className="py-32 relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_50%_100%,rgba(34,197,94,0.05),transparent)]" />
-
         <div className="max-w-6xl mx-auto px-6 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -608,7 +550,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ═══ FOOTER ═══ */}
       <footer className="py-12 border-t border-white/[0.06]">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
@@ -629,23 +571,9 @@ export default function Landing() {
           </p>
         </div>
       </footer>
-      
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
-        
-        @keyframes pulse {
-          0%, 100% { opacity: 0.6; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.05); }
-        }
-
-        .animate-spin-slow {
-          animation: spin 8s linear infinite;
-        }
-
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
       `}</style>
     </div>
   );
