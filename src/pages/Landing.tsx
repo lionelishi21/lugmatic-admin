@@ -55,32 +55,6 @@ const pricingPlans = [
   }
 ];
 
-const featureCards = [
-  {
-    icon: Headphones,
-    title: "High-Fidelity Audio",
-    description: "Experience every beat and bassline exactly as the artist intended. Lossless quality streaming.",
-    span: "md:col-span-1"
-  },
-  {
-    icon: Radio,
-    title: "Live Artist Sessions",
-    description: "Watch your favorite dancehall and reggae artists perform live. Interact, request songs, and send gifts in real-time.",
-    span: "md:col-span-2"
-  },
-  {
-    icon: Gift,
-    title: "Direct Artist Support",
-    description: "Gift artists directly during streams and from their profiles. Higher payouts mean more music from creators you love.",
-    span: "md:col-span-2"
-  },
-  {
-    icon: Sparkles,
-    title: "Discover New Artists",
-    description: "Find emerging talent before they blow up. Explore curated playlists and personalized recommendations.",
-    span: "md:col-span-1"
-  }
-];
 
 /* ─── Scroll-synced video hook (frame-by-frame) ─── */
 function useScrollVideo(
@@ -235,8 +209,8 @@ export default function Landing() {
             style={{ filter: "brightness(0.55) saturate(1.2)" }}
           />
 
-          {/* Gradient overlays for readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/80 pointer-events-none" />
+          {/* Gradient overlays for readability and blending */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent pointer-events-none" />
 
           {/* ─── Overlay 1: Hero text (Asymmetric Left) ─── */}
@@ -391,8 +365,8 @@ export default function Landing() {
             }}
           />
 
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/80 pointer-events-none" />
+          {/* Gradient overlay for blending */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-transparent to-black pointer-events-none" />
 
           {/* ─── Showcase slide 1 ─── */}
           <motion.div
