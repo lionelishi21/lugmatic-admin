@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValueEvent, useSpring } from "framer-motion";
 import { Check, Headphones, Radio, Gift, Sparkles, ArrowRight, ChevronDown, Music2, Menu, X, TrendingUp, Users, DollarSign, Zap, Globe, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useRef, useState, useEffect, useCallback } from "react";
@@ -82,7 +82,7 @@ const featureCards = [
   }
 ];
 
-/* ─── Scroll-synced video hook ─── */
+/* ─── Scroll-synced video hook (frame-by-frame) ─── */
 function useScrollVideo(
   containerRef: React.RefObject<HTMLElement | null>,
   videoRef: React.RefObject<HTMLVideoElement | null>,
@@ -108,28 +108,33 @@ export default function Landing() {
 
   /* ─── Video refs ─── */
   const heroContainerRef = useRef<HTMLDivElement>(null);
-  const heroVideoRef = useRef<HTMLVideoElement>(null);
   const showcaseContainerRef = useRef<HTMLDivElement>(null);
   const showcaseVideoRef = useRef<HTMLVideoElement>(null);
 
-  /* ─── Scroll-sync videos ─── */
-  const heroProgress = useScrollVideo(heroContainerRef, heroVideoRef);
+  /* ─── Hero: scroll progress for text overlays only (video autoplays) ─── */
+  const { scrollYProgress: heroScrollRaw } = useScroll({
+    target: heroContainerRef,
+    offset: ["start start", "end end"],
+  });
+  const heroProgress = useSpring(heroScrollRaw, { damping: 80, stiffness: 600, mass: 0.2 });
+
+  /* ─── Showcase: scroll-synced video ─── */
   const showcaseProgress = useScrollVideo(showcaseContainerRef, showcaseVideoRef);
 
   /* ─── Derived parallax transforms ─── */
-  const heroTextOpacity = useTransform(heroProgress, [0, 0.25, 0.35], [1, 1, 0]);
-  const heroTextY = useTransform(heroProgress, [0, 0.35], [0, -80]);
-  const heroStatsOpacity = useTransform(heroProgress, [0.3, 0.45, 0.65], [0, 1, 0]);
-  const heroStatsY = useTransform(heroProgress, [0.3, 0.45, 0.65], [60, 0, -40]);
-  const heroCTAOpacity = useTransform(heroProgress, [0.6, 0.75, 0.95], [0, 1, 0]);
-  const heroCTAY = useTransform(heroProgress, [0.6, 0.75, 0.95], [80, 0, -60]);
+  const heroTextOpacity = useTransform(heroProgress, [0, 0.35, 0.45], [1, 1, 0]);
+  const heroTextY = useTransform(heroProgress, [0, 0.45], [0, -60]);
+  const heroStatsOpacity = useTransform(heroProgress, [0.4, 0.5, 0.7, 0.8], [0, 1, 1, 0]);
+  const heroStatsY = useTransform(heroProgress, [0.4, 0.5, 0.7, 0.8], [40, 0, 0, -40]);
+  const heroCTAOpacity = useTransform(heroProgress, [0.75, 0.85, 0.95, 1], [0, 1, 1, 1]);
+  const heroCTAY = useTransform(heroProgress, [0.75, 0.85, 0.95, 1], [40, 0, 0, 0]);
 
-  const showcase1Opacity = useTransform(showcaseProgress, [0, 0.2, 0.4], [0, 1, 0]);
-  const showcase1Y = useTransform(showcaseProgress, [0, 0.2, 0.4], [60, 0, -60]);
-  const showcase2Opacity = useTransform(showcaseProgress, [0.35, 0.55, 0.7], [0, 1, 0]);
-  const showcase2Y = useTransform(showcaseProgress, [0.35, 0.55, 0.7], [60, 0, -60]);
-  const showcase3Opacity = useTransform(showcaseProgress, [0.65, 0.8, 0.95], [0, 1, 0]);
-  const showcase3Y = useTransform(showcaseProgress, [0.65, 0.8, 0.95], [60, 0, -60]);
+  const showcase1Opacity = useTransform(showcaseProgress, [0, 0.35, 0.45], [1, 1, 0]);
+  const showcase1Y = useTransform(showcaseProgress, [0, 0.45], [0, -60]);
+  const showcase2Opacity = useTransform(showcaseProgress, [0.4, 0.5, 0.7, 0.8], [0, 1, 1, 0]);
+  const showcase2Y = useTransform(showcaseProgress, [0.4, 0.5, 0.7, 0.8], [40, 0, 0, -40]);
+  const showcase3Opacity = useTransform(showcaseProgress, [0.75, 0.85, 0.95, 1], [0, 1, 1, 1]);
+  const showcase3Y = useTransform(showcaseProgress, [0.75, 0.85, 0.95, 1], [40, 0, 0, 0]);
 
   /* ─── Preload videos ─── */
   const preloadVideo = useCallback((ref: React.RefObject<HTMLVideoElement | null>) => {
@@ -141,15 +146,14 @@ export default function Landing() {
   }, []);
 
   useEffect(() => {
-    preloadVideo(heroVideoRef);
     preloadVideo(showcaseVideoRef);
   }, [preloadVideo]);
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-green-500 selection:text-black overflow-x-hidden">
-      {/* ═══ NAV ═══ */}
-      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-black/60 border-b border-white/[0.06]">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      {/* ═══ NAV: LIQUID GLASS ═══ */}
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-zinc-950/60 border-b border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="h-10">
               <img src={logo} alt="Lugmatic" className="h-full object-contain" />
@@ -211,16 +215,17 @@ export default function Landing() {
         )}
       </nav>
 
-      {/* ═══ HERO: SCROLL-DRIVEN VIDEO SECTION ═══ */}
-      <section ref={heroContainerRef} className="relative" style={{ height: "300vh" }}>
+      {/* ═══ HERO: AUTOPLAY VIDEO BACKGROUND ═══ */}
+      <section ref={heroContainerRef} className="relative" style={{ height: "150vh" }}>
         {/* Sticky video container */}
         <div className="sticky top-0 h-screen w-full overflow-hidden">
-          {/* Video */}
+          {/* Video — always playing in background */}
           <video
-            ref={heroVideoRef}
             src="/lugmatic_3d1.mp4"
             muted
             playsInline
+            autoPlay
+            loop
             preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
             style={{ filter: "brightness(0.55) saturate(1.2)" }}
@@ -230,21 +235,24 @@ export default function Landing() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/80 pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent pointer-events-none" />
 
-          {/* ─── Overlay 1: Hero text ─── */}
+          {/* ─── Overlay 1: Hero text (Asymmetric Left) ─── */}
           <motion.div
             style={{ opacity: heroTextOpacity, y: heroTextY }}
             className="absolute inset-0 flex items-center z-10"
           >
-            <div className="max-w-6xl mx-auto px-6 w-full">
+            <div className="max-w-7xl mx-auto px-6 w-full lg:pr-[20vw]">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: "spring", stiffness: 100, damping: 20 }}
                 className="flex items-center mb-8"
               >
-                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/[0.06] backdrop-blur-md text-[12px] text-zinc-300">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  Dancehall &middot; Reggae &middot; Afrobeats
+                <div className="flex items-center gap-3 px-4 py-1.5 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-md text-[11px] font-medium tracking-wider uppercase text-zinc-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                  <div className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </div>
+                  Live in the lab: Dancehall &middot; Reggae &middot; Afrobeats
                 </div>
               </motion.div>
 
@@ -273,72 +281,88 @@ export default function Landing() {
             </div>
           </motion.div>
 
-          {/* ─── Overlay 2: Platform stats ─── */}
+          {/* ─── Overlay 2: Platform stats (Asymmetric Bento-ish) ─── */}
           <motion.div
             style={{ opacity: heroStatsOpacity, y: heroStatsY }}
             className="absolute inset-0 flex items-center justify-center z-10"
           >
-            <div className="max-w-4xl mx-auto px-6 w-full">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="max-w-7xl mx-auto px-6 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr_1fr] gap-6 items-end">
                 {[
-                  { value: "50K+", label: "Active Listeners", icon: Users, color: "text-green-400" },
-                  { value: "10K+", label: "Tracks Uploaded", icon: Music2, color: "text-emerald-400" },
-                  { value: "500+", label: "Artists Worldwide", icon: Globe, color: "text-teal-400" },
+                  { value: "50K+", label: "Active Listeners", icon: Users, color: "text-green-400", size: "p-10 md:col-span-1" },
+                  { value: "10K+", label: "Tracks", icon: Music2, color: "text-emerald-400", size: "p-8 md:col-span-1" },
+                  { value: "500+", label: "Artists Worldwide", icon: Globe, color: "text-teal-400", size: "p-8 md:col-span-1" },
                 ].map((stat, i) => (
                   <motion.div
                     key={stat.label}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="p-8 rounded-3xl bg-white/[0.06] backdrop-blur-xl border border-white/[0.08] text-center hover:bg-white/[0.1] transition-all group"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 100, damping: 20, delay: i * 0.1 }}
+                    className={`${stat.size} rounded-[2.5rem] bg-zinc-900/40 backdrop-blur-2xl border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] hover:bg-zinc-800/40 transition-all group relative overflow-hidden`}
                   >
-                    <stat.icon className={`w-8 h-8 ${stat.color} mx-auto mb-4 group-hover:scale-110 transition-transform`} />
-                    <p className="text-4xl md:text-5xl font-bold tracking-tight mb-2">{stat.value}</p>
-                    <p className="text-sm text-zinc-400 tracking-wider uppercase">{stat.label}</p>
+                    <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-40 transition-opacity">
+                      <stat.icon className={`w-12 h-12 ${stat.color}`} />
+                    </div>
+                    <p className="text-5xl md:text-6xl font-bold tracking-tighter mb-2">{stat.value}</p>
+                    <p className="text-[10px] font-bold text-zinc-500 tracking-[0.2em] uppercase">{stat.label}</p>
                   </motion.div>
                 ))}
               </div>
             </div>
           </motion.div>
 
-          {/* ─── Overlay 3: CTA ─── */}
+          {/* ─── Overlay 3: CTA (Premium Asymmetric) ─── */}
           <motion.div
             style={{ opacity: heroCTAOpacity, y: heroCTAY }}
             className="absolute inset-0 flex items-center justify-center z-10"
           >
-            <div className="text-center max-w-2xl mx-auto px-6">
-              <h2
-                className="text-5xl md:text-7xl font-bold tracking-[-0.03em] italic mb-6"
-                style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-              >
-                <span className="text-green-500">YOUR MUSIC.</span> YOUR STAGE.
-              </h2>
-              <p className="text-zinc-400 text-lg mb-10 max-w-md mx-auto">
-                Join thousands of artists already growing their career on Lugmatic.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                {isAuthenticated ? (
-                  <Link to={dashboardPath}>
-                    <button className="bg-green-500 hover:bg-green-400 text-black font-bold h-14 px-10 text-base rounded-full shadow-[0_0_40px_-5px_rgba(100,220,80,0.5)] hover:shadow-[0_0_60px_-5px_rgba(100,220,80,0.7)] transition-all flex items-center gap-2">
-                      Dashboard
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </Link>
-                ) : (
-                  <>
-                    <Link to="/login">
-                      <button className="bg-green-500 hover:bg-green-400 text-black font-bold h-14 px-10 text-base rounded-full shadow-[0_0_40px_-5px_rgba(100,220,80,0.5)] hover:shadow-[0_0_60px_-5px_rgba(100,220,80,0.7)] transition-all flex items-center gap-2">
-                        Start Free
-                        <ArrowRight className="w-4 h-4" />
+            <div className="max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center gap-12 text-left">
+              <div className="flex-1">
+                <motion.h2
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                  className="text-6xl md:text-8xl font-bold tracking-tight italic mb-8 leading-[0.9]"
+                  style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+                >
+                  <span className="text-green-500 underline decoration-green-500/20 underline-offset-8">YOUR MUSIC.</span>
+                  <br />
+                  YOUR STAGE.
+                </motion.h2>
+                <p className="text-zinc-400 text-lg md:text-xl mb-12 max-w-lg leading-relaxed">
+                  Join thousands of artists already growing their career on Lugmatic. 
+                  Full ownership. Direct earnings. Total control.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  {isAuthenticated ? (
+                    <Link to={dashboardPath}>
+                      <button className="bg-green-500 hover:bg-green-400 text-black font-bold h-16 px-12 text-lg rounded-full shadow-[0_20px_50px_-15px_rgba(34,197,94,0.4)] hover:shadow-[0_30px_60px_-15px_rgba(34,197,94,0.6)] hover:-translate-y-1 active:scale-[0.98] transition-all flex items-center gap-3">
+                        Go to Dashboard
+                        <ArrowRight className="w-5 h-5" />
                       </button>
                     </Link>
-                    <Link to="/login">
-                      <button className="h-14 px-10 text-base rounded-full border border-white/15 hover:bg-white/10 text-zinc-300 backdrop-blur-md transition-all">
-                        Log In
-                      </button>
-                    </Link>
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <Link to="/login">
+                        <button className="bg-green-500 hover:bg-green-400 text-black font-bold h-16 px-12 text-lg rounded-full shadow-[0_20px_50px_-15px_rgba(34,197,94,0.4)] hover:shadow-[0_30px_60px_-15px_rgba(34,197,94,0.6)] hover:-translate-y-1 active:scale-[0.98] transition-all flex items-center gap-3">
+                          Start Growing Free
+                          <ArrowRight className="w-5 h-5" />
+                        </button>
+                      </Link>
+                      <Link to="/login">
+                        <button className="h-16 px-12 text-lg rounded-full border border-white/15 hover:bg-white/5 text-zinc-300 backdrop-blur-md hover:-translate-y-1 active:scale-[0.98] transition-all">
+                          Log In
+                        </button>
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="hidden lg:block w-1/3 aspect-square rounded-[3rem] border border-white/10 bg-zinc-900/40 backdrop-blur-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] relative overflow-hidden group">
+                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-transparent opacity-50" />
+                 <div className="absolute inset-0 flex items-center justify-center">
+                    <Music2 className="w-32 h-32 text-green-500/20 group-hover:scale-110 transition-transform duration-700" />
+                 </div>
               </div>
             </div>
           </motion.div>
@@ -346,7 +370,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ SHOWCASE: SECOND SCROLL-DRIVEN VIDEO ═══ */}
-      <section ref={showcaseContainerRef} className="relative" style={{ height: "300vh" }}>
+      <section ref={showcaseContainerRef} className="relative" style={{ height: "250vh" }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden">
           {/* Video */}
           <video
@@ -437,144 +461,237 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ FEATURES ═══ */}
-      <section id="features" className="py-32 relative bg-black">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_50%_0%,rgba(34,197,94,0.06),transparent)]" />
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <p className="text-[12px] tracking-[0.2em] uppercase text-green-500 mb-4">Platform</p>
-            <h2 className="text-5xl md:text-6xl font-bold tracking-[-0.03em] italic" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-              EVERYTHING YOU NEED
-            </h2>
-            <p className="text-zinc-500 mt-4 max-w-md mx-auto">
-              Everything you need to experience the best of Caribbean music.
-            </p>
-          </motion.div>
+      {/* ═══ FEATURES: BENTO GRID ═══ */}
+      <section id="features" className="py-24 relative bg-zinc-950 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_50%_0%,rgba(34,197,94,0.08),transparent)]" />
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
+              className="max-w-2xl"
+            >
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-green-500 mb-4">The Infrastructure</p>
+              <h2 className="text-6xl md:text-8xl font-bold tracking-tighter italic leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                EVERYTHING <span className="text-zinc-500">YOU</span> NEED
+              </h2>
+            </motion.div>
+            <motion.p 
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
+              className="text-zinc-500 max-w-sm text-lg leading-relaxed font-light"
+            >
+              A high-performance ecosystem designed specifically for the needs of modern Caribbean music creators.
+            </motion.p>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
-            {featureCards.map((feature, i) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className={`${feature.span} p-8 rounded-3xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all group hover:shadow-2xl hover:shadow-green-500/5`}
-              >
-                <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center mb-5 group-hover:bg-green-500/15 group-hover:scale-105 transition-all">
-                  <feature.icon className="w-5 h-5 text-green-500" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[280px]">
+            {/* Bento Card 1: Live Sessions (Large) */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
+              className="md:col-span-2 md:row-span-2 p-10 rounded-[2.5rem] bg-zinc-900/40 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] relative group overflow-hidden"
+            >
+              <div className="relative z-10 h-full flex flex-col">
+                <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mb-8 border border-green-500/20 group-hover:bg-green-500/20 group-hover:scale-110 transition-all duration-500">
+                  <Radio className="w-6 h-6 text-green-500" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-zinc-500 text-sm leading-relaxed">{feature.description}</p>
-              </motion.div>
-            ))}
+                <h3 className="text-3xl font-bold mb-4 tracking-tight">Live Artist Sessions</h3>
+                <p className="text-zinc-500 text-lg leading-relaxed flex-1">Watch your favorite artists perform live. Interact, request songs, and send gifts in real-time with zero latency.</p>
+                <div className="mt-8 flex items-center gap-2">
+                   <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                   <span className="text-[10px] font-bold tracking-widest uppercase text-zinc-500">Live Engine Active</span>
+                </div>
+              </div>
+              <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-green-500/5 rounded-full blur-3xl group-hover:bg-green-500/10 transition-colors duration-1000" />
+            </motion.div>
+
+            {/* Bento Card 2: Support (Medium) */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
+              className="md:col-span-2 md:row-span-1 p-10 rounded-[2.5rem] bg-zinc-900/40 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] relative group overflow-hidden"
+            >
+              <div className="relative z-10 flex items-start gap-8">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 group-hover:bg-emerald-500/20 transition-all">
+                  <Gift className="w-6 h-6 text-emerald-500" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-2 tracking-tight">Direct Artist Support</h3>
+                  <p className="text-zinc-500 leading-relaxed">Gift artists directly. Higher payouts mean more music from creators you love. Transparent 95/5 share.</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Bento Card 3: Discovery (Small) */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
+              className="md:col-span-1 md:row-span-1 p-8 rounded-[2.5rem] bg-zinc-900/40 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] relative group overflow-hidden"
+            >
+              <Sparkles className="w-8 h-8 text-amber-500/40 mb-6 group-hover:text-amber-500 group-hover:scale-110 transition-all" />
+              <h3 className="text-xl font-bold mb-2">Discovery</h3>
+              <p className="text-zinc-500 text-sm leading-relaxed">Find emerging talent before they blow up. Curated by humans, not algorithms.</p>
+            </motion.div>
+
+            {/* Bento Card 4: Audio (Small) */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.3 }}
+              className="md:col-span-1 md:row-span-1 p-8 rounded-[2.5rem] bg-zinc-900/40 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] relative group overflow-hidden"
+            >
+              <Headphones className="w-8 h-8 text-blue-500/40 mb-6 group-hover:text-blue-500 group-hover:scale-110 transition-all" />
+              <h3 className="text-xl font-bold mb-2">Hi-Fi Audio</h3>
+              <p className="text-zinc-500 text-sm leading-relaxed">Lossless quality streaming. Experience the true bass energy.</p>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ═══ PRICING ═══ */}
-      <section id="pricing" className="py-32 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_50%_100%,rgba(34,197,94,0.05),transparent)]" />
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <p className="text-[12px] tracking-[0.2em] uppercase text-green-500 mb-4">Pricing</p>
-            <h2 className="text-5xl md:text-6xl font-bold tracking-[-0.03em] italic" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-              CHOOSE YOUR PLAN
+      {/* ═══ PRICING: PREMIUM CARDS ═══ */}
+      <section id="pricing" className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(34,197,94,0.1),transparent_50%)]" />
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-20">
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
+              className="text-[10px] font-bold tracking-[0.4em] uppercase text-green-500 mb-6"
+            >
+              Economics
+            </motion.p>
+            <h2 className="text-6xl md:text-8xl font-bold tracking-tighter italic" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+              CHOOSE YOUR <span className="text-zinc-500">STAGE</span>
             </h2>
-            <p className="text-zinc-500 mt-4 max-w-md mx-auto">
-              Transparent pricing. Cancel anytime.
-            </p>
-          </motion.div>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
             {pricingPlans.map((plan, i) => (
               <motion.div
                 key={plan.name}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className={`relative p-8 rounded-3xl border flex flex-col transition-all duration-500 ${plan.highlight
-                  ? "border-green-500/40 bg-green-500/[0.04] shadow-[0_0_60px_-20px_rgba(100,220,80,0.15)] scale-105 z-10"
-                  : "border-white/[0.06] bg-white/[0.02]"
+                transition={{ type: "spring", stiffness: 100, damping: 20, delay: i * 0.1 }}
+                className={`group relative p-10 rounded-[2.5rem] border flex flex-col transition-all duration-700 ${plan.highlight
+                  ? "bg-zinc-900/60 border-green-500/30 shadow-[0_40px_100px_-20px_rgba(34,197,94,0.15),inset_0_1px_0_rgba(255,255,255,0.1)] py-16"
+                  : "bg-zinc-900/30 border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                   }`}
               >
                 {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-green-500 text-black text-[10px] font-bold tracking-widest uppercase">
-                    Popular
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-1.5 rounded-full bg-green-500 text-black text-[10px] font-bold tracking-[.25em] uppercase shadow-[0_10px_20px_-5px_rgba(34,197,94,0.4)]">
+                    Most Active
                   </div>
                 )}
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold mb-1">{plan.name}</h3>
-                  <p className="text-[13px] text-zinc-500">{plan.description}</p>
-                  <div className="flex items-baseline gap-1 mt-4">
-                    <span className="text-4xl font-bold">${plan.price}</span>
-                    <span className="text-zinc-500 text-sm">/mo</span>
+                
+                <div className="mb-10">
+                  <h3 className="text-2xl font-bold mb-2 tracking-tight">{plan.name}</h3>
+                  <p className="text-sm text-zinc-500 leading-relaxed">{plan.description}</p>
+                  <div className="flex items-baseline gap-2 mt-8">
+                    <span className="text-6xl font-bold tracking-tighter">${plan.price}</span>
+                    <span className="text-zinc-500 text-sm font-medium">/month</span>
                   </div>
                 </div>
 
-                <div className="space-y-3 mb-8 flex-1">
+                <div className="space-y-4 mb-10 flex-1">
                   {plan.features.map((feature) => (
-                    <div key={feature} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="w-3 h-3 text-green-500" />
+                    <div key={feature} className="flex items-start gap-4 group/item">
+                      <div className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:bg-green-500/20 transition-colors">
+                        <Check className="w-3.5 h-3.5 text-green-500" />
                       </div>
-                      <span className="text-[13px] text-zinc-400">{feature}</span>
+                      <span className="text-sm text-zinc-400 font-medium">{feature}</span>
                     </div>
                   ))}
                 </div>
 
                 <Link to={plan.href} className="mt-auto">
                   <button
-                    className={`w-full h-12 font-semibold rounded-2xl transition-all ${plan.highlight
-                      ? "bg-green-500 text-black hover:bg-green-400 shadow-[0_0_20px_-5px_rgba(100,220,80,0.3)]"
-                      : "bg-white/[0.06] text-white hover:bg-white/10 border border-white/5"
+                    className={`w-full h-16 text-sm font-bold rounded-2xl transition-all active:scale-[0.98] ${plan.highlight
+                      ? "bg-green-500 text-black hover:bg-green-400 shadow-[0_20px_40px_-10px_rgba(34,197,94,0.3)]"
+                      : "bg-white/5 text-white hover:bg-white/10 border border-white/10"
                       }`}
                   >
                     {plan.buttonText}
                   </button>
                 </Link>
+                
+                {/* Perpetual subtle shine effect on highlight card */}
+                {plan.highlight && (
+                  <div className="absolute inset-0 pointer-events-none rounded-[2.5rem] overflow-hidden">
+                    <motion.div 
+                      animate={{ x: ['100%', '-100%'] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear", repeatDelay: 5 }}
+                      className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12"
+                    />
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ FOOTER ═══ */}
-      <footer className="py-12 border-t border-white/[0.06]">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/10">
-              <img src={logo} alt="Lugmatic" className="w-full h-full object-contain" />
+      {/* ═══ FOOTER: ULTRA CLEAN ═══ */}
+      <footer className="py-16 border-t border-white/5 bg-zinc-950">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-start justify-between gap-12 mb-16">
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 p-2 bg-zinc-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                  <img src={logo} alt="Lugmatic" className="w-full h-full object-contain" />
+                </div>
+                <span className="text-2xl font-bold tracking-tight italic" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                  LUGMATIC
+                </span>
+              </div>
+              <p className="text-zinc-500 max-w-xs text-sm leading-relaxed">
+                The high-performance platform for Caribbean music creators. Built for the culture, powered by tech.
+              </p>
             </div>
-            <span className="text-xl font-bold tracking-tight italic" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-              LUGMATIC
-            </span>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-16">
+              <div className="flex flex-col gap-4">
+                <span className="text-[10px] font-bold tracking-[.3em] uppercase text-zinc-500">Social</span>
+                <a href="#" className="text-sm text-zinc-400 hover:text-green-400 transition-colors">Twitter</a>
+                <a href="#" className="text-sm text-zinc-400 hover:text-green-400 transition-colors">Instagram</a>
+                <a href="#" className="text-sm text-zinc-400 hover:text-green-400 transition-colors">TikTok</a>
+              </div>
+              <div className="flex flex-col gap-4">
+                <span className="text-[10px] font-bold tracking-[.3em] uppercase text-zinc-500">Legal</span>
+                <a href="#" className="text-sm text-zinc-400 hover:text-green-400 transition-colors">Privacy</a>
+                <a href="#" className="text-sm text-zinc-400 hover:text-green-400 transition-colors">Terms</a>
+              </div>
+              <div className="flex flex-col gap-4 hidden md:flex">
+                <span className="text-[10px] font-bold tracking-[.3em] uppercase text-zinc-500">Support</span>
+                <a href="#" className="text-sm text-zinc-400 hover:text-green-400 transition-colors">Help Center</a>
+                <a href="#" className="text-sm text-zinc-400 hover:text-green-400 transition-colors">Contact</a>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-8 text-[13px] text-zinc-500 font-medium">
-            <a href="#" className="hover:text-white transition-colors">Twitter</a>
-            <a href="#" className="hover:text-white transition-colors">Instagram</a>
-            <a href="#" className="hover:text-white transition-colors">Discord</a>
+          
+          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-[11px] font-medium text-zinc-600 tracking-wider">
+              &copy; {new Date().getFullYear()} LUGMATIC MUSIC GROUP. ALL RIGHTS RESERVED.
+            </p>
+            <p className="text-[11px] font-bold text-zinc-800 tracking-tighter">
+              MADE BY ARTISTS FOR ARTISTS
+            </p>
           </div>
-          <p className="text-[13px] text-zinc-600">
-            &copy; 2026 Lugmatic Music Group
-          </p>
         </div>
       </footer>
-
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
-      `}</style>
     </div>
   );
 }
