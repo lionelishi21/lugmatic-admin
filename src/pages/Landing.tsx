@@ -1,10 +1,10 @@
 import { motion, useScroll, useTransform, useMotionValueEvent, useSpring } from "framer-motion";
-import { Check, Headphones, Radio, Gift, Sparkles, ArrowRight, ChevronDown, Music2, Menu, X, TrendingUp, Users, DollarSign, Zap, Globe, Shield } from "lucide-react";
+import { Check, Headphones, Radio, Gift, Sparkles, ArrowRight, ChevronDown, Music2, Menu, X, TrendingUp, Users, DollarSign, Zap, Globe, Shield, Apple, Smartphone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useRef, useState, useEffect, useCallback } from "react";
 import logo from '../assets/logo.png';
 import { useAuth } from "../hooks/useAuth";
-import dashboardMockup from '../assets/dashboard_mockup.png';
+import mobileMockup from '../assets/mobile_mockup.png';
 
 const pricingPlans = [
   {
@@ -309,14 +309,14 @@ export default function Landing() {
                   <span className="text-green-500 drop-shadow-[0_0_80px_rgba(34,197,94,0.3)]">STAGE.</span>
                 </motion.h2>
                 <p className="text-zinc-400 text-lg md:text-2xl mb-12 max-w-2xl mx-auto leading-relaxed">
-                  The advanced dashboard for Caribbean music creators. 
-                  Stream, engage, and earn with zero friction.
+                  The high-performance platform for Caribbean music creators. 
+                  Stream, engage, and earn on the go.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                   {isAuthenticated ? (
                     <Link to={dashboardPath}>
                       <button className="bg-green-500 hover:bg-green-400 text-black font-bold h-16 px-12 text-lg rounded-full shadow-[0_20px_50px_-15px_rgba(34,197,94,0.4)] hover:shadow-[0_30px_60px_-15px_rgba(34,197,94,0.6)] hover:-translate-y-1 active:scale-[0.98] transition-all flex items-center gap-3">
-                        Go to Dashboard
+                        Go to Studio Dashboard
                         <ArrowRight className="w-5 h-5" />
                       </button>
                     </Link>
@@ -328,11 +328,11 @@ export default function Landing() {
                           <ArrowRight className="w-5 h-5" />
                         </button>
                       </Link>
-                      <Link to="/login">
+                      <a href="#download">
                         <button className="h-16 px-12 text-lg rounded-full border border-white/15 hover:bg-white/5 text-zinc-300 backdrop-blur-md hover:-translate-y-1 active:scale-[0.98] transition-all">
-                          Log In
+                          Download App
                         </button>
-                      </Link>
+                      </a>
                     </>
                   )}
                 </div>
@@ -438,56 +438,82 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ PRODUCT SHOWCASE: INTERACTIVE DASHBOARD PREVIEW ═══ */}
-      <section id="dashboard" className="py-32 relative bg-zinc-950 overflow-hidden">
-        {/* Subtle background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-green-500/5 rounded-full blur-[120px] pointer-events-none" />
+      {/* ═══ MOBILE SHOWCASE: LUGMATIC STUDIO ON THE GO ═══ */}
+      <section id="download" className="py-32 relative bg-zinc-950 overflow-hidden">
+        {/* Ambient background light */}
+        <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[600px] h-[600px] bg-green-500/5 rounded-full blur-[120px] pointer-events-none" />
         
-        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-20"
-          >
-            <h2 className="text-6xl md:text-8xl font-bold tracking-tighter italic mb-6 leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-              COMMAND YOUR <span className="text-green-500">CAREER</span>
-            </h2>
-            <p className="text-zinc-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-              Every tool you need to track earnings, engage with fans, and stream live. 
-              The ultimate high-performance dashboard for modern creators.
-            </p>
-          </motion.div>
-
-          {/* Dashboard Mockup Frame */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="relative mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-zinc-900/40 p-2 md:p-4 backdrop-blur-2xl shadow-2xl group"
-          >
-            <div className="relative rounded-[1.5rem] overflow-hidden border border-white/5 aspect-[16/10] bg-black">
-              <img src={dashboardMockup} alt="Lugmatic Dashboard" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-1000" />
-              
-              {/* Overlay for depth */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-            </div>
-
-            {/* Feature Pills */}
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-4 w-full justify-center px-4 overflow-x-auto no-scrollbar">
-              {[
-                { label: 'Live Sync', icon: Zap },
-                { label: 'Direct Gifting', icon: Gift },
-                { label: 'Global Reach', icon: Globe },
-                { label: 'Artist First', icon: Shield }
-              ].map((tag) => (
-                <div key={tag.label} className="flex items-center gap-2 px-6 py-3 rounded-full bg-zinc-900 border border-white/10 whitespace-nowrap text-[11px] font-bold tracking-[.2em] uppercase text-green-500 shadow-2xl">
-                  <tag.icon className="w-3.5 h-3.5" />
-                  {tag.label}
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center gap-20">
+            {/* Left side: Text & CTA */}
+            <div className="flex-1 text-left">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+              >
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] font-bold tracking-[.2em] uppercase text-green-500 mb-8">
+                  Available Now
                 </div>
-              ))}
+                <h2 className="text-6xl md:text-8xl font-bold tracking-tighter italic mb-8 leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                  LUGMATIC STUDIO <br />
+                  <span className="text-zinc-500 italic">IN YOUR POCKET</span>
+                </h2>
+                <p className="text-zinc-400 text-lg md:text-xl mb-12 leading-relaxed font-light">
+                  Go live from your mobile device and interact with your fans anywhere. 
+                  High-fidelity streaming, instant gifting, and real-time community engagement.
+                </p>
+                
+                <div className="flex flex-wrap gap-4">
+                  {/* App Store Button */}
+                  <button className="h-16 px-8 rounded-2xl bg-white text-black flex items-center gap-4 hover:bg-zinc-200 transition-all group overflow-hidden relative">
+                    <Apple className="w-8 h-8 fill-current" />
+                    <div className="text-left">
+                      <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Download on the</p>
+                      <p className="text-xl font-bold -mt-1">App Store</p>
+                    </div>
+                  </button>
+                  
+                  {/* Play Store Button */}
+                  <button className="h-16 px-8 rounded-2xl bg-zinc-900 border border-white/10 text-white flex items-center gap-4 hover:bg-zinc-800 transition-all">
+                    <Smartphone className="w-8 h-8 text-green-500" />
+                    <div className="text-left">
+                      <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Get it on</p>
+                      <p className="text-xl font-bold -mt-1">Google Play</p>
+                    </div>
+                  </button>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
+
+            {/* Right side: iPhone Mockup */}
+            <div className="flex-1 relative">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, rotateY: -10 }}
+                whileInView={{ opacity: 1, scale: 1, rotateY: 0 }}
+                viewport={{ once: true }}
+                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                className="relative z-10"
+              >
+                <div className="relative mx-auto w-full max-w-[400px] perspective-1000">
+                  <img src={mobileMockup} alt="Lugmatic Studio Mobile App" className="w-full h-auto drop-shadow-[0_40px_100px_rgba(0,0,0,0.8)]" />
+                  
+                  {/* Decorative element: Floating stats */}
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -right-8 top-1/4 px-6 py-4 rounded-3xl bg-green-500 text-black shadow-2xl z-20 hidden md:block"
+                  >
+                    <p className="text-[10px] font-bold tracking-widest uppercase opacity-80">Live Viewers</p>
+                    <p className="text-2xl font-bold tracking-tighter">41,200+</p>
+                  </motion.div>
+                </div>
+              </motion.div>
+              
+              {/* Radial background glow */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-green-500/10 rounded-full blur-[150px] pointer-events-none" />
+            </div>
+          </div>
         </div>
       </section>
 
