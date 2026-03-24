@@ -129,12 +129,16 @@ export default function Landing() {
   const heroCTAOpacity = useTransform(heroProgress, [0.75, 0.85, 0.95, 1], [0, 1, 1, 1]);
   const heroCTAY = useTransform(heroProgress, [0.75, 0.85, 0.95, 1], [40, 0, 0, 0]);
 
-  const showcase1Opacity = useTransform(showcaseProgress, [0, 0.35, 0.45], [1, 1, 0]);
-  const showcase1Y = useTransform(showcaseProgress, [0, 0.45], [0, -60]);
-  const showcase2Opacity = useTransform(showcaseProgress, [0.4, 0.5, 0.7, 0.8], [0, 1, 1, 0]);
-  const showcase2Y = useTransform(showcaseProgress, [0.4, 0.5, 0.7, 0.8], [40, 0, 0, -40]);
-  const showcase3Opacity = useTransform(showcaseProgress, [0.75, 0.85, 0.95, 1], [0, 1, 1, 1]);
-  const showcase3Y = useTransform(showcaseProgress, [0.75, 0.85, 0.95, 1], [40, 0, 0, 0]);
+  const showcase1Opacity = useTransform(showcaseProgress, [0, 0.2, 0.3], [1, 1, 0]);
+  const showcase1Y = useTransform(showcaseProgress, [0, 0.3], [0, -40]);
+  const showcase2Opacity = useTransform(showcaseProgress, [0.35, 0.45, 0.65, 0.75], [0, 1, 1, 0]);
+  const showcase2Y = useTransform(showcaseProgress, [0.35, 0.45, 0.65, 0.75], [40, 0, 0, -40]);
+  const showcase3Opacity = useTransform(showcaseProgress, [0.8, 0.9, 0.95, 1], [0, 1, 1, 1]);
+  const showcase3Y = useTransform(showcaseProgress, [0.8, 0.9, 1], [40, 0, 0]);
+
+  /* ─── Showase: Video Parallax ─── */
+  const showcaseVideoScale = useTransform(showcaseProgress, [0, 1], [1.05, 1.25]);
+  const showcaseVideoY = useTransform(showcaseProgress, [0, 1], ["0%", "8%"]);
 
   /* ─── Preload videos ─── */
   const preloadVideo = useCallback((ref: React.RefObject<HTMLVideoElement | null>) => {
@@ -370,17 +374,21 @@ export default function Landing() {
       </section>
 
       {/* ═══ SHOWCASE: SECOND SCROLL-DRIVEN VIDEO ═══ */}
-      <section ref={showcaseContainerRef} className="relative" style={{ height: "250vh" }}>
+      <section ref={showcaseContainerRef} className="relative" style={{ height: "300vh" }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden">
-          {/* Video */}
-          <video
+          {/* Video with Parallax */}
+          <motion.video
             ref={showcaseVideoRef}
             src="/lugmatic_3d2.mp4"
             muted
             playsInline
             preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ filter: "brightness(0.5) saturate(1.3)" }}
+            style={{ 
+              filter: "brightness(0.5) saturate(1.3)",
+              scale: showcaseVideoScale,
+              y: showcaseVideoY
+            }}
           />
 
           {/* Gradient overlay */}
