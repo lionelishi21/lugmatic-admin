@@ -298,13 +298,17 @@ export default function Login() {
         </form>
 
         {/* Demo Credentials */}
-        {/* <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-          <p className="text-xs text-gray-600 mb-2 font-medium">Demo Credentials:</p>
-          <div className="text-xs text-gray-500 space-y-1">
-            <p><strong>Email:</strong> demo@example.com</p>
-            <p><strong>Password:</strong> password123</p>
-          </div>
-        </div> */}
+        <div className="mt-8 pt-8 border-t border-white/5 text-center">
+          <p className="text-sm text-gray-500">
+            Don't have an account?{' '}
+            <button 
+              onClick={() => navigate('/register')}
+              className="text-green-600 font-bold hover:underline"
+            >
+              Sign up here
+            </button>
+          </p>
+        </div>
       </motion.div>
     </div>
   );

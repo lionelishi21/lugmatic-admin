@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/auth/Login'
+import ArtistRegister from './pages/auth/ArtistRegister';
 import ContributorLogin from './pages/auth/ContributorLogin';
 import AcceptInvitation from './pages/auth/AcceptInvitation';
 import ArtistDashboard from './pages/artist/ArtistDashboard';
@@ -64,6 +65,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<ArtistRegister />} />
             <Route path="/contributor/login" element={<ContributorLogin />} />
             <Route path="/accept-invitation" element={<AcceptInvitation />} />
 

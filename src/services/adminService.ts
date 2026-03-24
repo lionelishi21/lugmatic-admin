@@ -44,6 +44,14 @@ export const adminService = {
     return apiService.delete<void>(`/admin/users/${id}`);
   },
 
+  updateEmail: async (userId: string, email: string) => {
+    return apiService.patch<ApiResponse<User>>(`/admin/users/${userId}/email`, { email });
+  },
+
+  resendInvitation: async (userId: string) => {
+    return apiService.post<ApiResponse<void>>(`/admin/users/${userId}/resend-invitation`);
+  },
+
   toggleUserStatus: async (id: string, isActive: boolean) => {
     return apiService.put<User>(`/admin/users/${id}/status`, { isActive });
   },

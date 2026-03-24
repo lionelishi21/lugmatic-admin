@@ -1,0 +1,32 @@
+
+> lugmatic-artist@0.0.0 build
+> vite build
+
+vite v6.2.1 building for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 13 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 14131 modules transformed.
+✗ Build failed in 16.10s
+error during build:
+src/pages/admin/SongDetail.tsx (18:23): "Video" is not exported by "src/services/videoService.ts", imported by "src/pages/admin/SongDetail.tsx".
+file: /Users/Ish/software-development/Projects/ReactJS/lugmatic-artist/src/pages/admin/SongDetail.tsx:18:23
+
+16: } from 'lucide-react';
+17: import { adminService } from '../../services/adminService';
+18: import videoService, { Video } from '../../services/videoService';
+                           ^
+19: 
+20: const SongDetail: React.FC = () => {
+
+    at getRollupError (file:///Users/Ish/software-development/Projects/ReactJS/lugmatic-artist/node_modules/rollup/dist/es/shared/parseAst.js:397:41)
+    at error (file:///Users/Ish/software-development/Projects/ReactJS/lugmatic-artist/node_modules/rollup/dist/es/shared/parseAst.js:393:42)
+    at Module.error (file:///Users/Ish/software-development/Projects/ReactJS/lugmatic-artist/node_modules/rollup/dist/es/shared/node-entry.js:16659:16)
+    at Module.traceVariable (file:///Users/Ish/software-development/Projects/ReactJS/lugmatic-artist/node_modules/rollup/dist/es/shared/node-entry.js:17108:29)
+    at ModuleScope.findVariable (file:///Users/Ish/software-development/Projects/ReactJS/lugmatic-artist/node_modules/rollup/dist/es/shared/node-entry.js:14765:39)
+    at ReturnValueScope.findVariable (file:///Users/Ish/software-development/Projects/ReactJS/lugmatic-artist/node_modules/rollup/dist/es/shared/node-entry.js:5582:38)
+    at FunctionBodyScope.findVariable (file:///Users/Ish/software-development/Projects/ReactJS/lugmatic-artist/node_modules/rollup/dist/es/shared/node-entry.js:5582:38)
+    at Identifier.bind (file:///Users/Ish/software-development/Projects/ReactJS/lugmatic-artist/node_modules/rollup/dist/es/shared/node-entry.js:5356:40)
+    at CallExpression.bind (file:///Users/Ish/software-development/Projects/ReactJS/lugmatic-artist/node_modules/rollup/dist/es/shared/node-entry.js:2779:28)
+    at CallExpression.bind (file:///Users/Ish/software-development/Projects/ReactJS/lugmatic-artist/node_modules/rollup/dist/es/shared/node-entry.js:11921:15)

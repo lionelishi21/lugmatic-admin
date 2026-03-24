@@ -152,6 +152,41 @@ export default function UserManagement() {
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+    try {
+      await adminService.deleteUser(userId);
+      toast.success('User deleted successfully');
+      fetchUsers();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete user');
+    }
+  };
+
+  const handleResendInvitation = async (userId: string) => {
+    try {
+      await adminService.resendInvitation(userId);
+      toast.success('Invitation resent successfully');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to resend invitation');
+    }
+  };
+
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editEmail, setEditEmail] = useState('');
+
+  const handleUpdateEmail = async (userId: string) => {
+    if (!editEmail) return;
+    try {
+      await adminService.updateEmail(userId, editEmail);
+      toast.success('Email updated successfully');
+      setEditingUserId(null);
+      fetchUsers();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update email');
+    }
+  };
+
   const hasActiveFilters = roleFilter !== 'all' || statusFilter !== 'all';
 
   return (
@@ -389,9 +424,20 @@ export default function UserManagement() {
                       <>
                         <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
                         <div className="absolute right-0 mt-1 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20">
-                          <button className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                            <UserIcon className="w-3.5 h-3.5" /> View Profile
+                          <button 
+                            onClick={() => { setEditEmail(user.email); setEditingUserId(userId); setOpenMenu(null); }}
+                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                          >
+                            <Mail className="w-3.5 h-3.5" /> Edit Email
                           </button>
+                          {!user.isEmailVerified && (
+                             <button 
+                              onClick={() => { handleResendInvitation(userId); setOpenMenu(null); }}
+                              className="w-full px-3 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2"
+                             >
+                               <UserPlus className="w-3.5 h-3.5" /> Resend Invite
+                             </button>
+                          )}
                           <button className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                             <Shield className="w-3.5 h-3.5" /> Change Role
                           </button>
@@ -405,7 +451,10 @@ export default function UserManagement() {
                             </button>
                           )}
                           <div className="border-t border-gray-100 my-1" />
-                          <button className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                          <button 
+                            onClick={() => { handleDeleteUser(userId); setOpenMenu(null); }}
+                            className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                          >
                             <UserX className="w-3.5 h-3.5" /> Delete
                           </button>
                         </div>
@@ -419,6 +468,41 @@ export default function UserManagement() {
             </tbody>
           </table>
         </div>
+
+        {/* Edit Email Modal */}
+        {editingUserId && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                <h3 className="text-lg font-bold text-gray-900">Update User Email</h3>
+                <button onClick={() => setEditingUserId(null)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="space-y-1.5">
+                  <label htmlFor="editEmail" className="text-xs font-semibold text-gray-700 uppercase tracking-wider ml-1">New Email Address</label>
+                  <input
+                    id="editEmail"
+                    type="email"
+                    value={editEmail}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditEmail(e.target.value)}
+                    className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all shadow-none"
+                    placeholder="new.email@example.com"
+                  />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button onClick={() => setEditingUserId(null)} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+                    Cancel
+                  </button>
+                  <button onClick={() => handleUpdateEmail(editingUserId)} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-xl transition-all shadow-lg shadow-green-200">
+                    Update Email
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer / pagination */ }
   {
