@@ -52,8 +52,15 @@ export default function Login() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      const targetPath = user.role === 'admin' ? '/admin' : '/artist';
-      navigate(targetPath, { replace: true });
+      if (user.role === 'user') {
+        window.location.href = 'https://lugmaticmusic.com';
+      } else if (user.role === 'admin' || user.role === 'super admin') {
+        navigate('/admin', { replace: true });
+      } else if (user.role === 'contributor') {
+        navigate('/contributor', { replace: true });
+      } else {
+        navigate('/artist', { replace: true });
+      }
     }
   }, [isAuthenticated, user, navigate]);
 

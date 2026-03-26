@@ -26,11 +26,10 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   // Allowed roles
   const allowedRoles = ['admin', 'artist', 'contributor', 'super admin'];
 
-  // Block regular users entirely
+  // Regular users belong on the fan webapp, not here
   if (user && !allowedRoles.includes(user.role || '')) {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    return <Navigate to="/login" replace />;
+    window.location.href = 'https://lugmaticmusic.com';
+    return null;
   }
 
   // If a specific role is required, check the user's role
