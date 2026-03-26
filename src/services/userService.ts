@@ -34,7 +34,7 @@ export const userService = {
   },
 
   verifyEmail: async (token: string) => {
-    return apiService.post<ApiResponse<void>>('/auth/verify-email', { token });
+    return apiService.get<ApiResponse<void>>(`/auth/verify-email?token=${encodeURIComponent(token)}`);
   },
 
   resendVerificationEmail: async (email: string) => {

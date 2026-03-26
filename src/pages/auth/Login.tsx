@@ -298,14 +298,23 @@ export default function Login() {
         </form>
 
         {/* Demo Credentials */}
-        <div className="mt-8 pt-8 border-t border-white/5 text-center">
+        <div className="mt-8 pt-8 border-t border-white/5 text-center space-y-2">
           <p className="text-sm text-gray-500">
             Don't have an account?{' '}
-            <button 
+            <button
               onClick={() => navigate('/register')}
               className="text-green-600 font-bold hover:underline"
             >
               Sign up here
+            </button>
+          </p>
+          <p className="text-sm text-gray-400">
+            Didn't receive a verification email?{' '}
+            <button
+              onClick={() => navigate('/resend-verification')}
+              className="text-green-600 hover:underline"
+            >
+              Resend it
             </button>
           </p>
         </div>
