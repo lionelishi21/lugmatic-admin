@@ -131,7 +131,7 @@ export const createApiInstance = (config?: AxiosRequestConfig): AxiosInstance =>
           });
 
           // Call token refresh endpoint
-          const response = await refreshInstance.post('/refresh-token', {
+          const response = await refreshInstance.post('/auth/refresh-token', {
             refreshToken,
           });
 
