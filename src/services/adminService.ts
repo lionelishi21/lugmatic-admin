@@ -49,7 +49,7 @@ export const adminService = {
   },
 
   resendInvitation: async (userId: string) => {
-    return apiService.post<ApiResponse<void>>(`/admin/users/${userId}/resend-invitation`);
+    return apiService.post<ApiResponse<void>>(`/admin/users/${userId}/resend-verification`);
   },
 
   toggleUserStatus: async (id: string, isActive: boolean) => {
