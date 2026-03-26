@@ -166,9 +166,9 @@ export default function UserManagement() {
   const handleResendInvitation = async (userId: string) => {
     try {
       await adminService.resendInvitation(userId);
-      toast.success('Invitation resent successfully');
+      toast.success('Verification email resent successfully');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to resend invitation');
+      toast.error(error.response?.data?.message || error.message || 'Failed to resend verification email');
     }
   };
 

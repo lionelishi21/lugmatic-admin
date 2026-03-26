@@ -5,6 +5,7 @@ import ContributorLogin from './pages/auth/ContributorLogin';
 import AcceptInvitation from './pages/auth/AcceptInvitation';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import ResendVerification from './pages/auth/ResendVerification';
+import SetupAccount from './pages/auth/SetupAccount';
 import ArtistDashboard from './pages/artist/ArtistDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Approvals from './pages/admin/Approvals';
@@ -72,6 +73,7 @@ function App() {
             <Route path="/accept-invitation" element={<AcceptInvitation />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/resend-verification" element={<ResendVerification />} />
+            <Route path="/setup-account" element={<SetupAccount />} />
 
             <Route path="/artist/*" element={
               <ProtectedRoute requiredRole="artist">
