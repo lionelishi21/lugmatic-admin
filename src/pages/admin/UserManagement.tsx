@@ -172,6 +172,16 @@ export default function UserManagement() {
     }
   };
 
+  const handleManuallyVerifyEmail = async (userId: string) => {
+    try {
+      await adminService.manuallyVerifyEmail(userId);
+      toast.success('Email manually verified');
+      fetchUsers();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || 'Failed to verify email');
+    }
+  };
+
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editEmail, setEditEmail] = useState('');
 
@@ -431,12 +441,20 @@ export default function UserManagement() {
                             <Mail className="w-3.5 h-3.5" /> Edit Email
                           </button>
                           {!user.isEmailVerified && (
-                             <button 
-                              onClick={() => { handleResendInvitation(userId); setOpenMenu(null); }}
-                              className="w-full px-3 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2"
-                             >
-                               <UserPlus className="w-3.5 h-3.5" /> Resend Invite
-                             </button>
+                            <>
+                              <button
+                                onClick={() => { handleResendInvitation(userId); setOpenMenu(null); }}
+                                className="w-full px-3 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2"
+                              >
+                                <UserPlus className="w-3.5 h-3.5" /> Resend Invite
+                              </button>
+                              <button
+                                onClick={() => { handleManuallyVerifyEmail(userId); setOpenMenu(null); }}
+                                className="w-full px-3 py-2 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
+                              >
+                                <UserCheck className="w-3.5 h-3.5" /> Mark as Verified
+                              </button>
+                            </>
                           )}
                           <button className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                             <Shield className="w-3.5 h-3.5" /> Change Role

@@ -52,6 +52,10 @@ export const adminService = {
     return apiService.post<ApiResponse<void>>(`/admin/users/${userId}/resend-verification`);
   },
 
+  manuallyVerifyEmail: async (userId: string) => {
+    return apiService.patch<ApiResponse<void>>(`/admin/users/${userId}/verify-email`);
+  },
+
   toggleUserStatus: async (id: string, isActive: boolean) => {
     return apiService.put<User>(`/admin/users/${id}/status`, { isActive });
   },
