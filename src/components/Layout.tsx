@@ -510,7 +510,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       )}
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 via-emerald-50/30 to-gray-100">
         <main className={`p-5 ${isMobile ? 'pt-16' : ''}`}>
           {children}
         </main>

@@ -223,7 +223,7 @@ const SongDetail: React.FC = () => {
   const sDate = song.releaseDate ? new Date(song.releaseDate) : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50/20 to-gray-100 p-6">
+    <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <button
           type="button"
@@ -401,18 +401,18 @@ const SongDetail: React.FC = () => {
                 <FileUpload label="Cover Art" currentFile={formData.coverArt || undefined} onFileSelect={handleCoverArtSelect} onFileRemove={() => { setCoverArtFile(null); setFormData(p => ({ ...p, coverArt: '' })); }} />
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><Music2 className="w-3.5 h-3.5 text-gray-400" /> Song Title</label>
-                  <input type="text" name="name" value={formData.name || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors" />
+                  <input type="text" name="name" value={formData.name || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 bg-white focus:ring-2 focus:ring-green-400 transition-colors" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-gray-400" /> Artist</label>
-                  <select name="artist" value={formData.artist || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 bg-white transition-colors">
+                  <select name="artist" value={formData.artist || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 bg-white focus:ring-2 focus:ring-green-400 transition-colors">
                     <option value="">Select an artist...</option>
                     {artists.map(a => <option key={a._id} value={a._id}>{a.name || a.fullName || 'Unknown'}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><Disc className="w-3.5 h-3.5 text-gray-400" /> Album</label>
-                  <select name="album" value={formData.album || ''} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 bg-white transition-colors">
+                  <select name="album" value={formData.album || ''} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 bg-white focus:ring-2 focus:ring-green-400 transition-colors">
                     <option value="">No Album (Single)</option>
                     {albums.map(al => <option key={al._id} value={al._id}>{al.name}</option>)}
                   </select>
@@ -420,27 +420,27 @@ const SongDetail: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><Tag className="w-3.5 h-3.5 text-gray-400" /> Genre</label>
-                    <select name="genre" value={formData.genre || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 bg-white transition-colors">
+                    <select name="genre" value={formData.genre || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 bg-white focus:ring-2 focus:ring-green-400 transition-colors">
                       <option value="">Select genre...</option>
                       {genres.map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-gray-400" /> Duration (sec)</label>
-                    <input type="number" name="duration" value={formData.duration || 0} onChange={handleInputChange} required min="0" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors" />
+                    <input type="number" name="duration" value={formData.duration || 0} onChange={handleInputChange} required min="0" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 bg-white focus:ring-2 focus:ring-green-400 transition-colors" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-gray-400" /> Release Date</label>
-                  <input type="date" name="releaseDate" value={formData.releaseDate || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors" />
+                  <input type="date" name="releaseDate" value={formData.releaseDate || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 bg-white focus:ring-2 focus:ring-green-400 transition-colors" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-gray-400" /> Lyrics</label>
-                  <textarea name="lyrics" value={formData.lyrics || ''} onChange={handleInputChange} rows={5} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors resize-none" placeholder="Enter lyrics..." />
+                  <textarea name="lyrics" value={formData.lyrics || ''} onChange={handleInputChange} rows={5} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 bg-white focus:ring-2 focus:ring-green-400 transition-colors resize-none" placeholder="Enter lyrics..." />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><ExternalLink className="w-3.5 h-3.5 text-gray-400" /> Music Video URL</label>
-                  <input type="text" name="videoUrl" value={formData.videoUrl || ''} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-400 transition-colors" placeholder="https://..." />
+                  <input type="text" name="videoUrl" value={formData.videoUrl || ''} onChange={handleInputChange} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 bg-white focus:ring-2 focus:ring-green-400 transition-colors" placeholder="https://..." />
                 </div>
                 <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
                   <p className="text-sm font-medium text-blue-800 flex items-center gap-2">
