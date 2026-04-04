@@ -86,6 +86,10 @@ const adminGiftService = {
     return adminGiftService.updateGift(id, { isActive: false });
   },
 
+  hardDeleteGift: async (id: string): Promise<void> => {
+    await apiService.delete(`/gift/admin/${id}`);
+  },
+
   uploadGiftIcon: async (file: File): Promise<{ url: string }> => {
     const formData = new FormData();
     // Backend expects field name 'image' (as per uploadGiftImage.single('image'))

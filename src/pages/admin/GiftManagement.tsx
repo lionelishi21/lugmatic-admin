@@ -14,6 +14,7 @@ import {
   Filter,
   MoreHorizontal,
   Power,
+  AlertTriangle,
 } from 'lucide-react';
 import adminGiftService, {
   GiftResponse,
@@ -41,6 +42,7 @@ const GiftManagement: React.FC = () => {
   const [filterCategory, setFilterCategory] = useState('all');
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [giftToDeactivate, setGiftToDeactivate] = useState<string | null>(null);
+  const [giftToDelete, setGiftToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     loadGifts();
@@ -114,6 +116,19 @@ const GiftManagement: React.FC = () => {
       console.error('Error updating gift:', error);
     } finally {
       setGiftToDeactivate(null);
+    }
+  };
+
+  const confirmHardDelete = async () => {
+    if (!giftToDelete) return;
+    try {
+      await adminGiftService.hardDeleteGift(giftToDelete);
+      toast.success('Gift permanently deleted');
+      loadGifts();
+    } catch (error) {
+      toast.error('Failed to delete gift');
+    } finally {
+      setGiftToDelete(null);
     }
   };
 
@@ -323,7 +338,7 @@ const GiftManagement: React.FC = () => {
                               <MoreHorizontal className="w-4 h-4" />
                             </button>
                             {activeMenu === gift._id && (
-                              <div className="absolute right-0 top-8 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20">
+                              <div className="absolute right-0 top-8 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20">
                                 <button
                                   onClick={() => { handleOpenDialog(gift); setActiveMenu(null); }}
                                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -337,11 +352,12 @@ const GiftManagement: React.FC = () => {
                                   <Power className="w-3.5 h-3.5" />
                                   {gift.isActive ? 'Deactivate' : 'Activate'}
                                 </button>
+                                <div className="border-t border-gray-100 my-1" />
                                 <button
-                                  onClick={() => { setGiftToDeactivate(gift._id); setActiveMenu(null); }}
+                                  onClick={() => { setGiftToDelete(gift._id); setActiveMenu(null); }}
                                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
                                 >
-                                  <Trash2 className="w-3.5 h-3.5" /> Deactivate
+                                  <Trash2 className="w-3.5 h-3.5" /> Delete
                                 </button>
                               </div>
                             )}
@@ -499,6 +515,15 @@ const GiftManagement: React.FC = () => {
         confirmLabel="Deactivate"
         onConfirm={confirmDelete}
         onCancel={() => setGiftToDeactivate(null)}
+      />
+
+      <ConfirmDialog
+        isOpen={!!giftToDelete}
+        title="Permanently Delete Gift"
+        message="This will permanently delete the gift and cannot be undone. Are you sure?"
+        confirmLabel="Delete"
+        onConfirm={confirmHardDelete}
+        onCancel={() => setGiftToDelete(null)}
       />
     </div>
   );

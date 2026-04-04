@@ -11,6 +11,7 @@ import {
   DollarSign,
   Tag,
   Type as TypeIcon,
+  Star,
 } from 'lucide-react';
 import FileUpload from '../ui/FileUpload';
 import { useCreateGift } from '../../hooks/gift/useCreateGift';
