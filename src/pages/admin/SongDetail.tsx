@@ -51,7 +51,7 @@ const SongDetail: React.FC = () => {
         artistService.getAllArtists(),
         albumService.getAllAlbums(),
         genreService.getAllGenres(),
-        videoService.getVideoBySongId(songId),
+        videoService.getVideoBySongId(songId).catch(() => null),
       ]);
       setSong(songData);
       setArtists(artistData);
