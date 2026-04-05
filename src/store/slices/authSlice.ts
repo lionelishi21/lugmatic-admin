@@ -80,7 +80,7 @@ export const initializeAuth = createAsyncThunk(
         return { isAuthenticated: false, user: null };
       }
       try {
-        const response = await apiService.get('/users/profile');
+        const response = await apiService.get('/auth/me');
         const userData = (response.data as any).data ?? response.data;
         return { isAuthenticated: true, user: userData };
       } catch (error) {
@@ -123,7 +123,7 @@ export const refreshUser = createAsyncThunk(
   'auth/refresh',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiService.get('/users/profile');
+      const response = await apiService.get('/auth/me');
       const userData = (response.data as any).data ?? response.data;
       return userData;
     } catch (error: unknown) {
