@@ -439,7 +439,7 @@ const SongDetail: React.FC = () => {
                 </div>
               </div>
               <form id="edit-form" onSubmit={handleSubmit} className="space-y-5">
-                <FileUpload label="Cover Art" currentFile={song.coverArtUrl || undefined} onFileSelect={handleCoverArtSelect} onFileRemove={() => { setCoverArtFile(null); setFormData(p => ({ ...p, coverArt: '' })); }} />
+                <FileUpload label="Cover Art" currentFile={formData.coverArt || undefined} onFileSelect={handleCoverArtSelect} onFileRemove={() => { setCoverArtFile(null); setFormData(p => ({ ...p, coverArt: '' })); }} />
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5"><Music2 className="w-3.5 h-3.5 text-gray-400" /> Song Title</label>
                   <input type="text" name="name" value={formData.name || ''} onChange={handleInputChange} required className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 bg-white focus:ring-2 focus:ring-green-400 transition-colors" />
@@ -490,7 +490,7 @@ const SongDetail: React.FC = () => {
                   </p>
                   <p className="text-xs text-blue-600 mt-1">To link or change the music video, please use the <strong>Video Management</strong> section.</p>
                 </div>
-                <FileUpload label="Audio File" fileType="audio" maxSize={50} onFileSelect={file => setAudioFile(file)} onFileRemove={() => { setAudioFile(null); setFormData(p => ({ ...p, audioFile: '' })); }} currentFile={song.audioFileUrl || undefined} />
+                <FileUpload label="Audio File" fileType="audio" maxSize={50} onFileSelect={file => setAudioFile(file)} onFileRemove={() => { setAudioFile(null); setFormData(p => ({ ...p, audioFile: '' })); }} currentFile={formData.audioFile || undefined} />
               </form>
             </motion.div>
           ) : (
