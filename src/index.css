@@ -22,6 +22,50 @@
   ::selection {
     @apply bg-green-500/30 text-green-200;
   }
+
+}
+
+/* Dashboard High Contrast Fix - Global Overrides */
+.dashboard-content input, 
+.dashboard-content select, 
+.dashboard-content textarea {
+  color: #18181b !important; /* text-zinc-900 */
+  -webkit-text-fill-color: #18181b !important; /* Force text color even with autofill */
+  border-color: #e4e4e7 !important; /* border-zinc-200 */
+  background-color: #ffffff !important;
+  caret-color: #18181b !important;
+}
+
+.dashboard-content input:focus, 
+.dashboard-content select:focus, 
+.dashboard-content textarea:focus {
+  background-color: #ffffff !important;
+  color: #18181b !important;
+  -webkit-text-fill-color: #18181b !important;
+  border-color: #22c55e !important; /* border-green-500 */
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2) !important;
+}
+
+.dashboard-content input::placeholder,
+.dashboard-content textarea::placeholder {
+  color: #71717a !important; /* text-zinc-400 */
+  opacity: 0.6 !important;
+  -webkit-text-fill-color: #71717a !important;
+}
+
+/* Fix for Autofill Background */
+.dashboard-content input:-webkit-autofill,
+.dashboard-content input:-webkit-autofill:hover, 
+.dashboard-content input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #18181b !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.dashboard-content ::selection {
+  background-color: rgba(34, 197, 94, 0.3) !important; /* bg-green-500/30 */
+  color: #064e3b !important; /* text-emerald-900 */
 }
 
 @media (prefers-reduced-motion: reduce) {

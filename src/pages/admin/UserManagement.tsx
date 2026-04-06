@@ -22,12 +22,8 @@ const statusConfig: Record<string, any> = {
   suspended: { label: 'Suspended', bg: 'bg-red-50', text: 'text-red-600', dot: 'bg-red-500' },
 };
 
-function formatNumber(n: number) {
-  if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'K';
-  return n.toString();
-}
-
 function getInitials(name: string) {
+  if (!name) return '??';
   return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 }
 
@@ -80,7 +76,7 @@ export default function UserManagement() {
     firstName: '',
     lastName: '',
     email: '',
-    role: 'user'
+    role: 'user' as const
   });
 
   const fetchUsers = useCallback(async () => {
@@ -113,12 +109,11 @@ export default function UserManagement() {
   }, [fetchUsers]);
 
   const stats = useMemo(() => {
-    const userList = Array.isArray(users) ? users : [];
     return {
       total: totalUsers,
-      active: userList.filter(u => u.isActive).length,
-      artists: userList.filter(u => u.role === 'artist').length,
-      suspended: userList.filter(u => !u.isActive).length,
+      active: users.filter(u => u.isActive).length,
+      artists: users.filter(u => u.role === 'artist').length,
+      suspended: users.filter(u => !u.isActive).length,
     };
   }, [users, totalUsers]);
 
@@ -131,10 +126,10 @@ export default function UserManagement() {
   };
 
   const toggleAll = () => {
-    if (selectedUsers.size === users.length) {
+    if (selectedUsers.size === users.length && users.length > 0) {
       setSelectedUsers(new Set());
     } else {
-      setSelectedUsers(new Set(users.map(u => u.id || u._id || '')));
+      setSelectedUsers(new Set(users.map(u => u._id || '')));
     }
   };
 
@@ -176,16 +171,6 @@ export default function UserManagement() {
     }
   };
 
-  const handleManuallyVerifyEmail = async (userId: string) => {
-    try {
-      await adminService.manuallyVerifyEmail(userId);
-      toast.success('Email manually verified');
-      fetchUsers();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || error.message || 'Failed to verify email');
-    }
-  };
-
   const handleUpdateEmail = async (userId: string) => {
     if (!editEmail) return;
     try {
@@ -200,10 +185,10 @@ export default function UserManagement() {
 
   const handleRoleChange = async () => {
     if (!targetUser) return;
-    const userId = targetUser.id || targetUser._id || '';
+    const userId = targetUser._id || '';
     setIsSubmitting(true);
     try {
-      await adminService.updateUser(userId, { role: newRole });
+      await adminService.updateUser(userId, { role: newRole as any });
       toast.success('User role updated successfully');
       setIsRoleModalOpen(false);
       fetchUsers();
@@ -216,12 +201,12 @@ export default function UserManagement() {
 
   const handleResetPassword = async () => {
     if (!targetUser) return;
-    const userId = targetUser.id || targetUser._id || '';
+    const userId = targetUser._id || '';
     setIsResetting(true);
     try {
       const response = await adminService.resetPassword(userId);
       if (response.data.success) {
-        setTempPassword(response.data.data.temporaryPassword);
+        setTempPassword((response.data.data as any).temporaryPassword);
         toast.success('Password reset successfully');
       }
     } catch (error: any) {
@@ -285,7 +270,7 @@ export default function UserManagement() {
                 placeholder="Search users..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-sm bg-gray-50/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-colors"
+                className="w-full pl-10 pr-4 py-2 text-sm text-gray-900 bg-gray-50/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-colors"
               />
               {search && (
                 <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -386,7 +371,7 @@ export default function UserManagement() {
                   <td colSpan={5} className="py-20 text-center text-gray-400">No users found matchnig your filters.</td>
                 </tr>
               ) : users.map(user => {
-                const userId = user.id || user._id || '';
+                const userId = user._id || '';
                 const role = roleConfig[user.role] || roleConfig.user;
                 const statusKey = user.isActive ? 'active' : 'suspended';
                 const status = statusConfig[statusKey];
@@ -566,7 +551,7 @@ export default function UserManagement() {
                   <input
                     type="text" required value={newUser.firstName}
                     onChange={e => setNewUser({ ...newUser, firstName: e.target.value })}
-                    className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
+                    className="w-full px-4 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
                     placeholder="John"
                   />
                 </div>
@@ -575,7 +560,7 @@ export default function UserManagement() {
                   <input
                     type="text" required value={newUser.lastName}
                     onChange={e => setNewUser({ ...newUser, lastName: e.target.value })}
-                    className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
+                    className="w-full px-4 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
                     placeholder="Doe"
                   />
                 </div>
@@ -587,7 +572,7 @@ export default function UserManagement() {
                   <input
                     type="email" required value={newUser.email}
                     onChange={e => setNewUser({ ...newUser, email: e.target.value })}
-                    className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
                     placeholder="john.doe@example.com"
                   />
                 </div>
@@ -597,8 +582,8 @@ export default function UserManagement() {
                 <div className="relative">
                   <select
                     value={newUser.role}
-                    onChange={e => setNewUser({ ...newUser, role: e.target.value })}
-                    className="w-full appearance-none px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
+                    onChange={e => setNewUser({ ...newUser, role: e.target.value as any })}
+                    className="w-full appearance-none px-4 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
                   >
                     {Object.keys(roleConfig).map(r => (
                       <option key={r} value={r}>{roleConfig[r].label}</option>
@@ -634,7 +619,7 @@ export default function UserManagement() {
                 <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider ml-1">New Email Address</label>
                 <input
                   type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
+                  className="w-full px-4 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
                   placeholder="new.email@example.com"
                 />
               </div>
@@ -665,7 +650,7 @@ export default function UserManagement() {
                   <select
                     value={newRole}
                     onChange={e => setNewRole(e.target.value)}
-                    className="w-full appearance-none px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
+                    className="w-full appearance-none px-4 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
                   >
                     {Object.keys(roleConfig).map(r => (
                       <option key={r} value={r}>{roleConfig[r].label}</option>

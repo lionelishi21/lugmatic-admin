@@ -173,7 +173,7 @@ const SongCreate: React.FC = () => {
                                     onChange={handleInputChange}
                                     required
                                     placeholder="e.g. Midnight City"
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-gray-900 transition-all"
                                 />
                             </div>
 
@@ -187,7 +187,7 @@ const SongCreate: React.FC = () => {
                                         value={formData.artist}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none bg-white transition-all"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none bg-white text-gray-900 transition-all"
                                     >
                                         <option value="">Select Artist...</option>
                                         {artists.map((a) => (
@@ -204,7 +204,7 @@ const SongCreate: React.FC = () => {
                                         name="album"
                                         value={formData.album}
                                         onChange={handleInputChange}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none bg-white transition-all"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none bg-white text-gray-900 transition-all"
                                     >
                                         <option value="">Single (No Album)</option>
                                         {albums.map((al) => (
@@ -224,7 +224,7 @@ const SongCreate: React.FC = () => {
                                         value={formData.genre}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none bg-white transition-all"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none bg-white text-gray-900 transition-all"
                                     >
                                         <option value="">Select Genre...</option>
                                         {genres.map((g) => (
@@ -243,7 +243,7 @@ const SongCreate: React.FC = () => {
                                         value={formData.duration}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-gray-900 transition-all"
                                     />
                                 </div>
                             </div>
@@ -257,7 +257,7 @@ const SongCreate: React.FC = () => {
                                     name="releaseDate"
                                     value={formData.releaseDate}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-gray-900 transition-all"
                                 />
                             </div>
 
@@ -271,7 +271,7 @@ const SongCreate: React.FC = () => {
                                     onChange={handleInputChange}
                                     rows={5}
                                     placeholder="Paste lyrics here..."
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all resize-none"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-gray-900 transition-all resize-none"
                                 />
                             </div>
                         </div>

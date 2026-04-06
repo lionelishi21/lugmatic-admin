@@ -102,5 +102,19 @@ export const commentService = {
       pageSize: pageSize.toString()
     });
     return apiService.get<PaginatedResponse<Comment>>(`/comments/user/${userId}?${params}`);
+  },
+
+  // Artist: Get all comments for management (songs, albums, podcasts, profile)
+  getDashboardArtistComments: async (page = 1, pageSize = 10) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      pageSize: pageSize.toString()
+    });
+    return apiService.get<PaginatedResponse<Comment>>(`/comments/artist/all?${params}`);
+  },
+
+  // Artist: Moderate comment
+  artistModerateComment: async (id: string, action: 'approve' | 'reject' | 'delete') => {
+    return apiService.put<ApiResponse<Comment>>(`/comments/artist/${id}/moderate`, { action });
   }
-}; 
+};

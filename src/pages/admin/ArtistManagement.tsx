@@ -518,7 +518,7 @@ const ArtistManagement: React.FC = () => {
               <input
                 type="text"
                 placeholder="Search artists..."
-                className="w-full sm:w-64 pl-9 pr-4 py-2 rounded-lg border border-gray-200 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 text-sm transition-all"
+                className="w-full sm:w-64 pl-9 pr-4 py-2 rounded-lg border border-gray-200 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 text-sm text-gray-900 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -527,7 +527,7 @@ const ArtistManagement: React.FC = () => {
             <div className="relative">
               <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <select
-                className="w-full sm:w-40 pl-9 pr-8 py-2 rounded-lg border border-gray-200 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 text-sm appearance-none transition-all"
+                className="w-full sm:w-40 pl-9 pr-8 py-2 rounded-lg border border-gray-200 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 text-sm text-gray-900 appearance-none transition-all"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
               >

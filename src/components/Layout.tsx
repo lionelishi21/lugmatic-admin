@@ -189,6 +189,11 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       icon: <Zap className="h-5 w-5" />
     },
     {
+      path: '/admin/billboard',
+      label: 'Billboard',
+      icon: <Award className="h-5 w-5" />
+    },
+    {
       path: '/admin/reports',
       label: 'Reports',
       icon: <FileText className="h-5 w-5" />
@@ -200,6 +205,11 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       path: '/artist',
       label: 'Dashboard',
       icon: <BarChart2 className="h-5 w-5" />
+    },
+    {
+      path: '/artist/billboard',
+      label: 'Billboard',
+      icon: <Award className="h-5 w-5" />
     },
     {
       path: '/artist/upload',
@@ -510,7 +520,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       )}
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 via-emerald-50/30 to-gray-100">
+      <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 via-emerald-50/30 to-gray-100 text-zinc-900 dashboard-content">
         <main className={`p-5 ${isMobile ? 'pt-16' : ''}`}>
           {children}
         </main>

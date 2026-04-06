@@ -76,15 +76,9 @@ const Comments: React.FC = () => {
   }, []);
 
   const loadComments = async () => {
-    if (!user?.artistId) {
-      setComments([]);
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
-      const response = await commentService.getArtistComments(user.artistId);
+      const response = await commentService.getDashboardArtistComments();
       if (response.data && Array.isArray(response.data.data)) {
         setComments(response.data.data as Comment[]);
       } else if (response.data && (response.data as any).data) {
@@ -125,22 +119,14 @@ const Comments: React.FC = () => {
 
   const confirmDeleteComment = async () => {
     if (!commentToDelete) return;
-    try {
-      await commentService.deleteComment(commentToDelete);
-      toast.success('Comment deleted successfully');
-      loadComments();
-    } catch (error) {
-      toast.error('Failed to delete comment');
-      console.error('Error deleting comment:', error);
-    } finally {
-      setCommentToDelete(null);
-    }
+    handleModerateComment(commentToDelete, 'delete');
+    setCommentToDelete(null);
   };
 
-  const handleModerateComment = async (commentId: string, action: 'approve' | 'reject') => {
+  const handleModerateComment = async (commentId: string, action: 'approve' | 'reject' | 'delete') => {
     try {
-      await commentService.moderateComment(commentId, action);
-      toast.success(`Comment ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
+      await commentService.artistModerateComment(commentId, action);
+      toast.success(`Comment ${action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'deleted'} successfully`);
       loadComments();
     } catch (error) {
       toast.error(`Failed to ${action} comment`);

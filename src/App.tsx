@@ -59,6 +59,7 @@ import Landing from './pages/Landing';
 import Clashes from './pages/artist/Clashes';
 import ContributorDashboard from './pages/contributor/ContributorDashboard';
 import PayoutSettings from './pages/contributor/PayoutSettings';
+import Billboard from './pages/admin/Billboard';
 
 function App() {
   return (
@@ -94,6 +95,7 @@ function App() {
                     <Route path="profile" element={<UserProfile />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="support" element={<Support />} />
+                    <Route path="billboard" element={<Billboard />} />
                     <Route path="song-edit/:id" element={<SongEdit />} />
                   </Routes>
                 </Layout>
@@ -135,6 +137,7 @@ function App() {
                         <Route path="reports" element={<Reports />} />
                         <Route path="home-page-management" element={<HomePageManagement />} />
                         <Route path="clash-management" element={<ClashManagement />} />
+                        <Route path="billboard" element={<Billboard />} />
                       </Routes>
                     </Layout>
                   </ArtistProvider>

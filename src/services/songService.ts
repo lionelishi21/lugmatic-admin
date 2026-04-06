@@ -22,6 +22,7 @@ export interface Song {
   splitSheet?: Array<{ contributor: string; role: string; share: number }>;
   termsAccepted?: boolean;
   videoUrl?: string;
+  playCount?: number;
   createdAt?: string;
   updatedAt?: string;
 }

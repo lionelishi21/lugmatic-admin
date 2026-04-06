@@ -22,14 +22,14 @@ export const useAuth = () => {
       if (loginUser.fulfilled.match(resultAction)) {
         const userData = resultAction.payload;
         
-        // Allowed roles for this dashboard
+        // Allowed roles for this dashboard (Artist, Admin, Contributor)
         const allowedRoles = ['admin', 'artist', 'contributor', 'super admin'];
-        if (!allowedRoles.includes(userData.role)) {
-          // Clear stored tokens since this user isn't allowed
+        if (!userData.role || !allowedRoles.includes(userData.role)) {
+          // Clear stored tokens since this user is restricted to the main platform
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           dispatch(logout());
-          throw new Error('Access denied. You do not have permission to access this portal.');
+          throw new Error('Access denied. Regular user accounts are restricted to the main platform at lugmaticmusic.com.');
         }
         
         // Navigate based on user role

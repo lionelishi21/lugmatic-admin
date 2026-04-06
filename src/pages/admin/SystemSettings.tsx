@@ -16,7 +16,6 @@ import {
   Mail,
   Clock,
   HardDrive,
-  Cpu,
   Wifi,
   Eye,
   EyeOff,
@@ -576,13 +575,13 @@ const SystemSettings: React.FC = () => {
                             value={String(setting.value)}
                             onChange={(e) => handleSettingChange(setting.id, e.target.value)}
                             rows={3}
-                            className="w-full px-3 py-2 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none resize-none transition-colors"
+                            className="w-full px-3 py-2 text-sm text-gray-900 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none resize-none transition-colors"
                           />
                         ) : setting.type === 'select' ? (
                           <select
                             value={String(setting.value)}
                             onChange={(e) => handleSettingChange(setting.id, e.target.value)}
-                            className="w-full max-w-sm px-3 py-2 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none appearance-none transition-colors"
+                            className="w-full max-w-sm px-3 py-2 text-sm text-gray-900 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none appearance-none transition-colors"
                           >
                             {setting.options?.map(opt => (
                               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -594,7 +593,7 @@ const SystemSettings: React.FC = () => {
                               type={typeof setting.value === 'number' ? 'number' : setting.id === 'api_key' ? (showApiKey ? 'text' : 'password') : 'text'}
                               value={String(setting.value)}
                               onChange={(e) => handleSettingChange(setting.id, typeof setting.value === 'number' ? Number(e.target.value) : e.target.value)}
-                              className="w-full px-3 py-2 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-colors font-mono"
+                              className="w-full px-3 py-2 text-sm text-gray-900 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-colors font-mono"
                             />
                             {setting.id === 'api_key' && (
                               <button

@@ -252,7 +252,7 @@ const ArtistCreate: React.FC = () => {
                   onChange={handleInputChange}
                   className={`w-full px-3 py-2 border ${
                     formErrors.firstName ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900`}
                   placeholder="Enter first name"
                 />
                 {formErrors.firstName && (
@@ -273,7 +273,7 @@ const ArtistCreate: React.FC = () => {
                   onChange={handleInputChange}
                   className={`w-full px-3 py-2 border ${
                     formErrors.lastName ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900`}
                   placeholder="Enter last name"
                 />
                 {formErrors.lastName && (
@@ -294,7 +294,7 @@ const ArtistCreate: React.FC = () => {
                   onChange={handleInputChange}
                   className={`w-full px-3 py-2 border ${
                     formErrors.name ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900`}
                   placeholder="Enter artist name or stage name"
                 />
                 {formErrors.name && (
@@ -315,7 +315,7 @@ const ArtistCreate: React.FC = () => {
                   onChange={handleInputChange}
                   className={`w-full px-3 py-2 border ${
                     formErrors.email ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900`}
                   placeholder="Enter email address"
                 />
                 {formErrors.email && (
@@ -335,7 +335,7 @@ const ArtistCreate: React.FC = () => {
                   onChange={handleInputChange}
                   className={`w-full px-3 py-2 border ${
                     formErrors.gender ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900`}
                 >
                   <option value="">Select Gender</option>
                   <option value="male">Male</option>
@@ -360,7 +360,7 @@ const ArtistCreate: React.FC = () => {
                   value={formData.bio}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900"
                   placeholder="Tell us about yourself as an artist"
                 />
               </div>
@@ -404,7 +404,7 @@ const ArtistCreate: React.FC = () => {
                     type="text"
                     value={genreInput}
                     onChange={(e) => setGenreInput(e.target.value)}
-                    className="flex-grow px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="flex-grow px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900"
                     placeholder="Add a music genre"
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addGenre())}
                   />

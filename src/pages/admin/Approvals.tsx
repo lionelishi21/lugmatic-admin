@@ -141,7 +141,7 @@ export default function Approvals() {
                   placeholder="Search tracks or artists..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full focus:ring-purple-500 focus:border-purple-500"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full text-gray-900 focus:ring-purple-500 focus:border-purple-500"
                 />
               </div>
               <div className="relative">
