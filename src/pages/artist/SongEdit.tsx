@@ -399,7 +399,7 @@ const SongEdit: React.FC = () => {
                   <p className="text-sm font-bold text-gray-700 mb-3">Update Cover Art</p>
                   <FileUpload 
                     label="Cover Art" 
-                    currentFile={formData.coverArt || undefined} 
+                    currentFile={song.coverArtUrl || undefined} 
                     onFileSelect={handleCoverArtSelect} 
                     onFileRemove={() => { 
                       setCoverArtFile(null); 
@@ -430,7 +430,7 @@ const SongEdit: React.FC = () => {
                       setAudioFile(null); 
                       setFormData(prev => ({ ...prev, audioFile: '' })); 
                     }} 
-                    currentFile={song.audioFile || undefined} 
+                    currentFile={song.audioFileUrl || undefined} 
                   />
                 </div>
               </div>
