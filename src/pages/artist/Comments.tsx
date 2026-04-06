@@ -86,9 +86,14 @@ const Comments: React.FC = () => {
       } else {
         setComments([]);
       }
-    } catch (error) {
-      toast.error('Failed to load comments');
-      console.error('Error loading comments:', error);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || error.message || 'Unknown error';
+      toast.error(`Failed to load comments: ${errorMessage}`);
+      console.error('Detailed error loading comments:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
     } finally {
       setLoading(false);
     }

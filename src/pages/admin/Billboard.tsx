@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Award, TrendingUp, Calendar, Clock, Play, ChevronRight, ListMusic } from 'lucide-react';
-import axios from 'axios';
+import apiService from '../../services/api';
 import Preloader from '../../components/ui/Preloader';
 
 interface BillboardSong {
@@ -30,10 +30,7 @@ const Billboard: React.FC = () => {
         setLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/songs/billboard?period=${selectedPeriod}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await apiService.get<BillboardSong[]>(`/song/billboard?period=${selectedPeriod}`);
             if (response.data.success) {
                 setSongs(response.data.data);
             } else {

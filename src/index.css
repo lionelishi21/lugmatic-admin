@@ -68,6 +68,37 @@
   color: #064e3b !important; /* text-emerald-900 */
 }
 
+/* Force Light Mode for Dashboard Content */
+.dashboard-content {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #18181b !important; /* text-zinc-900 */
+}
+
+.dashboard-content * {
+  border-color: rgba(228, 228, 231, 0.5); /* border-zinc-200/50 */
+}
+
+/* Ensure cards and containers in the dashboard are also white/high-contrast */
+.dashboard-content .bg-white,
+.dashboard-content .bg-gray-50,
+.dashboard-content .bg-zinc-900, 
+.dashboard-content .bg-zinc-950,
+.dashboard-content .bg-black {
+  background-color: #ffffff !important;
+  color: #18181b !important;
+}
+
+.dashboard-content .text-zinc-400,
+.dashboard-content .text-gray-400 {
+  color: #71717a !important; /* text-zinc-500 */
+}
+
+.dashboard-content .text-zinc-100,
+.dashboard-content .text-white {
+  color: #18181b !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto !important;
