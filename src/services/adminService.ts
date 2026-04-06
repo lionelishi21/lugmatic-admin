@@ -60,6 +60,10 @@ export const adminService = {
     return apiService.put<User>(`/admin/users/${id}/status`, { isActive });
   },
 
+  resetPassword: async (userId: string) => {
+    return apiService.post<ApiResponse<{ temporaryPassword: string }>>(`/admin/users/${userId}/reset-password`);
+  },
+
   // Artist management
   getAllArtists: async (page = 1, pageSize = 10, filters?: Record<string, string>) => {
     const params = new URLSearchParams({
