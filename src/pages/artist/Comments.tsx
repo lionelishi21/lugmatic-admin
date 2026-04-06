@@ -1,141 +1,225 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Chip,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  CircularProgress,
-  Tabs,
-  Tab,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  ListItemSecondaryAction,
-  Divider,
-  Badge,
-  Avatar
-} from '@mui/material';
-import {
-  Reply as ReplyIcon,
-  Delete as DeleteIcon,
-  CheckCircle as ApproveIcon,
-  Cancel as RejectIcon,
-  ExpandMore as ExpandIcon,
-  ExpandLess as CollapseIcon,
-  Chat as MessageIcon,
-  TrendingUp as TrendingIcon,
-  Warning as AlertIcon
-} from '@mui/icons-material';
-import { useAuth } from '../../hooks/useAuth';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  MessageSquare, 
+  CheckCircle2, 
+  XCircle, 
+  Trash2, 
+  Reply as ReplyIcon, 
+  ChevronDown, 
+  ChevronUp, 
+  TrendingUp, 
+  AlertCircle,
+  Clock,
+  Send,
+  MoreVertical,
+  X,
+  MessageCircle,
+  ArrowRight
+} from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
 import { commentService } from '../../services/commentService';
 import { Comment } from '../../types';
 import toast from 'react-hot-toast';
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
+// Sub-component for individual comment cards
+const CommentItem = ({ comment, onModerate, onReplyOpen, expanded, onToggleExpand }: any) => {
+  const statusStyles = (s: string) => {
+    switch (s) {
+      case 'approved': return 'bg-emerald-50 text-emerald-600';
+      case 'rejected': return 'bg-rose-50 text-rose-600';
+      case 'pending': return 'bg-amber-50 text-amber-600';
+      default: return 'bg-zinc-50 text-zinc-500';
+    }
+  };
 
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+  const isPending = comment.moderationStatus === 'pending';
 
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`comment-tabpanel-${index}`}
-      aria-labelledby={`comment-tab-${index}`}
-      {...other}
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`group bg-white rounded-[2.5rem] p-8 transition-all duration-300 border border-zinc-100 hover:scale-[1.01] hover:shadow-2xl hover:shadow-zinc-200/50 ${
+        isPending && 'ring-2 ring-amber-500/10 bg-amber-50/5'
+      }`}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
+      <div className="flex items-start gap-6">
+        {/* Avatar SoftUI */}
+        <div className="w-14 h-14 rounded-[1.5rem] bg-gradient-to-br from-zinc-100 to-zinc-200 flex items-center justify-center text-zinc-500 font-bold text-xl shadow-inner group-hover:scale-110 transition-transform flex-shrink-0">
+          {(typeof comment.user === 'string' ? "U" : comment.user.firstName?.[0]) || "U"}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <h4 className="text-base font-black text-zinc-900 group-hover:text-emerald-600 transition-colors">
+                {typeof comment.user === 'string' ? "User" : `${comment.user.firstName} ${comment.user.lastName}`}
+              </h4>
+              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${statusStyles(comment.moderationStatus)}`}>
+                {comment.moderationStatus}
+              </span>
+              {comment.isEdited && (
+                <span className="text-[10px] font-bold text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded">Edited</span>
+              )}
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] text-zinc-400 font-bold flex items-center gap-1.5 bg-zinc-50 px-3 py-1.5 rounded-full">
+                <Clock className="h-3 w-3" />
+                {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+              </span>
+              <button className="text-zinc-200 hover:text-zinc-400 transition-colors">
+                <MoreVertical className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          <p className="text-base leading-relaxed text-zinc-600 font-medium mb-6">
+            {comment.content}
+          </p>
+
+          {/* Action Row */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={onReplyOpen}
+                className="flex items-center gap-2 px-5 py-2.5 bg-zinc-900 text-white text-xs font-bold rounded-xl hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-500/20 transition-all"
+              >
+                <ReplyIcon className="h-3.5 w-3.5" />
+                Reply
+              </button>
+              <div className="flex items-center px-4 py-2.5 bg-zinc-50 rounded-xl text-[10px] font-bold text-zinc-400 gap-2 border border-zinc-100">
+                <TrendingUp className="h-3.5 w-3.5 text-rose-500" />
+                {comment.likes} Massive Big Ups
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              {isPending && (
+                <>
+                  <button 
+                    onClick={() => onModerate(comment._id, 'approve')}
+                    className="p-3 text-emerald-500 bg-emerald-50 hover:bg-emerald-500 hover:text-white rounded-xl transition-all shadow-sm"
+                  >
+                    <CheckCircle2 className="h-5 w-5" />
+                  </button>
+                  <button 
+                    onClick={() => onModerate(comment._id, 'reject')}
+                    className="p-3 text-rose-500 bg-rose-50 hover:bg-rose-500 hover:text-white rounded-xl transition-all shadow-sm"
+                  >
+                    <XCircle className="h-5 w-5" />
+                  </button>
+                </>
+              )}
+              <button 
+                onClick={() => onModerate(comment._id, 'delete')}
+                className="p-3 text-zinc-300 bg-zinc-50 hover:bg-rose-600 hover:text-white rounded-xl transition-all shadow-sm"
+              >
+                <Trash2 className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Nested Replies Rendering */}
+      {comment.replies?.length > 0 && (
+        <div className="mt-8 border-t border-zinc-50 pt-8 pl-12 space-y-6">
+          <button 
+            onClick={onToggleExpand}
+            className="flex items-center gap-2 text-xs font-bold text-zinc-400 hover:text-emerald-500 transition-colors mb-4"
+          >
+            {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {expanded ? "Hide Conversations" : `Show ${comment.replies.length} Massive Replies`}
+          </button>
+          
+          <AnimatePresence>
+            {expanded && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-6 overflow-hidden"
+              >
+                {comment.replies.map((reply: any) => (
+                  <div key={reply._id} className="flex gap-4 p-5 rounded-[1.5rem] bg-zinc-50/50 border border-zinc-100">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-zinc-100 flex items-center justify-center text-zinc-400 font-bold text-xs shrink-0">
+                      {(typeof reply.user === 'string' ? "U" : reply.user.firstName?.[0]) || "U"}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-bold text-zinc-900">
+                          {typeof reply.user === 'string' ? "User" : `${reply.user.firstName} ${reply.user.lastName}`}
+                        </span>
+                        <span className="text-[10px] text-zinc-400 font-bold">{formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}</span>
+                      </div>
+                      <p className="text-sm text-zinc-600 font-medium">{reply.content}</p>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+    </motion.div>
   );
-}
+};
 
 const Comments: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tabValue, setTabValue] = useState(0);
+  const [activeTab, setActiveTab] = useState(0); // 0: All, 1: Pending, 2: Approved, 3: Rejected
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
-  const [replyDialog, setReplyDialog] = useState(false);
+  const [showReplyModal, setShowReplyModal] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
-  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user } = useSelector((state: RootState) => state.auth);
 
-  useEffect(() => {
-    loadComments();
-  }, []);
-
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     try {
       setLoading(true);
       const response = await commentService.getDashboardArtistComments();
-      if (response.data && Array.isArray(response.data.data)) {
-        setComments(response.data.data as Comment[]);
-      } else if (response.data && (response.data as any).data) {
-        setComments((response.data as any).data as Comment[]);
-      } else {
-        setComments([]);
-      }
+      const rawData = response.data.data as any;
+      const commentList = Array.isArray(rawData) ? rawData : (rawData.data || []);
+      setComments(commentList as Comment[]);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || error.message || 'Unknown error';
-      toast.error(`Failed to load comments: ${errorMessage}`);
-      console.error('Detailed error loading comments:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
+      toast.error('Failed to sync comments');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
+  useEffect(() => {
+    loadComments();
+  }, [loadComments]);
+
+  const handleModerateComment = async (commentId: string, action: 'approve' | 'reject' | 'delete') => {
+    try {
+      await commentService.artistModerateComment(commentId, action);
+      toast.success(`Comment ${action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'deleted'}`);
+      loadComments();
+    } catch (error) {
+      toast.error(`Action failed`);
+    }
   };
 
   const handleReply = async () => {
     if (!selectedComment || !replyText.trim()) return;
-
     try {
       await commentService.createComment({
         content: replyText,
         parentComment: selectedComment._id
       });
-      toast.success('Reply posted successfully');
-      setReplyDialog(false);
+      toast.success('Reply sent');
+      setShowReplyModal(false);
       setReplyText('');
       setSelectedComment(null);
       loadComments();
     } catch (error) {
       toast.error('Failed to post reply');
-      console.error('Error posting reply:', error);
-    }
-  };
-
-  const confirmDeleteComment = async () => {
-    if (!commentToDelete) return;
-    handleModerateComment(commentToDelete, 'delete');
-    setCommentToDelete(null);
-  };
-
-  const handleModerateComment = async (commentId: string, action: 'approve' | 'reject' | 'delete') => {
-    try {
-      await commentService.artistModerateComment(commentId, action);
-      toast.success(`Comment ${action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'deleted'} successfully`);
-      loadComments();
-    } catch (error) {
-      toast.error(`Failed to ${action} comment`);
-      console.error(`Error ${action}ing comment:`, error);
     }
   };
 
@@ -149,631 +233,190 @@ const Comments: React.FC = () => {
     setExpandedComments(newExpanded);
   };
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getStatusColor = (status: string): 'success' | 'error' | 'warning' | 'default' => {
-    switch (status) {
-      case 'approved':
-        return 'success';
-      case 'rejected':
-        return 'error';
-      case 'pending':
-        return 'warning';
-      default:
-        return 'default';
-    }
-  };
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   const filteredComments = comments.filter(comment => {
-    switch (tabValue) {
-      case 0: // All comments
-        return true;
-      case 1: // Pending moderation
-        return comment.moderationStatus === 'pending';
-      case 2: // Approved
-        return comment.moderationStatus === 'approved';
-      case 3: // Rejected
-        return comment.moderationStatus === 'rejected';
-      default:
-        return true;
-    }
+    if (activeTab === 0) return true;
+    if (activeTab === 1) return comment.moderationStatus === 'pending';
+    if (activeTab === 2) return comment.moderationStatus === 'approved';
+    if (activeTab === 3) return comment.moderationStatus === 'rejected';
+    return true;
   });
 
+  const stats = {
+    total: comments.length,
+    pending: comments.filter(c => c.moderationStatus === 'pending').length,
+    approved: comments.filter(c => c.moderationStatus === 'approved').length,
+    likes: comments.reduce((sum, c) => sum + (c.likes || 0), 0)
+  };
+
   return (
-    <Box sx={{ p: 3 }}>
-      {/* Header */}
-      <Box
-        sx={{
-          mb: 4,
-          p: 4,
-          borderRadius: 3,
-          background: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-        }}
+    <div className="max-w-6xl mx-auto px-6 py-10 bg-zinc-50/40 min-h-screen font-['Geist'] text-zinc-900">
+      {/* Header - Soft Elevation */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-[2.5rem] p-8 mb-10 shadow-2xl shadow-zinc-200/50 flex flex-col lg:flex-row lg:items-center justify-between gap-8 border border-zinc-100"
       >
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Box>
-            <Typography variant="h4" component="h1" sx={{
-              fontWeight: 700,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
-              Comments Management
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-              Moderate and manage user comments on your content
-            </Typography>
-          </Box>
-        </Box>
+        <div className="flex items-center gap-6">
+          <div className="w-16 h-16 bg-emerald-500 rounded-[2rem] flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <MessageSquare className="h-8 w-8 text-white" />
+          </div>
+          <div>
+            <h1 className="text-4xl font-extrabold text-zinc-900 tracking-tight font-['Bebas_Neue'] uppercase leading-none">
+              Comment Feed
+            </h1>
+            <p className="text-zinc-500 text-sm font-medium mt-1">
+              Connect with your listeners and moderate conversations.
+            </p>
+          </div>
+        </div>
 
-        {/* Stats Cards */}
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mt: 2 }}>
-          <Box sx={{
-            p: 3,
-            borderRadius: 3,
-            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
-            border: '1px solid rgba(102, 126, 234, 0.2)',
-            textAlign: 'center'
-          }}>
-            <MessageIcon sx={{ fontSize: 40, color: '#667eea', mb: 1 }} />
-            <Typography variant="h4" sx={{ fontWeight: 700, color: '#667eea' }}>
-              {comments.length}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Total Comments
-            </Typography>
-          </Box>
-          <Box sx={{
-            p: 3,
-            borderRadius: 3,
-            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 163, 74, 0.1) 100%)',
-            border: '1px solid rgba(34, 197, 94, 0.2)',
-            textAlign: 'center'
-          }}>
-            <ApproveIcon sx={{ fontSize: 40, color: '#22c55e', mb: 1 }} />
-            <Typography variant="h4" sx={{ fontWeight: 700, color: '#22c55e' }}>
-              {comments.filter(c => c.moderationStatus === 'approved').length}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Approved
-            </Typography>
-          </Box>
-          <Box sx={{
-            p: 3,
-            borderRadius: 3,
-            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%)',
-            border: '1px solid rgba(245, 158, 11, 0.2)',
-            textAlign: 'center'
-          }}>
-            <AlertIcon sx={{ fontSize: 40, color: '#f59e0b', mb: 1 }} />
-            <Typography variant="h4" sx={{ fontWeight: 700, color: '#f59e0b' }}>
-              {comments.filter(c => c.moderationStatus === 'pending').length}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Pending
-            </Typography>
-          </Box>
-          <Box sx={{
-            p: 3,
-            borderRadius: 3,
-            background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(219, 39, 119, 0.1) 100%)',
-            border: '1px solid rgba(236, 72, 153, 0.2)',
-            textAlign: 'center'
-          }}>
-            <TrendingIcon sx={{ fontSize: 40, color: '#ec4899', mb: 1 }} />
-            <Typography variant="h4" sx={{ fontWeight: 700, color: '#ec4899' }}>
-              {comments.reduce((sum, c) => sum + c.likes, 0)}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Total Likes
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
+        {/* Quick Stats Banner */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: 'Total', value: stats.total, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+            { label: 'Pending', value: stats.pending, color: 'text-amber-600', bg: 'bg-amber-50' },
+            { label: 'Approved', value: stats.approved, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+            { label: 'Likes', value: stats.likes, color: 'text-rose-600', bg: 'bg-rose-50' },
+          ].map((stat, idx) => (
+            <div key={idx} className={`px-4 py-3 rounded-2xl ${stat.bg} border border-zinc-100/50 flex flex-col items-center min-w-[100px]`}>
+              <span className={`text-xl font-black ${stat.color}`}>{stat.value}</span>
+              <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-400">{stat.label}</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
 
-      {/* Tabs */}
-      <Box sx={{
-        mb: 3,
-        borderRadius: 3,
-        background: 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
-        overflow: 'hidden'
-      }}>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          sx={{
-            '& .MuiTab-root': {
-              textTransform: 'none',
-              fontWeight: 600,
-              fontSize: '1rem',
-              minHeight: 64
-            },
-            '& .Mui-selected': {
-              color: '#667eea !important'
-            },
-            '& .MuiTabs-indicator': {
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              height: 3
-            }
-          }}
-        >
-          <Tab label="All Comments" />
-          <Tab
-            label={
-              <Badge badgeContent={comments.filter(c => c.moderationStatus === 'pending').length} color="warning">
-                Pending
-              </Badge>
-            }
-          />
-          <Tab label="Approved" />
-          <Tab label="Rejected" />
-        </Tabs>
-      </Box>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+        {/* Navigation Sidebar - SoftUI Style */}
+        <div className="space-y-8">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 px-6 mb-4">Moderation View</p>
+            <div className="bg-white/80 rounded-[2rem] p-3 border border-zinc-100 shadow-xl shadow-zinc-100/50 flex flex-col gap-1">
+              {[
+                { label: 'All Conversations', icon: <MessageCircle className="h-4 w-4" />, count: stats.total },
+                { label: 'Requires Attention', icon: <AlertCircle className="h-4 w-4" />, count: stats.pending },
+                { label: 'Approved Feed', icon: <CheckCircle2 className="h-4 w-4" />, count: stats.approved },
+                { label: 'Filtered Out', icon: <XCircle className="h-4 w-4" />, count: stats.total - stats.approved - stats.pending }
+              ].map((item, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveTab(idx)}
+                  className={`flex items-center justify-between px-5 py-3.5 rounded-[1.2rem] text-sm font-bold transition-all ${
+                    activeTab === idx 
+                    ? 'bg-zinc-900 text-white shadow-lg' 
+                    : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {item.icon}
+                    {item.label}
+                  </div>
+                  {item.count > 0 && idx === 1 && (
+                    <span className="w-5 h-5 flex items-center justify-center bg-amber-500 text-white text-[10px] rounded-full shadow-sm">
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
-      <TabPanel value={tabValue} index={0}>
-        <Box sx={{
-          borderRadius: 3,
-          background: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          overflow: 'hidden'
-        }}>
-          <List>
-            {filteredComments.map((comment) => (
-              <React.Fragment key={comment._id}>
-                <ListItem alignItems="flex-start" sx={{ p: 3 }}>
-                  <ListItemAvatar>
-                    <Avatar sx={{
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      color: 'white'
-                    }}>
-                      {typeof comment.user === 'string' ? comment.user.charAt(0) : comment.user.firstName?.charAt(0) || 'U'}
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={
-                      <Box display="flex" alignItems="center" gap={1} mb={1}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                          {typeof comment.user === 'string' ? 'User' : `${comment.user.firstName} ${comment.user.lastName}`}
-                        </Typography>
-                        <Chip
-                          label={comment.moderationStatus}
-                          color={getStatusColor(comment.moderationStatus)}
-                          size="small"
-                          sx={{ fontWeight: 600 }}
-                        />
-                        {comment.isEdited && (
-                          <Chip label="Edited" size="small" variant="outlined" />
-                        )}
-                      </Box>
-                    }
-                    secondary={
-                      <Box>
-                        <Typography variant="body2" color="text.primary" gutterBottom sx={{ mb: 1 }}>
-                          {comment.content}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-                          {formatDate(comment.createdAt)} • {comment.likes} likes
-                        </Typography>
-                        {comment.replies.length > 0 && (
-                          <Button
-                            size="small"
-                            startIcon={expandedComments.has(comment._id) ? <CollapseIcon /> : <ExpandIcon />}
-                            onClick={() => handleToggleExpanded(comment._id)}
-                            sx={{
-                              color: '#667eea',
-                              textTransform: 'none',
-                              fontWeight: 600
-                            }}
-                          >
-                            {comment.replies.length} replies
-                          </Button>
-                        )}
-                      </Box>
-                    }
+        {/* Comment Stream */}
+        <div className="lg:col-span-3">
+          <AnimatePresence mode="wait">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-40 grayscale opacity-30">
+                <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+              </div>
+            ) : filteredComments.length === 0 ? (
+              <div className="bg-white rounded-[3rem] border border-dashed border-zinc-200/60 p-24 text-center">
+                <div className="w-20 h-20 bg-zinc-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner shadow-zinc-100">
+                  <MessageSquare className="h-10 w-10 text-zinc-200" />
+                </div>
+                <h3 className="text-xl font-bold text-zinc-900 italic">No Conversations Yet</h3>
+                <p className="text-zinc-500 text-sm mt-2 max-w-xs mx-auto font-medium">
+                  When listeners comment on your music or podcasts, they'll appear here for moderation.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {filteredComments.map((comment) => (
+                  <CommentItem 
+                    key={comment._id} 
+                    comment={comment}
+                    onModerate={handleModerateComment}
+                    onReplyOpen={() => {
+                      setSelectedComment(comment);
+                      setShowReplyModal(true);
+                    }}
+                    expanded={expandedComments.has(comment._id)}
+                    onToggleExpand={() => handleToggleExpanded(comment._id)}
                   />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      size="small"
-                      onClick={() => {
-                        setSelectedComment(comment);
-                        setReplyDialog(true);
-                      }}
-                      sx={{ color: '#667eea', mr: 1 }}
-                    >
-                      <ReplyIcon />
-                    </IconButton>
-                    {comment.moderationStatus === 'pending' && (
-                      <>
-                        <IconButton
-                          size="small"
-                          color="success"
-                          onClick={() => handleModerateComment(comment._id, 'approve')}
-                          sx={{ mr: 1 }}
-                        >
-                          <ApproveIcon />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleModerateComment(comment._id, 'reject')}
-                          sx={{ mr: 1 }}
-                        >
-                          <RejectIcon />
-                        </IconButton>
-                      </>
-                    )}
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => setCommentToDelete(comment._id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-                {expandedComments.has(comment._id) && comment.replies.length > 0 && (
-                  <Box sx={{ ml: 4 }}>
-                    {comment.replies.map((reply) => (
-                      <ListItem key={reply._id} alignItems="flex-start" sx={{ pl: 6, pr: 3 }}>
-                        <ListItemAvatar>
-                          <Avatar sx={{
-                            width: 32,
-                            height: 32,
-                            background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                            color: 'white',
-                            fontSize: '0.875rem'
-                          }}>
-                            {typeof reply.user === 'string' ? reply.user.charAt(0) : reply.user.firstName?.charAt(0) || 'U'}
-                          </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText
-                          primary={
-                            <Box display="flex" alignItems="center" gap={1} mb={1}>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                                {typeof reply.user === 'string' ? 'User' : `${reply.user.firstName} ${reply.user.lastName}`}
-                              </Typography>
-                              <Chip
-                                label={reply.moderationStatus}
-                                color={getStatusColor(reply.moderationStatus)}
-                                size="small"
-                              />
-                            </Box>
-                          }
-                          secondary={
-                            <Box>
-                              <Typography variant="body2" color="text.primary" sx={{ mb: 1 }}>
-                                {reply.content}
-                              </Typography>
-                              <Typography variant="caption" color="text.secondary">
-                                {formatDate(reply.createdAt)} • {reply.likes} likes
-                              </Typography>
-                            </Box>
-                          }
-                        />
-                        <ListItemSecondaryAction>
-                          {reply.moderationStatus === 'pending' && (
-                            <>
-                              <IconButton
-                                size="small"
-                                color="success"
-                                onClick={() => handleModerateComment(reply._id, 'approve')}
-                                sx={{ mr: 1 }}
-                              >
-                                <ApproveIcon />
-                              </IconButton>
-                              <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() => handleModerateComment(reply._id, 'reject')}
-                                sx={{ mr: 1 }}
-                              >
-                                <RejectIcon />
-                              </IconButton>
-                            </>
-                          )}
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => setCommentToDelete(reply._id)}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                    ))}
-                  </Box>
-                )}
-                <Divider component="li" sx={{ mx: 3 }} />
-              </React.Fragment>
-            ))}
-          </List>
-        </Box>
-      </TabPanel>
+                ))}
+              </div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
 
-      <TabPanel value={tabValue} index={1}>
-        <Box sx={{
-          borderRadius: 3,
-          background: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          overflow: 'hidden'
-        }}>
-          <List>
-            {filteredComments.map((comment) => (
-              <ListItem key={comment._id} alignItems="flex-start" sx={{ p: 3 }}>
-                <ListItemAvatar>
-                  <Avatar sx={{
-                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                    color: 'white'
-                  }}>
-                    {typeof comment.user === 'string' ? comment.user.charAt(0) : comment.user.firstName?.charAt(0) || 'U'}
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                      {typeof comment.user === 'string' ? 'User' : `${comment.user.firstName} ${comment.user.lastName}`}
-                    </Typography>
-                  }
-                  secondary={
-                    <Box>
-                      <Typography variant="body2" color="text.primary" gutterBottom sx={{ mb: 1 }}>
-                        {comment.content}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {formatDate(comment.createdAt)}
-                      </Typography>
-                    </Box>
-                  }
+      {/* Reply Modal */}
+      <AnimatePresence>
+        {showReplyModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-zinc-900/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-zinc-100"
+            >
+              <div className="bg-gradient-to-br from-zinc-50 to-white p-8 border-b border-zinc-100">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-4 text-emerald-500">
+                    <ReplyIcon className="h-6 w-6" />
+                    <h3 className="text-2xl font-extrabold font-['Bebas_Neue'] uppercase tracking-tight text-zinc-900">
+                      Draft Reply
+                    </h3>
+                  </div>
+                  <button onClick={() => setShowReplyModal(false)} className="p-2 hover:bg-zinc-100 rounded-xl transition-colors">
+                    <X className="h-5 w-5 text-zinc-400" />
+                  </button>
+                </div>
+                <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 italic text-sm text-zinc-500">
+                  "{selectedComment?.content}"
+                </div>
+              </div>
+              
+              <div className="p-8">
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Type your response to the massive..."
+                  className="w-full h-40 p-6 bg-white rounded-[1.5rem] border border-zinc-100 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-sm font-medium resize-none shadow-inner"
                 />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    size="small"
-                    color="success"
-                    onClick={() => handleModerateComment(comment._id, 'approve')}
-                    sx={{ mr: 1 }}
+                <div className="flex gap-4 mt-8">
+                  <button
+                    onClick={() => setShowReplyModal(false)}
+                    className="flex-1 h-14 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 font-bold rounded-[1.2rem] transition-all"
                   >
-                    <ApproveIcon />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => handleModerateComment(comment._id, 'reject')}
-                    sx={{ mr: 1 }}
+                    Discard
+                  </button>
+                  <button
+                    onClick={handleReply}
+                    disabled={!replyText.trim()}
+                    className="flex-[2] h-14 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-[1.2rem] transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2"
                   >
-                    <RejectIcon />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => setCommentToDelete(comment._id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={2}>
-        <Box sx={{
-          borderRadius: 3,
-          background: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          overflow: 'hidden'
-        }}>
-          <List>
-            {filteredComments.map((comment) => (
-              <ListItem key={comment._id} alignItems="flex-start" sx={{ p: 3 }}>
-                <ListItemAvatar>
-                  <Avatar sx={{
-                    background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                    color: 'white'
-                  }}>
-                    {typeof comment.user === 'string' ? comment.user.charAt(0) : comment.user.firstName?.charAt(0) || 'U'}
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                      {typeof comment.user === 'string' ? 'User' : `${comment.user.firstName} ${comment.user.lastName}`}
-                    </Typography>
-                  }
-                  secondary={
-                    <Box>
-                      <Typography variant="body2" color="text.primary" gutterBottom sx={{ mb: 1 }}>
-                        {comment.content}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {formatDate(comment.createdAt)} • {comment.likes} likes
-                      </Typography>
-                    </Box>
-                  }
-                />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => setCommentToDelete(comment._id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </TabPanel>
-
-      <TabPanel value={tabValue} index={3}>
-        <Box sx={{
-          borderRadius: 3,
-          background: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          overflow: 'hidden'
-        }}>
-          <List>
-            {filteredComments.map((comment) => (
-              <ListItem key={comment._id} alignItems="flex-start" sx={{ p: 3 }}>
-                <ListItemAvatar>
-                  <Avatar sx={{
-                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                    color: 'white'
-                  }}>
-                    {typeof comment.user === 'string' ? comment.user.charAt(0) : comment.user.firstName?.charAt(0) || 'U'}
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                      {typeof comment.user === 'string' ? 'User' : `${comment.user.firstName} ${comment.user.lastName}`}
-                    </Typography>
-                  }
-                  secondary={
-                    <Box>
-                      <Typography variant="body2" color="text.primary" gutterBottom sx={{ mb: 1 }}>
-                        {comment.content}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {formatDate(comment.createdAt)}
-                      </Typography>
-                    </Box>
-                  }
-                />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    size="small"
-                    color="success"
-                    onClick={() => handleModerateComment(comment._id, 'approve')}
-                    sx={{ mr: 1 }}
-                  >
-                    <ApproveIcon />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => setCommentToDelete(comment._id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </TabPanel>
-
-      {/* Reply Dialog */}
-      <Dialog
-        open={replyDialog}
-        onClose={() => setReplyDialog(false)}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)'
-          }
-        }}
-      >
-        <DialogTitle sx={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          fontWeight: 600
-        }}>
-          Reply to Comment
-        </DialogTitle>
-        <DialogContent sx={{ p: 4 }}>
-          <TextField
-            fullWidth
-            multiline
-            rows={4}
-            label="Your reply"
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
-            margin="normal"
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2
-              }
-            }}
-          />
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button
-            onClick={() => setReplyDialog(false)}
-            sx={{
-              borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 600
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleReply}
-            variant="contained"
-            disabled={!replyText.trim()}
-            sx={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: 2,
-              px: 3,
-              py: 1.5,
-              textTransform: 'none',
-              fontWeight: 600,
-              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
-              '&:hover': {
-                boxShadow: '0 6px 20px rgba(102, 126, 234, 0.6)',
-                transform: 'translateY(-2px)'
-              }
-            }}
-          >
-            Post Reply
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={!!commentToDelete} onClose={() => setCommentToDelete(null)}>
-        <DialogTitle sx={{ fontWeight: 600 }}>Delete Comment</DialogTitle>
-        <DialogContent>Are you sure you want to delete this comment? This action cannot be undone.</DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setCommentToDelete(null)} sx={{ textTransform: 'none', fontWeight: 600 }}>Cancel</Button>
-          <Button onClick={confirmDeleteComment} color="error" variant="contained" sx={{ textTransform: 'none', fontWeight: 600 }}>Delete</Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+                    <Send className="h-5 w-5" />
+                    Post Response
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
-export default Comments; 
+export default Comments;

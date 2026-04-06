@@ -11,7 +11,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import Approvals from './pages/admin/Approvals';
 import Upload from './pages/artist/Upload';
 import Live from './pages/artist/Live';
-import Gifts from './pages/artist/Giifts';
+import Gifts from './pages/artist/Gifts';
 import SongEdit from './pages/artist/SongEdit';
 import Earnings from './pages/artist/Earnings';
 import ArtistManagement from './pages/admin/ArtistManagement';
