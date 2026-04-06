@@ -359,7 +359,7 @@ export default function Upload() {
             <p className="text-sm font-medium text-amber-900">Track Approval Required</p>
             <p className="text-xs text-amber-700 mt-0.5">
               All uploaded tracks must be reviewed and approved by an administrator before they become public. 
-              Once uploaded, you will not be able to edit the track details.
+              If a track is rejected, you will be able to edit its details and replace the audio file.
             </p>
           </div>
         </div>

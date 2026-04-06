@@ -12,6 +12,7 @@ import Approvals from './pages/admin/Approvals';
 import Upload from './pages/artist/Upload';
 import Live from './pages/artist/Live';
 import Gifts from './pages/artist/Giifts';
+import SongEdit from './pages/artist/SongEdit';
 import Earnings from './pages/artist/Earnings';
 import ArtistManagement from './pages/admin/ArtistManagement';
 import ArtistEdit from './pages/admin/ArtistEdit';
@@ -93,6 +94,7 @@ function App() {
                     <Route path="profile" element={<UserProfile />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="support" element={<Support />} />
+                    <Route path="song-edit/:id" element={<SongEdit />} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>

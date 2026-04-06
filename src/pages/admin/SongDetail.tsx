@@ -11,7 +11,7 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import Preloader from '../../components/ui/Preloader';
 import {
   ArrowLeft, Music2, User, Disc, Tag, Clock, Calendar,
-  FileText, Edit2, Trash2, Save, X, Play, Pause,
+  FileText, Edit2, Trash2, Save, X, Play, Pause, AlertCircle,
   CheckCircle, XCircle, Loader2, ExternalLink, Video
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
@@ -170,13 +170,28 @@ const SongDetail: React.FC = () => {
   
   const handleModerate = async (action: 'approve' | 'reject') => {
     if (!song) return;
+    
+    let reason = '';
+    if (action === 'reject') {
+      reason = window.prompt('Please provide a reason for rejection (e.g., "Bad audio quality"):') || '';
+      if (!reason) {
+        toast.error('A reason is required to reject a track');
+        return;
+      }
+    }
+
     try {
       toast.loading(`${action === 'approve' ? 'Approve' : 'Reject'}ing track...`, { id: 'moderate-action' });
-      const response = await adminService.moderateContent('songs', song._id, action);
+      const response = await adminService.moderateContent('songs', song._id, action, reason);
       
       if (response.data.success) {
         toast.success(`Track ${action === 'approve' ? 'approved' : 'rejected'} successfully`, { id: 'moderate-action' });
-        setSong({ ...song, isApproved: action === 'approve' });
+        setSong({ 
+          ...song, 
+          isApproved: action === 'approve',
+          status: action === 'approve' ? 'approved' : 'rejected',
+          rejectionReason: reason
+        });
       } else {
         throw new Error(response.data.message || `Failed to ${action} track`);
       }
@@ -252,7 +267,7 @@ const SongDetail: React.FC = () => {
                 <Edit2 className="w-4 h-4" />
                 Edit Song
               </button>
-              {!song.isApproved && (
+              {song.status === 'pending' && (
                 <div className="flex items-center gap-2 border-l border-gray-200 pl-3">
                   <button
                     type="button"
@@ -270,6 +285,28 @@ const SongDetail: React.FC = () => {
                     <XCircle className="w-4 h-4" />
                     Reject
                   </button>
+                </div>
+              )}
+              {song.status === 'rejected' && (
+                <div className="flex items-center gap-2 border-l border-gray-200 pl-3">
+                  <span className="px-3 py-1.5 bg-red-50 text-red-600 border border-red-100 rounded-xl text-xs font-bold uppercase tracking-wider">
+                    Rejected
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleModerate('approve')}
+                    className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-50 text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-100 transition-all font-medium ml-2"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Approve Anyway
+                  </button>
+                </div>
+              )}
+              {song.status === 'approved' && (
+                <div className="flex items-center gap-2 border-l border-gray-200 pl-3">
+                  <span className="px-3 py-1.5 bg-green-50 text-green-600 border border-green-100 rounded-xl text-xs font-bold uppercase tracking-wider">
+                    Approved
+                  </span>
                 </div>
               )}
             </>
@@ -344,7 +381,11 @@ const SongDetail: React.FC = () => {
               { icon: <Tag className="w-4 h-4 text-amber-500" />, label: 'Genre', value: genreName },
               { icon: <Clock className="w-4 h-4 text-green-500" />, label: 'Duration', value: formatDuration(song.duration) },
               { icon: <Calendar className="w-4 h-4 text-rose-500" />, label: 'Released', value: sDate && !isNaN(sDate.getTime()) ? sDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—' },
-              { icon: song.isActive !== false ? <CheckCircle className="w-4 h-4 text-green-500" /> : <XCircle className="w-4 h-4 text-red-400" />, label: 'Status', value: song.isActive !== false ? 'Active' : 'Inactive' },
+              { 
+                icon: song.status === 'approved' ? <CheckCircle className="w-4 h-4 text-green-500" /> : song.status === 'rejected' ? <XCircle className="w-4 h-4 text-red-500" /> : <Clock className="w-4 h-4 text-amber-500" />, 
+                label: 'Moderation', 
+                value: song.status.charAt(0).toUpperCase() + song.status.slice(1) 
+              },
             ].map(({ icon, label, value }) => (
               <div key={label} className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">{icon}</div>
@@ -457,6 +498,17 @@ const SongDetail: React.FC = () => {
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <h2 className="text-lg font-semibold text-gray-800 mb-1">{song.name}</h2>
                 <p className="text-sm text-gray-500 mb-4">by {artistName} · {albumName} · {genreName}</p>
+                
+                {song.status === 'rejected' && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl">
+                    <p className="text-sm font-bold text-red-800 mb-1 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      Rejection Reason
+                    </p>
+                    <p className="text-sm text-red-700 italic">"{song.rejectionReason}"</p>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {[
                     { label: 'Duration', value: formatDuration(song.duration), bg: 'bg-green-50', text: 'text-green-700' },

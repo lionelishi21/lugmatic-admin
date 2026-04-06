@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Music2, Headphones, DollarSign, TrendingUp, Clock, ExternalLink, Users } from 'lucide-react';
+import { Music2, Headphones, DollarSign, TrendingUp, Clock, ExternalLink, Users, Edit2, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
@@ -9,6 +10,7 @@ import { Skeleton } from '../../components/ui/skeleton';
 
 export default function ArtistDashboard() {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const { stats, songs, loading: artistLoading } = useSelector((state: RootState) => state.artist);
   const { earnings, loading: financeLoading } = useSelector((state: RootState) => state.finance);
@@ -126,18 +128,37 @@ export default function ArtistDashboard() {
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="flex flex-col items-end gap-1">
-                        {track.isApproved ? (
+                        {track.status === 'approved' ? (
                           <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
                             Approved
                           </span>
+                        ) : track.status === 'rejected' ? (
+                          <div className="flex flex-col items-end gap-1">
+                            <span className="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-bold rounded-full uppercase tracking-wider flex items-center gap-1">
+                              <AlertCircle className="h-2 w-2" />
+                              Action Required
+                            </span>
+                          </div>
                         ) : (
                           <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
                             Pending
                           </span>
                         )}
-                        <button className="text-purple-600 hover:text-purple-700">
-                          <ExternalLink className="h-4 w-4" />
-                        </button>
+                        
+                        <div className="flex items-center gap-2">
+                          {track.status === 'rejected' && (
+                            <button 
+                              onClick={() => navigate(`/artist/song-edit/${track._id}`)}
+                              className="text-red-600 hover:text-red-700 p-1 bg-red-50 rounded-md transition-colors"
+                              title="Edit to fix issues"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </button>
+                          )}
+                          <button className="text-purple-600 hover:text-purple-700 p-1">
+                            <ExternalLink className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -17,6 +17,8 @@ export interface Song {
   audioFileUrl?: string;
   isActive?: boolean;
   isApproved?: boolean;
+  status: 'pending' | 'approved' | 'rejected';
+  rejectionReason?: string;
   splitSheet?: Array<{ contributor: string; role: string; share: number }>;
   termsAccepted?: boolean;
   videoUrl?: string;
