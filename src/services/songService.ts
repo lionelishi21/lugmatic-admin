@@ -140,7 +140,9 @@ const songService = {
    * Directly upload a file to S3 via presigned URL
    */
   uploadToS3: async (uploadUrl: string, file: File, contentType: string): Promise<void> => {
-    await axios.put(uploadUrl, file, {
+    // Use a clean axios instance to avoid global interceptors (like Auth headers)
+    const cleanAxios = axios.create({});
+    await cleanAxios.put(uploadUrl, file, {
       headers: {
         'Content-Type': contentType,
       },

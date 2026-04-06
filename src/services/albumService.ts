@@ -150,7 +150,9 @@ const albumService = {
    */
   uploadToS3: async (uploadUrl: string, file: File, contentType: string): Promise<void> => {
     const axios = (await import('axios')).default;
-    await axios.put(uploadUrl, file, {
+    // Use a clean axios instance to avoid global interceptors (like Auth headers)
+    const cleanAxios = axios.create({});
+    await cleanAxios.put(uploadUrl, file, {
       headers: {
         'Content-Type': contentType,
       },
