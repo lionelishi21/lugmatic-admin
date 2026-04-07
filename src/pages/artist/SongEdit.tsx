@@ -29,6 +29,7 @@ const SongEdit: React.FC = () => {
   const [formData, setFormData] = useState<Partial<CreateSongData>>({});
   const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [splitSheet, setSplitSheet] = useState<{ contributor: string, email: string, role: string, share: number, status?: string }[]>([]);
 
   useEffect(() => {
     if (id) fetchSongData(id);
@@ -94,6 +95,7 @@ const SongEdit: React.FC = () => {
       audioFile: s.audioFile,
       videoUrl: s.videoUrl || '',
     });
+    setSplitSheet(s.splitSheet || []);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -124,9 +126,10 @@ const SongEdit: React.FC = () => {
     
     setSubmitting(true);
     try {
-      const cleanedData: Partial<CreateSongData> = {
+      const cleanedData: Partial<CreateSongData> & { splitSheet: any } = {
         ...formData,
         album: formData.album && formData.album.trim() !== '' ? formData.album : undefined,
+        splitSheet: splitSheet,
       };
 
       if (coverArtFile || audioFile) {
@@ -439,28 +442,113 @@ const SongEdit: React.FC = () => {
               </div>
             </div>
             
-            {/* Split Sheet (Read Only for now to keep it safe) */}
-            {song.splitSheet && song.splitSheet.length > 0 && (
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
-                <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2 uppercase tracking-wider">
-                  <CheckCircle className="w-4 h-4 text-purple-600" />
-                  Split Sheet (Verified)
-                </h3>
-                <div className="space-y-2">
-                  {song.splitSheet.map((item, idx) => (
-                    <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
-                      <div>
-                        <p className="text-sm font-bold text-gray-900">{item.contributor}</p>
-                        <p className="text-xs text-gray-500">{item.role}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-bold text-purple-600">{item.share}%</p>
-                      </div>
-                    </div>
-                  ))}
+            {/* Split Sheet (Interactive) */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2 uppercase tracking-wider">
+                        <Users className="w-4 h-4 text-purple-600" />
+                        Split Sheet & Contributors
+                    </h3>
+                    <button
+                        type="button"
+                        onClick={() => setSplitSheet([...splitSheet, { contributor: '', email: '', role: 'songwriter', share: 0, status: 'pending' }])}
+                        className="text-xs font-bold text-purple-600 hover:text-purple-700 underline"
+                    >
+                        + Add Contributor
+                    </button>
                 </div>
-              </div>
-            )}
+
+                <div className="space-y-3">
+                    {splitSheet.map((item, idx) => (
+                        <div key={idx} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 relative group">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div className="md:col-span-1">
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Name</label>
+                                    <input
+                                        type="text"
+                                        value={item.contributor}
+                                        onChange={(e) => {
+                                            const newSplits = [...splitSheet];
+                                            newSplits[idx].contributor = e.target.value;
+                                            setSplitSheet(newSplits);
+                                        }}
+                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                                        placeholder="Name"
+                                    />
+                                </div>
+                                <div className="md:col-span-1">
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Email (Invite)</label>
+                                    <input
+                                        type="email"
+                                        value={item.email}
+                                        onChange={(e) => {
+                                            const newSplits = [...splitSheet];
+                                            newSplits[idx].email = e.target.value;
+                                            setSplitSheet(newSplits);
+                                        }}
+                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                                        placeholder="email@example.com"
+                                    />
+                                </div>
+                                <div className="md:col-span-1">
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Role</label>
+                                    <select
+                                        value={item.role}
+                                        onChange={(e) => {
+                                            const newSplits = [...splitSheet];
+                                            newSplits[idx].role = e.target.value;
+                                            setSplitSheet(newSplits);
+                                        }}
+                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                                    >
+                                        <option value="songwriter">Songwriter</option>
+                                        <option value="producer">Producer</option>
+                                        <option value="vocalist">Vocalist</option>
+                                        <option value="engineer">Engineer</option>
+                                    </select>
+                                </div>
+                                <div className="md:col-span-1">
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Share %</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="number"
+                                            value={item.share}
+                                            onChange={(e) => {
+                                                const newSplits = [...splitSheet];
+                                                newSplits[idx].share = parseFloat(e.target.value) || 0;
+                                                setSplitSheet(newSplits);
+                                            }}
+                                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
+                                            placeholder="%"
+                                            max="100"
+                                            min="0"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setSplitSheet(splitSheet.filter((_, i) => i !== idx))}
+                                            className="p-2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <AlertCircle className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {item.status === 'pending' && item.email && (
+                                <p className="text-[10px] font-bold text-amber-600 mt-2 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" /> Invitation will be sent to {item.email}
+                                </p>
+                            )}
+                        </div>
+                    ))}
+                </div>
+                
+                {splitSheet.reduce((acc, curr) => acc + curr.share, 0) !== 100 && splitSheet.length > 0 && (
+                    <div className="p-3 bg-red-50 border border-red-100 rounded-xl flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-red-600" />
+                        <p className="text-xs text-red-700 font-bold">Total share must equal 100%. Current: {splitSheet.reduce((acc, curr) => acc + curr.share, 0)}%</p>
+                    </div>
+                )}
+            </div>
           </form>
         </div>
       </div>

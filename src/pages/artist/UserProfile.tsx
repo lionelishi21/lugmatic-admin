@@ -204,6 +204,7 @@ export default function UserProfile() {
           { id: 'social', label: 'Social Links', icon: Globe },
           { id: 'contact', label: 'Contact & Location', icon: Mail },
           { id: 'media', label: 'Preferences', icon: Music },
+          { id: 'verification', label: 'Verification (TRN/ID)', icon: CheckCircle2 },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -415,7 +416,9 @@ export default function UserProfile() {
                       className={inputClass + " bg-white/50 backdrop-blur-sm"}
                     >
                       <option value="paypal">PayPal</option>
-                      <option value="bank_transfer">Bank Transfer</option>
+                      <option value="bank_transfer">International Bank Transfer (SWIFT)</option>
+                      <option value="jamaican_bank">Jamaican Local Bank (J$)</option>
+                      <option value="jamdex">JAMDEX (CBDC)</option>
                       <option value="stripe">Stripe</option>
                     </select>
                     
@@ -432,12 +435,117 @@ export default function UserProfile() {
                         />
                       </div>
                     )}
+
+                    {(formData.payoutInfo as any)?.method === 'jamaican_bank' && (
+                      <div className="mt-4 space-y-4">
+                        <label className={labelClass}>Jamaican Bank Details</label>
+                        <select
+                          name="payoutInfo.jamaicanBank.bankName"
+                          value={(formData.payoutInfo as any)?.jamaicanBank?.bankName || ''}
+                          onChange={handleInputChange}
+                          className={inputClass}
+                        >
+                          <option value="">Select Bank</option>
+                          <option value="NCB">NCB (National Continental Bank)</option>
+                          <option value="Scotia">Scotiabank</option>
+                          <option value="Sagicor">Sagicor Bank</option>
+                          <option value="JMMB">JMMB Bank</option>
+                          <option value="FGB">First Global Bank</option>
+                        </select>
+                        <input
+                          type="text"
+                          name="payoutInfo.jamaicanBank.branchName"
+                          value={(formData.payoutInfo as any)?.jamaicanBank?.branchName || ''}
+                          onChange={handleInputChange}
+                          className={inputClass}
+                          placeholder="Branch / Street"
+                        />
+                        <input
+                          type="text"
+                          name="payoutInfo.jamaicanBank.accountNumber"
+                          value={(formData.payoutInfo as any)?.jamaicanBank?.accountNumber || ''}
+                          onChange={handleInputChange}
+                          className={inputClass}
+                          placeholder="Account Number"
+                        />
+                        <select
+                          name="payoutInfo.jamaicanBank.accountType"
+                          value={(formData.payoutInfo as any)?.jamaicanBank?.accountType || 'savings'}
+                          onChange={handleInputChange}
+                          className={inputClass}
+                        >
+                          <option value="savings">Savings</option>
+                          <option value="checking">Chequing</option>
+                        </select>
+                      </div>
+                    )}
+
+                    {(formData.payoutInfo as any)?.method === 'jamdex' && (
+                      <div className="mt-4 space-y-4">
+                        <label className={labelClass}>JAMDEX Details (CBDC)</label>
+                        <input
+                          type="text"
+                          name="payoutInfo.jamdex.walletAddress"
+                          value={(formData.payoutInfo as any)?.jamdex?.walletAddress || ''}
+                          onChange={handleInputChange}
+                          className={inputClass}
+                          placeholder="Lynk Wallet / Email"
+                        />
+                        <input
+                          type="text"
+                          name="payoutInfo.jamdex.trn"
+                          value={(formData.payoutInfo as any)?.jamdex?.trn || ''}
+                          onChange={handleInputChange}
+                          className={inputClass}
+                          placeholder="TRN (9-digits)"
+                          maxLength={9}
+                        />
+                      </div>
+                    )}
                     
                     <p className="mt-4 text-[11px] text-purple-600 font-medium">
-                      Note: Payout details are encrypted and stored securely. Minimum payout threshold is $50.
+                      Note: Payout details are encrypted and stored securely. Minimum payout threshold is $50. JAMDEX payouts require a verified Jamaican TRN.
                     </p>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+          {activeTab === 'verification' && (
+            <div className="space-y-6">
+              <h3 className="text-sm font-bold text-gray-900 border-l-4 border-blue-500 pl-3 uppercase tracking-wider">Government ID / TRN Verification</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className={labelClass}>Identification Type</label>
+                  <select
+                    name="verificationDocuments.idType"
+                    value={(formData.verificationDocuments as any)?.idType || 'nis'}
+                    onChange={handleInputChange}
+                    className={inputClass}
+                  >
+                    <option value="nis">NIS (National Insurance Scheme)</option>
+                    <option value="drivers_license">Driver's License (Jamaican)</option>
+                    <option value="passport">Passport</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={labelClass}>ID Number</label>
+                  <input
+                    type="text"
+                    name="verificationDocuments.idNumber"
+                    value={(formData.verificationDocuments as any)?.idNumber || ''}
+                    onChange={handleInputChange}
+                    className={inputClass}
+                    placeholder="Enter ID Number"
+                  />
+                </div>
+              </div>
+              <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-2xl flex gap-3">
+                 <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                 <p className="text-xs text-blue-700 leading-relaxed font-medium">
+                   Verification is required for high-volume earners and local bank payouts. 
+                   Ensure your document name matches your Lugmatic profile name.
+                 </p>
               </div>
             </div>
           )}

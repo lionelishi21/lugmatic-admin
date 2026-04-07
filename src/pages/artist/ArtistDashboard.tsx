@@ -151,6 +151,16 @@ export default function ArtistDashboard() {
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="flex flex-col items-end gap-1">
+                        {track.uploadSource === 'admin' ? (
+                          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                            Admin Upload
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                            Self Upload
+                          </span>
+                        )}
+
                         {track.status === 'approved' ? (
                           <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
                             Approved
