@@ -187,7 +187,7 @@ export const userService = {
 
   // Contributor Dashboard & Payouts
   getContributorDashboard: async () => {
-    return apiService.get<ApiResponse<any>>('/users/contributor/dashboard');
+    return apiService.get<any>('/users/contributor/dashboard');
   },
 
   updatePayoutInfo: async (payoutInfo: any) => {

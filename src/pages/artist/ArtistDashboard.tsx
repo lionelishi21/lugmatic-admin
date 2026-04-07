@@ -1,5 +1,16 @@
 import React, { useEffect } from 'react';
-import { Music2, Headphones, DollarSign, TrendingUp, Clock, ExternalLink, Users, Edit2, AlertCircle } from 'lucide-react';
+import { 
+  Music2, 
+  Headphones, 
+  DollarSign, 
+  TrendingUp, 
+  Clock, 
+  Users, 
+  Edit2, 
+  AlertCircle,
+  ChevronRight,
+  BarChart2
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
@@ -118,7 +129,16 @@ export default function ArtistDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Latest Releases */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Latest Releases</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Latest Releases</h2>
+              <button 
+                onClick={() => navigate('/artist/songs')}
+                className="text-emerald-600 hover:text-emerald-700 text-sm font-bold flex items-center gap-1 group"
+              >
+                View All
+                <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </button>
+            </div>
             <div className="space-y-4">
               {isLoading ? (
                 [1, 2, 3].map((i) => (
@@ -188,8 +208,12 @@ export default function ArtistDashboard() {
                               <Edit2 className="h-4 w-4" />
                             </button>
                           )}
-                          <button className="text-purple-600 hover:text-purple-700 p-1">
-                            <ExternalLink className="h-4 w-4" />
+                          <button 
+                            onClick={() => navigate(`/artist/songs/${track._id}/analytics`)}
+                            className="text-purple-600 hover:text-purple-700 p-1 hover:bg-purple-50 rounded-md transition-all"
+                            title="View Analytics"
+                          >
+                            <BarChart2 className="h-4 w-4" />
                           </button>
                         </div>
                       </div>

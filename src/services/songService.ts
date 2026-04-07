@@ -19,10 +19,19 @@ export interface Song {
   isApproved?: boolean;
   status: 'pending' | 'approved' | 'rejected';
   rejectionReason?: string;
-  splitSheet?: Array<{ contributor: string; role: string; share: number }>;
   termsAccepted?: boolean;
   videoUrl?: string;
   playCount?: number;
+  splitSheet?: Array<{
+    _id?: string;
+    contributor: string;
+    email: string;
+    role: string;
+    share: number;
+    status: 'pending' | 'accepted' | 'rejected';
+    user?: string | { _id: string; firstName?: string; lastName?: string; profilePicture?: string };
+    invitedAt?: string;
+  }>;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -243,6 +252,26 @@ const songService = {
   getSongAnalytics: async (id: string, days: number = 30): Promise<any> => {
     const response = await apiService.get<any>(`/song/analytics/${id}?days=${days}`);
     return extractResponseData<any>(response);
+  },
+  /**
+   * Invite a contributor to a song
+   */
+  inviteContributor: async (id: string, contributorData: { email: string; role: string; share: number; contributorName?: string }): Promise<any> => {
+    const response = await apiService.post<any>(`/song/${id}/invite`, contributorData);
+    return extractResponseData<any>(response);
+  },
+  /**
+   * Get all contributors for a song
+   */
+  getContributors: async (id: string): Promise<any[]> => {
+    const response = await apiService.get<any[]>(`/song/${id}/contributors`);
+    return extractResponseData<any[]>(response);
+  },
+  /**
+   * Remove a contributor from a song
+   */
+  removeContributor: async (id: string, contributorId: string): Promise<void> => {
+    await apiService.delete(`/song/${id}/contributors/${contributorId}`);
   },
 };
 

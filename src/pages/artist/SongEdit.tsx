@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast';
 import { 
   ArrowLeft, Music2, Disc, Tag, Clock, Calendar, 
   FileText, Save, Play, Pause, AlertCircle,
-  CheckCircle, Loader2, Info, Layout
+  CheckCircle, Loader2, Info, Layout, Users, Trash2
 } from 'lucide-react';
 import songService, { Song, CreateSongData } from '../../services/songService';
 import albumService, { Album } from '../../services/albumService';
@@ -29,12 +29,56 @@ const SongEdit: React.FC = () => {
   const [formData, setFormData] = useState<Partial<CreateSongData>>({});
   const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [splitSheet, setSplitSheet] = useState<{ contributor: string, email: string, role: string, share: number, status?: string }[]>([]);
+  const [splitSheet, setSplitSheet] = useState<any[]>([]);
+  const [isInviting, setIsInviting] = useState(false);
+  const [newContributor, setNewContributor] = useState({ contributorName: '', email: '', role: 'songwriter', share: 0 });
 
   useEffect(() => {
     if (id) fetchSongData(id);
     return () => { audioRef.current?.pause(); };
   }, [id]);
+
+  const reloadContributors = async () => {
+    if (!id) return;
+    try {
+      const data = await songService.getContributors(id);
+      setSplitSheet(data);
+    } catch (err) {
+      console.error('Failed to reload contributors:', err);
+    }
+  };
+
+  const handleInviteContributor = async () => {
+    if (!id) return;
+    if (!newContributor.email || !newContributor.role || newContributor.share <= 0) {
+      toast.error('Please provide email, role, and a share percentage > 0');
+      return;
+    }
+
+    setIsInviting(true);
+    try {
+      await songService.inviteContributor(id, newContributor);
+      toast.success(`Invitation sent to ${newContributor.email}`);
+      setNewContributor({ contributorName: '', email: '', role: 'songwriter', share: 0 });
+      reloadContributors();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to send invitation');
+    } finally {
+      setIsInviting(false);
+    }
+  };
+
+  const handleRemoveContributor = async (contributorId: string) => {
+    if (!id || !window.confirm('Are you sure you want to remove this contributor?')) return;
+    
+    try {
+      await songService.removeContributor(id, contributorId);
+      toast.success('Contributor removed');
+      reloadContributors();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to remove contributor');
+    }
+  };
 
   const fetchSongData = async (songId: string) => {
     setLoading(true);
@@ -56,6 +100,7 @@ const SongEdit: React.FC = () => {
       setAlbums(albumData);
       setGenres(genreData);
       populateForm(songData, albumData, genreData);
+      reloadContributors();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to load track details');
       navigate('/artist/dashboard');
@@ -442,110 +487,148 @@ const SongEdit: React.FC = () => {
               </div>
             </div>
             
-            {/* Split Sheet (Interactive) */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
+            {/* Collaboration & Split Sheet (Interactive) */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
                 <div className="flex items-center justify-between">
                     <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2 uppercase tracking-wider">
                         <Users className="w-4 h-4 text-purple-600" />
-                        Split Sheet & Contributors
+                        Collaboration & Split Sheet
                     </h3>
-                    <button
-                        type="button"
-                        onClick={() => setSplitSheet([...splitSheet, { contributor: '', email: '', role: 'songwriter', share: 0, status: 'pending' }])}
-                        className="text-xs font-bold text-purple-600 hover:text-purple-700 underline"
-                    >
-                        + Add Contributor
-                    </button>
+                    <div className="flex items-center gap-2 px-3 py-1 bg-purple-50 text-purple-600 rounded-full text-[10px] font-bold">
+                      <Save className="w-3 h-3" />
+                      AUTO-SAVING COLLABORATIONS
+                    </div>
                 </div>
 
-                <div className="space-y-3">
-                    {splitSheet.map((item, idx) => (
-                        <div key={idx} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 relative group">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div className="md:col-span-1">
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Name</label>
-                                    <input
-                                        type="text"
-                                        value={item.contributor}
-                                        onChange={(e) => {
-                                            const newSplits = [...splitSheet];
-                                            newSplits[idx].contributor = e.target.value;
-                                            setSplitSheet(newSplits);
-                                        }}
-                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
-                                        placeholder="Name"
-                                    />
-                                </div>
-                                <div className="md:col-span-1">
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Email (Invite)</label>
-                                    <input
-                                        type="email"
-                                        value={item.email}
-                                        onChange={(e) => {
-                                            const newSplits = [...splitSheet];
-                                            newSplits[idx].email = e.target.value;
-                                            setSplitSheet(newSplits);
-                                        }}
-                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
-                                        placeholder="email@example.com"
-                                    />
-                                </div>
-                                <div className="md:col-span-1">
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Role</label>
-                                    <select
-                                        value={item.role}
-                                        onChange={(e) => {
-                                            const newSplits = [...splitSheet];
-                                            newSplits[idx].role = e.target.value;
-                                            setSplitSheet(newSplits);
-                                        }}
-                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
-                                    >
-                                        <option value="songwriter">Songwriter</option>
-                                        <option value="producer">Producer</option>
-                                        <option value="vocalist">Vocalist</option>
-                                        <option value="engineer">Engineer</option>
-                                    </select>
-                                </div>
-                                <div className="md:col-span-1">
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Share %</label>
-                                    <div className="flex items-center gap-2">
-                                        <input
-                                            type="number"
-                                            value={item.share}
-                                            onChange={(e) => {
-                                                const newSplits = [...splitSheet];
-                                                newSplits[idx].share = parseFloat(e.target.value) || 0;
-                                                setSplitSheet(newSplits);
-                                            }}
-                                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm"
-                                            placeholder="%"
-                                            max="100"
-                                            min="0"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setSplitSheet(splitSheet.filter((_, i) => i !== idx))}
-                                            className="p-2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <AlertCircle className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            {item.status === 'pending' && item.email && (
-                                <p className="text-[10px] font-bold text-amber-600 mt-2 flex items-center gap-1">
-                                    <Clock className="w-3 h-3" /> Invitation will be sent to {item.email}
-                                </p>
-                            )}
+                {/* Invite Form */}
+                <div className="p-5 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                    <p className="text-xs font-bold text-gray-400 uppercase mb-4 tracking-widest">Invite New Contributor</p>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="md:col-span-1">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase ml-1 block mb-1">Name</label>
+                            <input
+                                type="text"
+                                value={newContributor.contributorName}
+                                onChange={(e) => setNewContributor({...newContributor, contributorName: e.target.value})}
+                                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 shadow-sm"
+                                placeholder="Public Name"
+                            />
                         </div>
-                    ))}
+                        <div className="md:col-span-1">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase ml-1 block mb-1">Email</label>
+                            <input
+                                type="email"
+                                value={newContributor.email}
+                                onChange={(e) => setNewContributor({...newContributor, email: e.target.value})}
+                                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 shadow-sm"
+                                placeholder="email@example.com"
+                            />
+                        </div>
+                        <div className="md:col-span-1">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase ml-1 block mb-1">Role</label>
+                            <select
+                                value={newContributor.role}
+                                onChange={(e) => setNewContributor({...newContributor, role: e.target.value})}
+                                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 shadow-sm"
+                            >
+                                <option value="songwriter">Songwriter</option>
+                                <option value="producer">Producer</option>
+                                <option value="vocalist">Vocalist</option>
+                                <option value="featured-artist">Featured Artist</option>
+                                <option value="engineer">Engineer</option>
+                            </select>
+                        </div>
+                        <div className="md:col-span-1 flex items-end gap-2">
+                            <div className="flex-1">
+                                <label className="text-[10px] font-bold text-gray-500 uppercase ml-1 block mb-1">Share %</label>
+                                <input
+                                    type="number"
+                                    value={newContributor.share || ''}
+                                    onChange={(e) => setNewContributor({...newContributor, share: parseFloat(e.target.value) || 0})}
+                                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 shadow-sm"
+                                    placeholder="%"
+                                    max="100"
+                                    min="1"
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleInviteContributor}
+                                disabled={isInviting}
+                                className="px-5 py-2.5 bg-purple-600 text-white rounded-xl text-sm font-bold shadow-md shadow-purple-200 hover:bg-purple-700 disabled:opacity-50 h-[38px] transition-all"
+                            >
+                                {isInviting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Invite'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-3 mt-6">
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Active Team</p>
+                    {splitSheet.length === 0 ? (
+                      <div className="p-8 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                        <Users className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                        <p className="text-xs text-gray-400">No contributors added yet.</p>
+                      </div>
+                    ) : (
+                      splitSheet.map((item, idx) => (
+                          <div key={item._id || idx} className="p-4 bg-white rounded-2xl border border-gray-100 flex items-center justify-between gap-4 group hover:border-purple-100 transition-all shadow-sm">
+                              <div className="flex items-center gap-4 flex-1">
+                                  <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-50">
+                                      {item.user?.profilePicture ? (
+                                        <img src={item.user.profilePicture} alt="" className="w-full h-full object-cover" />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-50 text-purple-600 font-bold text-sm">
+                                          {(item.contributor || item.email).charAt(0).toUpperCase()}
+                                        </div>
+                                      )}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2">
+                                          <p className="text-sm font-bold text-gray-900 truncate">{item.contributor || item.email}</p>
+                                          {item.status === 'accepted' ? (
+                                            <span className="px-1.5 py-0.5 rounded-full bg-green-50 text-green-600 text-[9px] font-bold uppercase tracking-wider border border-green-100 flex items-center gap-1">
+                                              <CheckCircle className="w-2.5 h-2.5" /> Accepted
+                                            </span>
+                                          ) : (
+                                            <span className="px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 text-[9px] font-bold uppercase tracking-wider border border-amber-100 flex items-center gap-1">
+                                              <Clock className="w-2.5 h-2.5" /> Pending Invite
+                                            </span>
+                                          )}
+                                      </div>
+                                      <p className="text-xs text-gray-500 mt-0.5 truncate flex items-center gap-2">
+                                        <span className="font-bold text-purple-600">{item.role}</span>
+                                        <span className="text-gray-300">•</span>
+                                        {item.email}
+                                      </p>
+                                  </div>
+                              </div>
+
+                              <div className="flex items-center gap-6">
+                                  <div className="text-right">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Share</p>
+                                    <p className="text-sm font-black text-gray-900">{item.share}%</p>
+                                  </div>
+                                  <button
+                                      type="button"
+                                      onClick={() => handleRemoveContributor(item._id)}
+                                      className="p-2 text-gray-400 hover:text-red-600 bg-gray-50 rounded-xl hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+                                  >
+                                      <Trash2 className="w-4 h-4" />
+                                  </button>
+                              </div>
+                          </div>
+                      ))
+                    )}
                 </div>
                 
                 {splitSheet.reduce((acc, curr) => acc + curr.share, 0) !== 100 && splitSheet.length > 0 && (
-                    <div className="p-3 bg-red-50 border border-red-100 rounded-xl flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4 text-red-600" />
-                        <p className="text-xs text-red-700 font-bold">Total share must equal 100%. Current: {splitSheet.reduce((acc, curr) => acc + curr.share, 0)}%</p>
+                    <div className="p-3 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3">
+                        <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs text-red-700 font-bold">Total share must equal 100%.</p>
+                          <p className="text-[10px] text-red-600 mt-0.5 font-medium tracking-tight uppercase">Current total: {splitSheet.reduce((acc, curr) => acc + curr.share, 0)}% (Artist needs {100 - splitSheet.reduce((acc, curr) => acc + curr.share, 0) + (splitSheet.find(s => s.role === 'artist')?.share || 0)}%)</p>
+                        </div>
                     </div>
                 )}
             </div>
