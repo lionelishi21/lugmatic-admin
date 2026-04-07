@@ -59,6 +59,8 @@ export interface LiveStream {
   chatEnabled: boolean;
   giftsEnabled: boolean;
   tags: string[];
+  isRecorded?: boolean;
+  recordingUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -172,6 +174,14 @@ export const updateStreamSettings = async (
   return res.data.data;
 };
 
+/**
+ * Admin: Delete a stream recording.
+ */
+export const deleteRecording = async (streamId: string) => {
+  const res = await apiService.delete(`${BASE}/${streamId}/recording`);
+  return res.data;
+};
+
 export default {
   createStream,
   getStreamToken,
@@ -181,4 +191,5 @@ export default {
   getActiveStreams,
   adminGetAllStreams,
   updateStreamSettings,
+  deleteRecording,
 };

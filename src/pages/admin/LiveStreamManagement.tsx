@@ -38,6 +38,7 @@ import toast from 'react-hot-toast';
 import {
   adminGetAllStreams,
   getStreamToken,
+  deleteRecording,
   type LiveStream
 } from '../../services/liveStreamService';
 import { getFullImageUrl } from '../../services/api';
@@ -158,6 +159,7 @@ const LiveStreamManagement: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 });
+  const [viewingRecording, setViewingRecording] = useState<LiveStream | null>(null);
 
   const fetchStreams = useCallback(async () => {
     setLoading(true);
@@ -197,10 +199,10 @@ const LiveStreamManagement: React.FC = () => {
   const totalRevenue = useMemo(() => streams.reduce((sum, s) => sum + (s.totalGiftValue || 0), 0), [streams]);
 
   const statusTabs = [
-    { key: 'all', label: 'All', count: pagination.total },
     { key: 'live', label: 'Live', count: liveCount },
     { key: 'scheduled', label: 'Scheduled', count: scheduledCount },
-    { key: 'ended', label: 'Ended', count: streams.filter(s => s.status === 'ended').length },
+    { key: 'ended', label: 'Ended', count: streams.filter(s => s.status === 'ended' && !s.isRecorded).length },
+    { key: 'recorded', label: 'Recorded', count: streams.filter(s => s.isRecorded).length },
   ];
 
   const getStatusBadge = (status: string) => {
@@ -242,7 +244,18 @@ const LiveStreamManagement: React.FC = () => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
-  const handleStreamAction = (streamId: string, action: string) => {
+  const handleStreamAction = async (streamId: string, action: string) => {
+    if (action === 'delete-recording') {
+      if (window.confirm('Are you sure you want to delete this recording? This cannot be undone.')) {
+        try {
+          await deleteRecording(streamId);
+          toast.success('Recording deleted successfully');
+          fetchStreams();
+        } catch (err) {
+          toast.error('Failed to delete recording');
+        }
+      }
+    }
     console.log(`Action ${action} on stream ${streamId}`);
     setOpenMenuId(null);
   };
@@ -411,6 +424,18 @@ const LiveStreamManagement: React.FC = () => {
                         </button>
                       </div>
                     )}
+
+                    {stream.isRecorded && (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+                        <button
+                          onClick={() => setViewingRecording(stream)}
+                          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-full text-xs font-bold hover:bg-purple-700 transform scale-90 group-hover:scale-100 transition-all shadow-lg"
+                        >
+                          <Play className="h-3.5 w-3.5 fill-current" />
+                          WATCH RECORDING
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Content */}
@@ -460,12 +485,20 @@ const LiveStreamManagement: React.FC = () => {
                             >
                               <Pencil className="h-3.5 w-3.5" /> Edit Settings
                             </button>
+                            {stream.isRecorded && (
+                              <button
+                                onClick={() => { handleStreamAction(stream._id, 'delete-recording'); }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" /> Delete Recording
+                              </button>
+                            )}
                             <hr className="my-1 border-gray-100" />
                             <button
                               onClick={() => handleStreamAction(stream._id, 'delete')}
                               className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 hover:bg-red-50"
                             >
-                              <Trash2 className="h-3.5 w-3.5" /> Stop / End Stream
+                              <X className="h-3.5 w-3.5" /> Stop / End Stream
                             </button>
                           </div>
                         )}
@@ -624,6 +657,26 @@ const LiveStreamManagement: React.FC = () => {
           stream={monitoringStream}
           onClose={() => setMonitoringStream(null)}
         />
+      )}
+
+      {/* Recording Player Modal */}
+      {viewingRecording && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[70]" onClick={() => setViewingRecording(null)}>
+          <div className="max-w-5xl w-full mx-4 aspect-video relative" onClick={e => e.stopPropagation()}>
+            <video 
+              src={viewingRecording.recordingUrl} 
+              controls 
+              autoPlay 
+              className="w-full h-full rounded-2xl shadow-2xl"
+            />
+            <button
+              onClick={() => setViewingRecording(null)}
+              className="absolute -top-12 right-0 text-white/60 hover:text-white transition-colors"
+            >
+              <X className="h-8 w-8" />
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Click-away listener for menus */}

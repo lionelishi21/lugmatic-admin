@@ -237,6 +237,13 @@ const songService = {
       reader.readAsDataURL(file);
     });
   },
+  /**
+   * Get song analytics
+   */
+  getSongAnalytics: async (id: string, days: number = 30): Promise<any> => {
+    const response = await apiService.get<any>(`/song/analytics/${id}?days=${days}`);
+    return extractResponseData<any>(response);
+  },
 };
 
 export default songService;

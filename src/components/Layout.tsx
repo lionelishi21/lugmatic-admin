@@ -207,6 +207,11 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       icon: <BarChart2 className="h-5 w-5" />
     },
     {
+      path: '/artist/songs',
+      label: 'My Songs',
+      icon: <Music className="h-5 w-5" />
+    },
+    {
       path: '/artist/billboard',
       label: 'Billboard',
       icon: <Award className="h-5 w-5" />

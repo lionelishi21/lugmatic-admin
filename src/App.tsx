@@ -40,6 +40,8 @@ import Search from './pages/artist/Search';
 import UserProfile from './pages/artist/UserProfile';
 import Settings from './pages/artist/Settings';
 import Support from './pages/artist/Support';
+import MySongs from './pages/artist/MySongs';
+import SongAnalytics from './pages/artist/SongAnalytics';
 
 // Import new admin pages
 import PodcastManagement from './pages/admin/PodcastManagement';
@@ -96,6 +98,8 @@ function App() {
                     <Route path="settings" element={<Settings />} />
                     <Route path="support" element={<Support />} />
                     <Route path="billboard" element={<Billboard />} />
+                    <Route path="songs" element={<MySongs />} />
+                    <Route path="songs/:id/analytics" element={<SongAnalytics />} />
                     <Route path="song-edit/:id" element={<SongEdit />} />
                   </Routes>
                 </Layout>
