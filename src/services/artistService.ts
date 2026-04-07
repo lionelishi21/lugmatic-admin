@@ -27,6 +27,32 @@ export interface Artist {
   approvedAt?: string | null;
   isApproved?: boolean;
   isVerified?: boolean;
+  payoutInfo?: {
+    method?: 'paypal' | 'bank_transfer' | 'stripe' | 'jamaican_bank' | 'jamdex';
+    paypalEmail?: string;
+    bankAccount?: {
+      accountNumber?: string;
+      routingNumber?: string;
+      accountHolder?: string;
+      bankName?: string;
+    };
+    jamaicanBank?: {
+      bankName?: string;
+      branchName?: string;
+      accountNumber?: string;
+      accountType?: 'savings' | 'checking';
+    };
+    jamdex?: {
+      walletAddress?: string;
+      trn?: string;
+    };
+  };
+  verificationDocuments?: {
+    idNumber?: string;
+    idType?: 'nis' | 'passport' | 'drivers_license';
+    governmentId?: string;
+    trnImage?: string;
+  };
   [key: string]: unknown;
 }
 

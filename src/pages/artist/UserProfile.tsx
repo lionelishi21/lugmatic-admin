@@ -58,15 +58,22 @@ export default function UserProfile() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    
     if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...(prev[parent] as any),
-          [child]: value
+      const parts = name.split('.');
+      setFormData(prev => {
+        const newFormData = { ...prev };
+        let current: any = newFormData;
+        
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (!current[parts[i]]) current[parts[i]] = {};
+          current[parts[i]] = { ...current[parts[i]] };
+          current = current[parts[i]];
         }
-      }));
+        
+        current[parts[parts.length - 1]] = value;
+        return newFormData;
+      });
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
