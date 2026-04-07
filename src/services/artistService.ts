@@ -47,8 +47,10 @@ export interface Song {
   artist: string;
   album?: string;
   duration: number;
-  audioUrl: string;
+  audioUrl?: string;
   coverArt?: string;
+  splitSheet?: any[];
+  status?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -240,6 +242,14 @@ const artistService = {
   verifyArtist: async (id: string, isVerified: boolean): Promise<Artist> => {
     const response = await apiService.put<Artist>(`/admin/artists/${id}/verify`, { isVerified });
     return extractResponseData<Artist>(response);
+  },
+
+  /**
+   * Get artist contributions (Admin only)
+   */
+  getArtistContributions: async (id: string): Promise<any[]> => {
+    const response = await apiService.get<any[]>(`/admin/artists/${id}/contributions`);
+    return extractResponseData<any[]>(response);
   }
 };
 

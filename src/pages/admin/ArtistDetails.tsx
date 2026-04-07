@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useArtistContext } from '../../context/ArtistContext';
 import Preloader from '../../components/ui/Preloader';
+import artistService from '../../services/artistService';
+import ContributionList from '../../components/artist/ContributionList';
+import { Users, ChevronRight } from 'lucide-react';
 
 const ArtistDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +28,9 @@ const ArtistDetails: React.FC = () => {
     clearSelectedArtist,
     clearDiscography
   } = useArtistContext();
+  
+  const [contributions, setContributions] = React.useState<any[]>([]);
+  const [loadingContributions, setLoadingContributions] = React.useState(true);
 
   // Fetch artist details when component mounts
   useEffect(() => {
@@ -32,6 +38,7 @@ const ArtistDetails: React.FC = () => {
       fetchArtistById(id);
       fetchArtistAlbums(id);
       fetchArtistSongs(id);
+      fetchContributions(id);
     }
 
     return () => {
@@ -39,6 +46,18 @@ const ArtistDetails: React.FC = () => {
       clearDiscography();
     };
   }, [id, fetchArtistById, fetchArtistAlbums, fetchArtistSongs, clearSelectedArtist, clearDiscography]);
+
+  const fetchContributions = async (artistId: string) => {
+    try {
+      setLoadingContributions(true);
+      const data = await artistService.getArtistContributions(artistId);
+      setContributions(data);
+    } catch (err) {
+      console.error('Failed to fetch artist contributions:', err);
+    } finally {
+      setLoadingContributions(false);
+    }
+  };
 
   // Handle artist approval
   const handleApprove = async () => {
@@ -101,13 +120,6 @@ const ArtistDetails: React.FC = () => {
 
   const isLoadingAll =
     loading || albumsLoading || songsLoading;
-  const hasError = error || albumsError || songsError;
-
-  const artistName =
-    selectedArtist?.name ||
-    selectedArtist?.fullName ||
-    [selectedArtist?.firstName, selectedArtist?.lastName].filter(Boolean).join(' ') ||
-    '';
 
   if (!isLoadingAll && !selectedArtist) {
     return (
@@ -125,10 +137,12 @@ const ArtistDetails: React.FC = () => {
     );
   }
 
+  if (!selectedArtist) return null;
+
   const displayName =
-    selectedArtist?.name ||
-    selectedArtist?.fullName ||
-    [selectedArtist?.firstName, selectedArtist?.lastName].filter(Boolean).join(' ') ||
+    selectedArtist.name ||
+    selectedArtist.fullName ||
+    [selectedArtist.firstName, selectedArtist.lastName].filter(Boolean).join(' ') ||
     'Unknown Artist';
   const displayEmail = selectedArtist.email || (selectedArtist as any).contactEmail || '—';
   const avatarSrc =
@@ -162,6 +176,8 @@ const ArtistDetails: React.FC = () => {
   const canReviewArtist =
     (selectedArtist.status && selectedArtist.status.toLowerCase() === 'pending') ||
     selectedArtist.isApproved === false;
+
+  if (!selectedArtist) return null;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -355,24 +371,59 @@ const ArtistDetails: React.FC = () => {
                       />
                     )}
                     <div>
-                      <h3 className="text-lg font-medium text-gray-900">{song.title}</h3>
-                      <p className="text-sm text-gray-500">
-                        Duration:{' '}
-                        {song.duration
-                          ? `${Math.floor(song.duration / 60)}:${(song.duration % 60)
-                            .toString()
-                            .padStart(2, '0')}`
-                          : (song as any).formattedDuration || '—'}
-                      </p>
+                      <h3 className="text-lg font-medium text-gray-900 leading-tight">{song.title}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-xs text-gray-500">
+                          {song.duration
+                            ? `${Math.floor(song.duration / 60)}:${(song.duration % 60)
+                              .toString()
+                              .padStart(2, '0')}`
+                            : (song as any).formattedDuration || '—'}
+                        </p>
+                        {song.splitSheet && song.splitSheet.length > 0 && (
+                          <span className="flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded">
+                            <Users className="w-2.5 h-2.5" />
+                            {song.splitSheet.length} Contributors
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <span className="text-sm text-gray-500">
-                    {song.album ? `Album: ${song.album}` : 'Single'}
-                  </span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-gray-500 hidden sm:block">
+                      {song.album ? `Album: ${song.album}` : 'Single'}
+                    </span>
+                    <button 
+                      onClick={() => navigate(`/admin/songs/${song._id}`)}
+                      className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-indigo-600 transition-all"
+                      title="View Song Details & Split Sheet"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
+        </div>
+      </motion.div>
+      
+      {/* Contributions */}
+      <motion.div
+        className="bg-white rounded-lg shadow-md overflow-hidden mt-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.35 }}
+      >
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+              <Users className="h-6 w-6 text-purple-600" />
+              Contributions
+            </h2>
+            {loadingContributions && <span className="text-sm text-gray-500">Loading contributions...</span>}
+          </div>
+          <ContributionList contributions={contributions} loading={loadingContributions} />
         </div>
       </motion.div>
     </div>

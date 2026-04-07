@@ -253,9 +253,12 @@ const SongEdit: React.FC = () => {
             
             <div className="aspect-square rounded-xl overflow-hidden bg-gray-100 mb-4 relative">
               <img
-                src={formData.coverArt || '/default-track-cover.jpg'}
+                src={formData.coverArtUrl || formData.coverArt || '/default-track-cover.jpg'}
                 alt="Cover Preview"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/default-track-cover.jpg';
+                }}
               />
               <div className="absolute inset-0 bg-black/20" />
             </div>

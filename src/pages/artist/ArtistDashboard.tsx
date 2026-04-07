@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
 import { fetchArtistById, fetchArtistStats, fetchArtistSongs } from '../../store/slices/artistSlice';
 import { fetchArtistEarnings } from '../../store/slices/financeSlice';
+import { userService } from '../../services/userService';
+import ContributionList from '../../components/artist/ContributionList';
 import { Skeleton } from '../../components/ui/skeleton';
 
 export default function ArtistDashboard() {
@@ -15,6 +17,9 @@ export default function ArtistDashboard() {
   const { stats, songs, loading: artistLoading } = useSelector((state: RootState) => state.artist);
   const { earnings, loading: financeLoading } = useSelector((state: RootState) => state.finance);
 
+  const [contributions, setContributions] = React.useState<any[]>([]);
+  const [loadingContributions, setLoadingContributions] = React.useState(true);
+
   useEffect(() => {
     if (user?.artistId) {
       const artistId = String(user.artistId);
@@ -22,8 +27,23 @@ export default function ArtistDashboard() {
       dispatch(fetchArtistStats(artistId));
       dispatch(fetchArtistSongs(artistId));
       dispatch(fetchArtistEarnings());
+      fetchContributions();
     }
   }, [dispatch, user?.artistId]);
+
+  const fetchContributions = async () => {
+    try {
+      setLoadingContributions(true);
+      const res = await userService.getContributorDashboard();
+      if (res.data.success) {
+        setContributions(res.data.data.songs);
+      }
+    } catch (err) {
+      console.error('Failed to fetch contributions:', err);
+    } finally {
+      setLoadingContributions(false);
+    }
+  };
 
   const isLoading = artistLoading || financeLoading;
 
@@ -115,14 +135,17 @@ export default function ArtistDashboard() {
                   <div key={track._id} className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <img
-                        src={track.coverArt || '/default-track-cover.jpg'}
-                        alt={track.title}
+                        src={track.coverArtUrl || track.coverArt || '/default-track-cover.jpg'}
+                        alt={track.name || track.title}
                         className="w-12 h-12 rounded-lg object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/default-track-cover.jpg';
+                        }}
                       />
                       <div>
-                        <h3 className="font-medium text-gray-900">{track.title}</h3>
+                        <h3 className="font-medium text-gray-900">{track.name || track.title}</h3>
                         <p className="text-sm text-gray-500">
-                          {track.plays?.toLocaleString() || 0} plays
+                          {(track.playCount ?? track.plays ?? 0).toLocaleString()} plays
                         </p>
                       </div>
                     </div>
@@ -171,7 +194,19 @@ export default function ArtistDashboard() {
             </div>
           </div>
 
-          {/* Recent Activity */}
+          {/* Your Contributions Section */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Users className="h-5 w-5 text-purple-600" />
+                Your Contributions
+              </h2>
+              <span className="text-[10px] font-bold px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full uppercase tracking-wider">
+                Split Sheets
+              </span>
+            </div>
+            <ContributionList contributions={contributions} loading={loadingContributions} />
+          </div>
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Activity</h2>
             <div className="space-y-4">
