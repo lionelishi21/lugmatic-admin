@@ -485,20 +485,20 @@ export default function Landing() {
                   High-fidelity streaming, instant gifting, and real-time community engagement.
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <button className="h-16 px-8 rounded-2xl bg-white text-black flex items-center gap-4 hover:bg-zinc-200 transition-all shadow-xl">
+                  <a href="https://apps.apple.com/app/lugmatic-studio" target="_blank" rel="noopener noreferrer" className="h-16 px-8 rounded-2xl bg-white text-black flex items-center gap-4 hover:bg-zinc-200 transition-all shadow-xl">
                     <Apple className="w-8 h-8" />
                     <div className="text-left">
                       <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">App Store</p>
                       <p className="text-xl font-bold -mt-1">Download</p>
                     </div>
-                  </button>
-                  <button className="h-16 px-8 rounded-2xl bg-zinc-900 border border-white/10 text-white flex items-center gap-4 hover:bg-zinc-800 transition-all shadow-xl">
+                  </a>
+                  <a href="https://play.google.com/store/apps/details?id=com.lugmatic.studio" target="_blank" rel="noopener noreferrer" className="h-16 px-8 rounded-2xl bg-zinc-900 border border-white/10 text-white flex items-center gap-4 hover:bg-zinc-800 transition-all shadow-xl">
                     <Smartphone className="w-8 h-8 text-green-500" />
                     <div className="text-left">
                       <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Google Play</p>
                       <p className="text-xl font-bold -mt-1">Get it on</p>
                     </div>
-                  </button>
+                  </a>
                 </div>
               </motion.div>
             </div>
