@@ -42,7 +42,6 @@ import Settings from './pages/artist/Settings';
 import Support from './pages/artist/Support';
 import MySongs from './pages/artist/MySongs';
 import SongAnalytics from './pages/artist/SongAnalytics';
-import ArtistPromotions from './pages/artist/Promotions';
 import SupportHistory from './pages/artist/SupportHistory';
 
 // Import new admin pages
@@ -103,7 +102,6 @@ function App() {
                     <Route path="billboard" element={<Billboard />} />
                     <Route path="songs" element={<MySongs />} />
                     <Route path="songs/:id/analytics" element={<SongAnalytics />} />
-                    <Route path="promotions" element={<ArtistPromotions />} />
                     <Route path="song-edit/:id" element={<SongEdit />} />
                     <Route path="song-edit/:id" element={<SongEdit />} />
                   </Routes>

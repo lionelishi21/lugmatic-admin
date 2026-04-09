@@ -259,12 +259,6 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       icon: <Gift className="h-5 w-5" />
     },
     {
-      path: '/artist/promotions',
-      label: 'Promotions',
-      icon: <Zap className="h-5 w-5" />,
-      badge: 'New'
-    },
-    {
       path: '/artist/earnings',
       label: 'Earnings',
       icon: <DollarSign className="h-5 w-5" />
