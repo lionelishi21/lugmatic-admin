@@ -31,10 +31,13 @@ interface AuthState {
   lastLogin: number | null;
 }
 
+// Sync check for token at startup to avoid UI flickering
+const storedToken = getAccessToken();
+
 const initialState: AuthState = {
-  user: null,
-  isAuthenticated: false,
-  isLoading: false,
+  user: null, // We'll fetch the user data in the initializeAuth thunk
+  isAuthenticated: !!storedToken,
+  isLoading: !!storedToken, // Set loading true if we are about to verify a token
   error: null,
   lastLogin: null,
 };

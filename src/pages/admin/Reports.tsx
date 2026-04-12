@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { adminService } from '../../services/adminService';
 import {
   BarChart3, FileText, TrendingUp, Users, DollarSign, Download,
   Calendar, ChevronRight, Clock, ArrowUpRight, ArrowDownRight,
@@ -27,6 +28,43 @@ const Reports: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const [actionMenu, setActionMenu] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState<string | null>(null);
+  const [reports, setReports] = useState<any[]>([]);
+
+  const fetchHistory = async () => {
+    try {
+      setLoading(true);
+      const response = await adminService.getReportHistory();
+      if (response.data.success) {
+        setReports(response.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch report history:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const handleGenerate = async (type: string) => {
+    try {
+      setGenerating(type);
+      const response = await adminService.generateReport(type);
+      if (response.data.success) {
+        await fetchHistory();
+        alert(`${type.charAt(0).toUpperCase() + type.slice(1)} report generated successfully!`);
+      }
+    } catch (err) {
+      console.error('Failed to generate report:', err);
+      alert('Failed to generate report. Please try again.');
+    } finally {
+      setGenerating(null);
+    }
+  };
 
   const periods = [
     { key: '7d', label: '7 Days' },
@@ -198,7 +236,16 @@ const Reports: React.FC = () => {
               {/* Report Categories Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {reportCategories.map(cat => (
-                  <div key={cat.id} className={`group bg-white rounded-xl border ${cat.border} p-5 hover:shadow-md transition-all cursor-pointer`}>
+                  <div 
+                    key={cat.id} 
+                    onClick={() => handleGenerate(cat.title.toLowerCase().split(' ')[0])}
+                    className={`group bg-white rounded-xl border ${cat.border} p-5 hover:shadow-md transition-all cursor-pointer relative overflow-hidden`}
+                  >
+                    {generating === cat.title.toLowerCase().split(' ')[0] && (
+                      <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-[1px]">
+                        <RefreshCw className="w-6 h-6 text-green-600 animate-spin" />
+                      </div>
+                    )}
                     <div className="flex items-start justify-between mb-3">
                       <div className={`p-2.5 rounded-xl ${cat.bg}`}>
                         <cat.icon className={`w-5 h-5 ${cat.color}`} />
@@ -212,14 +259,13 @@ const Reports: React.FC = () => {
                         <span key={i} className="text-[10px] font-medium bg-gray-50 text-gray-600 px-2 py-0.5 rounded-md">{m}</span>
                       ))}
                     </div>
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {cat.lastGenerated}
-                      </span>
-                      <button className="flex items-center gap-1 text-xs font-medium text-green-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                        Generate <ChevronRight className="w-3 h-3" />
-                      </button>
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                      <div className="text-[10px] text-gray-400">
+                        Last Generated: <span className="text-gray-600 font-medium">{cat.lastGenerated}</span>
+                      </div>
+                      <div className={`p-1 rounded-md ${cat.bg} opacity-0 group-hover:opacity-100 transition-opacity`}>
+                        <ArrowUpRight className={`w-3 h-3 ${cat.color}`} />
+                      </div>
                     </div>
                   </div>
                 ))}

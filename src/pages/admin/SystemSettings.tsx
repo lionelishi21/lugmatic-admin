@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { adminService } from '../../services/adminService';
 import {
   Settings,
   Shield,
@@ -344,6 +345,33 @@ const SystemSettings: React.FC = () => {
     },
   ]);
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        setLoading(true);
+        const response = await adminService.getSystemSettings();
+        if (response.data.success && response.data.data.length > 0) {
+          // Merge fetched settings with initial state to keep metadata (icons, categories)
+          const fetchedSettings = response.data.data;
+          setSettings(prev => prev.map(s => {
+            const found = fetchedSettings.find((fs: any) => fs.key === s.id);
+            return found ? { ...s, value: found.value } : s;
+          }));
+        }
+      } catch (err) {
+        console.error('Failed to fetch settings:', err);
+        setError('Could not load system settings. Using defaults.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
   const categories = [
     { id: 'general', name: 'General', icon: Settings, description: 'Platform basics' },
     { id: 'security', name: 'Security', icon: Shield, description: 'Auth & access' },
@@ -361,13 +389,36 @@ const SystemSettings: React.FC = () => {
     setSaved(false);
   };
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const handleSave = async () => {
+    try {
+      const updates = settings.map(s => ({ key: s.id, value: s.value, category: s.category }));
+      await adminService.updateSystemSettings(updates);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error('Failed to save settings:', err);
+      alert('Failed to save settings. Please try again.');
+    }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
+    // Re-fetch from server
     setSaved(false);
+    try {
+      setLoading(true);
+      const response = await adminService.getSystemSettings();
+      if (response.data.success) {
+        const fetchedSettings = response.data.data;
+        setSettings(prev => prev.map(s => {
+          const found = fetchedSettings.find((fs: any) => fs.key === s.id);
+          return found ? { ...s, value: found.value } : s;
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to reset settings:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredSettings = settings.filter(s => s.category === activeTab);

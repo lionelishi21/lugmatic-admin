@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { adminService } from '../../services/adminService';
 import { 
   Zap, 
   Target, 
@@ -45,99 +46,44 @@ const Promotions: React.FC = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const promotions: Promotion[] = [
-    {
-      id: '1',
-      name: 'Summer Music Festival',
-      type: 'discount',
-      status: 'active',
-      startDate: '2024-06-01',
-      endDate: '2024-08-31',
-      targetAudience: 'All Users',
-      discount: 25,
-      participants: 1250,
-      revenue: 45678,
-      description: '25% off Premium subscriptions for the summer season',
-      budget: 50000,
-      spent: 34200,
-    },
-    {
-      id: '2',
-      name: 'New Artist Spotlight',
-      type: 'featured',
-      status: 'active',
-      startDate: '2024-05-15',
-      endDate: '2024-06-15',
-      targetAudience: 'New Artists',
-      discount: 0,
-      participants: 89,
-      revenue: 12345,
-      description: 'Featured placement for emerging artists on homepage',
-      budget: 15000,
-      spent: 8900,
-    },
-    {
-      id: '3',
-      name: 'Referral Bonus Program',
-      type: 'referral',
-      status: 'scheduled',
-      startDate: '2024-07-01',
-      endDate: '2024-09-30',
-      targetAudience: 'Existing Users',
-      discount: 15,
-      participants: 0,
-      revenue: 0,
-      description: 'Earn 1 month free for each friend referred',
-      budget: 30000,
-      spent: 0,
-    },
-    {
-      id: '4',
-      name: 'Holiday Gift Bundle',
-      type: 'bonus',
-      status: 'inactive',
-      startDate: '2024-12-01',
-      endDate: '2024-12-31',
-      targetAudience: 'Premium Users',
-      discount: 30,
-      participants: 3420,
-      revenue: 67890,
-      description: 'Gift a subscription and get bonus coins',
-      budget: 80000,
-      spent: 72000,
-    },
-    {
-      id: '5',
-      name: 'First Listen Free',
-      type: 'discount',
-      status: 'active',
-      startDate: '2024-05-01',
-      endDate: '2024-07-31',
-      targetAudience: 'New Users',
-      discount: 100,
-      participants: 5670,
-      revenue: 23400,
-      description: 'Free 7-day trial for new sign-ups',
-      budget: 25000,
-      spent: 18300,
-    },
-    {
-      id: '6',
-      name: 'Artist Collab Promo',
-      type: 'featured',
-      status: 'scheduled',
-      startDate: '2024-08-01',
-      endDate: '2024-08-15',
-      targetAudience: 'All Users',
-      discount: 10,
-      participants: 0,
-      revenue: 0,
-      description: 'Cross-promotion with top artists for new releases',
-      budget: 20000,
-      spent: 0,
-    },
-  ];
+  const fetchPromotions = async () => {
+    try {
+      setLoading(true);
+      const response = await adminService.getPromotions();
+      if (response.data.success) {
+        // Map backend _id to id if necessary
+        const data = response.data.data.map((p: any) => ({
+          ...p,
+          id: p._id || p.id
+        }));
+        setPromotions(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch promotions:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPromotions();
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this promotion?')) return;
+    try {
+      await adminService.deletePromotion(id);
+      setPromotions(prev => prev.filter(p => p.id !== id));
+      setOpenMenu(null);
+    } catch (err) {
+      console.error('Failed to delete promotion:', err);
+      alert('Failed to delete promotion.');
+    }
+  };
+
 
   const tabs = [
     { key: 'all', label: 'All', count: promotions.length },
@@ -189,10 +135,12 @@ const Promotions: React.FC = () => {
 
   const budgetPercent = (spent: number, budget: number) => budget > 0 ? Math.round((spent / budget) * 100) : 0;
 
-  const totalRevenue = promotions.reduce((sum, p) => sum + p.revenue, 0);
-  const totalParticipants = promotions.reduce((sum, p) => sum + p.participants, 0);
+  const totalRevenue = promotions.reduce((sum, p) => sum + (p.revenue || 0), 0);
+  const totalParticipants = promotions.reduce((sum, p) => sum + (p.participants || 0), 0);
   const activeCount = promotions.filter(p => p.status === 'active').length;
   const avgConversion = 23.4;
+
+  if (loading) return <div className="p-6">Loading promotions...</div>;
 
   return (
     <div className="p-6 max-w-[1400px] mx-auto" onClick={() => openMenu && setOpenMenu(null)}>
@@ -379,7 +327,10 @@ const Promotions: React.FC = () => {
                           </button>
                         ) : null}
                         <hr className="my-1 border-gray-100" />
-                        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50">
+                        <button 
+                          onClick={() => handleDelete(promo.id)}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                        >
                           <Trash2 className="h-3.5 w-3.5" /> Delete
                         </button>
                       </div>

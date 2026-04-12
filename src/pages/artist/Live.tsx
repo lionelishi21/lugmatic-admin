@@ -113,8 +113,10 @@ export default function Live() {
 
   const roomRef = useRef<Room | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
+  const [remoteVideoTrack, setRemoteVideoTrack] = useState<any>(null);
   const [isPreviewActive, setIsPreviewActive] = useState(false);
   const localTracksRef = useRef<Awaited<ReturnType<typeof createLocalTracks>> | null>(null);
 
@@ -341,6 +343,18 @@ export default function Live() {
           pub.track.attach(videoRef.current);
         }
         console.log('[LiveKit] Published:', pub.track?.kind, 'by', participant.identity);
+      });
+
+      room.on(RoomEvent.TrackSubscribed, (track) => {
+        if (track.kind === Track.Kind.Video) {
+          setRemoteVideoTrack(track);
+        }
+      });
+
+      room.on(RoomEvent.TrackUnsubscribed, (track) => {
+        if (track.kind === Track.Kind.Video) {
+          setRemoteVideoTrack(null);
+        }
       });
 
       await room.connect(tokenData.url, tokenData.token);
@@ -614,14 +628,39 @@ export default function Live() {
         <div className="lg:col-span-2 space-y-4">
 
           {/* Video */}
-          <div className="relative bg-gray-950 aspect-video rounded-2xl overflow-hidden shadow-sm">
-            <video
-              ref={videoRef}
-              autoPlay
-              muted
-              playsInline
-              className={`w-full h-full object-cover ${isLive || isPreviewActive ? 'block' : 'hidden'}`}
-            />
+          <div className={`relative bg-gray-950 aspect-video rounded-2xl overflow-hidden shadow-sm grid ${activeClash && remoteVideoTrack ? 'grid-cols-2 gap-1' : 'grid-cols-1'}`}>
+            <div className="relative w-full h-full">
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                playsInline
+                className={`w-full h-full object-cover ${(isLive || isPreviewActive) ? 'block' : 'hidden'}`}
+              />
+              {activeClash && remoteVideoTrack && (
+                <div className="absolute bottom-4 left-4 z-10 px-2 py-1 bg-black/40 backdrop-blur-md rounded-lg border border-white/10">
+                  <p className="text-[10px] font-bold text-white uppercase tracking-wider">You</p>
+                </div>
+              )}
+            </div>
+
+            {activeClash && remoteVideoTrack && (
+              <div className="relative w-full h-full bg-gray-900">
+                <video
+                  ref={(el) => {
+                    if (el && remoteVideoTrack) {
+                      remoteVideoTrack.attach(el);
+                    }
+                  }}
+                  autoPlay
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute bottom-4 left-4 z-10 px-2 py-1 bg-black/40 backdrop-blur-md rounded-lg border border-white/10">
+                  <p className="text-[10px] font-bold text-white uppercase tracking-wider">Opponent</p>
+                </div>
+              </div>
+            )}
 
             {/* Idle placeholder */}
             {phase === 'idle' && !isPreviewActive && !summary && (

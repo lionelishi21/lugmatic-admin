@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { adminService } from '../../services/adminService';
 import {
   Users,
   DollarSign,
@@ -37,63 +38,40 @@ interface AnalyticsData {
 }
 
 const Analytics: React.FC = () => {
-  const [timeRange, setTimeRange] = useState('30d');
-  const [selectedMetric, setSelectedMetric] = useState('users');
+  const [activeRange, setActiveRange] = useState('month');
+  const [loading, setLoading] = useState(true);
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
 
-  const analyticsData: AnalyticsData = {
-    totalUsers: 45678,
-    activeUsers: 12345,
-    totalRevenue: 234567,
-    totalPlays: 987654,
-    avgSessionMin: 24,
-    topGenres: [
-      { name: 'Pop', count: 1234, percentage: 25, color: 'bg-green-500' },
-      { name: 'Rock', count: 987, percentage: 20, color: 'bg-blue-500' },
-      { name: 'Hip Hop', count: 876, percentage: 18, color: 'bg-amber-500' },
-      { name: 'Electronic', count: 654, percentage: 13, color: 'bg-purple-500' },
-      { name: 'Jazz', count: 432, percentage: 9, color: 'bg-rose-500' },
-      { name: 'R&B', count: 389, percentage: 8, color: 'bg-cyan-500' },
-      { name: 'Other', count: 350, percentage: 7, color: 'bg-gray-400' },
-    ],
-    recentActivity: [
-      { type: 'user', description: '142 new users registered', time: '2 min ago', value: '+142' },
-      { type: 'play', description: 'Streams spike in US region', time: '5 min ago', value: '+12.4K' },
-      { type: 'revenue', description: 'Premium subscriptions surge', time: '10 min ago', value: '+$2,340' },
-      { type: 'upload', description: '28 new tracks uploaded', time: '15 min ago', value: '+28' },
-      { type: 'play', description: 'Trending playlist hit 1M plays', time: '22 min ago', value: '1M' },
-      { type: 'user', description: 'Artist verification completed', time: '30 min ago', value: '+3' },
-    ],
-    monthlyGrowth: [
-      { month: 'Jan', users: 12000, revenue: 45000, plays: 320000 },
-      { month: 'Feb', users: 15000, revenue: 52000, plays: 380000 },
-      { month: 'Mar', users: 18000, revenue: 61000, plays: 450000 },
-      { month: 'Apr', users: 22000, revenue: 72000, plays: 520000 },
-      { month: 'May', users: 28000, revenue: 89000, plays: 640000 },
-      { month: 'Jun', users: 35000, revenue: 110000, plays: 780000 },
-      { month: 'Jul', users: 38500, revenue: 125000, plays: 870000 },
-      { month: 'Aug', users: 42000, revenue: 138000, plays: 920000 },
-    ],
-    topTracks: [
-      { title: 'Midnight Dreams', artist: 'Luna Star', plays: 2450000, trend: 12.5 },
-      { title: 'Electric Soul', artist: 'The Waves', plays: 1890000, trend: 8.3 },
-      { title: 'Neon Lights', artist: 'DJ Pulse', plays: 1650000, trend: -2.1 },
-      { title: 'Golden Hour', artist: 'Sarah Keys', plays: 1420000, trend: 15.7 },
-      { title: 'Urban Flow', artist: 'MC Thunder', plays: 1180000, trend: 5.9 },
-    ],
-    regions: [
-      { name: 'United States', flag: '🇺🇸', users: 20555, percentage: 45, revenue: 105555 },
-      { name: 'United Kingdom', flag: '🇬🇧', users: 7311, percentage: 16, revenue: 37530 },
-      { name: 'Germany', flag: '🇩🇪', users: 5481, percentage: 12, revenue: 28148 },
-      { name: 'Japan', flag: '🇯🇵', users: 4111, percentage: 9, revenue: 21111 },
-      { name: 'Brazil', flag: '🇧🇷', users: 3654, percentage: 8, revenue: 18745 },
-      { name: 'Other', flag: '🌍', users: 4566, percentage: 10, revenue: 23478 },
-    ],
-    devices: [
-      { name: 'Mobile', percentage: 62, icon: 'smartphone' },
-      { name: 'Desktop', percentage: 28, icon: 'monitor' },
-      { name: 'Tablet', percentage: 10, icon: 'tablet' },
-    ],
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true);
+        // The service method expects a specific period string, mapping month/week/day
+        const period = activeRange === 'month' ? 'monthly' : activeRange === 'week' ? 'weekly' : 'daily';
+        const response = await adminService.getAnalytics(period as any);
+        if (response.data.success) {
+          setAnalyticsData(response.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch analytics:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, [activeRange]);
+
+  const summary = analyticsData?.summary || {
+    totalUsers: 0,
+    newUsersLast30Days: 0,
+    totalArtists: 0,
+    totalSongs: 0,
+    totalRevenue: 0
   };
+
+  const chartData = analyticsData?.charts?.userGrowth || [];
+  const [selectedMetric, setSelectedMetric] = useState('users');
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -129,14 +107,14 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const maxBarValue = Math.max(...analyticsData.monthlyGrowth.map(d =>
+  const maxBarValue = analyticsData ? Math.max(...analyticsData.monthlyGrowth.map((d: any) =>
     selectedMetric === 'users' ? d.users : selectedMetric === 'revenue' ? d.revenue : d.plays
-  ));
+  )) : 0;
 
   const statCards = [
     {
       label: 'Total Users',
-      value: analyticsData.totalUsers.toLocaleString(),
+      value: analyticsData?.totalUsers.toLocaleString() || '0',
       trend: '+12.5%',
       trendUp: true,
       icon: <Users className="h-5 w-5" />,
@@ -144,7 +122,7 @@ const Analytics: React.FC = () => {
     },
     {
       label: 'Active Users',
-      value: analyticsData.activeUsers.toLocaleString(),
+      value: analyticsData?.activeUsers.toLocaleString() || '0',
       trend: '+8.3%',
       trendUp: true,
       icon: <Activity className="h-5 w-5" />,
@@ -152,7 +130,7 @@ const Analytics: React.FC = () => {
     },
     {
       label: 'Total Revenue',
-      value: `$${analyticsData.totalRevenue.toLocaleString()}`,
+      value: `$${analyticsData?.totalRevenue.toLocaleString() || '0'}`,
       trend: '+15.2%',
       trendUp: true,
       icon: <DollarSign className="h-5 w-5" />,
@@ -160,7 +138,7 @@ const Analytics: React.FC = () => {
     },
     {
       label: 'Total Streams',
-      value: analyticsData.totalPlays.toLocaleString(),
+      value: analyticsData?.totalPlays.toLocaleString() || '0',
       trend: '+22.1%',
       trendUp: true,
       icon: <Headphones className="h-5 w-5" />,
@@ -168,7 +146,7 @@ const Analytics: React.FC = () => {
     },
     {
       label: 'Avg Session',
-      value: `${analyticsData.avgSessionMin}m`,
+      value: `${analyticsData?.avgSessionMin || 0}m`,
       trend: '-1.2%',
       trendUp: false,
       icon: <Clock className="h-5 w-5" />,
@@ -183,6 +161,8 @@ const Analytics: React.FC = () => {
     '1y': 'Last year',
   };
 
+  if (loading) return <div className="p-6">Loading analytics...</div>;
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -190,22 +170,22 @@ const Analytics: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Platform performance overview &middot; {timeLabels[timeRange]}
+            Platform performance overview &middot; {timeLabels[activeRange] || 'Last 30 days'}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex bg-gray-100 rounded-xl p-1">
-            {['7d', '30d', '90d', '1y'].map((range) => (
+            {['week', 'month', 'year'].map((range) => (
               <button
                 key={range}
-                onClick={() => setTimeRange(range)}
+                onClick={() => setActiveRange(range)}
                 className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  timeRange === range
+                  activeRange === range
                     ? 'bg-white text-gray-900 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
-                {range}
+                {range.charAt(0).toUpperCase() + range.slice(1)}
               </button>
             ))}
           </div>
@@ -278,14 +258,14 @@ const Analytics: React.FC = () => {
 
           {/* Bar Chart */}
           <div className="flex items-end gap-3 h-52">
-            {analyticsData.monthlyGrowth.map((d) => {
+            {analyticsData.monthlyGrowth.map((d: any) => {
               const val =
                 selectedMetric === 'users'
                   ? d.users
                   : selectedMetric === 'revenue'
                   ? d.revenue
                   : d.plays;
-              const heightPct = (val / maxBarValue) * 100;
+              const heightPct = maxBarValue > 0 ? (val / maxBarValue) * 100 : 0;
               return (
                 <div key={d.month} className="flex-1 flex flex-col items-center gap-1.5 group">
                   <div className="relative w-full flex justify-center">

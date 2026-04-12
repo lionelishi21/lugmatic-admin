@@ -227,7 +227,10 @@ export default function Upload() {
       return;
     }
 
-    let artistId: string | null;
+    // Resolve the correct ID for the song's "artist" field
+    // Priority: 1. Admin selection, 2. Authenticated artist profile ID, 3. User account ID (fallback)
+    let artistId: string | null = null;
+    
     if (isAdmin) {
       artistId = selectedArtistId || null;
       if (!artistId) {
@@ -235,11 +238,18 @@ export default function Upload() {
         return;
       }
     } else {
-      artistId = (user.artistId as string | null) || (user.role === 'artist' ? user.id : null);
+      // Prioritize the dedicated artistId (profile ID) which is required by the backend Song model
+      artistId = (user.artistId as string | null) || (user.id ? String(user.id) : null);
+      
       if (!artistId) {
-        toast.error('Artist profile not found. Please log out and log in again.');
+        toast.error('Identity verification failed. Please try logging out and logging in again.');
         return;
       }
+    }
+
+    if (audioDuration <= 0) {
+      toast.error('Could not determine audio duration. Please try re-selecting the audio file.');
+      return;
     }
 
     if (!audioFile || !coverImage) {

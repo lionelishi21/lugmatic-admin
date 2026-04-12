@@ -9,23 +9,7 @@ const REFRESH_TOKEN_KEY = 'refresh_token';
 
 // Token helper functions
 export const getAccessToken = (): string | null => {
-  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-  if (token) {
-    return token;
-  }
-
-  // Fallback: support legacy/session-based storage
-  try {
-    const sessionStr = localStorage.getItem('storageSession');
-    if (sessionStr) {
-      const session = JSON.parse(sessionStr);
-      return session?.accessToken || session?.access_token || null;
-    }
-  } catch {
-    // ignore
-  }
-
-  return null;
+  return localStorage.getItem(ACCESS_TOKEN_KEY);
 };
 
 export const getRefreshToken = (): string | null => {
@@ -208,7 +192,7 @@ export const apiService = {
     api.post('/auth/login', { email, password }),
 
   refreshToken: (refreshToken: string) =>
-    api.post('/refresh-token', { refreshToken }),
+    api.post('/auth/refresh-token', { refreshToken }),
 
   logout: () =>
     api.post('/logout').catch(() => {

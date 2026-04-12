@@ -211,23 +211,24 @@ export const adminService = {
 
   // Promotions and campaigns
   createPromotion: async (data: Record<string, any>) => {
-    return apiService.post<ApiResponse<any>>('/admin/promotions', data);
+    return apiService.post<ApiResponse<any>>('/admin/campaigns', data);
   },
 
-  getPromotions: async (page = 1, pageSize = 10) => {
-    const params = new URLSearchParams({
-      page: page.toString(),
-      pageSize: pageSize.toString()
-    });
-    return apiService.get<PaginatedResponse<any>>(`/admin/promotions?${params}`);
+  getPromotions: async () => {
+    return apiService.get<ApiResponse<any[]>>('/admin/campaigns');
   },
 
   updatePromotion: async (id: string, data: Record<string, any>) => {
-    return apiService.put<ApiResponse<any>>(`/admin/promotions/${id}`, data);
+    return apiService.put<ApiResponse<any>>(`/admin/campaigns/${id}`, data);
   },
 
   deletePromotion: async (id: string) => {
-    return apiService.delete<ApiResponse<void>>(`/admin/promotions/${id}`);
+    return apiService.delete<ApiResponse<void>>(`/admin/campaigns/${id}`);
+  },
+
+  // Notifications
+  sendBroadcastNotification: async (data: { title: string; message: string; image?: string; contentType?: string; contentId?: string }) => {
+    return apiService.post<ApiResponse<any>>('/admin/notifications/broadcast', data);
   },
 
   // Reports
