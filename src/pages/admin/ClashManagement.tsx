@@ -8,19 +8,37 @@ import {
   Clock,
   ExternalLink
 } from 'lucide-react';
-import clashService, { ClashRanking } from '../../services/clashService';
+import clashService, { ClashRanking, ClashResponse } from '../../services/clashService';
 import { getFullImageUrl } from '../../services/api';
 import toast from 'react-hot-toast';
+import { format } from 'date-fns';
+import { motion } from 'framer-motion';
 
 const ClashManagement: React.FC = () => {
   const [rankings, setRankings] = useState<ClashRanking[]>([]);
+  const [upcoming, setUpcoming] = useState<ClashResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingUpcoming, setLoadingUpcoming] = useState(true);
   const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'rankings' | 'scheduled'>('scheduled');
 
   useEffect(() => {
     loadRankings();
+    loadUpcoming();
   }, [period]);
+
+  const loadUpcoming = async () => {
+    try {
+      setLoadingUpcoming(true);
+      const data = await clashService.getUpcomingClashes();
+      setUpcoming(data);
+    } catch (error: any) {
+      console.error('Failed to load upcoming clashes:', error);
+    } finally {
+      setLoadingUpcoming(false);
+    }
+  };
 
   const loadRankings = async () => {
     try {
@@ -58,9 +76,9 @@ const ClashManagement: React.FC = () => {
       {/* Stats Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { label: 'Active Clashes', value: '12', icon: Clock, color: 'blue' },
-          { label: 'Total Gifts Traded', value: '45.2k', icon: TrendingUp, color: 'green' },
-          { label: 'Participating Artists', value: '128', icon: Users, color: 'purple' },
+          { label: 'Upcoming Battles', value: upcoming.length.toString(), icon: Clock, color: 'blue' },
+          { label: 'Live Clashes', value: upcoming.filter(c => c.status === 'active').length.toString(), icon: Swords, color: 'red' },
+          { label: 'Participating Artists', value: rankings.length.toString(), icon: Users, color: 'purple' },
         ].map((stat) => (
           <div key={stat.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
             <div className={`w-12 h-12 rounded-xl bg-${stat.color}-50 flex items-center justify-center`}>
@@ -74,8 +92,34 @@ const ClashManagement: React.FC = () => {
         ))}
       </div>
 
-      {/* Leaderboard Section */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      {/* Tab Switcher */}
+      <div className="flex border-b border-gray-100 px-2 gap-8">
+        <button
+          onClick={() => setActiveTab('scheduled')}
+          className={`pb-4 text-sm font-semibold transition-all relative ${
+            activeTab === 'scheduled' ? 'text-purple-600' : 'text-gray-400 hover:text-gray-600'
+          }`}
+        >
+          Scheduled Clashes
+          {activeTab === 'scheduled' && (
+            <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600 rounded-full" />
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('rankings')}
+          className={`pb-4 text-sm font-semibold transition-all relative ${
+            activeTab === 'rankings' ? 'text-purple-600' : 'text-gray-400 hover:text-gray-600'
+          }`}
+        >
+          Leaderboards
+          {activeTab === 'rankings' && (
+            <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600 rounded-full" />
+          )}
+        </button>
+      </div>
+
+      {activeTab === 'rankings' ? (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-in fade-in duration-300">
         <div className="p-5 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Trophy className="w-5 h-5 text-amber-500" />
@@ -185,7 +229,99 @@ const ClashManagement: React.FC = () => {
             </tbody>
           </table>
         </div>
-      </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-in fade-in duration-300">
+          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-blue-500" />
+              <h2 className="font-bold text-gray-900">Scheduled Battles</h2>
+            </div>
+            <button 
+              onClick={loadUpcoming}
+              className="px-3 py-1 text-xs font-semibold text-purple-600 hover:bg-purple-50 rounded-lg transition-colors border border-purple-100"
+            >
+              Refresh Schedule
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="text-left text-xs text-gray-500 uppercase tracking-wider bg-gray-50/30">
+                  <th className="px-6 py-4 font-semibold">Title / Date</th>
+                  <th className="px-6 py-4 font-semibold">Challenger</th>
+                  <th className="px-6 py-4 font-semibold">Opponent</th>
+                  <th className="px-6 py-4 font-semibold">RSVPs</th>
+                  <th className="px-6 py-4 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {loadingUpcoming ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center text-gray-400">
+                      <div className="animate-spin rounded-full h-8 w-8 border-2 border-purple-500 border-t-transparent mx-auto mb-2" />
+                      Loading schedule...
+                    </td>
+                  </tr>
+                ) : upcoming.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center text-gray-400">
+                      No upcoming scheduled clashes found.
+                    </td>
+                  </tr>
+                ) : (
+                  upcoming.map((clash) => (
+                    <tr key={clash._id} className="hover:bg-blue-50/30 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-gray-900">{clash.title}</span>
+                          <span className="text-xs text-gray-500 truncate max-w-[200px]">
+                            {clash.scheduledAt ? format(new Date(clash.scheduledAt), 'MMM dd, yyyy • hh:mm a') : 'Unscheduled'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src={getFullImageUrl(clash.challenger.image)} 
+                            className="w-8 h-8 rounded-full object-cover" 
+                            alt=""
+                          />
+                          <span className="text-sm font-medium">{clash.challenger.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src={getFullImageUrl(clash.opponent.image)} 
+                            className="w-8 h-8 rounded-full object-cover" 
+                            alt=""
+                          />
+                          <span className="text-sm font-medium">{clash.opponent.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-1.5">
+                          <Users className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm font-bold text-gray-700">{clash.rsvpCount || 0}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          clash.status === 'accepted' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {clash.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -107,7 +107,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const maxBarValue = analyticsData ? Math.max(...analyticsData.monthlyGrowth.map((d: any) =>
+  const maxBarValue = analyticsData?.monthlyGrowth ? Math.max(...analyticsData.monthlyGrowth.map((d: any) =>
     selectedMetric === 'users' ? d.users : selectedMetric === 'revenue' ? d.revenue : d.plays
   )) : 0;
 
@@ -147,8 +147,8 @@ const Analytics: React.FC = () => {
     {
       label: 'Avg Session',
       value: `${analyticsData?.avgSessionMin || 0}m`,
-      trend: '-1.2%',
-      trendUp: false,
+      trend: '+0.0%',
+      trendUp: true,
       icon: <Clock className="h-5 w-5" />,
       iconBg: 'bg-rose-50 text-rose-600',
     },
@@ -258,13 +258,13 @@ const Analytics: React.FC = () => {
 
           {/* Bar Chart */}
           <div className="flex items-end gap-3 h-52">
-            {analyticsData.monthlyGrowth.map((d: any) => {
+            {(analyticsData?.monthlyGrowth || []).map((d: any) => {
               const val =
                 selectedMetric === 'users'
-                  ? d.users
+                  ? (d.users || 0)
                   : selectedMetric === 'revenue'
-                  ? d.revenue
-                  : d.plays;
+                  ? (d.revenue || 0)
+                  : (d.plays || 0);
               const heightPct = maxBarValue > 0 ? (val / maxBarValue) * 100 : 0;
               return (
                 <div key={d.month} className="flex-1 flex flex-col items-center gap-1.5 group">
@@ -307,7 +307,7 @@ const Analytics: React.FC = () => {
                 {(() => {
                   let offset = 0;
                   const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#a855f7', '#f43f5e', '#06b6d4', '#9ca3af'];
-                  return analyticsData.topGenres.map((genre, i) => {
+                  return (analyticsData?.topGenres || []).map((genre, i) => {
                     const dash = (genre.percentage / 100) * 100;
                     const el = (
                       <circle
@@ -316,7 +316,7 @@ const Analytics: React.FC = () => {
                         cy="18"
                         r="15.9155"
                         fill="none"
-                        stroke={colors[i]}
+                        stroke={colors[i % colors.length]}
                         strokeWidth="3"
                         strokeDasharray={`${dash} ${100 - dash}`}
                         strokeDashoffset={-offset}
@@ -338,9 +338,9 @@ const Analytics: React.FC = () => {
           </div>
 
           <div className="space-y-2.5">
-            {analyticsData.topGenres.map((genre) => (
+            {(analyticsData?.topGenres || []).map((genre) => (
               <div key={genre.name} className="flex items-center gap-3">
-                <div className={`w-2.5 h-2.5 rounded-full ${genre.color}`} />
+                <div className={`w-2.5 h-2.5 rounded-full ${genre.color || 'bg-gray-400'}`} />
                 <span className="text-sm text-gray-700 flex-1">{genre.name}</span>
                 <span className="text-xs font-medium text-gray-400 w-8 text-right">{genre.percentage}%</span>
                 <span className="text-xs font-semibold text-gray-900 w-12 text-right">
@@ -366,7 +366,7 @@ const Analytics: React.FC = () => {
             </button>
           </div>
           <div className="space-y-1">
-            {analyticsData.topTracks.map((track, i) => (
+            {(analyticsData?.topTracks || []).map((track, i) => (
               <div
                 key={track.title}
                 className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors group"
@@ -381,15 +381,15 @@ const Analytics: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-semibold text-gray-900">
-                    {(track.plays / 1000000).toFixed(1)}M
+                    {track.plays >= 1000000 ? `${(track.plays / 1000000).toFixed(1)}M` : `${(track.plays / 1000).toFixed(1)}K`}
                   </p>
                   <span
                     className={`text-[10px] font-medium ${
-                      track.trend > 0 ? 'text-green-600' : 'text-red-500'
+                      (track.trend || 0) > 0 ? 'text-green-600' : 'text-red-500'
                     }`}
                   >
-                    {track.trend > 0 ? '+' : ''}
-                    {track.trend}%
+                    {(track.trend || 0) > 0 ? '+' : ''}
+                    {track.trend || 0}%
                   </span>
                 </div>
               </div>
@@ -412,7 +412,7 @@ const Analytics: React.FC = () => {
             </button>
           </div>
           <div className="space-y-1">
-            {analyticsData.recentActivity.map((activity, index) => (
+            {(analyticsData?.recentActivity || []).map((activity, index) => (
               <div
                 key={index}
                 className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors"
@@ -456,7 +456,7 @@ const Analytics: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {analyticsData.regions.map((region) => (
+                 {(analyticsData?.regions || []).map((region) => (
                   <tr key={region.name} className="hover:bg-gray-50 transition-colors">
                     <td className="py-3 pl-3">
                       <div className="flex items-center gap-2.5">
@@ -494,7 +494,7 @@ const Analytics: React.FC = () => {
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
             <h3 className="text-base font-semibold text-gray-900 mb-4">Devices</h3>
             <div className="space-y-4">
-              {analyticsData.devices.map((device) => (
+              {(analyticsData?.devices || []).map((device) => (
                 <div key={device.name} className="flex items-center gap-3">
                   <div className="p-2 bg-gray-50 rounded-lg text-gray-500">
                     {getDeviceIcon(device.icon)}

@@ -118,7 +118,7 @@ function App() {
                       <Routes>
                         <Route index element={<AdminDashboard />} />
                         <Route path="approvals" element={<Approvals />} />
-                        <Route path="artist-management" element={<ArtistManagement />} />
+                        <Route path="artist-management/*" element={<ArtistManagement />} />
                         <Route path="artist-details/:id" element={<ArtistDetails />} />
                         <Route path="artists/:id/edit" element={<ArtistEdit />} />
                         <Route path="user-management" element={<UserManagement />} />

@@ -158,7 +158,7 @@ const ContentModeration: React.FC = () => {
       : (typeof item.artist === 'object' ? item.artist?.name : item.artist) || 'Unknown Artist';
 
     return (
-      <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={item._id}>
+      <Grid item xs={12} sm={6} md={4} lg={3} key={item._id}>
         <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
           {isComment && item.isFlagged && (
             <Chip

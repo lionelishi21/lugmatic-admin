@@ -264,6 +264,15 @@ const ArtistManagement: React.FC = () => {
   const [formData, setFormData] = useState<Partial<Artist>>({});
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterVerified, setFilterVerified] = useState<boolean | 'all'>('all');
+
+  // Check for route-based filtering (e.g., /verified)
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path.endsWith('/verified')) {
+      setFilterVerified(true);
+    }
+  }, []);
 
   // Get artists data with filters
   const { artists, loading } = useFetchArtists();
@@ -287,9 +296,10 @@ const ArtistManagement: React.FC = () => {
         email.toLowerCase().includes(searchTerm.toLowerCase());
       const status = artist.status || (artist.isApproved ? 'active' : 'pending');
       const matchesStatus = filterStatus === 'all' || status === filterStatus;
-      return matchesSearch && matchesStatus;
+      const matchesVerified = filterVerified === 'all' || artist.isVerified === filterVerified;
+      return matchesSearch && matchesStatus && matchesVerified;
     });
-  }, [artists, searchTerm, filterStatus]);
+  }, [artists, searchTerm, filterStatus, filterVerified]);
 
   // Stats
   const stats = useMemo(() => {
@@ -298,7 +308,7 @@ const ArtistManagement: React.FC = () => {
       total: artists.length,
       active: artists.filter(a => a.status === 'active' || a.isApproved).length,
       pending: artists.filter(a => !a.status && !a.isApproved || a.status === 'pending').length,
-      inactive: artists.filter(a => a.status === 'inactive').length,
+      verified: artists.filter(a => a.isVerified).length,
     };
   }, [artists]);
 
@@ -504,7 +514,7 @@ const ArtistManagement: React.FC = () => {
         <StatCard label="Total Artists" value={stats.total} icon={<Users className="h-5 w-5" />} color="text-blue-600" bgColor="bg-blue-50" />
         <StatCard label="Active" value={stats.active} icon={<UserCheck className="h-5 w-5" />} color="text-emerald-600" bgColor="bg-emerald-50" />
         <StatCard label="Pending" value={stats.pending} icon={<Clock className="h-5 w-5" />} color="text-amber-600" bgColor="bg-amber-50" />
-        <StatCard label="Inactive" value={stats.inactive} icon={<UserX className="h-5 w-5" />} color="text-red-600" bgColor="bg-red-50" />
+        <StatCard label="Verified" value={stats.verified} icon={<BadgeCheck className="h-5 w-5" />} color="text-blue-600" bgColor="bg-blue-50" />
       </div>
 
       {/* Table Card */}
@@ -535,6 +545,23 @@ const ArtistManagement: React.FC = () => {
                 <option value="active">Active</option>
                 <option value="pending">Pending</option>
                 <option value="suspended">Suspended</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
+            </div>
+            {/* Verification Filter */}
+            <div className="relative">
+              <BadgeCheck className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <select
+                className="w-full sm:w-40 pl-9 pr-8 py-2 rounded-lg border border-gray-200 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 text-sm text-gray-900 appearance-none transition-all"
+                value={filterVerified.toString()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFilterVerified(val === 'all' ? 'all' : val === 'true');
+                }}
+              >
+                <option value="all">All Verification</option>
+                <option value="true">Verified Only</option>
+                <option value="false">Unverified Only</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
             </div>

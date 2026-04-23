@@ -15,8 +15,11 @@ export interface ClashResponse {
   challengerScore: number;
   opponentScore: number;
   status: string;
-  startTime: string;
-  endTime: string;
+  startTime?: string;
+  endTime?: string;
+  scheduledAt?: string;
+  title?: string;
+  rsvpCount?: number;
   winner?: { _id: string; name: string; image: string };
 }
 
@@ -43,6 +46,11 @@ const clashService = {
 
   rejectClash: async (clashId: string): Promise<{ success: boolean; message: string }> => {
     const response = await apiService.post<{ success: boolean; message: string }>(`/clash/${clashId}/reject`);
+    return response.data.data;
+  },
+  
+  getUpcomingClashes: async (limit = 20): Promise<ClashResponse[]> => {
+    const response = await apiService.get<ClashResponse[]>(`/clash/upcoming?limit=${limit}`);
     return response.data.data;
   }
 };
