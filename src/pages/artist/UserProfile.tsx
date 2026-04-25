@@ -22,6 +22,7 @@ import toast from 'react-hot-toast';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
 import { fetchArtistById, updateArtist } from '../../store/slices/artistSlice';
+import { refreshUser } from '../../store/slices/authSlice';
 import artistService, { Artist } from '../../services/artistService';
 import songService from '../../services/songService';
 
@@ -93,7 +94,7 @@ export default function UserProfile() {
   };
 
   const handleSave = async () => {
-    if (!user?.artistId) return;
+    if (!user) return;
     
     setIsSaving(true);
     const toastId = toast.loading('Updating profile...');
@@ -114,8 +115,24 @@ export default function UserProfile() {
         updatedData.coverImage = res.key;
       }
 
-      await dispatch(updateArtist({ id: String(user.artistId), data: updatedData })).unwrap();
-      toast.success('Profile updated successfully!', { id: toastId });
+      if (!user?.artistId) {
+        // Handle case where profile needs to be created first (should be rare with new auto-create fix)
+        const newArtist = await artistService.createArtist({
+          firstName: user?.firstName || '',
+          lastName: user?.lastName || '',
+          email: user?.email || '',
+          name: updatedData.name || `${user?.firstName} ${user?.lastName}`.trim(),
+          bio: updatedData.bio,
+          image: updatedData.image
+        });
+        
+        // We'll need to refresh the user session to get the new artistId
+        await dispatch(refreshUser()).unwrap();
+        toast.success('Artist profile initialized and saved!', { id: toastId });
+      } else {
+        await dispatch(updateArtist({ id: String(user.artistId), data: updatedData })).unwrap();
+        toast.success('Profile updated successfully!', { id: toastId });
+      }
       
       // Reset file states
       setProfileImage(null);

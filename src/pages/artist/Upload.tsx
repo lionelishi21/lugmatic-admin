@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Upload as UploadIcon, Music, ImageIcon, X, Loader2, CheckCircle2, FileAudio, Sparkles, Film } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -26,6 +27,7 @@ interface UploadForm {
 
 export default function Upload() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState<UploadForm>({
     title: '',
     description: '',
@@ -239,10 +241,22 @@ export default function Upload() {
       }
     } else {
       // Prioritize the dedicated artistId (profile ID) which is required by the backend Song model
-      artistId = (user.artistId as string | null) || (user.id ? String(user.id) : null);
+      artistId = (user.artistId as string | null);
       
       if (!artistId) {
-        toast.error('Identity verification failed. Please try logging out and logging in again.');
+        toast.error(
+          <div className="flex flex-col gap-1">
+            <span className="font-bold">Profile Setup Required</span>
+            <span className="text-xs">You need to set up your artist profile before uploading music.</span>
+            <button 
+              onClick={() => navigate('/artist/profile')}
+              className="mt-2 text-[10px] bg-green-500 text-black px-2 py-1 rounded font-bold self-start"
+            >
+              Setup Profile Now
+            </button>
+          </div>,
+          { duration: 5000 }
+        );
         return;
       }
     }
