@@ -27,6 +27,7 @@ interface ArtistContextState {
   approveArtist: (id: string) => Promise<boolean>;
   rejectArtist: (id: string, reason: string) => Promise<boolean>;
   verifyArtist: (id: string, isVerified: boolean) => Promise<boolean>;
+  completeOnboarding: () => Promise<boolean>;
   setQueryParams: (params: ArtistQueryParams) => void;
   clearSelectedArtist: () => void;
   clearDiscography: () => void;
@@ -61,6 +62,7 @@ const ArtistContext = createContext<ArtistContextState>({
   approveArtist: async () => false,
   rejectArtist: async () => false,
   verifyArtist: async () => false,
+  completeOnboarding: async () => false,
   setQueryParams: () => {},
   clearSelectedArtist: () => {},
   clearDiscography: () => {}
@@ -380,6 +382,29 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
     }
   }, [selectedArtist]);
 
+  // Complete onboarding
+  const completeOnboarding = useCallback(async (): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await artistService.completeOnboarding();
+      if (selectedArtist) {
+        setSelectedArtist({ ...selectedArtist, onboardingCompleted: true } as Artist);
+      }
+      return true;
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        `Failed to complete onboarding`;
+      setError(errorMessage);
+      toast.error(errorMessage);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedArtist]);
+
   // Clear the selected artist
   const clearSelectedArtist = useCallback(() => {
     setSelectedArtist(null);
@@ -417,6 +442,7 @@ export const ArtistProvider: React.FC<ArtistProviderProps> = ({ children }) => {
     approveArtist,
     rejectArtist,
     verifyArtist,
+    completeOnboarding,
     setQueryParams,
     clearSelectedArtist,
     clearDiscography

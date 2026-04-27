@@ -27,6 +27,7 @@ export interface Artist {
   approvedAt?: string | null;
   isApproved?: boolean;
   isVerified?: boolean;
+  onboardingCompleted?: boolean;
   payoutInfo?: {
     method?: 'paypal' | 'bank_transfer' | 'stripe' | 'jamaican_bank' | 'jamdex';
     paypalEmail?: string;

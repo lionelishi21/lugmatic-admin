@@ -43,6 +43,8 @@ import Support from './pages/artist/Support';
 import MySongs from './pages/artist/MySongs';
 import SongAnalytics from './pages/artist/SongAnalytics';
 import SupportHistory from './pages/artist/SupportHistory';
+import Onboarding from './pages/artist/Onboarding';
+import OnboardingGuard from './components/OnboardingGuard';
 
 // Import new admin pages
 import PodcastManagement from './pages/admin/PodcastManagement';
@@ -82,14 +84,21 @@ function App() {
 
             <Route path="/artist/*" element={
               <ProtectedRoute requiredRole="artist">
-                <Layout>
-                  <Routes>
-                    <Route index element={<ArtistDashboard />} />
-                    <Route path="upload" element={<Upload />} />
-                    <Route path="live" element={<Live />} />
-                    <Route path="clashes" element={<Clashes />} />
-                    <Route path="gifts" element={<Gifts />} />
-                    <Route path="earnings" element={<Earnings />} />
+                <Routes>
+                  {/* Onboarding Route - outside the guard */}
+                  <Route path="onboarding" element={<Onboarding />} />
+                  
+                  {/* Guarded Routes */}
+                  <Route path="*" element={
+                    <OnboardingGuard>
+                      <Layout>
+                        <Routes>
+                          <Route index element={<ArtistDashboard />} />
+                          <Route path="upload" element={<Upload />} />
+                          <Route path="live" element={<Live />} />
+                          <Route path="clashes" element={<Clashes />} />
+                          <Route path="gifts" element={<Gifts />} />
+                          <Route path="earnings" element={<Earnings />} />
                     {/* New artist routes */}
                     <Route path="podcasts" element={<Podcasts />} />
                     <Route path="comments" element={<Comments />} />
@@ -106,10 +115,13 @@ function App() {
                     <Route path="song-edit/:id" element={<SongEdit />} />
                   </Routes>
                 </Layout>
-              </ProtectedRoute>
+              </OnboardingGuard>
             } />
+          </Routes>
+        </ProtectedRoute>
+      } />
 
-            <Route
+      <Route
               path="/admin/*"
               element={
                 <ProtectedRoute requiredRole="admin">
