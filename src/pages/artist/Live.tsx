@@ -279,19 +279,25 @@ export default function Live() {
             const clashRoom = new Room();
             clashRoomRef.current = clashRoom;
 
-            clashRoom.on(RoomEvent.TrackSubscribed, (track: any, _pub: any, participant: any) => {
-              if (track.kind === 'video') {
-                // Show the first remote video track as the opponent
-                setRemoteVideoTrack(track);
-              }
+            // When a remote participant publishes video, show it as opponent feed
+            clashRoom.on(RoomEvent.TrackSubscribed, (track: any) => {
+              if (track.kind === 'video') setRemoteVideoTrack(track);
             });
             clashRoom.on(RoomEvent.TrackUnsubscribed, (track: any) => {
               if (track.kind === 'video') setRemoteVideoTrack(null);
             });
 
             await clashRoom.connect(data.clashRoom.url, data.clashRoom.token);
-            // Publish own camera/mic to clash room so opponent and viewers can see us
-            await clashRoom.localParticipant.enableCameraAndMicrophone();
+
+            // Re-publish the existing local tracks into the clash room instead of
+            // requesting the camera/mic again (already acquired by the main stream room)
+            const mainRoom = roomRef.current;
+            if (mainRoom) {
+              const camPub = mainRoom.localParticipant.getTrackPublication(Track.Source.Camera);
+              const micPub = mainRoom.localParticipant.getTrackPublication(Track.Source.Microphone);
+              if (camPub?.track) await clashRoom.localParticipant.publishTrack(camPub.track);
+              if (micPub?.track) await clashRoom.localParticipant.publishTrack(micPub.track);
+            }
           } catch (err) {
             console.warn('[Clash Room] Could not connect to shared clash room:', err);
           }
