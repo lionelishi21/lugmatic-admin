@@ -298,7 +298,8 @@ export default function Live() {
 
       socketService.joinStream(streamId);
     } catch (err) {
-      console.warn('[Socket] Setup failed (chat may not work):', err);
+      console.warn('[Socket] Setup failed:', err);
+      toast.error('Live chat is unavailable — check your connection and refresh.', { duration: 8000 });
     }
   }, []);
 
