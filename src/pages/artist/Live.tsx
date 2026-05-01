@@ -112,6 +112,7 @@ export default function Live() {
   const [giftCount, setGiftCount] = useState(0);
 
   const roomRef = useRef<Room | null>(null);
+  const clashRoomRef = useRef<Room | null>(null); // shared clash room for mutual A/V
   const videoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [isMicOn, setIsMicOn] = useState(true);
@@ -267,10 +268,34 @@ export default function Live() {
         ), { duration: 10000, icon: '⚔️' });
       });
 
-      socketService.onClashStarted((data) => {
+      socketService.onClashStarted(async (data) => {
         setActiveClash(data);
         setClashScores({ challenger: 0, opponent: 0 });
         toast.success('Clash started! Get those bars ready!', { icon: '🔥' });
+
+        // Connect to the shared clash room so we can see/hear the opponent
+        if (data.clashRoom?.token && data.clashRoom?.url) {
+          try {
+            const clashRoom = new Room();
+            clashRoomRef.current = clashRoom;
+
+            clashRoom.on(RoomEvent.TrackSubscribed, (track: any, _pub: any, participant: any) => {
+              if (track.kind === 'video') {
+                // Show the first remote video track as the opponent
+                setRemoteVideoTrack(track);
+              }
+            });
+            clashRoom.on(RoomEvent.TrackUnsubscribed, (track: any) => {
+              if (track.kind === 'video') setRemoteVideoTrack(null);
+            });
+
+            await clashRoom.connect(data.clashRoom.url, data.clashRoom.token);
+            // Publish own camera/mic to clash room so opponent and viewers can see us
+            await clashRoom.localParticipant.enableCameraAndMicrophone();
+          } catch (err) {
+            console.warn('[Clash Room] Could not connect to shared clash room:', err);
+          }
+        }
       });
 
       socketService.onClashScoreUpdate((data) => {
@@ -282,6 +307,9 @@ export default function Live() {
 
       socketService.onClashEnded((data) => {
         setActiveClash(null);
+        setRemoteVideoTrack(null);
+        clashRoomRef.current?.disconnect();
+        clashRoomRef.current = null;
         const isWinner = data.winnerId === streamData?.host?._id;
         if (isWinner) {
           toast.success('Victory! You won the Lyrical War!', { icon: <Trophy className="h-5 w-5 text-yellow-500" />, duration: 5000 });
@@ -294,6 +322,11 @@ export default function Live() {
 
       socketService.onClashRejected(() => {
         toast.error('Your challenge was declined.');
+      });
+
+      // Update realm in real-time without re-rendering the whole clash
+      socketService.connect().on('clash:realm-changed', (data: any) => {
+        setActiveClash((prev: any) => prev ? { ...prev, realm: data.realm, realmLabel: data.realmLabel } : prev);
       });
 
       socketService.joinStream(streamId);
@@ -554,6 +587,11 @@ export default function Live() {
                <Zap className="h-3.5 w-3.5 fill-current" />
                WAR IN PROGRESS
             </div>
+            {activeClash.realmLabel && (
+              <div className="text-xs font-bold text-white/70 bg-white/10 px-2 py-0.5 rounded-full">
+                {activeClash.realmLabel}
+              </div>
+            )}
             <div className="text-xl text-white/90">
               {activeClash.endTime ? formatDistanceToNow(new Date(activeClash.endTime)).replace('about ', '') : 'LIVE'}
             </div>
