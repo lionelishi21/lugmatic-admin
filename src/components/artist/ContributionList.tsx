@@ -76,7 +76,7 @@ const ContributionList: React.FC<ContributionListProps> = ({ contributions, load
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-green-100 text-green-700 uppercase tracking-tight">
                   {song.role}
                 </span>
-                <span className="text-[10px] font-medium text-gray-500">
+                <span className="text-[10px] font-medium text-gray-600">
                   {song.share}% Share
                 </span>
               </div>
@@ -91,7 +91,7 @@ const ContributionList: React.FC<ContributionListProps> = ({ contributions, load
               </span>
             </div>
             <button 
-              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
+              className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
               onClick={() => navigate(`/artist/song-edit/${song._id}`)}
               title="View Split Details"
             >
