@@ -513,7 +513,7 @@ export default function Live() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Go Live</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Broadcast to your fans in real time</p>
+          <p className="text-sm text-gray-600 mt-0.5">Broadcast to your fans in real time</p>
         </div>
         {!isLive && !isBusy && phase !== 'error' && (
           <button
@@ -640,7 +640,7 @@ export default function Live() {
               </div>
               <div>
                 <h2 className="text-base font-semibold text-gray-900">Stream Ended</h2>
-                <p className="text-xs text-gray-500">Here's how your session went</p>
+                <p className="text-xs text-gray-600">Here's how your session went</p>
               </div>
             </div>
             <button

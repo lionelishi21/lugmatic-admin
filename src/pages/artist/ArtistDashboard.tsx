@@ -78,7 +78,7 @@ export default function ArtistDashboard() {
             <Icon className="h-6 w-6 text-purple-600" />
           </div>
           <div className="ml-4">
-            <p className="text-sm text-gray-500">{title}</p>
+            <p className="text-sm text-gray-600">{title}</p>
             {loading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
@@ -164,7 +164,7 @@ export default function ArtistDashboard() {
                       />
                       <div>
                         <h3 className="font-medium text-gray-900">{track.name || track.title}</h3>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-600">
                           {(track.playCount ?? track.plays ?? 0).toLocaleString()} plays
                         </p>
                       </div>
@@ -267,7 +267,7 @@ export default function ArtistDashboard() {
                       <p className="text-sm text-gray-900">
                         {activity.description}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-600">
                         <Clock className="h-3 w-3 inline mr-1" />
                         {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
                       </p>
@@ -288,7 +288,7 @@ export default function ArtistDashboard() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Earnings Overview</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">Total Earnings</p>
+              <p className="text-sm text-gray-600">Total Earnings</p>
               {isLoading ? (
                 <Skeleton className="h-8 w-24 mt-1" />
               ) : (
@@ -296,7 +296,7 @@ export default function ArtistDashboard() {
               )}
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">This Month</p>
+              <p className="text-sm text-gray-600">This Month</p>
               {isLoading ? (
                 <Skeleton className="h-8 w-24 mt-1" />
               ) : (
