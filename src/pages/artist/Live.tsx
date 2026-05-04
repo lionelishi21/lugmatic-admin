@@ -9,6 +9,8 @@ import {
   createLocalTracks,
   VideoPresets,
   ConnectionState,
+  LocalVideoTrack,
+  LocalAudioTrack,
 } from 'livekit-client';
 import {
   Radio,
@@ -329,14 +331,27 @@ export default function Live() {
               const micPub = mainRoom.localParticipant.getTrackPublication(Track.Source.Microphone);
               
               if (camPub?.track?.mediaStreamTrack) {
-                const clonedCam = camPub.track.mediaStreamTrack.clone();
-                await clashRoom.localParticipant.publishTrack(clonedCam, { source: Track.Source.Camera });
+                const nativeCam = camPub.track.mediaStreamTrack.clone();
+                const localCam = new LocalVideoTrack(nativeCam);
+                await clashRoom.localParticipant.publishTrack(localCam, { source: Track.Source.Camera });
               }
               if (micPub?.track?.mediaStreamTrack) {
-                const clonedMic = micPub.track.mediaStreamTrack.clone();
-                await clashRoom.localParticipant.publishTrack(clonedMic, { source: Track.Source.Microphone });
+                const nativeMic = micPub.track.mediaStreamTrack.clone();
+                const localMic = new LocalAudioTrack(nativeMic);
+                await clashRoom.localParticipant.publishTrack(localMic, { source: Track.Source.Microphone });
               }
             }
+
+            // Fallback: Check if opponent tracks were already published
+            clashRoom.remoteParticipants.forEach(p => {
+              p.trackPublications.forEach(pub => {
+                if (pub.isSubscribed && pub.track) {
+                  if (pub.track.kind === 'video') setRemoteVideoTrack(pub.track);
+                  else if (pub.track.kind === 'audio') setRemoteAudioTrack(pub.track);
+                }
+              });
+            });
+
           } catch (err) {
             console.warn('[Clash Room] Could not connect to shared clash room:', err);
           }
