@@ -289,14 +289,19 @@ export default function Live() {
 
             await clashRoom.connect(data.clashRoom.url, data.clashRoom.token);
 
-            // Re-publish the existing local tracks into the clash room instead of
-            // requesting the camera/mic again (already acquired by the main stream room)
+            // Re-publish the existing native media tracks into the clash room instead of
+            // requesting the camera/mic again (which would fail as they are already acquired)
             const mainRoom = roomRef.current;
             if (mainRoom) {
               const camPub = mainRoom.localParticipant.getTrackPublication(Track.Source.Camera);
               const micPub = mainRoom.localParticipant.getTrackPublication(Track.Source.Microphone);
-              if (camPub?.track) await clashRoom.localParticipant.publishTrack(camPub.track);
-              if (micPub?.track) await clashRoom.localParticipant.publishTrack(micPub.track);
+              
+              if (camPub?.track?.mediaStreamTrack) {
+                await clashRoom.localParticipant.publishTrack(camPub.track.mediaStreamTrack, { source: Track.Source.Camera });
+              }
+              if (micPub?.track?.mediaStreamTrack) {
+                await clashRoom.localParticipant.publishTrack(micPub.track.mediaStreamTrack, { source: Track.Source.Microphone });
+              }
             }
           } catch (err) {
             console.warn('[Clash Room] Could not connect to shared clash room:', err);
