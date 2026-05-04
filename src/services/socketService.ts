@@ -71,7 +71,7 @@ class SocketService {
    * Connect to the Socket.io server with auth token.
    */
   connect(): Socket {
-    if (this.socket?.connected) return this.socket;
+    if (this.socket) return this.socket;
 
     const token = getAccessToken();
     if (!token) throw new Error('No auth token available');
@@ -115,8 +115,11 @@ class SocketService {
    * Ensure socket is connected, connect if not.
    */
   private ensureConnected(): Socket {
-    if (!this.socket?.connected) {
+    if (!this.socket) {
       return this.connect();
+    }
+    if (!this.socket.connected) {
+      this.socket.connect();
     }
     return this.socket;
   }
