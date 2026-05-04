@@ -118,6 +118,7 @@ export default function Live() {
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [remoteVideoTrack, setRemoteVideoTrack] = useState<any>(null);
+  const [remoteAudioTrack, setRemoteAudioTrack] = useState<any>(null);
   const [isPreviewActive, setIsPreviewActive] = useState(false);
   const localTracksRef = useRef<Awaited<ReturnType<typeof createLocalTracks>> | null>(null);
 
@@ -279,12 +280,14 @@ export default function Live() {
             const clashRoom = new Room();
             clashRoomRef.current = clashRoom;
 
-            // When a remote participant publishes video, show it as opponent feed
+            // When a remote participant publishes video/audio, show/play it as opponent feed
             clashRoom.on(RoomEvent.TrackSubscribed, (track: any) => {
               if (track.kind === 'video') setRemoteVideoTrack(track);
+              else if (track.kind === 'audio') setRemoteAudioTrack(track);
             });
             clashRoom.on(RoomEvent.TrackUnsubscribed, (track: any) => {
               if (track.kind === 'video') setRemoteVideoTrack(null);
+              else if (track.kind === 'audio') setRemoteAudioTrack(null);
             });
 
             await clashRoom.connect(data.clashRoom.url, data.clashRoom.token);
@@ -710,6 +713,18 @@ export default function Live() {
                   <p className="text-[10px] font-bold text-white uppercase tracking-wider">Opponent</p>
                 </div>
               </div>
+            )}
+
+            {/* Remote Audio Track */}
+            {activeClash && remoteAudioTrack && (
+              <audio
+                ref={(el) => {
+                  if (el && remoteAudioTrack) {
+                    remoteAudioTrack.attach(el);
+                  }
+                }}
+                autoPlay
+              />
             )}
 
             {/* Idle placeholder */}
