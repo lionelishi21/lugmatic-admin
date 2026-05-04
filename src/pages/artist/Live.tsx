@@ -329,10 +329,12 @@ export default function Live() {
               const micPub = mainRoom.localParticipant.getTrackPublication(Track.Source.Microphone);
               
               if (camPub?.track?.mediaStreamTrack) {
-                await clashRoom.localParticipant.publishTrack(camPub.track.mediaStreamTrack, { source: Track.Source.Camera });
+                const clonedCam = camPub.track.mediaStreamTrack.clone();
+                await clashRoom.localParticipant.publishTrack(clonedCam, { source: Track.Source.Camera });
               }
               if (micPub?.track?.mediaStreamTrack) {
-                await clashRoom.localParticipant.publishTrack(micPub.track.mediaStreamTrack, { source: Track.Source.Microphone });
+                const clonedMic = micPub.track.mediaStreamTrack.clone();
+                await clashRoom.localParticipant.publishTrack(clonedMic, { source: Track.Source.Microphone });
               }
             }
           } catch (err) {
