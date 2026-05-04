@@ -277,6 +277,13 @@ class SocketService {
   }
 
   /**
+   * Listen for clash turn change.
+   */
+  onClashTurnChanged(callback: (data: any) => void): void {
+    this.on('clash:turn-changed', callback);
+  }
+
+  /**
    * Listen for clash special actions (mute, etc.)
    */
   onClashAction(callback: (data: any) => void): void {

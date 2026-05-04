@@ -91,6 +91,13 @@ export default function Live() {
   const [liveKitConnected, setLiveKitConnected] = useState(false);
   const [isChallengeModalOpen, setIsChallengeModalOpen] = useState(false);
   const [activeClash, setActiveClash] = useState<any>(null);
+  const [clashTurn, setClashTurn] = useState<{
+    currentTurn: string;
+    turnExpiresAt: string;
+    turnsTaken: number;
+    maxTurns: number;
+  } | null>(null);
+  const [turnTimeLeft, setTurnTimeLeft] = useState(0);
   const [clashScores, setClashScores] = useState({ challenger: 0, opponent: 0 });
   const [totalCoins, setTotalCoins] = useState(0);
   const [lastGift, setLastGift] = useState<ChatMessage | null>(null);
@@ -159,6 +166,20 @@ export default function Live() {
     }, 1000);
     return () => clearInterval(interval);
   }, [liveSince]);
+
+  // ─── Turn Timer Countdown ───────────────────────────────────────────────
+  useEffect(() => {
+    if (!activeClash || !clashTurn) return;
+
+    const interval = setInterval(() => {
+      const expiresAt = new Date(clashTurn.turnExpiresAt).getTime();
+      const now = Date.now();
+      const diff = Math.max(0, Math.floor((expiresAt - now) / 1000));
+      setTurnTimeLeft(diff);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [activeClash, clashTurn]);
 
   // ─── Auto-scroll chat ─────────────────────────────────────────────────
   useEffect(() => {
@@ -271,6 +292,14 @@ export default function Live() {
 
       socketService.onClashStarted(async (data) => {
         setActiveClash(data);
+        if (data.currentTurn) {
+          setClashTurn({
+            currentTurn: data.currentTurn,
+            turnExpiresAt: data.turnExpiresAt,
+            turnsTaken: data.turnsTaken,
+            maxTurns: data.maxTurns
+          });
+        }
         setClashScores({ challenger: 0, opponent: 0 });
         toast.success('Clash started! Get those bars ready!', { icon: '🔥' });
 
@@ -316,6 +345,15 @@ export default function Live() {
         setClashScores({
           challenger: data.challengerScore,
           opponent: data.opponentScore
+        });
+      });
+
+      socketService.onClashTurnChanged((data) => {
+        setClashTurn({
+          currentTurn: data.currentTurn,
+          turnExpiresAt: data.turnExpiresAt,
+          turnsTaken: data.turnsTaken,
+          maxTurns: data.maxTurns
         });
       });
 
@@ -681,10 +719,28 @@ export default function Live() {
         <div className="lg:col-span-2 space-y-4">
 
           {/* Video */}
-          <div className={`relative bg-gray-950 aspect-video rounded-2xl overflow-hidden shadow-sm grid ${activeClash && remoteVideoTrack ? 'grid-cols-2 gap-1' : 'grid-cols-1'}`}>
-            <div className="relative w-full h-full">
-              <video
-                ref={videoRef}
+          <div className={`relative bg-gray-950 aspect-video rounded-2xl overflow-hidden shadow-sm flex flex-col`}>
+            
+            {/* Turn Timer Bar */}
+            {activeClash && clashTurn && (
+              <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-2 bg-gradient-to-b from-black/80 to-transparent">
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${clashTurn.currentTurn === streamData?.host?._id ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                  <span className="text-white font-bold text-sm tracking-wider uppercase">
+                    {clashTurn.currentTurn === streamData?.host?._id ? 'Your Turn' : "Opponent's Turn"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-white font-mono font-bold text-lg">{turnTimeLeft}s</span>
+                  <span className="text-white/60 text-xs uppercase tracking-widest font-bold">Round {clashTurn.turnsTaken}/{clashTurn.maxTurns}</span>
+                </div>
+              </div>
+            )}
+
+            <div className={`flex-1 grid ${activeClash && remoteVideoTrack ? 'grid-cols-2 gap-1' : 'grid-cols-1'}`}>
+              <div className={`relative w-full h-full transition-all duration-300 ${activeClash && clashTurn?.currentTurn === streamData?.host?._id ? 'ring-4 ring-green-500 ring-inset' : ''}`}>
+                <video
+                  ref={videoRef}
                 autoPlay
                 muted
                 playsInline
@@ -698,7 +754,7 @@ export default function Live() {
             </div>
 
             {activeClash && remoteVideoTrack && (
-              <div className="relative w-full h-full bg-gray-900">
+              <div className={`relative w-full h-full bg-gray-900 transition-all duration-300 ${clashTurn && clashTurn.currentTurn !== streamData?.host?._id ? 'ring-4 ring-red-500 ring-inset' : ''}`}>
                 <video
                   ref={(el) => {
                     if (el && remoteVideoTrack) {
@@ -726,6 +782,7 @@ export default function Live() {
                 autoPlay
               />
             )}
+            </div>
 
             {/* Idle placeholder */}
             {phase === 'idle' && !isPreviewActive && !summary && (
