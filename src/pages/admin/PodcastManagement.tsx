@@ -32,9 +32,9 @@ import {
 } from '@mui/material';
 import { 
   Search, 
-  MoreVert, 
+  MoreVertical, 
   Edit, 
-  Delete, 
+  Trash2, 
   Radio as PodcastIcon, 
   PlayCircle,
   FilterList,
@@ -331,7 +331,7 @@ const PodcastManagement: React.FC = () => {
                   </TableCell>
                   <TableCell align="right">
                     <IconButton onClick={(e) => handleMenuOpen(e, podcast)}>
-                      <MoreVert size={20} />
+                      <MoreVertical size={20} />
                     </IconButton>
                   </TableCell>
                 </TableRow>
@@ -371,7 +371,7 @@ const PodcastManagement: React.FC = () => {
         )}
         
         <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>
-          <Delete size={16} style={{ marginRight: 8 }} /> Delete Permanent
+          <Trash2 size={16} style={{ marginRight: 8 }} /> Delete Permanent
         </MenuItem>
       </Menu>
 

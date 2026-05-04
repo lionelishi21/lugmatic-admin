@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 import { useArtistContext } from '../context/ArtistContext';
 import Preloader from './ui/Preloader';
 
@@ -9,7 +10,7 @@ interface OnboardingGuardProps {
 }
 
 const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useSelector((state: RootState) => state.auth);
   const { currentArtist, loading: artistLoading } = useArtistContext();
   const location = useLocation();
 
