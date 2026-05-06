@@ -1,16 +1,20 @@
 import React, { useEffect } from 'react';
-import { 
-  Music2, 
-  Headphones, 
-  DollarSign, 
-  TrendingUp, 
-  Clock, 
-  Users, 
-  Edit2, 
+import {
+  Music2,
+  Headphones,
+  DollarSign,
+  TrendingUp,
+  Clock,
+  Users,
+  Edit2,
   AlertCircle,
   ChevronRight,
-  BarChart2
+  BarChart2,
+  Radio,
+  ArrowUpRight,
+  Zap
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,6 +24,14 @@ import { fetchArtistEarnings } from '../../store/slices/financeSlice';
 import { userService } from '../../services/userService';
 import ContributionList from '../../components/artist/ContributionList';
 import { Skeleton } from '../../components/ui/skeleton';
+
+const fadeUp = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.4, ease: 'easeOut' },
+};
+
+const stagger = (i: number) => ({ ...fadeUp, transition: { ...fadeUp.transition, delay: i * 0.07 } });
 
 export default function ArtistDashboard() {
   const dispatch = useDispatch<AppDispatch>();
@@ -46,9 +58,7 @@ export default function ArtistDashboard() {
     try {
       setLoadingContributions(true);
       const res = await userService.getContributorDashboard();
-      if (res.data.success) {
-        setContributions(res.data.data.songs);
-      }
+      if (res.data.success) setContributions(res.data.data.songs);
     } catch (err) {
       console.error('Failed to fetch contributions:', err);
     } finally {
@@ -58,253 +68,322 @@ export default function ArtistDashboard() {
 
   const isLoading = artistLoading || financeLoading;
 
-  const StatCard = ({ 
-    icon: Icon, 
-    title, 
-    value, 
-    trend,
-    loading
-  }: { 
-    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>, 
-    title: string, 
-    value: string | number, 
-    trend?: string,
-    loading?: boolean
-  }) => (
-    <div className="bg-white rounded-lg p-6 shadow-md">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <div className="bg-purple-100 p-3 rounded-lg">
-            <Icon className="h-6 w-6 text-purple-600" />
-          </div>
-          <div className="ml-4">
-            <p className="text-sm text-gray-600">{title}</p>
-            {loading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <p className="text-2xl font-semibold text-gray-900">{value}</p>
-            )}
-          </div>
-        </div>
-        {trend && !loading && (
-          <span className="text-green-500 text-sm">
-            <TrendingUp className="h-4 w-4 inline mr-1" />
-            {trend}
-          </span>
-        )}
-      </div>
-    </div>
-  );
+  const statCards = [
+    {
+      icon: Music2,
+      label: 'Total Tracks',
+      value: stats?.totalTracks ?? 0,
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50',
+      iconBg: 'bg-indigo-500',
+    },
+    {
+      icon: Headphones,
+      label: 'Monthly Listeners',
+      value: (stats?.monthlyListeners ?? 0).toLocaleString(),
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50',
+      iconBg: 'bg-emerald-500',
+    },
+    {
+      icon: DollarSign,
+      label: 'Total Earnings',
+      value: `$${(earnings?.totalEarnings ?? 0).toLocaleString()}`,
+      color: 'text-amber-600',
+      bg: 'bg-amber-50',
+      iconBg: 'bg-amber-500',
+    },
+    {
+      icon: Users,
+      label: 'Social Followers',
+      value: (stats?.socialMediaFollowers ?? 0).toLocaleString(),
+      color: 'text-rose-600',
+      bg: 'bg-rose-50',
+      iconBg: 'bg-rose-500',
+    },
+  ];
 
   return (
-      <div className="space-y-6">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            icon={Music2}
-            title="Total Tracks"
-            value={stats?.totalTracks ?? 0}
-            loading={isLoading}
-          />
-          <StatCard
-            icon={Headphones}
-            title="Monthly Listeners"
-            value={(stats?.monthlyListeners ?? 0).toLocaleString()}
-            loading={isLoading}
-          />
-          <StatCard
-            icon={DollarSign}
-            title="Total Earnings"
-            value={`$${(earnings?.totalEarnings ?? 0).toLocaleString()}`}
-            loading={isLoading}
-          />
-          <StatCard
-            icon={Users}
-            title="Social Followers"
-            value={(stats?.socialMediaFollowers ?? 0).toLocaleString()}
-            loading={isLoading}
-          />
+    <div className="space-y-7 max-w-7xl mx-auto">
+
+      {/* ── Welcome Banner ── */}
+      <motion.div
+        {...fadeUp}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-950 via-gray-900 to-emerald-950 p-8 shadow-xl"
+      >
+        {/* Decorative glow */}
+        <div className="pointer-events-none absolute -right-16 -top-16 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-8 left-1/3 w-48 h-48 rounded-full bg-indigo-500/10 blur-3xl" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-emerald-400 mb-2">
+              Welcome back
+            </p>
+            <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+              {user?.name ?? 'Artist'} Studio
+            </h1>
+            <p className="text-gray-400 text-sm mt-2 font-light">
+              Your music, your audience, your revenue — all in one place.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => navigate('/artist/upload')}
+              className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm rounded-xl transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:-translate-y-0.5"
+            >
+              <Music2 className="h-4 w-4" />
+              Upload Track
+            </button>
+            <button
+              onClick={() => navigate('/artist/live')}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/15 text-white font-semibold text-sm rounded-xl border border-white/10 transition-all hover:-translate-y-0.5"
+            >
+              <Radio className="h-4 w-4 text-emerald-400" />
+              Go Live
+            </button>
+          </div>
         </div>
+      </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Latest Releases */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Latest Releases</h2>
-              <button 
-                onClick={() => navigate('/artist/songs')}
-                className="text-emerald-600 hover:text-emerald-700 text-sm font-bold flex items-center gap-1 group"
-              >
-                View All
-                <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              {isLoading ? (
-                [1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center space-x-3">
-                    <Skeleton className="w-12 h-12 rounded-lg" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-3 w-20" />
-                    </div>
-                  </div>
-                ))
-              ) : songs && songs.length > 0 ? (
-                songs.slice(0, 5).map((track: any) => (
-                  <div key={track._id} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <img
-                        src={track.coverArtUrl || track.coverArt || '/default-track-cover.jpg'}
-                        alt={track.name || track.title}
-                        className="w-12 h-12 rounded-lg object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/default-track-cover.jpg';
-                        }}
-                      />
-                      <div>
-                        <h3 className="font-medium text-gray-900">{track.name || track.title}</h3>
-                        <p className="text-sm text-gray-600">
-                          {(track.playCount ?? track.plays ?? 0).toLocaleString()} plays
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="flex flex-col items-end gap-1">
-                        {track.uploadSource === 'admin' ? (
-                          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                            Admin Upload
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                            Self Upload
-                          </span>
-                        )}
-
-                        {track.status === 'approved' ? (
-                          <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                            Approved
-                          </span>
-                        ) : track.status === 'rejected' ? (
-                          <div className="flex flex-col items-end gap-1">
-                            <span className="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-bold rounded-full uppercase tracking-wider flex items-center gap-1">
-                              <AlertCircle className="h-2 w-2" />
-                              Action Required
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                            Pending
-                          </span>
-                        )}
-                        
-                        <div className="flex items-center gap-2">
-                          {track.status === 'rejected' && (
-                            <button 
-                              onClick={() => navigate(`/artist/song-edit/${track._id}`)}
-                              className="text-red-600 hover:text-red-700 p-1 bg-red-50 rounded-md transition-colors"
-                              title="Edit to fix issues"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                          )}
-                          <button 
-                            onClick={() => navigate(`/artist/songs/${track._id}/analytics`)}
-                            className="text-purple-600 hover:text-purple-700 p-1 hover:bg-purple-50 rounded-md transition-all"
-                            title="View Analytics"
-                          >
-                            <BarChart2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-10 text-gray-500">
-                  No tracks uploaded yet.
+      {/* ── Stats Grid ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {statCards.map((card, i) => (
+          <motion.div key={card.label} {...stagger(i)}>
+            <div className="stat-card group">
+              <div className="flex items-start justify-between mb-5">
+                <div className={`w-11 h-11 rounded-xl ${card.iconBg} flex items-center justify-center shadow-sm`}>
+                  <card.icon className="h-5 w-5 text-white" />
                 </div>
+                <ArrowUpRight className="h-4 w-4 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <p className="stat-card-label">{card.label}</p>
+              {isLoading ? (
+                <div className="skeleton h-8 w-24 mt-1.5" />
+              ) : (
+                <p className="stat-card-value mt-1">{card.value}</p>
               )}
             </div>
-          </div>
+          </motion.div>
+        ))}
+      </div>
 
-          {/* Your Contributions Section */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                <Users className="h-5 w-5 text-purple-600" />
-                Your Contributions
-              </h2>
-              <span className="text-[10px] font-bold px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full uppercase tracking-wider">
-                Split Sheets
-              </span>
+      {/* ── Main Grid ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        {/* Latest Releases */}
+        <motion.div {...stagger(4)} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+            <div>
+              <h2 className="section-title">Latest Releases</h2>
+              <p className="text-[11px] text-gray-500 mt-0.5">Your most recent tracks</p>
             </div>
+            <button
+              onClick={() => navigate('/artist/songs')}
+              className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:text-emerald-700 uppercase tracking-wider transition-colors group"
+            >
+              View All
+              <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {isLoading ? (
+              [1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center gap-4 px-6 py-4">
+                  <div className="skeleton w-11 h-11 rounded-xl" />
+                  <div className="flex-1 space-y-2">
+                    <div className="skeleton h-3.5 w-36" />
+                    <div className="skeleton h-2.5 w-20" />
+                  </div>
+                </div>
+              ))
+            ) : songs && songs.length > 0 ? (
+              songs.slice(0, 5).map((track: any) => (
+                <div key={track._id} className="flex items-center justify-between px-6 py-3.5 hover:bg-gray-50/70 transition-colors group">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <img
+                      src={track.coverArtUrl || track.coverArt || '/default-track-cover.jpg'}
+                      alt={track.name || track.title}
+                      className="w-11 h-11 rounded-xl object-cover shadow-sm flex-shrink-0"
+                      onError={(e) => { (e.target as HTMLImageElement).src = '/default-track-cover.jpg'; }}
+                    />
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-semibold text-gray-900 truncate">{track.name || track.title}</h3>
+                      <p className="text-[11px] text-gray-500 mt-0.5 flex items-center gap-1">
+                        <BarChart2 className="h-3 w-3" />
+                        {(track.playCount ?? track.plays ?? 0).toLocaleString()} plays
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0 pl-3">
+                    <div className="flex flex-col items-end gap-1">
+                      {track.uploadSource === 'admin' ? (
+                        <span className="badge badge-blue">Admin</span>
+                      ) : (
+                        <span className="badge badge-gray">Self</span>
+                      )}
+                      {track.status === 'approved' ? (
+                        <span className="badge badge-green">Approved</span>
+                      ) : track.status === 'rejected' ? (
+                        <span className="badge badge-red flex items-center gap-1">
+                          <AlertCircle className="h-2 w-2" />
+                          Action Needed
+                        </span>
+                      ) : (
+                        <span className="badge badge-amber">Pending</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {track.status === 'rejected' && (
+                        <button
+                          onClick={() => navigate(`/artist/song-edit/${track._id}`)}
+                          className="icon-btn icon-btn-red"
+                          title="Edit to fix issues"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => navigate(`/artist/songs/${track._id}/analytics`)}
+                        className="icon-btn icon-btn-purple"
+                        title="View Analytics"
+                      >
+                        <BarChart2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="py-14 text-center">
+                <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                  <Music2 className="h-5 w-5 text-gray-400" />
+                </div>
+                <p className="empty-state-title">No tracks yet</p>
+                <p className="empty-state-body">Upload your first track to get started.</p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Activity Feed */}
+        <motion.div {...stagger(5)} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+            <div>
+              <h2 className="section-title">Recent Activity</h2>
+              <p className="text-[11px] text-gray-500 mt-0.5">Latest earnings events</p>
+            </div>
+            <button
+              onClick={() => navigate('/artist/earnings')}
+              className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:text-emerald-700 uppercase tracking-wider transition-colors group"
+            >
+              All Earnings
+              <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {isLoading ? (
+              [1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center gap-4 px-6 py-4">
+                  <div className="skeleton w-10 h-10 rounded-xl" />
+                  <div className="flex-1 space-y-2">
+                    <div className="skeleton h-3.5 w-44" />
+                    <div className="skeleton h-2.5 w-24" />
+                  </div>
+                </div>
+              ))
+            ) : earnings?.history && earnings.history.length > 0 ? (
+              earnings.history.slice(0, 5).map((activity: any) => (
+                <div key={activity._id} className="flex items-center gap-4 px-6 py-3.5 hover:bg-gray-50/70 transition-colors">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    activity.type === 'gift_received' ? 'bg-emerald-50' : 'bg-indigo-50'
+                  }`}>
+                    {activity.type === 'gift_received'
+                      ? <DollarSign className="h-4.5 w-4.5 text-emerald-600" />
+                      : <Music2 className="h-4.5 w-4.5 text-indigo-600" />
+                    }
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{activity.description}</p>
+                    <p className="text-[11px] text-gray-500 mt-0.5 flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="py-14 text-center">
+                <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                  <Zap className="h-5 w-5 text-gray-400" />
+                </div>
+                <p className="empty-state-title">No recent activity</p>
+                <p className="empty-state-body">Start streaming or gifting to see events here.</p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ── Contributions + Earnings Row ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        {/* Contributions */}
+        <motion.div {...stagger(6)} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
+                <Users className="h-4 w-4 text-purple-600" />
+              </div>
+              <div>
+                <h2 className="section-title">Your Contributions</h2>
+                <p className="text-[11px] text-gray-500 mt-0.5">Split sheet collaborations</p>
+              </div>
+            </div>
+            <span className="badge badge-purple">Split Sheets</span>
+          </div>
+          <div className="px-6 py-4">
             <ContributionList contributions={contributions} loading={loadingContributions} />
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Activity</h2>
-            <div className="space-y-4">
-              {isLoading ? (
-                [1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center space-x-3">
-                    <Skeleton className="w-10 h-10 rounded-lg" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-48" />
-                      <Skeleton className="h-3 w-24" />
-                    </div>
-                  </div>
-                ))
-              ) : earnings?.history && earnings.history.length > 0 ? (
-                earnings.history.slice(0, 5).map((activity: any) => (
-                  <div key={activity._id} className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${
-                      activity.type === 'gift_received' ? 'bg-green-100' : 'bg-purple-100'
-                    }`}>
-                      {activity.type === 'gift_received' ? <DollarSign className="h-5 w-5 text-green-600" /> :
-                       <Music2 className="h-5 w-5 text-purple-600" />}
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-900">
-                        {activity.description}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        <Clock className="h-3 w-3 inline mr-1" />
-                        {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-10 text-gray-500">
-                  No recent activity found.
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        </motion.div>
 
         {/* Earnings Overview */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Earnings Overview</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Total Earnings</p>
-              {isLoading ? (
-                <Skeleton className="h-8 w-24 mt-1" />
-              ) : (
-                <p className="text-2xl font-semibold">${(earnings?.totalEarnings ?? 0).toLocaleString()}</p>
-              )}
+        <motion.div {...stagger(7)} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                <TrendingUp className="h-4 w-4 text-emerald-600" />
+              </div>
+              <div>
+                <h2 className="section-title">Earnings Overview</h2>
+                <p className="text-[11px] text-gray-500 mt-0.5">Revenue at a glance</p>
+              </div>
             </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">This Month</p>
-              {isLoading ? (
-                <Skeleton className="h-8 w-24 mt-1" />
-              ) : (
-                <p className="text-2xl font-semibold">${(earnings?.monthlyEarnings ?? 0).toLocaleString()}</p>
-              )}
-            </div>
+            <button
+              onClick={() => navigate('/artist/earnings')}
+              className="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 uppercase tracking-wider flex items-center gap-1 group"
+            >
+              Details <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </button>
           </div>
-        </div>
+          <div className="p-6 grid grid-cols-2 gap-4">
+            {[
+              { label: 'Total Earnings', value: `$${(earnings?.totalEarnings ?? 0).toLocaleString()}`, color: 'bg-emerald-500' },
+              { label: 'This Month', value: `$${(earnings?.monthlyEarnings ?? 0).toLocaleString()}`, color: 'bg-indigo-500' },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="p-5 bg-gray-50 rounded-xl border border-gray-100">
+                <div className={`w-2 h-2 rounded-full ${color} mb-3`} />
+                <p className="stat-card-label">{label}</p>
+                {isLoading ? (
+                  <div className="skeleton h-7 w-20 mt-1.5" />
+                ) : (
+                  <p className="text-2xl font-black text-gray-950 tracking-tight mt-1">{value}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
+    </div>
   );
 }

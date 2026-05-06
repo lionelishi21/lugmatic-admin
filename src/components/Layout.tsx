@@ -343,7 +343,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-emerald-50/30 to-gray-100 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Overlay for mobile */}
       {isMobile && isSidebarOpen && (
         <div
@@ -354,24 +354,24 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
 
       {/* Sidebar */}
       <motion.div
-        className={`fixed lg:relative z-30 h-full bg-gray-950 border-r border-gray-800/60 shadow-2xl ${isMobile && !isSidebarOpen ? 'invisible' : ''}`}
+        className={`fixed lg:relative z-30 h-full bg-gray-950 border-r border-gray-800/40 shadow-xl ${isMobile && !isSidebarOpen ? 'invisible' : ''}`}
         variants={sidebarVariants}
         animate={isSidebarOpen ? 'open' : 'closed'}
         initial={isMobile ? 'closed' : 'open'}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-5 flex items-center justify-between border-b border-gray-800/60">
+          <div className="px-5 py-4 flex items-center justify-between border-b border-gray-800/40">
             {isSidebarOpen ? (
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center">
-                  <img src={lugmaticIcon} alt="Lugmatic" className="h-10 w-10 object-cover" />
+                <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center">
+                  <img src={lugmaticIcon} alt="Lugmatic" className="h-9 w-9 object-cover" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
+                  <h1 className="text-base font-bold bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent tracking-tight">
                     Lugmatic
                   </h1>
-                  <p className="text-[11px] text-gray-500 font-medium tracking-wide">Music Platform</p>
+                  <p className="text-[10px] text-gray-500 font-semibold tracking-widest uppercase">Studio</p>
                 </div>
               </div>
             ) : (
@@ -381,17 +381,17 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
             )}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-lg bg-gray-800/80 hover:bg-gray-700 transition-all duration-200 text-gray-400 hover:text-white"
+              className="p-1.5 rounded-lg bg-gray-800/70 hover:bg-gray-700 transition-all text-gray-400 hover:text-white ml-auto"
             >
               {isSidebarOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+          <nav className="flex-1 overflow-y-auto py-3 sidebar-nav">
             {isSidebarOpen && (
-              <div className="px-5 mb-4">
-                <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">
+              <div className="px-5 mb-3">
+                <p className="text-[9px] font-bold text-gray-600 uppercase tracking-[0.15em]">
                   {userRole === 'admin' ? 'Admin Panel' : (userRole === 'contributor' ? 'Contributor Hub' : 'Artist Dashboard')}
                 </p>
               </div>
@@ -403,16 +403,18 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                     <>
                       <button
                         onClick={() => toggleExpand(item.path)}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive(item.path)
-                          ? 'bg-green-500/10 text-green-400'
-                          : 'hover:bg-gray-800/80 text-gray-400 hover:text-gray-200'
+                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-150 group ${
+                          isActive(item.path)
+                            ? 'bg-emerald-500/12 text-emerald-400'
+                            : 'hover:bg-gray-800/60 text-gray-400 hover:text-gray-100'
                           }`}
                       >
                         <div className="flex items-center">
-                          <span className={`flex-shrink-0 mr-3 p-1.5 rounded-md transition-all duration-200 ${isActive(item.path)
-                            ? 'bg-green-500/20 text-green-400'
-                            : 'text-gray-500 group-hover:text-gray-300'
-                            }`}>
+                          <span className={`flex-shrink-0 mr-3 p-1.5 rounded-lg transition-all duration-150 ${
+                            isActive(item.path)
+                              ? 'bg-emerald-500/20 text-emerald-400'
+                              : 'text-gray-500 group-hover:text-gray-300'
+                          }`}>
                             {item.icon}
                           </span>
                           {isSidebarOpen && (
@@ -473,16 +475,18 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                   ) : (
                     <Link
                       to={item.path}
-                      className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive(item.path)
-                        ? 'bg-green-500/10 text-green-400'
-                        : 'hover:bg-gray-800/80 text-gray-400 hover:text-gray-200'
-                        }`}
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-150 group ${
+                    isActive(item.path)
+                      ? 'bg-emerald-500/12 text-emerald-400'
+                      : 'hover:bg-gray-800/60 text-gray-400 hover:text-gray-100'
+                  }`}
                     >
                       <div className="flex items-center">
-                        <span className={`flex-shrink-0 mr-3 p-1.5 rounded-md transition-all duration-200 ${isActive(item.path)
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'text-gray-500 group-hover:text-gray-300'
-                          }`}>
+                        <span className={`flex-shrink-0 mr-3 p-1.5 rounded-lg transition-all duration-150 ${
+                          isActive(item.path)
+                            ? 'bg-emerald-500/20 text-emerald-400'
+                            : 'text-gray-500 group-hover:text-gray-300'
+                        }`}>
                           {item.icon}
                         </span>
                         {isSidebarOpen && (
@@ -502,12 +506,12 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
           </nav>
 
           {/* Footer */}
-          <div className="border-t border-gray-800/60 p-3">
+          <div className="border-t border-gray-800/40 p-3">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center px-3 py-2.5 rounded-lg text-gray-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 group"
+              className="w-full flex items-center px-3 py-2.5 rounded-xl text-gray-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-150 group"
             >
-              <LogOut className="h-5 w-5 mr-3 text-gray-500 group-hover:text-red-400 transition-colors" />
+              <LogOut className="h-4.5 w-4.5 mr-3 text-gray-600 group-hover:text-red-400 transition-colors flex-shrink-0" />
               {isSidebarOpen && <span className="text-sm font-medium">Logout</span>}
             </button>
           </div>
@@ -525,7 +529,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       )}
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 via-emerald-50/30 to-gray-100 text-zinc-900 dashboard-content">
+      <div className="flex-1 overflow-auto bg-gray-50 text-gray-900 dashboard-content">
         <main className={`p-5 ${isMobile ? 'pt-16' : ''}`}>
           {children}
         </main>
