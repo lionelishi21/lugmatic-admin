@@ -465,7 +465,7 @@ export default function Onboarding() {
 
   const handleFileUpload = async (file: File | undefined) => {
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast.error('File must be under 5 MB'); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error('File must be under 10 MB'); return; }
     setUploading(true);
     try {
       const presign = await apiService.post<any>('/upload/presign/id-document', {
