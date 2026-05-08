@@ -38,14 +38,14 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   DASHBOARD CONTENT — Light Surface System
+   DASHBOARD CONTENT — Premium Dark Surface System
    The .dashboard-content wrapper targets the main content
-   area that sits on bg-gray-50 / bg-white surfaces.
+   area with a high-impact, dark aesthetic.
    ═══════════════════════════════════════════════════════════ */
 
 .dashboard-content {
   font-family: 'Geist', sans-serif;
-  color: #111827;                  /* gray-900 — 19:1 on white */
+  color: #f4f4f5;                  /* zinc-100 */
   font-size: 0.9375rem;
   line-height: 1.65;
   letter-spacing: -0.01em;
@@ -56,7 +56,7 @@
 .dashboard-content h1 {
   font-size: 1.75rem;
   font-weight: 800;
-  color: #030712;                  /* gray-950 */
+  color: #ffffff;                  /* white */
   letter-spacing: -0.035em;
   line-height: 1.15;
 }
@@ -64,7 +64,7 @@
 .dashboard-content h2 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111827;                  /* gray-900 */
+  color: #f4f4f5;                  /* zinc-100 */
   letter-spacing: -0.025em;
   line-height: 1.25;
 }
@@ -72,7 +72,7 @@
 .dashboard-content h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;                  /* gray-800 */
+  color: #e4e4e7;                  /* zinc-200 */
   letter-spacing: -0.02em;
 }
 
@@ -81,51 +81,40 @@
 .dashboard-content h6 {
   font-family: 'Geist', sans-serif;
   font-weight: 600;
-  color: #374151;                  /* gray-700 */
+  color: #a1a1aa;                  /* zinc-400 */
   letter-spacing: -0.015em;
 }
 
 .dashboard-content p {
-  color: #374151;                  /* gray-700 — 9.7:1 on white */
+  color: #a1a1aa;                  /* zinc-400 */
 }
 
 /* ── Muted / secondary text ─────────────────────────────── */
 
-/* These overrides ensure gray-400/zinc-400 etc. are never
-   used on a light background (they fail 4.5:1). We lift 
-   them to meet WCAG AA. */
-
 .dashboard-content .text-zinc-400,
 .dashboard-content .text-gray-400 {
-  color: #4b5563 !important;       /* gray-600 — 7.2:1 on white */
+  color: #a1a1aa !important;       /* zinc-400 */
 }
 
 .dashboard-content .text-zinc-500,
 .dashboard-content .text-gray-500 {
-  color: #374151 !important;       /* gray-700 — 9.7:1 on white */
+  color: #71717a !important;       /* zinc-500 */
 }
 
 .dashboard-content .text-zinc-600,
 .dashboard-content .text-gray-600 {
-  color: #1f2937 !important;       /* gray-800 — 14.7:1 on white */
+  color: #52525b !important;       /* zinc-600 */
 }
 
-.dashboard-content .text-zinc-300,
-.dashboard-content .text-gray-300 {
-  color: #4b5563 !important;       /* gray-600 */
-}
-
-/* Invert white/near-white text (sidebar tokens on dashboard bg) */
-.dashboard-content .text-zinc-100,
-.dashboard-content .text-zinc-200,
+/* Ensure white text stays white or is slightly dimmed for UI */
 .dashboard-content .text-white {
-  color: #111827 !important;
+  color: #ffffff !important;
 }
 
 /* ── Labels ─────────────────────────────────────────────── */
 
 .dashboard-content label {
-  color: #1f2937;
+  color: #e4e4e7;
   font-weight: 500;
   font-size: 0.875rem;
   letter-spacing: -0.01em;
@@ -134,13 +123,13 @@
 /* ── Borders ─────────────────────────────────────────────── */
 
 .dashboard-content * {
-  border-color: rgba(209, 213, 219, 0.65);  /* gray-300/65 */
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 /* ── Tables ─────────────────────────────────────────────── */
 
 .dashboard-content th {
-  color: #111827;
+  color: #ffffff;
   font-weight: 700;
   font-size: 0.75rem;
   letter-spacing: 0.06em;
@@ -148,7 +137,7 @@
 }
 
 .dashboard-content td {
-  color: #374151;
+  color: #a1a1aa;
   font-size: 0.9375rem;
 }
 
@@ -157,11 +146,9 @@
 .dashboard-content input,
 .dashboard-content select,
 .dashboard-content textarea {
-  color: #111827 !important;
-  -webkit-text-fill-color: #111827 !important;
-  background-color: #ffffff !important;
-  border-color: #d1d5db !important;         /* gray-300 */
-  caret-color: #111827 !important;
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
   font-family: 'Geist', sans-serif;
   font-size: 0.9375rem;
 }
@@ -169,19 +156,10 @@
 .dashboard-content input:focus,
 .dashboard-content select:focus,
 .dashboard-content textarea:focus {
-  background-color: #ffffff !important;
-  color: #111827 !important;
-  -webkit-text-fill-color: #111827 !important;
-  border-color: #059669 !important;         /* emerald-600 — 4.5:1+ on white */
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: #10b981 !important;         /* emerald-500 */
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12) !important;
-}
-
-.dashboard-content input::placeholder,
-.dashboard-content textarea::placeholder {
-  color: #6b7280 !important;               /* gray-500 — 5.9:1 on white */
-  -webkit-text-fill-color: #6b7280 !important;
-  opacity: 1 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
 }
 
 /* ── Autofill ───────────────────────────────────────────── */
@@ -189,16 +167,16 @@
 .dashboard-content input:-webkit-autofill,
 .dashboard-content input:-webkit-autofill:hover,
 .dashboard-content input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
-  -webkit-text-fill-color: #111827 !important;
+  -webkit-box-shadow: 0 0 0px 1000px #09090b inset !important;
+  -webkit-text-fill-color: #ffffff !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
 /* ── Selection ──────────────────────────────────────────── */
 
 .dashboard-content ::selection {
-  background-color: rgba(5, 150, 105, 0.2) !important;
-  color: #022c22 !important;               /* emerald-950 */
+  background-color: rgba(16, 185, 129, 0.3) !important;
+  color: #ffffff !important;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -209,13 +187,13 @@
 /* Smooth scrollbar in sidebar nav */
 .sidebar-nav {
   scrollbar-width: thin;
-  scrollbar-color: rgba(75, 85, 99, 0.5) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 .sidebar-nav::-webkit-scrollbar {
   width: 4px;
 }
 .sidebar-nav::-webkit-scrollbar-thumb {
-  background: rgba(75, 85, 99, 0.5);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
 }
 
@@ -224,21 +202,21 @@
    ═══════════════════════════════════════════════════════════ */
 
 .stat-card {
-  @apply bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow;
+  @apply bg-zinc-900/60 rounded-2xl p-6 border border-white/[0.07] hover:border-emerald-500/30 transition-all backdrop-blur-md shadow-2xl;
 }
 
 .stat-card-label {
-  font-size: 0.6875rem;              /* 11px */
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #4b5563;                    /* gray-600 */
+  font-weight: 600;
+  color: #71717a;                    /* zinc-500 — readable on dark */
 }
 
 .stat-card-value {
-  font-size: 1.75rem;
+  font-size: 1.875rem;
   font-weight: 800;
-  color: #030712;                    /* gray-950 */
+  color: #ffffff;                    /* white — always visible on dark card */
   letter-spacing: -0.04em;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
@@ -255,14 +233,14 @@
 .page-header-title {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 2rem;
-  color: #030712;
+  color: #ffffff;                    /* white on dark pages */
   letter-spacing: 0.01em;
   line-height: 1.1;
 }
 
 .page-header-subtitle {
   font-size: 0.875rem;
-  color: #4b5563;                    /* gray-600 */
+  color: #a1a1aa;                    /* zinc-400 — visible on dark */
   font-weight: 400;
   margin-top: 0.25rem;
 }
@@ -272,7 +250,7 @@
 .section-title {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #111827;
+  color: #f4f4f5;                    /* zinc-100 — bright on dark */
   letter-spacing: -0.02em;
 }
 
@@ -281,12 +259,12 @@
 .empty-state-title {
   font-size: 1rem;
   font-weight: 700;
-  color: #111827;
+  color: #e4e4e7;                    /* zinc-200 */
 }
 
 .empty-state-body {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: #71717a;                    /* zinc-500 — muted but readable */
   max-width: 24rem;
   margin: 0.5rem auto 0;
   text-align: center;
@@ -317,12 +295,18 @@
 
 .icon-btn {
   @apply p-2 rounded-lg transition-all duration-150;
-  color: #6b7280;
+  color: #71717a;                    /* zinc-500 */
 }
-.icon-btn:hover { @apply bg-gray-100; color: #111827; }
-.icon-btn-emerald:hover { @apply bg-emerald-50; color: #059669; }
-.icon-btn-red:hover { @apply bg-red-50; color: #dc2626; }
-.icon-btn-purple:hover { @apply bg-purple-50; color: #7c3aed; }
+.icon-btn:hover {
+  background: rgba(255,255,255,0.07);
+  color: #f4f4f5;                    /* zinc-100 */
+}
+.icon-btn-emerald:hover {
+  background: rgba(16,185,129,0.12);
+  color: #34d399;                    /* emerald-400 */
+}
+.icon-btn-red:hover    { background: rgba(239,68,68,0.12);   color: #f87171; } /* red-400 */
+.icon-btn-purple:hover { background: rgba(124,58,237,0.12);  color: #a78bfa; } /* violet-400 */
 
 /* ═══════════════════════════════════════════════════════════
    ANIMATIONS
@@ -346,9 +330,9 @@
 .animate-fade-up   { animation: fade-up 0.4s ease both; }
 .animate-fade-in   { animation: fade-in 0.3s ease both; }
 
-/* Loading skeleton shimmer */
+/* Loading skeleton shimmer — dark-theme aware */
 .skeleton {
-  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.05) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
   border-radius: 0.5rem;

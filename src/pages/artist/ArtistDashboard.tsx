@@ -109,21 +109,25 @@ export default function ArtistDashboard() {
       {/* ── Welcome Banner ── */}
       <motion.div
         {...fadeUp}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-950 via-gray-900 to-emerald-950 p-8 shadow-xl"
+        className="relative overflow-hidden rounded-2xl p-8 shadow-xl"
+        style={{ background: 'linear-gradient(135deg, #0a0a0f 0%, #111827 50%, #064e3b 100%)' }}
       >
-        {/* Decorative glow */}
-        <div className="pointer-events-none absolute -right-16 -top-16 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-8 left-1/3 w-48 h-48 rounded-full bg-indigo-500/10 blur-3xl" />
+        {/* Decorative glows — explicitly behind content */}
+        <div className="pointer-events-none absolute -right-16 -top-16 w-72 h-72 rounded-full bg-emerald-500/15 blur-3xl" style={{ zIndex: 0 }} />
+        <div className="pointer-events-none absolute -bottom-8 left-1/3 w-56 h-56 rounded-full bg-emerald-400/10 blur-3xl" style={{ zIndex: 0 }} />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6" style={{ zIndex: 1 }}>
           <div>
-            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-emerald-400 mb-2">
+            <p className="text-xs font-bold tracking-[0.2em] uppercase mb-2" style={{ color: '#6ee7b7' /* emerald-300 — brighter */ }}>
               Welcome back
             </p>
-            <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+            <h1
+              className="text-3xl md:text-4xl font-black tracking-tight leading-none"
+              style={{ fontFamily: "'Bebas Neue', sans-serif", color: '#ffffff', textShadow: '0 1px 20px rgba(0,0,0,0.5)' }}
+            >
               {user?.name ?? 'Artist'} Studio
             </h1>
-            <p className="text-gray-400 text-sm mt-2 font-light">
+            <p className="text-sm mt-2.5 font-normal" style={{ color: '#d1fae5' /* emerald-100 — very light, high contrast on dark */ }}>
               Your music, your audience, your revenue — all in one place.
             </p>
           </div>
