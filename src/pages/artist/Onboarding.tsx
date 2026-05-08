@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, FileText, ShieldCheck, CheckCircle2, ArrowRight, ArrowLeft,
@@ -254,7 +254,7 @@ function StepLegal({ data, onChange, errors, onFileUpload, uploading }: any) {
             <div className="flex flex-col items-center gap-2">
               <Upload className="w-8 h-8 text-zinc-500" />
               <p className="text-zinc-300 text-sm font-medium">Click to upload your ID document</p>
-              <p className="text-zinc-600 text-xs">JPEG, PNG, or PDF · Max 5 MB</p>
+              <p className="text-zinc-600 text-xs">JPEG, PNG, or PDF · Max 10 MB</p>
             </div>
           )}
         </div>
@@ -445,20 +445,43 @@ export default function Onboarding() {
   const [submitting, setSubmitting] = useState(false);
   const [saving, setSaving]       = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading]     = useState(true);
   const [status, setStatus]       = useState<'form' | 'pending' | 'rejected'>('form');
   const [rejectionReason, setRejectionReason] = useState('');
   const [errors, setErrors]       = useState<Record<string, string>>({});
   const [data, setData]           = useState<Record<string, any>>({});
+
+  // Load any previously saved onboarding data on mount
+  useEffect(() => {
+    apiService.get<any>('/onboarding/status')
+      .then(res => {
+        const artist = res.data.data;
+        if (!artist) return;
+        if (artist.verificationStatus === 'pending') { setStatus('pending'); return; }
+        if (artist.verificationStatus === 'rejected') {
+          setRejectionReason(artist.rejectionReason || '');
+          setStatus('rejected');
+          return;
+        }
+        // Pre-populate saved fields so uploads / partial saves survive a refresh
+        setData(prev => ({ ...prev, ...artist }));
+        if (typeof artist.onboardingStep === 'number' && artist.onboardingStep > 0) {
+          setStep(Math.min(artist.onboardingStep, STEPS.length - 1));
+        }
+      })
+      .catch(() => { /* start fresh on error */ })
+      .finally(() => setLoading(false));
+  }, []);
 
   const update = useCallback((key: string, value: any) => {
     setData(prev => ({ ...prev, [key]: value }));
     setErrors(prev => { const n = { ...prev }; delete n[key]; return n; });
   }, []);
 
-  const saveStep = async (currentStep: number) => {
+  const saveStep = async (currentStep: number, extraData?: Record<string, any>) => {
     setSaving(true);
     try {
-      await apiService.post('/onboarding/save-step', { ...data, step: currentStep });
+      await apiService.post('/onboarding/save-step', { ...data, ...extraData, step: currentStep });
     } catch { /* non-blocking */ }
     finally { setSaving(false); }
   };
@@ -471,8 +494,13 @@ export default function Onboarding() {
       const presign = await apiService.post<any>('/upload/presign/id-document', {
         filename: file.name, contentType: file.type,
       });
-      await fetch(presign.data.uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
-      update('idDocumentUrl', presign.data.publicUrl);
+      // The API wraps the result: { success, data: { uploadUrl, publicUrl, key } }
+      const { uploadUrl, publicUrl } = presign.data.data;
+      await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      // Update local state
+      update('idDocumentUrl', publicUrl);
+      // Immediately persist so a page refresh doesn't lose the URL
+      await saveStep(1, { idDocumentUrl: publicUrl });
       toast.success('ID document uploaded');
     } catch {
       toast.error('Upload failed — please try again');
@@ -509,6 +537,7 @@ export default function Onboarding() {
     if (!validate(step)) return;
     await saveStep(step + 1);
     setStep(s => s + 1);
+    setErrors({});
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -531,6 +560,12 @@ export default function Onboarding() {
       setSubmitting(false);
     }
   };
+
+  if (loading) return (
+    <div className="min-h-screen bg-[#080810] flex items-center justify-center">
+      <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+    </div>
+  );
 
   if (status === 'pending') return (
     <div className="min-h-screen bg-[#080810] flex items-center justify-center p-6">
