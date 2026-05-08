@@ -144,7 +144,10 @@ const authSlice = createSlice({
     },
     logout: () => {
       clearTokens();
-      return initialState;
+      // Always reset isLoading to false on logout — initialState.isLoading
+      // was captured at module-load time (when a token existed) and would
+      // be true, causing a permanent Preloader on the login page.
+      return { ...initialState, isLoading: false, isAuthenticated: false };
     },
   },
   extraReducers: (builder) => {
