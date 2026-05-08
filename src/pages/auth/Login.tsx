@@ -113,9 +113,9 @@ export default function Login() {
   };
   const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0); };
 
-  const { register, handleSubmit, formState: { errors, touchedFields, isValid } } = useForm<FormValues>({
+  const { register, handleSubmit, formState: { errors, touchedFields } } = useForm<FormValues>({
     resolver: yupResolver(schema),
-    mode: 'onBlur',
+    mode: 'onTouched',
     defaultValues: { email: '', password: '' },
   });
 
@@ -330,7 +330,7 @@ export default function Login() {
                 {/* Submit */}
                 <motion.button
                   type="submit"
-                  disabled={isLoading || !isValid}
+                  disabled={isLoading}
                   whileHover={{ scale: isLoading ? 1 : 1.01 }}
                   whileTap={{ scale: isLoading ? 1 : 0.99 }}
                   className="relative w-full py-3 px-6 rounded-xl font-bold text-sm text-black overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
