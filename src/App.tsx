@@ -65,6 +65,7 @@ import Clashes from './pages/artist/Clashes';
 import ContributorDashboard from './pages/contributor/ContributorDashboard';
 import PayoutSettings from './pages/contributor/PayoutSettings';
 import Billboard from './pages/admin/Billboard';
+import ArtistApprovals from './pages/admin/ArtistApprovals';
 
 function App() {
   return (
@@ -84,40 +85,41 @@ function App() {
 
             <Route path="/artist/*" element={
               <ProtectedRoute requiredRole="artist">
-                <Routes>
-                  {/* Onboarding Route - outside the guard */}
-                  <Route path="onboarding" element={<Onboarding />} />
-                  
-                  {/* Guarded Routes */}
-                  <Route path="*" element={
-                    <OnboardingGuard>
-                      <Layout>
-                        <Routes>
-                          <Route index element={<ArtistDashboard />} />
-                          <Route path="upload" element={<Upload />} />
-                          <Route path="live" element={<Live />} />
-                          <Route path="clashes" element={<Clashes />} />
-                          <Route path="gifts" element={<Gifts />} />
-                          <Route path="earnings" element={<Earnings />} />
-                    {/* New artist routes */}
-                    <Route path="podcasts" element={<Podcasts />} />
-                    <Route path="comments" element={<Comments />} />
-                    <Route path="notifications" element={<Notifications />} />
-                    <Route path="search" element={<Search />} />
-                    <Route path="profile" element={<UserProfile />} />
-                    <Route path="settings" element={<Settings />} />
-                    <Route path="support" element={<Support />} />
-                    <Route path="support/history" element={<SupportHistory />} />
-                    <Route path="billboard" element={<Billboard />} />
-                    <Route path="songs" element={<MySongs />} />
-                    <Route path="songs/:id/analytics" element={<SongAnalytics />} />
-                    <Route path="song-edit/:id" element={<SongEdit />} />
-                    <Route path="song-edit/:id" element={<SongEdit />} />
-                  </Routes>
-                </Layout>
-              </OnboardingGuard>
-            } />
-          </Routes>
+                <ArtistProvider>
+                  <Routes>
+                    {/* Onboarding Route - outside the guard */}
+                    <Route path="onboarding" element={<Onboarding />} />
+                    
+                    {/* Guarded Routes */}
+                    <Route path="*" element={
+                      <OnboardingGuard>
+                        <Layout>
+                          <Routes>
+                            <Route index element={<ArtistDashboard />} />
+                            <Route path="upload" element={<Upload />} />
+                            <Route path="live" element={<Live />} />
+                            <Route path="clashes" element={<Clashes />} />
+                            <Route path="gifts" element={<Gifts />} />
+                            <Route path="earnings" element={<Earnings />} />
+                      {/* New artist routes */}
+                      <Route path="podcasts" element={<Podcasts />} />
+                      <Route path="comments" element={<Comments />} />
+                      <Route path="notifications" element={<Notifications />} />
+                      <Route path="search" element={<Search />} />
+                      <Route path="profile" element={<UserProfile />} />
+                      <Route path="settings" element={<Settings />} />
+                      <Route path="support" element={<Support />} />
+                      <Route path="support/history" element={<SupportHistory />} />
+                      <Route path="billboard" element={<Billboard />} />
+                      <Route path="songs" element={<MySongs />} />
+                      <Route path="songs/:id/analytics" element={<SongAnalytics />} />
+                      <Route path="song-edit/:id" element={<SongEdit />} />
+                    </Routes>
+                  </Layout>
+                </OnboardingGuard>
+              } />
+            </Routes>
+          </ArtistProvider>
         </ProtectedRoute>
       } />
 
@@ -157,6 +159,7 @@ function App() {
                         <Route path="home-page-management" element={<HomePageManagement />} />
                         <Route path="clash-management" element={<ClashManagement />} />
                         <Route path="billboard" element={<Billboard />} />
+                        <Route path="artist-approvals" element={<ArtistApprovals />} />
                       </Routes>
                     </Layout>
                   </ArtistProvider>
@@ -166,15 +169,17 @@ function App() {
 
             <Route path="/contributor/*" element={
               <ProtectedRoute requiredRole="contributor">
-                <Layout>
-                  <Routes>
-                    <Route index element={<ContributorDashboard />} />
-                    <Route path="payouts" element={<PayoutSettings />} />
-                    <Route path="settings" element={<Settings />} />
-                    <Route path="support" element={<Support />} />
-                    <Route path="notifications" element={<Notifications />} />
-                  </Routes>
-                </Layout>
+                <ArtistProvider>
+                  <Layout>
+                    <Routes>
+                      <Route index element={<ContributorDashboard />} />
+                      <Route path="payouts" element={<PayoutSettings />} />
+                      <Route path="settings" element={<Settings />} />
+                      <Route path="support" element={<Support />} />
+                      <Route path="notifications" element={<Notifications />} />
+                    </Routes>
+                  </Layout>
+                </ArtistProvider>
               </ProtectedRoute>
             } />
 

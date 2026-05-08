@@ -4,7 +4,7 @@ import {
   Music2, Users, Upload, Radio, Gift, DollarSign, LogOut, Shield,
   Settings, BarChart2, Film, Disc, Music, Tag, Menu, X, ChevronRight, LayoutGrid, CreditCard,
   MessageCircle, Bell, Search, User, Podcast, MessageSquare, TrendingUp, Video as VideoIcon,
-  Users as UsersIcon, FileText, AlertTriangle, Zap, Award, Cog, HelpCircle, ListMusic, Swords
+  Users as UsersIcon, FileText, AlertTriangle, Zap, Award, Cog, HelpCircle, ListMusic, Swords, UserCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
@@ -95,9 +95,13 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     },
     {
       path: '/admin/approvals',
-      label: 'Approvals',
+      label: 'Track Approvals',
       icon: <Shield className="h-5 w-5" />,
-      badge: '3'
+    },
+    {
+      path: '/admin/artist-approvals',
+      label: 'Artist Applications',
+      icon: <UserCheck className="h-5 w-5" />,
     },
     {
       path: '/admin/artist-management',
@@ -343,45 +347,45 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-zinc-950 overflow-hidden">
       {/* Overlay for mobile */}
       {isMobile && isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-20"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-20"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <motion.div
-        className={`fixed lg:relative z-30 h-full bg-gray-950 border-r border-gray-800/40 shadow-xl ${isMobile && !isSidebarOpen ? 'invisible' : ''}`}
+        className={`fixed lg:relative z-30 h-full bg-black border-r border-white/5 shadow-2xl ${isMobile && !isSidebarOpen ? 'invisible' : ''}`}
         variants={sidebarVariants}
         animate={isSidebarOpen ? 'open' : 'closed'}
         initial={isMobile ? 'closed' : 'open'}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="px-5 py-4 flex items-center justify-between border-b border-gray-800/40">
+          <div className="px-5 py-4 flex items-center justify-between border-b border-white/5">
             {isSidebarOpen ? (
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center bg-white/5">
                   <img src={lugmaticIcon} alt="Lugmatic" className="h-9 w-9 object-cover" />
                 </div>
                 <div>
                   <h1 className="text-base font-bold bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent tracking-tight">
                     Lugmatic
                   </h1>
-                  <p className="text-[10px] text-gray-500 font-semibold tracking-widest uppercase">Studio</p>
+                  <p className="text-[10px] text-zinc-500 font-semibold tracking-widest uppercase">Studio</p>
                 </div>
               </div>
             ) : (
-              <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center mx-auto">
+              <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center mx-auto bg-white/5">
                 <img src={lugmaticIcon} alt="Lugmatic" className="h-9 w-9 object-cover" />
               </div>
             )}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-1.5 rounded-lg bg-gray-800/70 hover:bg-gray-700 transition-all text-gray-400 hover:text-white ml-auto"
+              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all text-zinc-400 hover:text-white ml-auto"
             >
               {isSidebarOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
@@ -391,7 +395,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
           <nav className="flex-1 overflow-y-auto py-3 sidebar-nav">
             {isSidebarOpen && (
               <div className="px-5 mb-3">
-                <p className="text-[9px] font-bold text-gray-600 uppercase tracking-[0.15em]">
+                <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-[0.15em]">
                   {userRole === 'admin' ? 'Admin Panel' : (userRole === 'contributor' ? 'Contributor Hub' : 'Artist Dashboard')}
                 </p>
               </div>
@@ -405,15 +409,15 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                         onClick={() => toggleExpand(item.path)}
                         className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-150 group ${
                           isActive(item.path)
-                            ? 'bg-emerald-500/12 text-emerald-400'
-                            : 'hover:bg-gray-800/60 text-gray-400 hover:text-gray-100'
+                            ? 'bg-emerald-500/10 text-emerald-400'
+                            : 'hover:bg-white/5 text-zinc-400 hover:text-white'
                           }`}
                       >
                         <div className="flex items-center">
                           <span className={`flex-shrink-0 mr-3 p-1.5 rounded-lg transition-all duration-150 ${
                             isActive(item.path)
                               ? 'bg-emerald-500/20 text-emerald-400'
-                              : 'text-gray-500 group-hover:text-gray-300'
+                              : 'text-zinc-500 group-hover:text-zinc-300'
                           }`}>
                             {item.icon}
                           </span>
@@ -430,7 +434,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                             )}
                             <ChevronRight
                               size={14}
-                              className={`text-gray-600 transform transition-transform duration-200 ${expandedItem === item.path ? 'rotate-90' : ''}`}
+                              className={`text-zinc-600 transform transition-transform duration-200 ${expandedItem === item.path ? 'rotate-90' : ''}`}
                             />
                           </div>
                         )}
@@ -454,12 +458,12 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                                   <Link
                                     to={subItem.path}
                                     className={`flex items-center px-3 py-2 rounded-md transition-all duration-200 text-sm ${isActive(subItem.path)
-                                      ? 'text-green-400 font-medium bg-green-500/10'
-                                      : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/50'
+                                      ? 'text-emerald-400 font-medium bg-emerald-500/10'
+                                      : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
                                       }`}
                                   >
                                     {subItem.icon && (
-                                      <span className="mr-2.5 text-gray-600">
+                                      <span className="mr-2.5 text-zinc-600">
                                         {subItem.icon}
                                       </span>
                                     )}
@@ -477,15 +481,15 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                       to={item.path}
                   className={`flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-150 group ${
                     isActive(item.path)
-                      ? 'bg-emerald-500/12 text-emerald-400'
-                      : 'hover:bg-gray-800/60 text-gray-400 hover:text-gray-100'
+                      ? 'bg-emerald-500/10 text-emerald-400'
+                      : 'hover:bg-white/5 text-zinc-400 hover:text-white'
                   }`}
                     >
                       <div className="flex items-center">
                         <span className={`flex-shrink-0 mr-3 p-1.5 rounded-lg transition-all duration-150 ${
                           isActive(item.path)
                             ? 'bg-emerald-500/20 text-emerald-400'
-                            : 'text-gray-500 group-hover:text-gray-300'
+                            : 'text-zinc-500 group-hover:text-zinc-300'
                         }`}>
                           {item.icon}
                         </span>
@@ -506,12 +510,12 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
           </nav>
 
           {/* Footer */}
-          <div className="border-t border-gray-800/40 p-3">
+          <div className="border-t border-white/5 p-3">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center px-3 py-2.5 rounded-xl text-gray-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-150 group"
+              className="w-full flex items-center px-3 py-2.5 rounded-xl text-zinc-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-150 group"
             >
-              <LogOut className="h-4.5 w-4.5 mr-3 text-gray-600 group-hover:text-red-400 transition-colors flex-shrink-0" />
+              <LogOut className="h-4.5 w-4.5 mr-3 text-zinc-600 group-hover:text-red-400 transition-colors flex-shrink-0" />
               {isSidebarOpen && <span className="text-sm font-medium">Logout</span>}
             </button>
           </div>
@@ -522,14 +526,14 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       {isMobile && !isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(true)}
-          className="fixed top-4 left-4 z-20 p-3 rounded-xl bg-white/80 backdrop-blur-xl shadow-lg hover:bg-white/90 transition-all duration-200"
+          className="fixed top-4 left-4 z-20 p-3 rounded-xl bg-black/80 backdrop-blur-xl shadow-2xl border border-white/5 hover:bg-black/90 transition-all duration-200"
         >
-          <Menu size={20} />
+          <Menu size={20} className="text-white" />
         </button>
       )}
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto bg-gray-50 text-gray-900 dashboard-content">
+      <div className="flex-1 overflow-auto bg-zinc-950 text-zinc-100 dashboard-content">
         <main className={`p-5 ${isMobile ? 'pt-16' : ''}`}>
           {children}
         </main>
