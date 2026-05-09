@@ -28,22 +28,18 @@ const modalVariants = {
 };
 
 // Status badge with improved styling
+const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+
 const StatusBadge: React.FC<{ status?: string }> = ({ status }) => {
   const normalizedStatus = (status || 'pending').toLowerCase();
   const styles: Record<string, string> = {
-    active: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20',
-    pending: 'bg-amber-50 text-amber-700 ring-1 ring-amber-600/20',
-    inactive: 'bg-red-50 text-red-700 ring-1 ring-red-600/20',
-  };
-  const icons: Record<string, React.ReactNode> = {
-    active: <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5" />,
-    pending: <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5" />,
-    inactive: <span className="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5" />,
+    active: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20',
+    pending: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20',
+    inactive: 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20',
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${styles[normalizedStatus] || 'bg-gray-100 text-gray-700 ring-1 ring-gray-600/20'} capitalize`}>
-      {icons[normalizedStatus] || null}
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${styles[normalizedStatus] || 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 border border-zinc-200 dark:border-white/10'}`}>
       {status || 'pending'}
     </span>
   );
@@ -51,11 +47,11 @@ const StatusBadge: React.FC<{ status?: string }> = ({ status }) => {
 
 const ModalContainer: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <motion.div
-    className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+    className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4"
     {...fadeIn}
   >
     <motion.div
-      className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4 border border-gray-100"
+      className={`${card} w-full max-w-md shadow-2xl overflow-hidden`}
       variants={modalVariants}
       initial="initial"
       animate="animate"
@@ -66,26 +62,6 @@ const ModalContainer: React.FC<{ children: React.ReactNode }> = ({ children }) =
   </motion.div>
 );
 
-// Stat card for header
-const StatCard: React.FC<{
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  color: string;
-  bgColor: string;
-}> = ({ label, value, icon, color, bgColor }) => (
-  <div className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-    <div className={`p-2.5 rounded-lg ${bgColor}`}>
-      <span className={color}>{icon}</span>
-    </div>
-    <div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-xs text-gray-500 font-medium">{label}</p>
-    </div>
-  </div>
-);
-
-// Artist row component
 const ArtistRow = React.memo(({
   artist,
   onView,
@@ -130,64 +106,57 @@ const ArtistRow = React.memo(({
   const initials = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
   return (
-    <tr className="hover:bg-gray-50/80 transition-colors group">
-      <td className="px-5 py-4 whitespace-nowrap">
-        <div className="flex items-center gap-3">
-          <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center ring-2 ring-white shadow-sm">
+    <tr className="hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors group">
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="flex items-center gap-4">
+          <div className="flex-shrink-0 h-10 w-10 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-white/10">
             {avatarSrc ? (
-              <img className="h-10 w-10 rounded-full object-cover" src={avatarSrc} alt={displayName} loading="lazy" />
+              <img className="h-full w-full object-cover" src={avatarSrc} alt={displayName} loading="lazy" />
             ) : (
-              <span className="text-sm font-semibold text-white">{initials}</span>
+              <span className="text-xs font-bold text-zinc-400">{initials}</span>
             )}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
+              <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">{displayName}</p>
               {artist.isVerified && (
-                <BadgeCheck className="h-4 w-4 text-blue-500 fill-blue-50/50" />
+                <BadgeCheck className="h-4 w-4 text-emerald-500" />
               )}
             </div>
-            <p className="text-xs text-gray-500 truncate">{displayEmail}</p>
+            <p className="text-[11px] font-medium text-zinc-500 truncate">{displayEmail}</p>
           </div>
         </div>
       </td>
-      <td className="px-5 py-4 whitespace-nowrap">
-        <div className="flex flex-wrap gap-1">
-          {displayGenres.length > 0 ? displayGenres.slice(0, 2).map((g, i) => (
-            <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="flex flex-wrap gap-1.5">
+          {displayGenres.length > 0 ? displayGenres.slice(0, 1).map((g, i) => (
+            <span key={i} className="text-[10px] font-bold uppercase tracking-wide bg-zinc-100 dark:bg-zinc-800 text-zinc-500 px-2 py-0.5 rounded">
               {g}
             </span>
           )) : (
-            <span className="text-sm text-gray-400">--</span>
-          )}
-          {displayGenres.length > 2 && (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-500">
-              +{displayGenres.length - 2}
-            </span>
+            <span className="text-xs text-zinc-400">--</span>
           )}
         </div>
       </td>
-      <td className="px-5 py-4 whitespace-nowrap">
+      <td className="px-6 py-4 whitespace-nowrap">
         <StatusBadge status={displayStatus} />
       </td>
-      <td className="px-5 py-4 whitespace-nowrap text-sm text-gray-500">
+      <td className="px-6 py-4 whitespace-nowrap text-[11px] font-medium text-zinc-400">
         {displayDate}
       </td>
-      <td className="px-5 py-4 whitespace-nowrap text-right">
+      <td className="px-6 py-4 whitespace-nowrap text-right">
         {displayStatus === 'pending' && onApprove && onReject ? (
           <div className="flex justify-end gap-2">
             <button
               onClick={onApprove}
-              className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition-colors text-xs font-medium ring-1 ring-emerald-600/20"
+              className="px-3 py-1.5 bg-emerald-500 text-white rounded text-[10px] font-bold uppercase tracking-wider hover:bg-emerald-600 transition-colors"
             >
-              <CheckCircle className="h-3.5 w-3.5" />
               Approve
             </button>
             <button
               onClick={onReject}
-              className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-xs font-medium ring-1 ring-red-600/20"
+              className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
             >
-              <XCircle className="h-3.5 w-3.5" />
               Reject
             </button>
           </div>
@@ -195,35 +164,35 @@ const ArtistRow = React.memo(({
           <div className="relative">
             <button
               onClick={() => setShowActions(!showActions)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors opacity-0 group-hover:opacity-100"
+              className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all opacity-0 group-hover:opacity-100"
             >
               <MoreHorizontal className="h-4 w-4" />
             </button>
             {showActions && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowActions(false)} />
-                <div className="absolute right-0 top-8 z-20 w-36 bg-white rounded-xl shadow-lg border border-gray-100 py-1 animate-in fade-in slide-in-from-top-1">
-                  <button onClick={() => { onView(); setShowActions(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                    <Eye className="h-3.5 w-3.5 text-gray-400" /> View
+                <div className="absolute right-0 top-10 z-20 w-40 bg-white dark:bg-zinc-800 rounded-lg shadow-2xl border border-zinc-200 dark:border-white/10 py-1 overflow-hidden animate-in fade-in slide-in-from-top-1">
+                  <button onClick={() => { onView(); setShowActions(false); }} className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors">
+                    <Eye className="h-4 w-4" /> View Details
                   </button>
-                  <button onClick={() => { onEdit(); setShowActions(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                    <Pencil className="h-3.5 w-3.5 text-gray-400" /> Edit
+                  <button onClick={() => { onEdit(); setShowActions(false); }} className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors">
+                    <Pencil className="h-4 w-4" /> Edit Profile
                   </button>
                   {onVerify && (
                     <button
                       onClick={() => { onVerify(!artist.isVerified); setShowActions(false); }}
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${artist.isVerified ? 'text-amber-600 hover:bg-amber-50' : 'text-blue-600 hover:bg-blue-50'}`}
+                      className={`w-full flex items-center gap-2 px-4 py-2 text-xs font-bold transition-colors ${artist.isVerified ? 'text-amber-500 hover:bg-amber-500/10' : 'text-emerald-500 hover:bg-emerald-500/10'}`}
                     >
                       {artist.isVerified ? (
-                        <><ShieldAlert className="h-3.5 w-3.5" /> Unverify</>
+                        <><ShieldAlert className="h-4 w-4" /> Unverify</>
                       ) : (
-                        <><ShieldCheck className="h-3.5 w-3.5" /> Verify</>
+                        <><ShieldCheck className="h-4 w-4" /> Verify Artist</>
                       )}
                     </button>
                   )}
-                  <hr className="my-1 border-gray-100" />
-                  <button onClick={() => { onDelete(); setShowActions(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                    <Trash2 className="h-3.5 w-3.5" /> Delete
+                  <div className="h-px bg-zinc-100 dark:bg-white/5 my-1" />
+                  <button onClick={() => { onDelete(); setShowActions(false); }} className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-500/10 transition-colors">
+                    <Trash2 className="h-4 w-4" /> Delete Artist
                   </button>
                 </div>
               </>
@@ -234,27 +203,6 @@ const ArtistRow = React.memo(({
     </tr>
   );
 });
-
-const FormField: React.FC<{
-  name: string;
-  type?: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}> = ({ name, type = 'text', value, onChange }) => (
-  <div className="mb-4">
-    <label className="block text-sm font-medium text-gray-700 mb-1.5 capitalize">
-      {name}
-    </label>
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-gray-50/50 text-sm transition-all"
-      required
-    />
-  </div>
-);
 
 const ArtistManagement: React.FC = () => {
 
@@ -279,12 +227,6 @@ const ArtistManagement: React.FC = () => {
   const navigate = useNavigate();
   const { approveArtist, rejectArtist, verifyArtist } = useArtistContext();
 
-  // Update filter params with debounce
-  useEffect(() => {
-    const timer = setTimeout(() => { }, 300);
-    return () => clearTimeout(timer);
-  }, [searchTerm, filterStatus]);
-
   // Filtered artists
   const filteredArtists = useMemo(() => {
     if (!artists) return [];
@@ -303,7 +245,7 @@ const ArtistManagement: React.FC = () => {
 
   // Stats
   const stats = useMemo(() => {
-    if (!artists) return { total: 0, active: 0, pending: 0, inactive: 0 };
+    if (!artists) return { total: 0, active: 0, pending: 0, verified: 0 };
     return {
       total: artists.length,
       active: artists.filter(a => a.status === 'active' || a.isApproved).length,
@@ -401,143 +343,79 @@ const ArtistManagement: React.FC = () => {
     await verifyArtist(artistId, isVerified);
   }, [verifyArtist]);
 
-  const ArtistTable = useMemo(() => (
-    <div className="overflow-x-auto">
-      <table className="min-w-full">
-        <thead>
-          <tr className="border-b border-gray-100">
-            <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Artist</th>
-            <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Genre</th>
-            <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-            <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Joined</th>
-            <th className="px-5 py-3.5 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-50">
-          {filteredArtists.length > 0 ? (
-            filteredArtists.map((artist) => {
-              const displayStatus = artist.status || (artist.isApproved ? 'active' : 'pending');
-              const isPending = displayStatus === 'pending';
-              return (
-                <ArtistRow
-                  key={(artist._id as string) || (artist as any).id}
-                  artist={artist}
-                  onView={() => handleViewDetails(artist)}
-                  onEdit={() => handleEditArtist(artist)}
-                  onDelete={() => handleOpenModal('delete', artist)}
-                  onApprove={isPending ? () => handleApproveArtist(artist) : undefined}
-                  onReject={isPending ? () => handleRejectArtist(artist) : undefined}
-                  onVerify={(isVerified) => handleVerifyArtist(artist, isVerified)}
-                />
-              );
-            })
-          ) : (
-            <tr>
-              <td colSpan={5} className="px-5 py-16 text-center">
-                <div className="flex flex-col items-center">
-                  <div className="p-3 rounded-full bg-gray-100 mb-3">
-                    <Music2 className="h-6 w-6 text-gray-400" />
-                  </div>
-                  <p className="text-sm font-medium text-gray-500">No artists found</p>
-                  <p className="text-xs text-gray-400 mt-1">Try adjusting your search or filters</p>
-                </div>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+  const StatCard_ = ({
+    label, value, icon: Icon, color, bgColor
+  }: {
+    label: string, value: number, icon: any, color: string, bgColor: string
+  }) => (
+    <div className={`${card} p-5`}>
+      <div className="flex items-center justify-between mb-4">
+        <div className={`p-2 rounded ${bgColor}`}>
+          <Icon className={`h-4 w-4 ${color}`} />
+        </div>
+        <ArrowUpRight className="h-3.5 w-3.5 text-zinc-400" />
+      </div>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">{label}</p>
+      <p className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">{value.toLocaleString()}</p>
     </div>
-  ), [filteredArtists, handleOpenModal, handleViewDetails, handleApproveArtist, handleRejectArtist]);
-
-  const ArtistForm = useMemo(() => (
-    <form onSubmit={handleSubmit}>
-      <FormField name="name" value={formData.name || ''} onChange={handleInputChange} />
-      <FormField name="email" type="email" value={formData.email || ''} onChange={handleInputChange} />
-      <FormField name="genre" value={formData.genre || ''} onChange={handleInputChange} />
-
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
-        <select
-          name="status"
-          value={formData.status || 'pending'}
-          onChange={handleInputChange}
-          className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-gray-50/50 text-sm transition-all"
-          required
-        >
-          <option value="active">Active</option>
-          <option value="pending">Pending</option>
-          <option value="suspended">Suspended</option>
-        </select>
-      </div>
-
-      <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
-        <button
-          type="button"
-          onClick={handleCloseModal}
-          className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-        >
-          Cancel
-        </button>
-        <Link
-          to="/artist/add"
-          className="px-4 py-2.5 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors shadow-sm"
-        >
-          Add Artist
-        </Link>
-      </div>
-    </form>
-  ), [formData, handleInputChange, handleSubmit, handleCloseModal]);
+  );
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-5xl mx-auto pb-16 space-y-6">
       <Toaster position="top-right" toastOptions={{ className: 'text-sm' }} />
 
       {loading && <Preloader isVisible={loading} text="Loading artists..." />}
 
       {/* Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Artist Management</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage and monitor all artists on the platform</p>
+      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4`}>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Users className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">
+              Artist Management
+            </h1>
+            <p className="text-sm text-zinc-500 mt-0.5">
+              Platform-wide artist performance and status
+            </p>
+          </div>
         </div>
         <Link
           to="/admin/artist-add"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors shadow-sm shrink-0"
+          className="px-6 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold rounded hover:opacity-90 transition-opacity flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
-          Add Artist
+          Add New Artist
         </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <StatCard label="Total Artists" value={stats.total} icon={<Users className="h-5 w-5" />} color="text-blue-600" bgColor="bg-blue-50" />
-        <StatCard label="Active" value={stats.active} icon={<UserCheck className="h-5 w-5" />} color="text-emerald-600" bgColor="bg-emerald-50" />
-        <StatCard label="Pending" value={stats.pending} icon={<Clock className="h-5 w-5" />} color="text-amber-600" bgColor="bg-amber-50" />
-        <StatCard label="Verified" value={stats.verified} icon={<BadgeCheck className="h-5 w-5" />} color="text-blue-600" bgColor="bg-blue-50" />
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard_ label="Total Artists" value={stats.total} icon={Users} color="text-blue-600 dark:text-blue-400" bgColor="bg-blue-50 dark:bg-blue-500/10" />
+        <StatCard_ label="Active" value={stats.active} icon={UserCheck} color="text-emerald-600 dark:text-emerald-400" bgColor="bg-emerald-50 dark:bg-emerald-500/10" />
+        <StatCard_ label="Pending" value={stats.pending} icon={Clock} color="text-amber-600 dark:text-amber-400" bgColor="bg-amber-50 dark:bg-amber-500/10" />
+        <StatCard_ label="Verified" value={stats.verified} icon={BadgeCheck} color="text-emerald-600 dark:text-emerald-400" bgColor="bg-emerald-50 dark:bg-emerald-500/10" />
       </div>
 
       {/* Table Card */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        {/* Action Bar */}
-        <div className="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+      <div className={card}>
+        <div className="px-6 py-4 border-b border-zinc-100 dark:border-white/[0.06] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="relative flex-1 md:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
               <input
                 type="text"
                 placeholder="Search artists..."
-                className="w-full sm:w-64 pl-9 pr-4 py-2 rounded-lg border border-gray-200 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 text-sm text-gray-900 transition-all"
+                className="w-full pl-9 pr-4 py-2 rounded bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/[0.08] text-sm text-zinc-900 dark:text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            {/* Status Filter */}
             <div className="relative">
-              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
               <select
-                className="w-full sm:w-40 pl-9 pr-8 py-2 rounded-lg border border-gray-200 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 text-sm text-gray-900 appearance-none transition-all"
+                className="pl-9 pr-8 py-2 rounded bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/[0.08] text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wide appearance-none cursor-pointer focus:outline-none focus:border-emerald-500"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
               >
@@ -546,74 +424,87 @@ const ArtistManagement: React.FC = () => {
                 <option value="pending">Pending</option>
                 <option value="suspended">Suspended</option>
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
-            </div>
-            {/* Verification Filter */}
-            <div className="relative">
-              <BadgeCheck className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <select
-                className="w-full sm:w-40 pl-9 pr-8 py-2 rounded-lg border border-gray-200 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 text-sm text-gray-900 appearance-none transition-all"
-                value={filterVerified.toString()}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setFilterVerified(val === 'all' ? 'all' : val === 'true');
-                }}
-              >
-                <option value="all">All Verification</option>
-                <option value="true">Verified Only</option>
-                <option value="false">Unverified Only</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400 pointer-events-none" />
             </div>
           </div>
-          <p className="text-xs text-gray-400 font-medium">
-            {filteredArtists.length} {filteredArtists.length === 1 ? 'artist' : 'artists'}
-          </p>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+            {filteredArtists.length} Total Results
+          </span>
         </div>
 
-        {/* Table */}
-        {ArtistTable}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-zinc-100 dark:border-white/[0.04] bg-zinc-50/50 dark:bg-zinc-800/20">
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Artist</th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Genre</th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Status</th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Joined</th>
+                <th className="px-6 py-4 text-right text-[11px] font-bold uppercase tracking-widest text-zinc-500">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
+              {filteredArtists.length > 0 ? (
+                filteredArtists.map((artist) => {
+                  const displayStatus = artist.status || (artist.isApproved ? 'active' : 'pending');
+                  const isPending = displayStatus === 'pending';
+                  return (
+                    <ArtistRow
+                      key={(artist._id as string) || (artist as any).id}
+                      artist={artist}
+                      onView={() => handleViewDetails(artist)}
+                      onEdit={() => handleEditArtist(artist)}
+                      onDelete={() => handleOpenModal('delete', artist)}
+                      onApprove={isPending ? () => handleApproveArtist(artist) : undefined}
+                      onReject={isPending ? () => handleRejectArtist(artist) : undefined}
+                      onVerify={(isVerified) => handleVerifyArtist(artist, isVerified)}
+                    />
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={5} className="px-6 py-20 text-center">
+                    <div className="flex flex-col items-center">
+                      <div className="w-14 h-14 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center mb-4">
+                        <Music2 className="h-6 w-6 text-zinc-400" />
+                      </div>
+                      <h3 className="font-semibold text-zinc-700 dark:text-zinc-300">No artists found</h3>
+                      <p className="text-sm text-zinc-400 mt-1">Try adjusting your filters or search criteria.</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      {/* Add Modal */}
-      <AnimatePresence>
-        {modalOpen === 'add' && (
-          <ModalContainer>
-            <h2 className="text-lg font-bold text-gray-900 mb-4">
-              Add New Artist
-            </h2>
-            {ArtistForm}
-          </ModalContainer>
-        )}
-      </AnimatePresence>
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
         {modalOpen === 'delete' && selectedArtist && (
           <ModalContainer>
-            <div className="text-center mb-6">
-              <div className="mx-auto w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
-                <Trash2 className="h-5 w-5 text-red-500" />
+            <div className="px-8 py-10 text-center">
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-6">
+                <Trash2 className="h-8 w-8 text-rose-500" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">Delete Artist</h2>
-              <p className="text-sm text-gray-500 mt-2">
-                Are you sure you want to delete <span className="font-medium text-gray-700">"{selectedArtist.name}"</span>? This action cannot be undone.
+              <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Delete Artist</h2>
+              <p className="text-zinc-500 text-sm mb-8 leading-relaxed">
+                Are you sure you want to delete <span className="font-bold text-zinc-900 dark:text-white">"{selectedArtist.name}"</span>? This will permanently remove their data from the platform.
               </p>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleCloseModal}
-                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteArtist}
-                className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium hover:bg-red-700 transition-colors shadow-sm"
-              >
-                Delete Artist
-              </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={handleCloseModal}
+                  className="flex-1 px-6 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteArtist}
+                  className="flex-1 px-6 py-3 bg-rose-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-rose-600 transition-colors shadow-lg shadow-rose-500/20"
+                >
+                  Delete Now
+                </button>
+              </div>
             </div>
           </ModalContainer>
         )}
@@ -621,5 +512,8 @@ const ArtistManagement: React.FC = () => {
     </div>
   );
 };
+
+export default ArtistManagement;
+
 
 export default ArtistManagement;

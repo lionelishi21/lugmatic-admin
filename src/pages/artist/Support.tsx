@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  HelpCircle, 
-  MessageCircle, 
-  LifeBuoy, 
-  Send, 
-  Loader2, 
-  FileText, 
+import {
+  HelpCircle,
+  MessageCircle,
+  Send,
+  Loader2,
+  FileText,
   ChevronRight,
   Search,
   BookOpen,
@@ -44,65 +43,74 @@ export default function Support() {
     { q: "How do I start a Live Stream?", a: "Go to the Live section, set your title, and click Go Live. Make sure your browser has camera permissions." }
   ];
 
-  const inputClass = "w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-sm";
-  const labelClass = "block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1";
+  const inputClass = "w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/[0.08] rounded text-zinc-900 dark:text-white text-sm px-3 py-2 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-1.5";
 
   return (
-    <div className="max-w-5xl mx-auto pb-20">
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg">
-            <LifeBuoy className="h-5 w-5 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Artist Support</h1>
-        </div>
-        <p className="text-gray-500 text-sm ml-14">We're here to help you succeed on Lugmatic</p>
+    <div className="max-w-5xl mx-auto pb-16 space-y-6">
+
+      {/* Header */}
+      <div>
+        <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">Artist Support</h1>
+        <p className="text-sm text-zinc-500 mt-0.5">We're here to help you succeed on Lugmatic</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
         {/* Left Column: FAQ & Resources */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-blue-600" />
-              Quick FAQ
-            </h3>
-            <div className="space-y-4">
+
+          {/* FAQ Card */}
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-white/[0.06]">
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                <span className="text-sm font-semibold text-zinc-900 dark:text-white">Quick FAQ</span>
+              </div>
+            </div>
+            <div className="p-5 space-y-4">
               {faqs.map((faq, i) => (
                 <div key={i} className="group">
-                  <p className="text-sm font-bold text-gray-800 group-hover:text-blue-600 transition-colors flex items-center gap-1">
-                    <HelpCircle className="h-3.5 w-3.5 opacity-50" />
+                  <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+                    <HelpCircle className="h-3.5 w-3.5 text-zinc-400 flex-shrink-0" />
                     {faq.q}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">{faq.a}</p>
+                  <p className="text-xs text-zinc-500 mt-1 leading-relaxed pl-5">{faq.a}</p>
                 </div>
               ))}
+              <button className="w-full mt-2 py-2 border border-dashed border-zinc-200 dark:border-white/[0.08] text-zinc-500 dark:text-zinc-400 rounded text-xs font-semibold hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center justify-center gap-2">
+                View All Documentation
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
             </div>
-            <button className="w-full mt-6 py-2.5 border border-dashed border-gray-200 text-gray-500 rounded-xl text-xs font-bold hover:border-blue-400 hover:text-blue-600 transition-all flex items-center justify-center gap-2">
-              View All Documentation
-              <ChevronRight className="h-3.5 w-3.5" />
-            </button>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-xl shadow-blue-200">
-            <Zap className="h-6 w-6 text-blue-300 mb-4" />
-            <h3 className="text-lg font-bold mb-2 font-display">Artist Academy</h3>
-            <p className="text-sm text-blue-100 mb-6 leading-relaxed">Learn how to grow your fanbase and maximize your earnings with our exclusive guides.</p>
-            <button className="px-5 py-2 bg-white text-blue-600 rounded-xl text-sm font-bold hover:bg-blue-50 transition-colors">
+          {/* Artist Academy Card */}
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg p-5">
+            <div className="w-10 h-10 rounded flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 mb-4">
+              <Zap className="h-5 w-5" />
+            </div>
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-1">Artist Academy</h3>
+            <p className="text-sm text-zinc-500 mb-4 leading-relaxed">Learn how to grow your fanbase and maximize your earnings with our exclusive guides.</p>
+            <button className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded text-xs font-semibold hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
               Start Learning
             </button>
           </div>
         </div>
 
-        {/* Right Column: Ticket Form */}
+        {/* Right Column: Ticket Form + Links */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <MessageCircle className="h-5 w-5 text-gray-400" />
-              Submit a Request
-            </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Submit a Request Card */}
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-white/[0.06]">
+              <div className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4 text-zinc-400" />
+                <span className="text-sm font-semibold text-zinc-900 dark:text-white">Submit a Request</span>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-5 space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label className={labelClass}>Category</label>
@@ -112,8 +120,8 @@ export default function Support() {
                     className={inputClass}
                   >
                     <option value="technical">Technical Issue</option>
-                    <option value="billing">Earnings & Payouts</option>
-                    <option value="copyright">Copyright & Content</option>
+                    <option value="billing">Earnings &amp; Payouts</option>
+                    <option value="copyright">Copyright &amp; Content</option>
                     <option value="feature">Feature Request</option>
                     <option value="other">Other</option>
                   </select>
@@ -143,15 +151,15 @@ export default function Support() {
                 />
               </div>
 
-              <div className="pt-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[10px] text-gray-400 font-medium">
-                  <Mail className="h-3 h-3" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-[10px] text-zinc-400 font-medium">
+                  <Mail className="h-3 w-3" />
                   Response time: Usually within 24 hours
                 </div>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50"
                 >
                   {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   Submit Ticket
@@ -160,30 +168,31 @@ export default function Support() {
             </form>
           </div>
 
+          {/* Quick Links */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Link 
+            <Link
               to="/artist/support/history"
-              className="bg-gray-50 border border-gray-100 rounded-2xl p-5 flex items-center gap-4 hover:border-blue-200 transition-all group"
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg p-5 flex items-center gap-4 hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors group"
             >
-              <div className="p-2 bg-white rounded-xl shadow-sm group-hover:text-blue-600">
-                <FileText className="h-5 w-5 text-gray-500 group-hover:text-blue-600" />
+              <div className="w-10 h-10 rounded flex items-center justify-center bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <FileText className="h-5 w-5" />
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-800">Support History</p>
-                <p className="text-xs text-gray-500">View your active tickets</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">Support History</p>
+                <p className="text-xs text-zinc-500">View your active tickets</p>
               </div>
-              <ChevronRight className="h-4 w-4 text-gray-300 ml-auto group-hover:text-blue-600" />
+              <ChevronRight className="h-4 w-4 text-zinc-300 dark:text-zinc-600 group-hover:text-blue-500 transition-colors" />
             </Link>
-            
-            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 flex items-center gap-4">
-              <div className="p-2 bg-white rounded-xl shadow-sm">
-                <Search className="h-5 w-5 text-gray-500" />
+
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg p-5 flex items-center gap-4">
+              <div className="w-10 h-10 rounded flex items-center justify-center bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
+                <Search className="h-5 w-5" />
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-800">Help Center</p>
-                <p className="text-xs text-gray-500">Search for solutions</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">Help Center</p>
+                <p className="text-xs text-zinc-500">Search for solutions</p>
               </div>
-              <ChevronRight className="h-4 w-4 text-gray-300 ml-auto" />
+              <ChevronRight className="h-4 w-4 text-zinc-300 dark:text-zinc-600" />
             </div>
           </div>
         </div>

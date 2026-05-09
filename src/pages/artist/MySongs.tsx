@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
   Music2, Search, BarChart2, Edit2, Trash2,
-  AlertCircle, Plus, Filter, X
+  AlertCircle, Plus, X
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { RootState } from '../../store';
@@ -16,11 +16,26 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 const STATUS_OPTIONS = ['all', 'approved', 'pending', 'rejected'] as const;
 
-const statusConfig: Record<string, { label: string; cls: string }> = {
-  approved: { label: 'Approved',  cls: 'badge badge-green'  },
-  pending:  { label: 'Pending',   cls: 'badge badge-amber'  },
-  rejected: { label: 'Rejected',  cls: 'badge badge-red'    },
-  default:  { label: 'Unknown',   cls: 'badge badge-gray'   },
+const statusConfig: Record<string, { label: string; color: string }> = {
+  approved: { label: 'Approved', color: 'emerald' },
+  pending:  { label: 'Pending',  color: 'amber'   },
+  rejected: { label: 'Rejected', color: 'red'     },
+  default:  { label: 'Unknown',  color: 'zinc'    },
+};
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const sc = statusConfig[status] ?? statusConfig.default;
+  const colorMap: Record<string, string> = {
+    emerald: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400',
+    amber:   'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400',
+    red:     'bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400',
+    zinc:    'bg-zinc-50 dark:bg-zinc-500/10 text-zinc-700 dark:text-zinc-400',
+  };
+  return (
+    <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${colorMap[sc.color]}`}>
+      {sc.label}
+    </span>
+  );
 };
 
 export default function MySongs() {
@@ -69,54 +84,55 @@ export default function MySongs() {
   });
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="max-w-5xl mx-auto pb-16 space-y-6">
 
-      {/* ── Header ── */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="page-header-title">My Library</h1>
-          <p className="page-header-subtitle">Manage your tracks and view performance analytics</p>
+          <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">My Library</h1>
+          <p className="text-sm text-zinc-500 mt-0.5">Manage your tracks and view performance analytics</p>
         </div>
         <button
           onClick={() => navigate('/artist/upload')}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm rounded-xl transition-all shadow-sm hover:shadow-emerald-200 hover:-translate-y-0.5 self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded text-sm font-semibold hover:bg-emerald-700 transition-colors self-start sm:self-auto"
         >
           <Plus className="h-4 w-4" />
           Upload Track
         </button>
       </div>
 
-      {/* ── Filter Bar ── */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col sm:flex-row gap-3">
+      {/* Filter Bar */}
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg p-4 flex flex-col sm:flex-row gap-3">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 h-4 w-4" />
           <input
             type="text"
             placeholder="Search tracks…"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-9 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all bg-gray-50 focus:bg-white"
+            className="w-full pl-9 pr-8 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/[0.08] rounded text-zinc-900 dark:text-white text-sm px-3 py-2 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 pl-9"
           />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
             >
               <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
-        {/* Status Filter Pills */}
-        <div className="flex items-center gap-1.5 bg-gray-50 rounded-xl p-1 border border-gray-100 self-start sm:self-auto">
+
+        {/* Status Filter Tabs */}
+        <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 rounded p-0.5 self-start sm:self-auto">
           {STATUS_OPTIONS.map(s => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-4 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all ${
+              className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wide transition-colors ${
                 statusFilter === s
-                  ? 'bg-gray-900 text-white shadow-sm'
-                  : 'text-gray-500 hover:text-gray-800 hover:bg-white'
+                  ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
               }`}
             >
               {s}
@@ -125,28 +141,28 @@ export default function MySongs() {
         </div>
       </div>
 
-      {/* ── Track count ── */}
+      {/* Track count */}
       {!loading && (
-        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider px-1">
+        <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest px-1">
           {filteredSongs.length} {filteredSongs.length === 1 ? 'track' : 'tracks'}
           {statusFilter !== 'all' && ` · ${statusFilter}`}
           {searchTerm && ` · "${searchTerm}"`}
         </p>
       )}
 
-      {/* ── Table ── */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      {/* Table */}
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg overflow-hidden">
         {loading ? (
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
             {[1, 2, 3, 4, 5].map(i => (
               <div key={i} className="flex items-center gap-4 p-5">
-                <div className="skeleton w-12 h-12 rounded-xl" />
+                <Skeleton className="w-11 h-11 rounded" />
                 <div className="flex-1 space-y-2">
-                  <div className="skeleton h-3.5 w-1/3" />
-                  <div className="skeleton h-2.5 w-1/5" />
+                  <Skeleton className="h-3.5 w-1/3" />
+                  <Skeleton className="h-2.5 w-1/5" />
                 </div>
-                <div className="skeleton h-5 w-16 rounded-full" />
-                <div className="skeleton h-5 w-12 rounded-full" />
+                <Skeleton className="h-5 w-16 rounded" />
+                <Skeleton className="h-5 w-12 rounded" />
               </div>
             ))}
           </div>
@@ -154,116 +170,113 @@ export default function MySongs() {
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/80">
-                  <th className="px-5 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Track</th>
-                  <th className="px-5 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-5 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider hidden md:table-cell">Source</th>
-                  <th className="px-5 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Plays</th>
-                  <th className="px-5 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Uploaded</th>
-                  <th className="px-5 py-3.5 text-right text-[11px] font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                <tr className="border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/80 dark:bg-white/[0.02]">
+                  <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Track</th>
+                  <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Status</th>
+                  <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest text-zinc-500 hidden md:table-cell">Source</th>
+                  <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest text-zinc-500 hidden sm:table-cell">Plays</th>
+                  <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest text-zinc-500 hidden sm:table-cell">Uploaded</th>
+                  <th className="px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-widest text-zinc-500">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
                 <AnimatePresence initial={false}>
-                  {filteredSongs.map((track, i) => {
-                    const sc = statusConfig[track.status] ?? statusConfig.default;
-                    return (
-                      <motion.tr
-                        key={track._id}
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ delay: i * 0.03 }}
-                        className="hover:bg-gray-50/70 transition-colors group"
-                      >
-                        {/* Track */}
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={track.coverArtUrl || track.coverArt || '/default-track-cover.jpg'}
-                              alt={track.name}
-                              className="w-11 h-11 rounded-xl object-cover shadow-sm flex-shrink-0"
-                              onError={e => { (e.target as HTMLImageElement).src = '/default-track-cover.jpg'; }}
-                            />
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold text-gray-900 truncate max-w-[200px]">{track.name}</p>
-                              {track.status === 'rejected' && (
-                                <p className="text-[11px] text-red-600 font-medium flex items-center gap-1 mt-0.5">
-                                  <AlertCircle className="h-3 w-3" />
-                                  Needs attention
-                                </p>
-                              )}
-                            </div>
+                  {filteredSongs.map((track, i) => (
+                    <motion.tr
+                      key={track._id}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors"
+                    >
+                      {/* Track */}
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={track.coverArtUrl || track.coverArt || '/default-track-cover.jpg'}
+                            alt={track.name}
+                            className="w-11 h-11 rounded object-cover flex-shrink-0"
+                            onError={e => { (e.target as HTMLImageElement).src = '/default-track-cover.jpg'; }}
+                          />
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate max-w-[200px]">{track.name}</p>
+                            {track.status === 'rejected' && (
+                              <p className="text-[11px] text-red-600 dark:text-red-400 font-medium flex items-center gap-1 mt-0.5">
+                                <AlertCircle className="h-3 w-3" />
+                                Needs attention
+                              </p>
+                            )}
                           </div>
-                        </td>
+                        </div>
+                      </td>
 
-                        {/* Status */}
-                        <td className="px-5 py-3.5">
-                          <span className={sc.cls}>{sc.label}</span>
-                        </td>
+                      {/* Status */}
+                      <td className="px-5 py-3.5">
+                        <StatusBadge status={track.status} />
+                      </td>
 
-                        {/* Source */}
-                        <td className="px-5 py-3.5 hidden md:table-cell">
-                          {/* @ts-ignore */}
-                          {track.uploadSource === 'admin' ? (
-                            <span className="badge badge-blue">Admin</span>
-                          ) : (
-                            <span className="badge badge-gray">Self</span>
-                          )}
-                        </td>
+                      {/* Source */}
+                      <td className="px-5 py-3.5 hidden md:table-cell">
+                        {/* @ts-ignore */}
+                        {track.uploadSource === 'admin' ? (
+                          <span className="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400">Admin</span>
+                        ) : (
+                          <span className="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-zinc-50 dark:bg-zinc-500/10 text-zinc-700 dark:text-zinc-400">Self</span>
+                        )}
+                      </td>
 
-                        {/* Plays */}
-                        <td className="px-5 py-3.5 hidden sm:table-cell">
-                          <span className="text-sm font-semibold text-gray-800 tabular-nums">
-                            {(track.playCount ?? 0).toLocaleString()}
-                          </span>
-                        </td>
+                      {/* Plays */}
+                      <td className="px-5 py-3.5 hidden sm:table-cell">
+                        <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 tabular-nums">
+                          {(track.playCount ?? 0).toLocaleString()}
+                        </span>
+                      </td>
 
-                        {/* Date */}
-                        <td className="px-5 py-3.5 text-sm text-gray-500 hidden sm:table-cell">
-                          {format(new Date(track.createdAt || Date.now()), 'MMM d, yyyy')}
-                        </td>
+                      {/* Date */}
+                      <td className="px-5 py-3.5 text-sm text-zinc-500 hidden sm:table-cell">
+                        {format(new Date(track.createdAt || Date.now()), 'MMM d, yyyy')}
+                      </td>
 
-                        {/* Actions */}
-                        <td className="px-5 py-3.5 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <button
-                              onClick={() => navigate(`/artist/songs/${track._id}/analytics`)}
-                              className="icon-btn icon-btn-purple"
-                              title="Analytics"
-                            >
-                              <BarChart2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => navigate(`/artist/song-edit/${track._id}`)}
-                              className="icon-btn icon-btn-emerald"
-                              title="Edit"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => setSongToDelete(track._id)}
-                              className="icon-btn icon-btn-red"
-                              title="Delete"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </motion.tr>
-                    );
-                  })}
+                      {/* Actions */}
+                      <td className="px-5 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => navigate(`/artist/songs/${track._id}/analytics`)}
+                            className="w-8 h-8 rounded flex items-center justify-center bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-500/20 transition-colors"
+                            title="Analytics"
+                          >
+                            <BarChart2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => navigate(`/artist/song-edit/${track._id}`)}
+                            className="w-8 h-8 rounded flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors"
+                            title="Edit"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => setSongToDelete(track._id)}
+                            className="w-8 h-8 rounded flex items-center justify-center bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
                 </AnimatePresence>
               </tbody>
             </table>
           </div>
         ) : (
           <div className="py-20 text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Music2 className="h-7 w-7 text-gray-400" />
+            <div className="w-14 h-14 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <Music2 className="h-6 w-6 text-zinc-400" />
             </div>
-            <p className="empty-state-title">No tracks found</p>
-            <p className="empty-state-body">
+            <p className="font-semibold text-zinc-700 dark:text-zinc-300">No tracks found</p>
+            <p className="text-sm text-zinc-400 mt-1">
               {searchTerm || statusFilter !== 'all'
                 ? 'Try adjusting your search or filter.'
                 : 'Upload your first track to get started.'}
@@ -271,7 +284,7 @@ export default function MySongs() {
             {!searchTerm && statusFilter === 'all' && (
               <button
                 onClick={() => navigate('/artist/upload')}
-                className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-500 transition-all"
+                className="mt-5 inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded hover:bg-emerald-700 transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 Upload Track

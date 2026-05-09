@@ -12,6 +12,8 @@ import {
   Music, Calendar, User, Tag, LayoutGrid, List, ChevronDown, Loader2
 } from 'lucide-react';
 
+const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+
 const AlbumManagement: React.FC = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [artists, setArtists] = useState<Artist[]>([]);
@@ -161,7 +163,6 @@ const AlbumManagement: React.FC = () => {
         await albumService.adminUpdateAlbum(selectedAlbum._id, { 
           ...formData, 
           coverArt: coverArtUrl,
-          // If we have a new key, we might want to store it, but backend mostly uses the URL for now
         });
         toast.success('Album updated successfully', { id: 'album-upload' });
       } else {
@@ -235,59 +236,62 @@ const AlbumManagement: React.FC = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="max-w-5xl mx-auto pb-16 space-y-6">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Album Management</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Manage all albums in your platform</p>
+      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4`}>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Disc className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">Album Management</h1>
+            <p className="text-sm text-zinc-500 mt-0.5">Manage all albums in your platform</p>
+          </div>
         </div>
         <button
           onClick={() => handleOpenDialog()}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded transition-colors"
         >
           <Plus className="w-4 h-4" />
-          Add New Album
+          Add Album
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Albums', value: albums.length, icon: Disc, color: 'bg-green-50 text-green-600' },
-          { label: 'Total Tracks', value: totalTracks, icon: Music, color: 'bg-blue-50 text-blue-600' },
-          { label: 'Artists', value: uniqueArtists, icon: User, color: 'bg-purple-50 text-purple-600' },
-          { label: 'Avg Tracks', value: avgTracks, icon: Tag, color: 'bg-amber-50 text-amber-600' },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
-              <Icon className="w-5 h-5" />
+          { label: 'Total Albums', value: albums.length, icon: Disc, color: 'text-emerald-500', bgColor: 'bg-emerald-50 dark:bg-emerald-500/10' },
+          { label: 'Total Tracks', value: totalTracks, icon: Music, color: 'text-blue-500', bgColor: 'bg-blue-50 dark:bg-blue-500/10' },
+          { label: 'Artists', value: uniqueArtists, icon: User, color: 'text-purple-500', bgColor: 'bg-purple-50 dark:bg-purple-500/10' },
+          { label: 'Avg Tracks', value: avgTracks, icon: Tag, color: 'text-amber-500', bgColor: 'bg-amber-50 dark:bg-amber-500/10' },
+        ].map(({ label, value, icon: Icon, color, bgColor }) => (
+          <div key={label} className={`${card} p-5`}>
+            <div className={`w-9 h-9 rounded ${bgColor} flex items-center justify-center mb-4`}>
+              <Icon className={`h-4 w-4 ${color}`} />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{value}</p>
-              <p className="text-xs text-gray-500">{label}</p>
-            </div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">{label}</p>
+            <p className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">{value}</p>
           </div>
         ))}
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+      <div className={`${card} p-4`}>
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-          <div className="flex flex-col sm:flex-row gap-3 flex-1">
+          <div className="flex flex-col sm:flex-row gap-3 flex-1 w-full sm:w-auto">
             {/* Search */}
             <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search albums or artists..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full pl-9 pr-8 py-2 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded focus:outline-none focus:border-emerald-500 transition-all text-zinc-900 dark:text-white"
               />
               {searchTerm && (
-                <button onClick={() => setSearchTerm('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <button onClick={() => setSearchTerm('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -298,32 +302,32 @@ const AlbumManagement: React.FC = () => {
               <select
                 value={genreFilter}
                 onChange={(e) => setGenreFilter(e.target.value)}
-                className="pl-3 pr-8 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white appearance-none cursor-pointer"
+                className="pl-3 pr-8 py-2 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer text-zinc-900 dark:text-white font-medium"
               >
                 <option value="all">All Genres</option>
                 {genres.map((g) => (
                   <option key={g._id} value={g._id}>{g.name}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400 pointer-events-none" />
             </div>
           </div>
 
-          {/* View toggle + count */}
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-400">{filteredAlbums.length} album{filteredAlbums.length !== 1 ? 's' : ''}</span>
-            <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+          {/* View toggle */}
+          <div className="flex items-center gap-3 self-end sm:self-auto">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">{filteredAlbums.length} albums</span>
+            <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded p-1">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm text-green-600' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`p-1.5 rounded transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-zinc-700 text-emerald-500 shadow-sm' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
               >
-                <LayoutGrid className="w-4 h-4" />
+                <LayoutGrid className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm text-green-600' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`p-1.5 rounded transition-all ${viewMode === 'list' ? 'bg-white dark:bg-zinc-700 text-emerald-500 shadow-sm' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
               >
-                <List className="w-4 h-4" />
+                <List className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -332,369 +336,286 @@ const AlbumManagement: React.FC = () => {
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-          <X className="w-4 h-4 flex-shrink-0" />
+        <div className="flex items-center gap-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-400 px-4 py-3 rounded-lg text-sm font-medium animate-in fade-in slide-in-from-top-2">
+          <XCircle className="w-4 h-4 flex-shrink-0" />
           {error}
-          <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600">
+          <button onClick={() => setError(null)} className="ml-auto opacity-50 hover:opacity-100">
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      {/* Albums */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        {filteredAlbums.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
-              <Disc className="w-8 h-8 text-gray-400" />
-            </div>
-            <p className="text-gray-700 font-medium">No albums found</p>
-            <p className="text-sm text-gray-400 mt-1">
-              {searchTerm || genreFilter !== 'all' ? 'Try adjusting your search or filters.' : 'Create your first album to get started.'}
-            </p>
-            {!searchTerm && genreFilter === 'all' && (
-              <button
-                onClick={() => handleOpenDialog()}
-                className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors"
+      {/* Albums Content */}
+      {filteredAlbums.length === 0 ? (
+        <div className={`${card} py-20 flex flex-col items-center justify-center text-center`}>
+          <div className="w-14 h-14 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
+            <Disc className="w-7 h-7 text-zinc-400" />
+          </div>
+          <p className="text-zinc-900 dark:text-white font-bold uppercase tracking-tight">No albums found</p>
+          <p className="text-sm text-zinc-500 mt-1">
+            {searchTerm || genreFilter !== 'all' ? 'Try adjusting your search or filters.' : 'Create your first album to get started.'}
+          </p>
+        </div>
+      ) : viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {filteredAlbums.map((album) => {
+            const artistName = getArtistDisplayName(album.artist);
+            const genreName = getGenreDisplayName(album.genre);
+            const trackCount = album.songs?.length || 0;
+            const releaseYear = album.releaseDate ? new Date(album.releaseDate).getFullYear() : null;
+
+            return (
+              <motion.div
+                key={album._id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`${card} group overflow-hidden hover:border-emerald-500/30 transition-all`}
               >
-                <Plus className="w-4 h-4" />
-                Add Album
-              </button>
-            )}
-          </div>
-        ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-5">
-            {filteredAlbums.map((album) => {
-              const artistName = getArtistDisplayName(album.artist);
-              const genreName = getGenreDisplayName(album.genre);
-              const trackCount = album.songs?.length || 0;
-              const releaseYear = album.releaseDate ? new Date(album.releaseDate).getFullYear() : null;
+                <div className="relative aspect-square bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                  {album.coverArt ? (
+                    <img
+                      src={album.coverArt}
+                      alt={album.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Disc className="w-10 h-10 text-zinc-300 dark:text-zinc-700" />
+                    </div>
+                  )}
 
-              return (
-                <motion.div
-                  key={album._id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="group bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-md hover:border-green-100 transition-all"
-                >
-                  {/* Cover Art */}
-                  <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-                    {album.coverArt ? (
-                      <img
-                        src={album.coverArt}
-                        alt={album.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Disc className="w-12 h-12 text-gray-300" />
-                      </div>
-                    )}
+                  {genreName && (
+                    <div className="absolute top-2 right-2">
+                      <span className="px-2 py-0.5 bg-black/40 backdrop-blur-md text-white text-[9px] font-bold uppercase tracking-wider rounded">
+                        {genreName}
+                      </span>
+                    </div>
+                  )}
 
-                    {/* Genre badge */}
-                    {genreName && (
-                      <div className="absolute top-2 right-2">
-                        <span className="px-2 py-0.5 bg-black/50 backdrop-blur-sm text-white text-xs rounded-full">
-                          {genreName}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Actions menu */}
-                    <div className="absolute top-2 left-2" ref={openMenuId === album._id ? menuRef : undefined}>
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === album._id ? null : album._id); }}
-                        className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <MoreHorizontal className="w-3.5 h-3.5" />
-                      </button>
-                      <AnimatePresence>
-                        {openMenuId === album._id && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                            transition={{ duration: 0.1 }}
-                            className="absolute left-0 top-9 w-36 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-20"
+                  <div className="absolute top-2 left-2" ref={openMenuId === album._id ? menuRef : undefined}>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === album._id ? null : album._id); }}
+                      className="w-7 h-7 rounded bg-black/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-black/60"
+                    >
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                    <AnimatePresence>
+                      {openMenuId === album._id && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                          className="absolute left-0 top-9 w-32 bg-white dark:bg-zinc-800 rounded shadow-xl border border-zinc-100 dark:border-white/10 overflow-hidden z-20"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => handleOpenDialog(album)}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors"
                           >
-                            <button
-                              type="button"
-                              onClick={() => handleOpenDialog(album)}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                            >
-                              <Edit className="w-3.5 h-3.5 text-gray-400" />
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => { setAlbumToDelete(album._id); setOpenMenuId(null); }}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                              Delete
-                            </button>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
+                            <Edit className="w-3.5 h-3.5" /> Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setAlbumToDelete(album._id); setOpenMenuId(null); }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" /> Delete
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
+                </div>
 
-                  {/* Card body */}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 truncate">{album.name}</h3>
-                    <p className="text-sm text-gray-500 truncate mt-0.5">{artistName}</p>
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
-                      <div className="flex items-center gap-1 text-xs text-gray-400">
-                        <Music className="w-3.5 h-3.5" />
-                        <span>{trackCount} track{trackCount !== 1 ? 's' : ''}</span>
-                      </div>
-                      {releaseYear && (
-                        <div className="flex items-center gap-1 text-xs text-gray-400">
-                          <Calendar className="w-3.5 h-3.5" />
-                          <span>{releaseYear}</span>
-                        </div>
-                      )}
+                <div className="p-4">
+                  <h3 className="text-sm font-bold text-zinc-900 dark:text-white truncate uppercase tracking-tight">{album.name}</h3>
+                  <p className="text-[11px] font-medium text-zinc-500 truncate mt-0.5">{artistName}</p>
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-zinc-100 dark:border-white/10">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
+                      <Music className="w-3 h-3" />
+                      <span>{trackCount} tracks</span>
                     </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        ) : (
-          /* List view */
-          <div className="divide-y divide-gray-50">
-            <div className="hidden sm:grid grid-cols-12 px-5 py-3 text-xs font-medium text-gray-400 uppercase tracking-wide bg-gray-50/60">
-              <div className="col-span-5">Album</div>
-              <div className="col-span-3">Artist</div>
-              <div className="col-span-2">Genre</div>
-              <div className="col-span-1 text-center">Tracks</div>
-              <div className="col-span-1 text-right">Actions</div>
-            </div>
-            {filteredAlbums.map((album) => {
-              const artistName = getArtistDisplayName(album.artist);
-              const genreName = getGenreDisplayName(album.genre);
-              const trackCount = album.songs?.length || 0;
-
-              return (
-                <motion.div
-                  key={album._id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="grid grid-cols-12 items-center px-5 py-3.5 hover:bg-gray-50/60 transition-colors"
-                >
-                  <div className="col-span-7 sm:col-span-5 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0">
-                      {album.coverArt ? (
-                        <img src={album.coverArt} alt={album.name} className="w-full h-full object-cover"
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Disc className="w-5 h-5 text-gray-300" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-medium text-gray-900 truncate text-sm">{album.name}</p>
-                      {album.releaseDate && (
-                        <p className="text-xs text-gray-400">{new Date(album.releaseDate).toLocaleDateString()}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="hidden sm:block col-span-3 text-sm text-gray-600 truncate pr-4">{artistName}</div>
-                  <div className="hidden sm:block col-span-2">
-                    {genreName ? (
-                      <span className="px-2 py-0.5 bg-green-50 text-green-700 text-xs rounded-full">{genreName}</span>
-                    ) : (
-                      <span className="text-xs text-gray-300">—</span>
+                    {releaseYear && (
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">{releaseYear}</span>
                     )}
                   </div>
-                  <div className="hidden sm:flex col-span-1 justify-center">
-                    <span className="text-sm text-gray-500">{trackCount}</span>
-                  </div>
-                  <div className="col-span-5 sm:col-span-1 flex items-center justify-end gap-1">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenDialog(album)}
-                      className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                      title="Edit"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAlbumToDelete(album._id)}
-                      className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className={card}>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-zinc-100 dark:border-white/[0.04] bg-zinc-50/50 dark:bg-zinc-800/20">
+                  <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Album</th>
+                  <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Artist</th>
+                  <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Genre</th>
+                  <th className="px-6 py-4 text-center text-[11px] font-bold uppercase tracking-widest text-zinc-500">Tracks</th>
+                  <th className="px-6 py-4 text-right text-[11px] font-bold uppercase tracking-widest text-zinc-500">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
+                {filteredAlbums.map((album) => {
+                  const artistName = getArtistDisplayName(album.artist);
+                  const genreName = getGenreDisplayName(album.genre);
+                  const trackCount = album.songs?.length || 0;
 
-      {/* Create/Edit Dialog */}
+                  return (
+                    <tr key={album._id} className="hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 overflow-hidden flex-shrink-0">
+                            {album.coverArt ? (
+                              <img src={album.coverArt} alt={album.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-zinc-400">
+                                <Disc className="w-5 h-5" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-zinc-900 dark:text-white truncate uppercase tracking-tight">{album.name}</p>
+                            <p className="text-[10px] font-medium text-zinc-400">
+                              {album.releaseDate ? new Date(album.releaseDate).toLocaleDateString() : 'No date'}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-bold text-zinc-900 dark:text-white truncate max-w-[200px]">{artistName}</td>
+                      <td className="px-6 py-4">
+                        {genreName ? (
+                          <span className="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wide border border-emerald-200 dark:border-emerald-500/20 rounded">
+                            {genreName}
+                          </span>
+                        ) : (
+                          <span className="text-zinc-300 dark:text-zinc-700 text-xs">—</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-center text-sm font-bold text-zinc-900 dark:text-white tabular-nums">{trackCount}</td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => handleOpenDialog(album)}
+                            className="p-2 text-zinc-400 hover:text-emerald-500 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded transition-all"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setAlbumToDelete(album._id)}
+                            className="p-2 text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Dialog */}
       <AnimatePresence>
         {isDialogOpen && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-zinc-950/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              initial={{ opacity: 0, scale: 0.98, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: 8 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto"
+              exit={{ opacity: 0, scale: 0.98, y: 12 }}
+              className="bg-white dark:bg-zinc-900 rounded-lg shadow-2xl w-full max-w-lg overflow-hidden border border-zinc-200 dark:border-white/10"
             >
-              {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+              <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06]">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    {selectedAlbum ? 'Edit Album' : 'Add New Album'}
+                  <h2 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">
+                    {selectedAlbum ? 'Edit Album' : 'Create Album'}
                   </h2>
-                  <p className="text-sm text-gray-400 mt-0.5">
-                    {selectedAlbum ? 'Update album details below' : 'Fill in the album details below'}
-                  </p>
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Album Details</p>
                 </div>
-                <button
-                  onClick={handleCloseDialog}
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-                >
+                <button onClick={handleCloseDialog} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                {/* Cover Art */}
+              <form onSubmit={handleSubmit} className="p-6 space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Cover Art</label>
-                  {coverPreviewSrc && (
-                    <div className="mb-3 flex items-center gap-3">
-                      <img
-                        src={coverPreviewSrc}
-                        alt="Cover preview"
-                        className="w-20 h-20 object-cover rounded-xl border border-gray-200"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => { setCoverArtFile(null); setFormData((prev) => ({ ...prev, coverArt: '' })); }}
-                        className="text-xs text-red-500 hover:text-red-700 flex items-center gap-1"
-                      >
-                        <X className="w-3 h-3" /> Remove
-                      </button>
-                    </div>
-                  )}
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Cover Art</label>
                   <FileUpload
-                    label="Upload Cover Art"
+                    label="Upload Artwork"
                     currentFile={coverPreviewSrc}
                     onFileSelect={handleCoverArtSelect}
-                    onFileRemove={() => {
-                      setCoverArtFile(null);
-                      setFormData((prev) => ({ ...prev, coverArt: '' }));
-                    }}
+                    onFileRemove={() => { setCoverArtFile(null); setFormData(p => ({ ...p, coverArt: '' })); }}
                   />
                 </div>
 
-                {/* Album Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Album Name <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="e.g. Midnight Sessions"
-                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                </div>
-
-                {/* Artist */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Artist <span className="text-red-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      name="artist"
-                      value={formData.artist}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white appearance-none cursor-pointer"
-                    >
-                      <option value="">Select an artist</option>
-                      {artists.map((artist) => (
-                        <option key={artist._id} value={artist._id}>
-                          {artist.name || `${artist.firstName || ''} ${artist.lastName || ''}`.trim() || artist._id}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* Genre + Release Date */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Genre</label>
-                    <div className="relative">
-                      <select
-                        name="genre"
-                        value={formData.genre}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white appearance-none cursor-pointer"
-                      >
-                        <option value="">Select genre</option>
-                        {genres.map((genre) => (
-                          <option key={genre._id} value={genre._id}>{genre.name}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Release Date</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Album Name</label>
                     <input
-                      type="date"
-                      name="releaseDate"
-                      value={formData.releaseDate}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      type="text" name="name" value={formData.name} onChange={handleInputChange} required
+                      className="w-full px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded focus:outline-none focus:border-emerald-500 text-zinc-900 dark:text-white font-medium"
                     />
                   </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Artist</label>
+                    <div className="relative">
+                      <select
+                        name="artist" value={formData.artist} onChange={handleInputChange} required
+                        className="w-full px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded focus:outline-none focus:border-emerald-500 appearance-none text-zinc-900 dark:text-white font-medium"
+                      >
+                        <option value="">Select artist</option>
+                        {artists.map(a => (
+                          <option key={a._id} value={a._id}>{a.name || `${a.firstName || ''} ${a.lastName || ''}`.trim()}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Genre</label>
+                      <div className="relative">
+                        <select
+                          name="genre" value={formData.genre} onChange={handleInputChange}
+                          className="w-full px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded focus:outline-none focus:border-emerald-500 appearance-none text-zinc-900 dark:text-white font-medium"
+                        >
+                          <option value="">No genre</option>
+                          {genres.map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Release Date</label>
+                      <input
+                        type="date" name="releaseDate" value={formData.releaseDate} onChange={handleInputChange}
+                        className="w-full px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded focus:outline-none focus:border-emerald-500 text-zinc-900 dark:text-white font-medium"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {/* Footer */}
-                <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
+                <div className="flex justify-end gap-3 pt-4">
                   <button
-                    type="button"
-                    onClick={handleCloseDialog}
-                    disabled={submitting}
-                    className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    type="button" onClick={handleCloseDialog}
+                    className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                   >
                     Cancel
                   </button>
                   <button
-                    type="submit"
-                    disabled={submitting}
-                    className="inline-flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-50 shadow-sm"
+                    type="submit" disabled={submitting}
+                    className="inline-flex items-center gap-2 px-6 py-2 bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-widest rounded hover:bg-emerald-700 disabled:opacity-50 transition-all shadow-lg shadow-emerald-500/20"
                   >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        {selectedAlbum ? 'Saving...' : 'Creating...'}
-                      </>
-                    ) : (
-                      selectedAlbum ? 'Save Changes' : 'Create Album'
-                    )}
+                    {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    {selectedAlbum ? 'Save Album' : 'Create Album'}
                   </button>
                 </div>
               </form>
@@ -702,6 +623,20 @@ const AlbumManagement: React.FC = () => {
           </div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog
+        isOpen={!!albumToDelete}
+        title="Delete Album"
+        message="This will permanently delete the album. Tracks will not be deleted but will become unassigned."
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+        onCancel={() => setAlbumToDelete(null)}
+      />
+    </div>
+  );
+};
+
+export default AlbumManagement;
 
       <ConfirmDialog
         isOpen={!!albumToDelete}

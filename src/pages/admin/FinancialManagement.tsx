@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import financeService, { AdminFinancialStats, Payout } from '../../services/financeService';
 
+const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+
 const tabs = [
   { id: 'revenue', label: 'Revenue', icon: TrendingUp },
   { id: 'payouts', label: 'Payouts', icon: CreditCard },
@@ -42,39 +44,48 @@ export default function FinancialManagement() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-5xl mx-auto pb-16 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Financial Management</h1>
-          <p className="text-sm text-gray-500 mt-1">Monitor revenue, payouts, and financial operations</p>
+      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4`}>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <DollarSign className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">
+              Financial Management
+            </h1>
+            <p className="text-sm text-zinc-500 mt-0.5">
+              Monitor revenue, payouts, and financial operations
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-            <Calendar className="w-4 h-4" />
+        <div className="flex items-center gap-2">
+          <button className="flex items-center gap-2 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded hover:opacity-80 transition-opacity">
+            <Calendar className="w-3.5 h-3.5" />
             Last 30 Days
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors">
-            <Download className="w-4 h-4" />
+          <button className="flex items-center gap-2 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-white bg-zinc-900 dark:bg-white dark:text-zinc-900 rounded hover:opacity-90 transition-opacity">
+            <Download className="w-3.5 h-3.5" />
             Export Report
           </button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl w-fit">
+      <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded p-1 w-fit">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === tab.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+              className={`flex items-center gap-2 px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded transition-all ${activeTab === tab.id
+                ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                 }`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-3.5 h-3.5" />
               {tab.label}
             </button>
           );
@@ -83,17 +94,17 @@ export default function FinancialManagement() {
 
       {/* Content */}
       {isLoading ? (
-        <div className="h-64 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="py-24 text-center">
+          <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto" />
         </div>
       ) : (
-        <>
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           {activeTab === 'revenue' && <RevenueSection stats={stats} />}
           {activeTab === 'payouts' && <PayoutsSection stats={stats} payouts={allPayouts} />}
           {activeTab === 'subscriptions' && <SubscriptionsSection stats={stats} />}
           {activeTab === 'compliance' && <ComplianceSection />}
           {activeTab === 'pricing' && <PricingSection />}
-        </>
+        </div>
       )}
     </div>
   );
@@ -102,10 +113,10 @@ export default function FinancialManagement() {
 /* ─── Revenue ─── */
 const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
   const displayStats = [
-    { label: 'Total Revenue (All Time)', value: `$${((stats?.totalRevenue || 0) / 100).toLocaleString()}`, change: '+12.5%', up: true, icon: DollarSign, color: 'green' },
-    { label: 'Active Subscribers', value: (stats?.activeSubscribers || 0).toLocaleString(), change: '+5.2%', up: true, icon: Users, color: 'blue' },
-    { label: 'Avg Revenue / User', value: `$${((stats?.avgRevenuePerUser || 0) / 100).toFixed(2)}`, change: '+2.1%', up: true, icon: TrendingUp, color: 'emerald' },
-    { label: 'Recent Transactions', value: stats?.recentTransactions?.length || 0, change: '-0.3%', up: false, icon: Activity, color: 'amber' },
+    { label: 'Total Revenue', value: `$${((stats?.totalRevenue || 0) / 100).toLocaleString()}`, trend: '+12.5%', up: true, icon: DollarSign, color: 'text-emerald-500', bgColor: 'bg-emerald-50 dark:bg-emerald-500/10' },
+    { label: 'Subscribers', value: (stats?.activeSubscribers || 0).toLocaleString(), trend: '+5.2%', up: true, icon: Users, color: 'text-blue-500', bgColor: 'bg-blue-50 dark:bg-blue-500/10' },
+    { label: 'Avg Rev / User', value: `$${((stats?.avgRevenuePerUser || 0) / 100).toFixed(2)}`, trend: '+2.1%', up: true, icon: TrendingUp, color: 'text-indigo-500', bgColor: 'bg-indigo-50 dark:bg-indigo-500/10' },
+    { label: 'Transactions', value: stats?.recentTransactions?.length || 0, trend: '-0.3%', up: false, icon: Activity, color: 'text-rose-500', bgColor: 'bg-rose-50 dark:bg-rose-500/10' },
   ];
 
   const total = (stats?.revenueBreakdown?.['subscription_payment'] || 0) +
@@ -113,82 +124,76 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
     (stats?.revenueBreakdown?.['gift_received'] || 0);
 
   const breakdown = [
-    { label: 'Subscriptions', value: `$${((stats?.revenueBreakdown?.['subscription_payment'] || 0) / 100).toLocaleString()}`, pct: total > 0 ? Math.round((stats?.revenueBreakdown?.['subscription_payment'] || 0) / total * 100) : 0, color: 'bg-green-500' },
+    { label: 'Subscriptions', value: `$${((stats?.revenueBreakdown?.['subscription_payment'] || 0) / 100).toLocaleString()}`, pct: total > 0 ? Math.round((stats?.revenueBreakdown?.['subscription_payment'] || 0) / total * 100) : 0, color: 'bg-emerald-500' },
     { label: 'Virtual Gifts', value: `$${((stats?.revenueBreakdown?.['gift_received'] || 0) / 100).toLocaleString()}`, pct: total > 0 ? Math.round((stats?.revenueBreakdown?.['gift_received'] || 0) / total * 100) : 0, color: 'bg-blue-500' },
     { label: 'Coin Purchases', value: `$${((stats?.revenueBreakdown?.['coin_purchase'] || 0) / 100).toLocaleString()}`, pct: total > 0 ? Math.round((stats?.revenueBreakdown?.['coin_purchase'] || 0) / total * 100) : 0, color: 'bg-amber-500' },
-    { label: 'Other', value: '$0', pct: 0, color: 'bg-gray-400' },
+    { label: 'Other', value: '$0', pct: 0, color: 'bg-zinc-400' },
   ];
 
   const topArtists = (stats?.topEarners || []).map(te => ({
     name: te.name,
     revenue: `$${(te.revenue / 100).toLocaleString()}`,
-    streams: te.transactions.toString(), // Using transactions count as a proxy for engagement here
+    streams: te.transactions.toString(),
     avatar: te.name.substring(0, 2).toUpperCase()
   }));
-
-  const colorMap: Record<string, string> = {
-    green: 'bg-green-50 text-green-600',
-    blue: 'bg-blue-50 text-blue-600',
-    emerald: 'bg-emerald-50 text-emerald-600',
-    amber: 'bg-amber-50 text-amber-600',
-  };
 
   return (
     <div className="space-y-6">
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {displayStats.map((s) => {
-          const Icon = s.icon;
-          return (
-            <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colorMap[s.color]}`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-                <span className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${s.up ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
-                  }`}>
-                  {s.up ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                  {s.change}
-                </span>
+        {displayStats.map((s) => (
+          <div key={s.label} className={`${card} p-5`}>
+            <div className="flex items-center justify-between mb-4">
+              <div className={`p-2 rounded ${s.bgColor}`}>
+                <s.icon className={`h-4 w-4 ${s.color}`} />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{s.value}</p>
-              <p className="text-xs text-gray-500 mt-1">{s.label}</p>
+              <span className={`text-[10px] font-bold ${s.up ? 'text-emerald-500' : 'text-rose-500'}`}>
+                {s.trend}
+              </span>
             </div>
-          );
-        })}
+            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">{s.label}</p>
+            <p className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">{s.value}</p>
+          </div>
+        ))}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Revenue Breakdown */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className={`${card} lg:col-span-2 p-6`}>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="font-semibold text-gray-900">Revenue Breakdown</h3>
-            <div className="flex items-center gap-2">
-              <button className="text-xs font-medium px-3 py-1.5 bg-green-50 text-green-600 rounded-lg">Monthly</button>
-              <button className="text-xs font-medium px-3 py-1.5 text-gray-500 hover:bg-gray-50 rounded-lg">Quarterly</button>
-              <button className="text-xs font-medium px-3 py-1.5 text-gray-500 hover:bg-gray-50 rounded-lg">Yearly</button>
+            <div>
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Revenue Breakdown</h3>
+              <p className="text-[11px] text-zinc-500 mt-0.5">Performance by income stream</p>
+            </div>
+            <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded p-0.5">
+              {['Monthly', 'Yearly'].map(t => (
+                <button key={t} className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
+                  {t}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Chart placeholder */}
-          <div className="h-48 bg-gradient-to-br from-green-50/50 to-emerald-50/50 rounded-xl mb-6 flex items-center justify-center">
-            <BarChart3 className="w-12 h-12 text-green-200" />
+          <div className="h-48 bg-zinc-50 dark:bg-zinc-800/20 rounded-lg mb-8 flex items-center justify-center border border-zinc-100 dark:border-white/[0.04]">
+            <BarChart3 className="w-12 h-12 text-zinc-200 dark:text-white/5" />
           </div>
 
-          {/* Breakdown bar */}
-          <div className="flex rounded-full overflow-hidden h-3 mb-4">
+          <div className="flex rounded-full overflow-hidden h-2.5 mb-6 bg-zinc-100 dark:bg-zinc-800">
             {breakdown.map((b) => (
               <div key={b.label} className={`${b.color} transition-all`} style={{ width: `${b.pct}%` }} />
             ))}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
             {breakdown.map((b) => (
-              <div key={b.label} className="flex items-center gap-2">
-                <div className={`w-2.5 h-2.5 rounded-full ${b.color}`} />
-                <div>
-                  <p className="text-xs text-gray-500">{b.label}</p>
-                  <p className="text-sm font-semibold text-gray-900">{b.value} <span className="text-xs text-gray-400 font-normal">({b.pct}%)</span></p>
+              <div key={b.label} className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${b.color}`} />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">{b.label}</span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-sm font-bold text-zinc-900 dark:text-white">{b.value}</span>
+                  <span className="text-[10px] font-medium text-zinc-500">({b.pct}%)</span>
                 </div>
               </div>
             ))}
@@ -196,23 +201,23 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
         </div>
 
         {/* Top Earning Artists */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="font-semibold text-gray-900">Top Earners</h3>
-            <button className="text-xs text-green-600 font-medium hover:underline">View All</button>
+        <div className={`${card} p-6`}>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Top Earners</h3>
+            <button className="text-[10px] font-bold text-emerald-500 hover:underline uppercase tracking-widest">View All</button>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-5">
             {topArtists.map((a, i) => (
-              <div key={a.name} className="flex items-center gap-3">
-                <span className="text-xs font-medium text-gray-400 w-4">#{i + 1}</span>
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white text-xs font-bold">
+              <div key={a.name} className="flex items-center gap-4 group">
+                <span className="text-[10px] font-bold text-zinc-400 w-3">{i + 1}</span>
+                <div className="w-9 h-9 rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 flex items-center justify-center text-[10px] font-bold text-zinc-500 uppercase">
                   {a.avatar}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{a.name}</p>
-                  <p className="text-xs text-gray-400">{a.streams} streams</p>
+                  <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{a.name}</p>
+                  <p className="text-[10px] font-medium text-zinc-500">{a.streams} transactions</p>
                 </div>
-                <p className="text-sm font-semibold text-gray-900">{a.revenue}</p>
+                <p className="text-xs font-bold text-zinc-900 dark:text-white">{a.revenue}</p>
               </div>
             ))}
           </div>
@@ -225,101 +230,87 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
 /* ─── Payouts ─── */
 const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null, payouts: Payout[] }) => {
   const payoutStats = [
-    { label: 'Pending Payouts', value: `$${((stats?.payouts?.['pending']?.amount || 0) / 100).toLocaleString()}`, count: `${stats?.payouts?.['pending']?.count || 0} artists`, icon: Clock, color: 'amber' },
-    { label: 'Processed (All Time)', value: `$${((stats?.payouts?.['completed']?.amount || 0) / 100).toLocaleString()}`, count: `${stats?.payouts?.['completed']?.count || 0} payouts`, icon: CheckCircle2, color: 'green' },
-    { label: 'Failed', value: `$${((stats?.payouts?.['failed']?.amount || 0) / 100).toLocaleString()}`, count: `${stats?.payouts?.['failed']?.count || 0} payouts`, icon: XCircle, color: 'red' },
-    { label: 'Next Payout Date', value: 'Feb 15', count: 'In 4 days', icon: Calendar, color: 'blue' },
+    { label: 'Pending Payouts', value: `$${((stats?.payouts?.['pending']?.amount || 0) / 100).toLocaleString()}`, sub: `${stats?.payouts?.['pending']?.count || 0} artists`, icon: Clock, color: 'text-amber-500', bgColor: 'bg-amber-50 dark:bg-amber-500/10' },
+    { label: 'Processed', value: `$${((stats?.payouts?.['completed']?.amount || 0) / 100).toLocaleString()}`, sub: `${stats?.payouts?.['completed']?.count || 0} completed`, icon: CheckCircle2, color: 'text-emerald-500', bgColor: 'bg-emerald-50 dark:bg-emerald-500/10' },
+    { label: 'Failed Payouts', value: `$${((stats?.payouts?.['failed']?.amount || 0) / 100).toLocaleString()}`, sub: `${stats?.payouts?.['failed']?.count || 0} errors`, icon: XCircle, color: 'text-rose-500', bgColor: 'bg-rose-50 dark:bg-rose-500/10' },
+    { label: 'Next Batch', value: 'Feb 15', sub: 'In 4 days', icon: Calendar, color: 'text-blue-500', bgColor: 'bg-blue-50 dark:bg-blue-500/10' },
   ];
 
   const statusStyles: Record<string, string> = {
-    completed: 'bg-green-50 text-green-700',
-    processing: 'bg-blue-50 text-blue-700',
-    pending: 'bg-amber-50 text-amber-700',
-    failed: 'bg-red-50 text-red-700',
-  };
-
-  const colorMap: Record<string, string> = {
-    amber: 'bg-amber-50 text-amber-600',
-    green: 'bg-green-50 text-green-600',
-    red: 'bg-red-50 text-red-600',
-    blue: 'bg-blue-50 text-blue-600',
+    completed: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20',
+    processing: 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20',
+    pending: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20',
+    failed: 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20',
   };
 
   return (
     <div className="space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {payoutStats.map((s) => {
-          const Icon = s.icon;
-          return (
-            <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colorMap[s.color]} mb-3`}>
-                <Icon className="w-5 h-5" />
-              </div>
-              <p className="text-2xl font-bold text-gray-900">{s.value}</p>
-              <p className="text-xs text-gray-500 mt-1">{s.label}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{s.count}</p>
+        {payoutStats.map((s) => (
+          <div key={s.label} className={`${card} p-5`}>
+            <div className={`w-9 h-9 rounded ${s.bgColor} flex items-center justify-center mb-4`}>
+              <s.icon className={`h-4 w-4 ${s.color}`} />
             </div>
-          );
-        })}
+            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">{s.label}</p>
+            <p className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">{s.value}</p>
+            <p className="text-[10px] font-medium text-zinc-500 mt-0.5">{s.sub}</p>
+          </div>
+        ))}
       </div>
 
       {/* Payouts Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between p-5 border-b border-gray-50">
-          <h3 className="font-semibold text-gray-900">Recent Payouts</h3>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+      <div className={card}>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 gap-4 border-b border-zinc-100 dark:border-white/[0.06]">
+          <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Recent Payouts</h3>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="relative flex-1 md:w-64">
+              <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search artists..."
-                className="pl-9 pr-4 py-2 text-sm bg-gray-50/50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-300 w-56"
+                className="w-full pl-9 pr-4 py-2 text-sm bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 transition-all"
               />
             </div>
-            <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-              <Filter className="w-4 h-4" />
-              Filter
-            </button>
-            <button className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors">
-              Process Payouts
+            <button className="px-4 py-2 text-[10px] font-bold text-white bg-emerald-500 rounded uppercase tracking-wider hover:bg-emerald-600 transition-colors">
+              Process All
             </button>
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-left">
             <thead>
-              <tr className="text-xs text-gray-400 uppercase tracking-wider">
-                <th className="text-left px-5 py-3 font-medium">Artist</th>
-                <th className="text-left px-5 py-3 font-medium">Amount</th>
-                <th className="text-left px-5 py-3 font-medium">Method</th>
-                <th className="text-left px-5 py-3 font-medium">Status</th>
-                <th className="text-left px-5 py-3 font-medium">Date</th>
-                <th className="text-right px-5 py-3 font-medium">Actions</th>
+              <tr className="border-b border-zinc-100 dark:border-white/[0.04] bg-zinc-50/50 dark:bg-zinc-800/20">
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Artist</th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Amount</th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Method</th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Status</th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Date</th>
+                <th className="px-6 py-4 text-right text-[11px] font-bold uppercase tracking-widest text-zinc-500">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
               {payouts.map((p) => (
-                <tr key={p._id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-5 py-4">
+                <tr key={p._id} className="hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors">
+                  <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white text-xs font-bold uppercase">
+                      <div className="w-8 h-8 rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 flex items-center justify-center text-[10px] font-bold text-zinc-500 uppercase">
                         {p.artist?.name?.substring(0, 2) || 'A'}
                       </div>
-                      <span className="text-sm font-medium text-gray-900">{p.artist?.name || 'Unknown Artist'}</span>
+                      <span className="text-sm font-bold text-zinc-900 dark:text-white">{p.artist?.name || 'Unknown Artist'}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-sm font-semibold text-gray-900">${(p.amount / 100).toLocaleString()}</td>
-                  <td className="px-5 py-4 text-sm text-gray-500 capitalize">{p.method}</td>
-                  <td className="px-5 py-4">
-                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full capitalize ${statusStyles[p.status]}`}>
+                  <td className="px-6 py-4 text-sm font-bold text-zinc-900 dark:text-white">${(p.amount / 100).toLocaleString()}</td>
+                  <td className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">{p.method}</td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${statusStyles[p.status]}`}>
                       {p.status}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-sm text-gray-500">{new Date(p.createdAt).toLocaleDateString()}</td>
-                  <td className="px-5 py-4 text-right">
-                    <button className="text-xs text-green-600 font-medium hover:underline">Details</button>
+                  <td className="px-6 py-4 text-[11px] font-medium text-zinc-400">{new Date(p.createdAt).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 text-right">
+                    <button className="text-[10px] font-bold text-emerald-500 hover:underline uppercase tracking-widest">Details</button>
                   </td>
                 </tr>
               ))}
@@ -334,148 +325,88 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
 /* ─── Subscriptions ─── */
 const SubscriptionsSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
   const plans = [
-    // ... (plans stay the same for now as they are structural placeholders)
-    {
-      name: 'Free',
-      price: '$0',
-      period: '/month',
-      subscribers: '12,456',
-      features: ['Ad-supported listening', '5 skips/hour', 'Standard audio quality'],
-      color: 'gray',
-      icon: Music,
-      active: true,
-    },
-    {
-      name: 'Premium',
-      price: '$9.99',
-      period: '/month',
-      subscribers: '5,234',
-      features: ['Ad-free listening', 'Unlimited skips', 'High quality audio', 'Offline downloads'],
-      color: 'green',
-      icon: Zap,
-      active: true,
-      popular: true,
-    },
-    {
-      name: 'Pro',
-      price: '$14.99',
-      period: '/month',
-      subscribers: '2,456',
-      features: ['Everything in Premium', 'Lossless audio', 'Exclusive content', 'Priority support', 'Early access'],
-      color: 'amber',
-      icon: Crown,
-      active: true,
-    },
-    {
-      name: 'Family',
-      price: '$19.99',
-      period: '/month',
-      subscribers: '1,544',
-      features: ['Up to 6 accounts', 'All Pro features', 'Parental controls', 'Shared playlists'],
-      color: 'blue',
-      icon: Users,
-      active: true,
-    },
+    { name: 'Free', price: '$0', period: '/month', subscribers: '12,456', features: ['Ad-supported', '5 skips/hour', 'Standard audio'], color: 'zinc', icon: Music },
+    { name: 'Premium', price: '$9.99', period: '/month', subscribers: '5,234', features: ['Ad-free', 'Unlimited skips', 'High quality'], color: 'emerald', icon: Zap, popular: true },
+    { name: 'Pro', price: '$14.99', period: '/month', subscribers: '2,456', features: ['Lossless audio', 'Exclusive content', 'Priority support'], color: 'indigo', icon: Crown },
+    { name: 'Family', price: '$19.99', period: '/month', subscribers: '1,544', features: ['Up to 6 accounts', 'All Pro features', 'Shared playlists'], color: 'blue', icon: Users },
   ];
 
-  const planColorMap: Record<string, { bg: string; border: string; icon: string; badge: string }> = {
-    gray: { bg: 'bg-gray-50', border: 'border-gray-200', icon: 'bg-gray-100 text-gray-600', badge: 'bg-gray-100 text-gray-600' },
-    green: { bg: 'bg-green-50/50', border: 'border-green-200', icon: 'bg-green-100 text-green-600', badge: 'bg-green-100 text-green-700' },
-    amber: { bg: 'bg-amber-50/50', border: 'border-amber-200', icon: 'bg-amber-100 text-amber-600', badge: 'bg-amber-100 text-amber-700' },
-    blue: { bg: 'bg-blue-50/50', border: 'border-blue-200', icon: 'bg-blue-100 text-blue-600', badge: 'bg-blue-100 text-blue-700' },
+  const planStyles: Record<string, string> = {
+    zinc: 'border-zinc-200 dark:border-white/10',
+    emerald: 'border-emerald-200 dark:border-emerald-500/20 bg-emerald-50/30 dark:bg-emerald-500/5',
+    indigo: 'border-indigo-200 dark:border-indigo-500/20',
+    blue: 'border-blue-200 dark:border-blue-500/20',
+  };
+
+  const iconStyles: Record<string, string> = {
+    zinc: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500',
+    emerald: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
+    indigo: 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400',
+    blue: 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400',
   };
 
   return (
     <div className="space-y-6">
       {/* Overview stats */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
-              <Users className="w-5 h-5" />
+        {[
+          { label: 'Active Subscribers', value: (stats?.activeSubscribers || 0).toLocaleString(), icon: Users, color: 'text-emerald-500', trend: '+8.3%' },
+          { label: 'Monthly Revenue', value: `$${((stats?.revenueBreakdown?.['subscription_payment'] || 0) / 100).toLocaleString()}`, icon: DollarSign, color: 'text-blue-500', trend: '+11.2%' },
+          { label: 'Retention Rate', value: '94.2%', icon: TrendingUp, color: 'text-indigo-500', trend: '+2.1%' },
+        ].map(s => (
+          <div key={s.label} className={`${card} p-5`}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-9 h-9 rounded bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center ${s.color}`}>
+                <s.icon className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">{s.label}</p>
+                <p className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">{s.value}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{(stats?.activeSubscribers || 0).toLocaleString()}</p>
-              <p className="text-xs text-gray-500">Active Subscribers</p>
-            </div>
+            <span className="text-[10px] font-bold text-emerald-500">{s.trend} improvement</span>
           </div>
-          <span className="flex items-center gap-1 text-xs font-medium text-green-600">
-            <ArrowUpRight className="w-3 h-3" /> +8.3% this month
-          </span>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-              <DollarSign className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">${((stats?.revenueBreakdown?.['subscription_payment'] || 0) / 100).toLocaleString()}</p>
-              <p className="text-xs text-gray-500">Subscription Revenue (Total)</p>
-            </div>
-          </div>
-          <span className="flex items-center gap-1 text-xs font-medium text-green-600">
-            <ArrowUpRight className="w-3 h-3" /> +11.2% this month
-          </span>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
-              <TrendingUp className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats?.activeSubscribers && stats?.activeSubscribers > 0 ? '68.4%' : '0%'}</p>
-              <p className="text-xs text-gray-500">Conversion Rate (Placeholder)</p>
-            </div>
-          </div>
-          <span className="flex items-center gap-1 text-xs font-medium text-green-600">
-            <ArrowUpRight className="w-3 h-3" /> +2.1% this month
-          </span>
-        </div>
+        ))}
       </div>
 
-      {/* Plan Cards */}
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-gray-900">Subscription Plans</h3>
-        <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors">
-          <Plus className="w-4 h-4" />
-          Add Plan
+        <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Subscription Plans</h3>
+        <button className="flex items-center gap-2 px-4 py-2 text-[10px] font-bold text-white bg-zinc-900 dark:bg-white dark:text-zinc-900 rounded uppercase tracking-wider hover:opacity-90 transition-opacity">
+          <Plus className="w-3.5 h-3.5" /> New Plan
         </button>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {plans.map((plan) => {
           const Icon = plan.icon;
-          const colors = planColorMap[plan.color];
           return (
-            <div key={plan.name} className={`relative rounded-2xl border ${colors.border} ${colors.bg} p-5 transition-all hover:shadow-md`}>
+            <div key={plan.name} className={`${card} ${planStyles[plan.color]} p-6 relative group transition-all hover:border-emerald-500/30`}>
               {plan.popular && (
-                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                  <span className="px-3 py-1 text-xs font-semibold text-white bg-green-600 rounded-full shadow-sm">
-                    Most Popular
-                  </span>
-                </div>
+                <span className="absolute -top-2.5 left-6 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-white bg-emerald-500 rounded-full">
+                  Popular
+                </span>
               )}
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors.icon} mb-4`}>
+              <div className={`w-10 h-10 rounded mb-5 flex items-center justify-center ${iconStyles[plan.color]}`}>
                 <Icon className="w-5 h-5" />
               </div>
-              <h4 className="font-semibold text-gray-900">{plan.name}</h4>
-              <div className="mt-2 mb-4">
-                <span className="text-3xl font-bold text-gray-900">{plan.price}</span>
-                <span className="text-sm text-gray-400">{plan.period}</span>
+              <h4 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">{plan.name}</h4>
+              <div className="mt-2 mb-5">
+                <span className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">{plan.price}</span>
+                <span className="text-[10px] font-bold text-zinc-400 uppercase ml-1">{plan.period}</span>
               </div>
-              <div className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${colors.badge} mb-4`}>
+              <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-bold text-zinc-500 uppercase tracking-wide mb-6">
                 <Users className="w-3 h-3" />
-                {plan.subscribers} subscribers
+                {plan.subscribers}
               </div>
-              <ul className="space-y-2 mb-5">
+              <ul className="space-y-2.5 mb-8">
                 {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-xs text-gray-600">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 shrink-0" />
+                  <li key={f} className="flex items-start gap-2.5 text-[11px] font-medium text-zinc-500">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                     {f}
                   </li>
                 ))}
               </ul>
-              <button className="w-full py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+              <button className="w-full py-2 text-[10px] font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded hover:opacity-80 transition-opacity">
                 Edit Plan
               </button>
             </div>
@@ -491,107 +422,70 @@ const ComplianceSection = () => {
   const complianceItems = [
     {
       title: 'Tax Documents',
-      description: 'Manage W-9, 1099, and international tax forms for artist payouts',
+      desc: 'W-9, 1099, and international tax forms',
       icon: FileText,
       status: 'Up to date',
-      statusColor: 'green',
       items: [
-        { name: 'W-9 Forms Collected', value: '234 / 256', status: 'warning' },
-        { name: '1099 Forms Generated', value: '198', status: 'ok' },
-        { name: 'International Tax Forms', value: '45 / 48', status: 'warning' },
+        { name: 'W-9 Forms Collected', value: '234 / 256', type: 'warning' },
+        { name: '1099 Forms Generated', value: '198', type: 'ok' },
+        { name: 'International Tax Forms', value: '45 / 48', type: 'warning' },
       ],
     },
     {
-      title: 'Compliance Reports',
-      description: 'Automated regulatory and financial compliance reporting',
+      title: 'Audit Reports',
+      desc: 'Regulatory and financial compliance logs',
       icon: FileCheck,
       status: 'Action needed',
-      statusColor: 'amber',
       items: [
-        { name: 'Q4 2025 Revenue Report', value: 'Ready', status: 'ok' },
-        { name: 'Annual Audit Report', value: 'In Progress', status: 'warning' },
-        { name: 'Royalty Distribution Report', value: 'Pending Review', status: 'warning' },
-      ],
-    },
-    {
-      title: 'Audit Logs',
-      description: 'Track all financial operations and administrative actions',
-      icon: Shield,
-      status: 'Monitored',
-      statusColor: 'blue',
-      items: [
-        { name: 'Total Entries (MTD)', value: '12,456', status: 'ok' },
-        { name: 'Flagged Transactions', value: '3', status: 'error' },
-        { name: 'Last Reviewed', value: 'Feb 10, 2026', status: 'ok' },
+        { name: 'Q4 2025 Revenue Report', value: 'Ready', type: 'ok' },
+        { name: 'Annual Audit Report', value: 'In Progress', type: 'warning' },
+        { name: 'Royalty Distribution', value: 'Pending Review', type: 'warning' },
       ],
     },
   ];
 
-  const statusDot: Record<string, string> = {
-    ok: 'bg-green-500',
-    warning: 'bg-amber-500',
-    error: 'bg-red-500',
-  };
-
-  const headerBadge: Record<string, string> = {
-    green: 'bg-green-50 text-green-700',
-    amber: 'bg-amber-50 text-amber-700',
-    blue: 'bg-blue-50 text-blue-700',
-  };
-
   return (
     <div className="space-y-6">
-      {/* Alert banner */}
-      <div className="flex items-center gap-3 bg-amber-50 border border-amber-100 rounded-2xl p-4">
-        <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
-          <AlertCircle className="w-5 h-5 text-amber-600" />
+      <div className="flex items-center gap-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-lg p-5">
+        <div className="w-10 h-10 rounded bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center shrink-0">
+          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium text-amber-800">22 artists have incomplete tax documentation</p>
-          <p className="text-xs text-amber-600 mt-0.5">Please review and collect missing forms before the next payout cycle</p>
+          <p className="text-sm font-bold text-amber-900 dark:text-amber-200">22 artists missing tax documents</p>
+          <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5 font-medium">Payouts for these artists are currently on hold.</p>
         </div>
-        <button className="text-xs font-medium text-amber-700 bg-amber-100 px-3 py-1.5 rounded-lg hover:bg-amber-200 transition-colors shrink-0">
-          Review Now
+        <button className="px-4 py-2 text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-200/50 dark:bg-amber-500/20 rounded uppercase tracking-widest hover:opacity-80 transition-opacity">
+          Review List
         </button>
       </div>
 
-      {/* Cards */}
-      <div className="space-y-4">
-        {complianceItems.map((section) => {
-          const Icon = section.icon;
-          return (
-            <div key={section.title} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="flex items-center gap-4 p-5 border-b border-gray-50">
-                <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600">
-                  <Icon className="w-5 h-5" />
+      <div className="grid md:grid-cols-2 gap-6">
+        {complianceItems.map((section) => (
+          <div key={section.title} className={card}>
+            <div className="p-6 border-b border-zinc-100 dark:border-white/[0.06] flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-zinc-500">
+                  <section.icon className="w-5 h-5" />
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-gray-900">{section.title}</h3>
-                    <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${headerBadge[section.statusColor]}`}>
-                      {section.status}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-0.5">{section.description}</p>
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">{section.title}</h3>
+                  <p className="text-[10px] text-zinc-500 mt-0.5">{section.desc}</p>
                 </div>
-                <button className="flex items-center gap-1 text-sm text-green-600 font-medium hover:underline">
-                  View All <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="divide-y divide-gray-50">
-                {section.items.map((item) => (
-                  <div key={item.name} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50/50 transition-colors">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${statusDot[item.status]}`} />
-                      <span className="text-sm text-gray-600">{item.name}</span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">{item.value}</span>
-                  </div>
-                ))}
               </div>
             </div>
-          );
-        })}
+            <div className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
+              {section.items.map((item) => (
+                <div key={item.name} className="flex items-center justify-between px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${item.type === 'ok' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                    <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">{item.name}</span>
+                  </div>
+                  <span className="text-xs font-bold text-zinc-900 dark:text-white">{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -600,142 +494,50 @@ const ComplianceSection = () => {
 /* ─── Pricing ─── */
 const PricingSection = () => {
   const tiers = [
-    { region: 'United States', currency: 'USD', basic: '$0', premium: '$9.99', pro: '$14.99', family: '$19.99' },
-    { region: 'European Union', currency: 'EUR', basic: '€0', premium: '€9.49', pro: '€13.99', family: '€18.99' },
-    { region: 'United Kingdom', currency: 'GBP', basic: '£0', premium: '£7.99', pro: '£11.99', family: '£16.99' },
-    { region: 'Japan', currency: 'JPY', basic: '¥0', premium: '¥980', pro: '¥1,480', family: '¥1,980' },
-    { region: 'Brazil', currency: 'BRL', basic: 'R$0', premium: 'R$19.90', pro: 'R$27.90', family: 'R$34.90' },
-  ];
-
-  const discounts = [
-    { name: 'Student Discount', value: '50% off', type: 'Ongoing', status: true },
-    { name: 'Annual Billing', value: '2 months free', type: 'Ongoing', status: true },
-    { name: 'New User Trial', value: '30 days free', type: 'Promotional', status: true },
-    { name: 'Referral Bonus', value: '1 month free', type: 'Ongoing', status: false },
+    { region: 'United States', currency: 'USD', premium: '$9.99', pro: '$14.99' },
+    { region: 'European Union', currency: 'EUR', premium: '€9.49', pro: '€13.99' },
+    { region: 'United Kingdom', currency: 'GBP', premium: '£7.99', pro: '£11.99' },
+    { region: 'Japan', currency: 'JPY', premium: '¥980', pro: '¥1,480' },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Regional Pricing */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between p-5 border-b border-gray-50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-              <Globe className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Regional Pricing</h3>
-              <p className="text-xs text-gray-500">Manage pricing across different regions and currencies</p>
-            </div>
-          </div>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors">
-            <Plus className="w-4 h-4" />
-            Add Region
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="text-xs text-gray-400 uppercase tracking-wider">
-                <th className="text-left px-5 py-3 font-medium">Region</th>
-                <th className="text-left px-5 py-3 font-medium">Currency</th>
-                <th className="text-center px-5 py-3 font-medium">Free</th>
-                <th className="text-center px-5 py-3 font-medium">Premium</th>
-                <th className="text-center px-5 py-3 font-medium">Pro</th>
-                <th className="text-center px-5 py-3 font-medium">Family</th>
-                <th className="text-right px-5 py-3 font-medium">Actions</th>
+    <div className={card}>
+      <div className="p-6 border-b border-zinc-100 dark:border-white/[0.06] flex items-center justify-between">
+        <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Regional Pricing</h3>
+        <button className="px-4 py-2 text-[10px] font-bold text-white bg-emerald-500 rounded uppercase tracking-wider hover:bg-emerald-600 transition-colors">
+          Add Region
+        </button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="border-b border-zinc-100 dark:border-white/[0.04] bg-zinc-50/50 dark:bg-zinc-800/20">
+              <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Region</th>
+              <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Currency</th>
+              <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Premium</th>
+              <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Pro</th>
+              <th className="px-6 py-4 text-right text-[11px] font-bold uppercase tracking-widest text-zinc-500">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
+            {tiers.map((t) => (
+              <tr key={t.region} className="hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors">
+                <td className="px-6 py-4 text-sm font-bold text-zinc-900 dark:text-white">{t.region}</td>
+                <td className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">{t.currency}</td>
+                <td className="px-6 py-4 text-sm font-bold text-zinc-900 dark:text-white">{t.premium}</td>
+                <td className="px-6 py-4 text-sm font-bold text-zinc-900 dark:text-white">{t.pro}</td>
+                <td className="px-6 py-4 text-right">
+                  <button className="text-[10px] font-bold text-emerald-500 hover:underline uppercase tracking-widest">Edit</button>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {tiers.map((t) => (
-                <tr key={t.region} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-5 py-3.5 text-sm font-medium text-gray-900">{t.region}</td>
-                  <td className="px-5 py-3.5">
-                    <span className="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-1 rounded-md">{t.currency}</span>
-                  </td>
-                  <td className="px-5 py-3.5 text-sm text-gray-500 text-center">{t.basic}</td>
-                  <td className="px-5 py-3.5 text-sm font-medium text-gray-900 text-center">{t.premium}</td>
-                  <td className="px-5 py-3.5 text-sm font-medium text-gray-900 text-center">{t.pro}</td>
-                  <td className="px-5 py-3.5 text-sm font-medium text-gray-900 text-center">{t.family}</td>
-                  <td className="px-5 py-3.5 text-right">
-                    <button className="text-xs text-green-600 font-medium hover:underline">Edit</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
-
-      {/* Discounts & Promotions */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between p-5 border-b border-gray-50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
-              <Tag className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Discounts & Promotions</h3>
-              <p className="text-xs text-gray-500">Active discount rules and promotional offers</p>
-            </div>
-          </div>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors">
-            <Plus className="w-4 h-4" />
-            Add Discount
-          </button>
-        </div>
-        <div className="divide-y divide-gray-50">
-          {discounts.map((d) => (
-            <div key={d.name} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50/50 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
-                  <Percent className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{d.name}</p>
-                  <p className="text-xs text-gray-400">{d.type}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-semibold text-gray-900">{d.value}</span>
-                <button
-                  className={`relative w-10 h-5.5 rounded-full transition-colors ${d.status ? 'bg-green-500' : 'bg-gray-200'}`}
-                >
-                  <span className={`absolute top-0.5 w-4.5 h-4.5 bg-white rounded-full shadow-sm transition-transform ${d.status ? 'left-5' : 'left-0.5'}`} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Currency Settings */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-            <Star className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-gray-900">Currency Settings</h3>
-            <p className="text-xs text-gray-500">Default currency and conversion preferences</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-gray-50/50 rounded-xl p-4 border border-gray-100">
-            <p className="text-xs text-gray-500 mb-1">Default Currency</p>
-            <p className="text-sm font-semibold text-gray-900">USD - United States Dollar</p>
-          </div>
-          <div className="bg-gray-50/50 rounded-xl p-4 border border-gray-100">
-            <p className="text-xs text-gray-500 mb-1">Exchange Rate Source</p>
-            <p className="text-sm font-semibold text-gray-900">ECB (European Central Bank)</p>
-          </div>
-          <div className="bg-gray-50/50 rounded-xl p-4 border border-gray-100">
-            <p className="text-xs text-gray-500 mb-1">Rate Update Frequency</p>
-            <p className="text-sm font-semibold text-gray-900">Daily (12:00 UTC)</p>
-          </div>
-          <div className="bg-gray-50/50 rounded-xl p-4 border border-gray-100">
-            <p className="text-xs text-gray-500 mb-1">Supported Currencies</p>
-            <p className="text-sm font-semibold text-gray-900">12 currencies</p>
+    </div>
+  );
+};
+rencies</p>
           </div>
         </div>
       </div>

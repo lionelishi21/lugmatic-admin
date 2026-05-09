@@ -551,8 +551,8 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       )}
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto bg-gray-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-        <main className={`p-5 ${isMobile ? 'pt-16' : ''}`}>
+      <div className="flex-1 overflow-auto bg-zinc-950 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+        <main className={`p-5 lg:p-8 ${isMobile ? 'pt-16' : ''}`}>
           {children}
         </main>
       </div>

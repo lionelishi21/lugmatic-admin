@@ -8,18 +8,20 @@ import { adminService } from '../../services/adminService';
 import { User } from '../../types';
 import { toast } from 'react-hot-toast';
 
+const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+
 // Role configuration for UI display
 const roleConfig: Record<string, any> = {
-  admin: { label: 'Admin', icon: Shield, bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-400' },
-  'super admin': { label: 'Super Admin', icon: Shield, bg: 'bg-purple-50', text: 'text-purple-700', dot: 'bg-purple-400' },
-  artist: { label: 'Artist', icon: Music2, bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-400' },
-  user: { label: 'User', icon: UserIcon, bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' },
+  admin: { label: 'Admin', icon: Shield, bg: 'bg-amber-50 dark:bg-amber-500/10', text: 'text-amber-700 dark:text-amber-400', dot: 'bg-amber-400' },
+  'super admin': { label: 'Super Admin', icon: Shield, bg: 'bg-purple-50 dark:bg-purple-500/10', text: 'text-purple-700 dark:text-purple-400', dot: 'bg-purple-400' },
+  artist: { label: 'Artist', icon: Music2, bg: 'bg-emerald-50 dark:bg-emerald-500/10', text: 'text-emerald-700 dark:text-emerald-400', dot: 'bg-emerald-400' },
+  user: { label: 'User', icon: UserIcon, bg: 'bg-zinc-100 dark:bg-zinc-800', text: 'text-zinc-600 dark:text-zinc-400', dot: 'bg-zinc-400' },
 };
 
 const statusConfig: Record<string, any> = {
-  active: { label: 'Active', bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-500' },
-  inactive: { label: 'Inactive', bg: 'bg-gray-100', text: 'text-gray-500', dot: 'bg-gray-400' },
-  suspended: { label: 'Suspended', bg: 'bg-red-50', text: 'text-red-600', dot: 'bg-red-500' },
+  active: { label: 'Active', bg: 'bg-emerald-50 dark:bg-emerald-500/10', text: 'text-emerald-700 dark:text-emerald-400', dot: 'bg-emerald-500' },
+  inactive: { label: 'Inactive', bg: 'bg-zinc-100 dark:bg-zinc-800', text: 'text-zinc-500 dark:text-zinc-400', dot: 'bg-zinc-400' },
+  suspended: { label: 'Suspended', bg: 'bg-rose-50 dark:bg-rose-500/10', text: 'text-rose-700 dark:text-rose-400', dot: 'bg-rose-500' },
 };
 
 function getInitials(name: string) {
@@ -218,157 +220,157 @@ export default function UserManagement() {
 
   const hasActiveFilters = roleFilter !== 'all' || statusFilter !== 'all';
 
+  const StatCard_ = ({
+    label, value, icon: Icon, color, bgColor, trend
+  }: {
+    label: string, value: number, icon: any, color: string, bgColor: string, trend: string
+  }) => (
+    <div className={`${card} p-5`}>
+      <div className="flex items-center justify-between mb-4">
+        <div className={`p-2 rounded ${bgColor}`}>
+          <Icon className={`h-4 w-4 ${color}`} />
+        </div>
+        <span className={`text-[10px] font-bold ${trend.startsWith('+') ? 'text-emerald-500' : 'text-zinc-400'}`}>
+          {trend}
+        </span>
+      </div>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">{label}</p>
+      <p className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">{value.toLocaleString()}</p>
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="max-w-5xl mx-auto pb-16 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage platform users, roles and permissions</p>
+      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4`}>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Users className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">
+              User Management
+            </h1>
+            <p className="text-sm text-zinc-500 mt-0.5">
+              Control platform access and user permissions
+            </p>
+          </div>
         </div>
         <button 
           onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors"
+          className="px-6 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold rounded hover:opacity-90 transition-opacity flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          Add User
+          Add New User
         </button>
       </div>
 
-      {/* Stats */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Users', value: stats.total, icon: Users, color: 'bg-green-50 text-green-600', trend: '+12%' },
-          { label: 'Active Users', value: stats.active, icon: UserCheck, color: 'bg-blue-50 text-blue-600', trend: '+8%' },
-          { label: 'Artists', value: stats.artists, icon: Music2, color: 'bg-emerald-50 text-emerald-600', trend: '+3' },
-          { label: 'Suspended', value: stats.suspended, icon: Ban, color: 'bg-red-50 text-red-500', trend: '-2' },
-        ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className={`w-10 h-10 rounded-xl ${s.color} flex items-center justify-center`}>
-                <s.icon className="w-5 h-5" />
-              </div>
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${s.trend.startsWith('+') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
-                {s.trend}
-              </span>
-            </div>
-            <div className="text-2xl font-bold text-gray-900">{s.value}</div>
-            <div className="text-xs text-gray-500 mt-0.5">{s.label}</div>
-          </div>
-        ))}
+        <StatCard_ label="Total Users" value={stats.total} icon={Users} color="text-blue-600 dark:text-blue-400" bgColor="bg-blue-50 dark:bg-blue-500/10" trend="+12%" />
+        <StatCard_ label="Active" value={stats.active} icon={UserCheck} color="text-emerald-600 dark:text-emerald-400" bgColor="bg-emerald-50 dark:bg-emerald-500/10" trend="+8%" />
+        <StatCard_ label="Artists" value={stats.artists} icon={Music2} color="text-indigo-600 dark:text-indigo-400" bgColor="bg-indigo-50 dark:bg-indigo-500/10" trend="+3" />
+        <StatCard_ label="Suspended" value={stats.suspended} icon={Ban} color="text-rose-600 dark:text-rose-400" bgColor="bg-rose-50 dark:bg-rose-500/10" trend="-2" />
       </div>
 
       {/* Table Card */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        {/* Toolbar */}
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search users..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-sm text-gray-900 bg-gray-50/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-colors"
-              />
-              {search && (
-                <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
+      <div className={card}>
+        <div className="px-6 py-4 border-b border-zinc-100 dark:border-white/[0.06] space-y-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <div className="relative flex-1 md:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  className="w-full pl-9 pr-4 py-2 rounded bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/[0.08] text-sm text-zinc-900 dark:text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500 transition-all"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded border transition-all ${hasActiveFilters ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-white/[0.08] text-zinc-600 dark:text-zinc-400 hover:border-emerald-500'}`}
+              >
+                <Filter className="w-3.5 h-3.5" />
+                Filters
+              </button>
             </div>
-
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-3.5 py-2 text-sm border rounded-xl transition-colors ${hasActiveFilters ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-            >
-              <Filter className="w-4 h-4" />
-              Filters
-              {hasActiveFilters && (
-                <span className="w-5 h-5 rounded-full bg-green-600 text-white text-[10px] font-bold flex items-center justify-center">
-                  {(roleFilter !== 'all' ? 1 : 0) + (statusFilter !== 'all' ? 1 : 0)}
-                </span>
-              )}
-            </button>
-
-            <span className="text-xs text-gray-400 ml-auto">
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
-              ) : (
-                `${users.length} of ${totalUsers} users`
-              )}
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+              {loading ? 'Refreshing...' : `${totalUsers} Users Registered`}
             </span>
           </div>
 
           {showFilters && (
-            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
-              <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Role</span>
-              <div className="flex gap-1.5">
-                {['all', 'admin', 'artist', 'user'].map(r => (
-                  <button
-                    key={r}
-                    onClick={() => setRoleFilter(r)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${roleFilter === r ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                  >
-                    {r === 'all' ? 'All' : r.charAt(0).toUpperCase() + r.slice(1)}
-                  </button>
-                ))}
+            <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-zinc-100 dark:border-white/[0.04]">
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Role</span>
+                <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded p-0.5 gap-0.5">
+                  {['all', 'admin', 'artist', 'user'].map(r => (
+                    <button
+                      key={r}
+                      onClick={() => setRoleFilter(r)}
+                      className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wide transition-all ${roleFilter === r ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="w-px h-6 bg-gray-200 mx-1" />
-              <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Status</span>
-              <div className="flex gap-1.5">
-                {['all', 'active', 'inactive', 'suspended'].map(s => (
-                  <button
-                    key={s}
-                    onClick={() => setStatusFilter(s)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${statusFilter === s ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                  >
-                    {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
-                  </button>
-                ))}
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Status</span>
+                <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded p-0.5 gap-0.5">
+                  {['all', 'active', 'inactive', 'suspended'].map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setStatusFilter(s)}
+                      className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wide transition-all ${statusFilter === s ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
-              {hasActiveFilters && (
-                <button
-                  onClick={() => { setRoleFilter('all'); setStatusFilter('all'); }}
-                  className="ml-auto text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1"
-                >
-                  <X className="w-3 h-3" /> Clear
-                </button>
-              )}
             </div>
           )}
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-gray-50/50 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              <tr>
-                <th className="pl-4 pr-2 py-4 w-10">
+            <thead>
+              <tr className="border-b border-zinc-100 dark:border-white/[0.04] bg-zinc-50/50 dark:bg-zinc-800/20">
+                <th className="pl-6 py-4 w-10">
                   <input
                     type="checkbox"
                     checked={users.length > 0 && selectedUsers.size === users.length}
                     onChange={toggleAll}
-                    className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500/20"
+                    className="w-4 h-4 rounded border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800 text-emerald-500 focus:ring-emerald-500/20"
                   />
                 </th>
-                <th className="px-4 py-4">User</th>
-                <th className="px-4 py-4">Role</th>
-                <th className="px-4 py-4">Status</th>
-                <th className="px-4 py-4 text-right">Actions</th>
+                <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">User Details</th>
+                <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Access Level</th>
+                <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Account Status</th>
+                <th className="px-6 py-4 text-right text-[11px] font-bold uppercase tracking-widest text-zinc-500">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-20 text-center">
-                    <Loader2 className="w-8 h-8 text-green-600 animate-spin mx-auto mb-2" />
-                    <p className="text-sm text-gray-500 font-medium">Loading platform users...</p>
+                  <td colSpan={5} className="py-24 text-center">
+                    <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto" />
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-20 text-center text-gray-400">No users found matchnig your filters.</td>
+                  <td colSpan={5} className="py-20 text-center">
+                    <div className="flex flex-col items-center">
+                      <div className="w-14 h-14 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center mb-4">
+                        <Users className="h-6 w-6 text-zinc-400" />
+                      </div>
+                      <h3 className="font-semibold text-zinc-700 dark:text-zinc-300">No users found</h3>
+                      <p className="text-sm text-zinc-400 mt-1">Refine your search or filters.</p>
+                    </div>
+                  </td>
                 </tr>
               ) : users.map(user => {
                 const userId = user._id || '';
@@ -378,23 +380,23 @@ export default function UserManagement() {
                 const fullName = user.fullName || `${user.firstName} ${user.lastName}`;
                 
                 return (
-                  <tr key={userId} className="group hover:bg-gray-50/50 transition-colors">
-                    <td className="pl-4 pr-2 py-3">
+                  <tr key={userId} className="group hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors">
+                    <td className="pl-6 py-3">
                       <input
                         type="checkbox"
                         checked={selectedUsers.has(userId)}
                         onChange={() => toggleSelect(userId)}
-                        className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500/20"
+                        className="w-4 h-4 rounded border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800 text-emerald-500 focus:ring-emerald-500/20"
                       />
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${getAvatarColor(userId)} flex items-center justify-center text-white text-xs font-bold ring-2 ring-white`}>
+                        <div className={`w-9 h-9 rounded bg-gradient-to-br ${getAvatarColor(userId)} flex items-center justify-center text-white text-[10px] font-bold shadow-sm`}>
                           {getInitials(fullName)}
                         </div>
                         <div>
-                          <div className="text-sm font-semibold text-gray-900">{fullName}</div>
-                          <div className="text-xs text-gray-400 flex items-center gap-1">
+                          <div className="text-sm font-bold text-zinc-900 dark:text-white">{fullName}</div>
+                          <div className="text-[11px] font-medium text-zinc-500 flex items-center gap-1.5 mt-0.5">
                             <Mail className="w-3 h-3" />
                             {user.email}
                           </div>
@@ -402,56 +404,56 @@ export default function UserManagement() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg ${role.bg} ${role.text}`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${role.bg} ${role.text} border-current/10`}>
                         <role.icon className="w-3 h-3" />
                         {role.label}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg ${status.bg} ${status.text}`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${status.bg} ${status.text} border-current/10`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
                         {status.label}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-6 py-3 text-right">
                       <div className="relative inline-block text-left">
                         <button
                           onClick={() => setOpenMenu(openMenu === userId ? null : userId)}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                          className="p-2 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all opacity-0 group-hover:opacity-100"
                         >
                           <MoreHorizontal className="w-4 h-4" />
                         </button>
                         {openMenu === userId && (
                           <>
                             <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
-                            <div className="absolute right-0 mt-1 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20">
+                            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-lg shadow-2xl border border-zinc-200 dark:border-white/10 py-1 z-20 overflow-hidden animate-in fade-in slide-in-from-top-1">
                               <button 
                                 onClick={() => { setEditEmail(user.email); setEditingUserId(userId); setOpenMenu(null); }}
-                                className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                className="w-full px-4 py-2 text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors"
                               >
-                                <Mail className="w-3.5 h-3.5" /> Edit Email
+                                <Mail className="w-4 h-4" /> Edit Email Address
                               </button>
                               
                               <button 
                                 onClick={() => { setTargetUser(user); setNewRole(user.role); setIsRoleModalOpen(true); setOpenMenu(null); }}
-                                className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                className="w-full px-4 py-2 text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors"
                               >
-                                <Shield className="w-3.5 h-3.5" /> Change Role
+                                <Shield className="w-4 h-4" /> Change Access Level
                               </button>
                               
                               <button 
                                 onClick={() => { setTargetUser(user); setTempPassword(''); setIsResetModalOpen(true); setOpenMenu(null); }}
-                                className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                className="w-full px-4 py-2 text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors"
                               >
-                                <Key className="w-3.5 h-3.5" /> Reset Password
+                                <Key className="w-4 h-4" /> Reset Password
                               </button>
 
                               {!user.isEmailVerified && (
                                 <button
                                   onClick={() => { handleResendInvitation(userId); setOpenMenu(null); }}
-                                  className="w-full px-3 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-2"
+                                  className="w-full px-4 py-2 text-left text-xs font-bold text-emerald-500 hover:bg-emerald-500/5 flex items-center gap-2.5 transition-colors"
                                 >
-                                  <RefreshCw className="w-3.5 h-3.5" /> Resend Invite
+                                  <RefreshCw className="w-4 h-4" /> Resend Invitation
                                 </button>
                               )}
 
@@ -464,18 +466,18 @@ export default function UserManagement() {
                                   } catch (e: any) { toast.error(e.message); }
                                   setOpenMenu(null);
                                 }}
-                                className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 ${user.isActive ? 'text-amber-600 hover:bg-amber-50' : 'text-green-600 hover:bg-green-50'}`}
+                                className={`w-full px-4 py-2 text-left text-xs font-bold flex items-center gap-2.5 transition-colors ${user.isActive ? 'text-amber-500 hover:bg-amber-500/5' : 'text-emerald-500 hover:bg-emerald-500/5'}`}
                               >
-                                {user.isActive ? <Ban className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
-                                {user.isActive ? 'Suspend' : 'Reactivate'}
+                                {user.isActive ? <Ban className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                                {user.isActive ? 'Suspend Account' : 'Reactivate Account'}
                               </button>
 
-                              <div className="border-t border-gray-100 my-1" />
+                              <div className="h-px bg-zinc-100 dark:bg-white/5 my-1" />
                               <button 
                                 onClick={() => { handleDeleteUser(userId); setOpenMenu(null); }}
-                                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                className="w-full px-4 py-2 text-left text-xs font-bold text-rose-500 hover:bg-rose-500/5 flex items-center gap-2.5 transition-colors"
                               >
-                                <UserX className="w-3.5 h-3.5" /> Delete
+                                <UserX className="w-4 h-4" /> Delete Account
                               </button>
                             </div>
                           </>
@@ -491,31 +493,22 @@ export default function UserManagement() {
 
         {/* Pagination */}
         {!loading && users.length > 0 && (
-          <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between bg-gray-50/30">
-            <span className="text-xs text-gray-400">
-              Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalUsers)} of {totalUsers}
+          <div className="px-6 py-4 border-t border-zinc-100 dark:border-white/[0.04] flex items-center justify-between bg-zinc-50/30 dark:bg-zinc-800/10">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+              Page {page} of {totalPages}
             </span>
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3 py-1 text-xs font-medium rounded-lg text-gray-500 hover:bg-white border hover:border-gray-200 disabled:opacity-50 transition-all"
+                className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded border border-zinc-200 dark:border-white/10 text-zinc-500 hover:text-zinc-900 dark:hover:text-white disabled:opacity-50 transition-all"
               >
-                Prev
+                Previous
               </button>
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => i + 1).map(p => (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`w-8 h-8 text-xs font-bold rounded-lg transition-all ${p === page ? 'bg-green-600 text-white shadow-lg shadow-green-100' : 'text-gray-500 hover:bg-white border border-transparent hover:border-gray-200'}`}
-                >
-                  {p}
-                </button>
-              ))}
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-3 py-1 text-xs font-medium rounded-lg text-gray-500 hover:bg-white border hover:border-gray-200 disabled:opacity-50 transition-all"
+                className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded border border-zinc-200 dark:border-white/10 text-zinc-500 hover:text-zinc-900 dark:hover:text-white disabled:opacity-50 transition-all"
               >
                 Next
               </button>
@@ -524,199 +517,121 @@ export default function UserManagement() {
         )}
       </div>
 
-      {/* Modals */}
-      
       {/* Add User Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center">
-                  <UserPlus className="w-5 h-5" />
+      <AnimatePresence>
+        {isAddModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className={`${card} w-full max-w-md shadow-2xl overflow-hidden`}
+            >
+              <div className="px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded bg-emerald-500 flex items-center justify-center">
+                    <UserPlus className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">Add New User</h3>
+                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Invitation Flow</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Add New User</h3>
-                  <p className="text-xs text-gray-500">Create account and send invitation</p>
-                </div>
+                <button onClick={() => setIsAddModalOpen(false)} className="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <button onClick={() => setIsAddModalOpen(false)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleAddUser} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider ml-1">First Name</label>
-                  <input
-                    type="text" required value={newUser.firstName}
-                    onChange={e => setNewUser({ ...newUser, firstName: e.target.value })}
-                    className="w-full px-4 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
-                    placeholder="John"
-                  />
+              <form onSubmit={handleAddUser} className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">First Name</label>
+                    <input
+                      type="text" required value={newUser.firstName}
+                      onChange={e => setNewUser({ ...newUser, firstName: e.target.value })}
+                      className="w-full px-4 py-2.5 text-sm text-zinc-900 dark:text-white bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 transition-all"
+                      placeholder="e.g. John"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Last Name</label>
+                    <input
+                      type="text" required value={newUser.lastName}
+                      onChange={e => setNewUser({ ...newUser, lastName: e.target.value })}
+                      className="w-full px-4 py-2.5 text-sm text-zinc-900 dark:text-white bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 transition-all"
+                      placeholder="e.g. Doe"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider ml-1">Last Name</label>
-                  <input
-                    type="text" required value={newUser.lastName}
-                    onChange={e => setNewUser({ ...newUser, lastName: e.target.value })}
-                    className="w-full px-4 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
-                    placeholder="Doe"
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider ml-1">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Email Address</label>
                   <input
                     type="email" required value={newUser.email}
                     onChange={e => setNewUser({ ...newUser, email: e.target.value })}
-                    className="w-full pl-10 pr-4 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
-                    placeholder="john.doe@example.com"
+                    className="w-full px-4 py-2.5 text-sm text-zinc-900 dark:text-white bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 transition-all"
+                    placeholder="name@example.com"
                   />
                 </div>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider ml-1">User Role</label>
-                <div className="relative">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">User Role</label>
                   <select
                     value={newUser.role}
                     onChange={e => setNewUser({ ...newUser, role: e.target.value as any })}
-                    className="w-full appearance-none px-4 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
+                    className="w-full px-4 py-2.5 text-sm text-zinc-900 dark:text-white bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer"
                   >
                     {Object.keys(roleConfig).map(r => (
                       <option key={r} value={r}>{roleConfig[r].label}</option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 </div>
-              </div>
-              <div className="pt-4 flex gap-3">
-                <button type="button" onClick={() => setIsAddModalOpen(false)} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Cancel</button>
-                <button type="submit" disabled={isSubmitting} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-xl shadow-lg shadow-green-200 disabled:opacity-50 flex items-center justify-center gap-2">
-                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <UserPlus className="w-4 h-4" />}
-                  Create User
-                </button>
-              </div>
-            </form>
+                <div className="pt-4 flex gap-3">
+                  <button type="button" onClick={() => setIsAddModalOpen(false)} className="flex-1 px-6 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">Cancel</button>
+                  <button type="submit" disabled={isSubmitting} className="flex-1 px-6 py-3 bg-emerald-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20 disabled:opacity-50 flex items-center justify-center gap-2">
+                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send Invite'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </div>
-        </div>
-      )}
-
-      {/* Edit Email Modal */}
-      {editingUserId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <h3 className="text-lg font-bold text-gray-900">Update User Email</h3>
-              <button onClick={() => setEditingUserId(null)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider ml-1">New Email Address</label>
-                <input
-                  type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
-                  placeholder="new.email@example.com"
-                />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button onClick={() => setEditingUserId(null)} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Cancel</button>
-                <button onClick={() => handleUpdateEmail(editingUserId)} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-xl shadow-lg shadow-green-200">Update Email</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* Role Change Modal */}
-      {isRoleModalOpen && targetUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <h3 className="text-lg font-bold text-gray-900">Change User Role</h3>
-              <button onClick={() => setIsRoleModalOpen(false)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <p className="text-sm text-gray-500">Update role for <strong>{targetUser.fullName || `${targetUser.firstName} ${targetUser.lastName}`}</strong></p>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Select New Role</label>
-                <div className="relative">
-                  <select
-                    value={newRole}
-                    onChange={e => setNewRole(e.target.value)}
-                    className="w-full appearance-none px-4 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 transition-all"
-                  >
-                    {Object.keys(roleConfig).map(r => (
-                      <option key={r} value={r}>{roleConfig[r].label}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+      <AnimatePresence>
+        {isRoleModalOpen && targetUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className={`${card} w-full max-w-sm shadow-2xl p-8 text-center`}
+            >
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6">
+                <Shield className="h-8 w-8 text-indigo-500" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Change User Role</h3>
+              <p className="text-sm text-zinc-500 mb-8 leading-relaxed">
+                Update the access level for <span className="font-bold text-zinc-900 dark:text-white">{targetUser.email}</span>. This will take effect immediately.
+              </p>
+              <div className="space-y-4">
+                <select
+                  value={newRole}
+                  onChange={e => setNewRole(e.target.value)}
+                  className="w-full px-4 py-3 text-sm text-zinc-900 dark:text-white bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer font-bold text-center"
+                >
+                  {Object.keys(roleConfig).map(r => (
+                    <option key={r} value={r}>{roleConfig[r].label}</option>
+                  ))}
+                </select>
+                <div className="flex gap-4 pt-4">
+                  <button onClick={() => setIsRoleModalOpen(false)} className="flex-1 px-6 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">Cancel</button>
+                  <button onClick={handleRoleChange} disabled={isSubmitting} className="flex-1 px-6 py-3 bg-indigo-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-indigo-600 transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50">Save Role</button>
                 </div>
               </div>
-              <div className="flex gap-3 pt-2">
-                <button onClick={() => setIsRoleModalOpen(false)} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">Cancel</button>
-                <button onClick={handleRoleChange} disabled={isSubmitting} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-xl shadow-lg shadow-green-200 flex items-center justify-center gap-2">
-                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <Shield className="w-4 h-4" />}
-                  Save Role
-                </button>
-              </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
-      {/* Password Reset Modal */}
-      {isResetModalOpen && targetUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <h3 className="text-lg font-bold text-gray-900">Reset Password</h3>
-              <button onClick={() => setIsResetModalOpen(false)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              {!tempPassword ? (
-                <>
-                  <p className="text-sm text-gray-600">Are you sure you want to reset the password for <strong>{targetUser.email}</strong>?</p>
-                  <p className="text-xs text-gray-400 italic">The user will receive an email notification via Resend with the new password.</p>
-                  <div className="flex gap-3 pt-2">
-                    <button onClick={() => setIsResetModalOpen(false)} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">No, Cancel</button>
-                    <button onClick={handleResetPassword} disabled={isResetting} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-lg shadow-red-200 flex items-center justify-center gap-2">
-                      {isResetting ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                      Yes, Reset
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div className="space-y-4">
-                  <div className="p-4 bg-green-50 rounded-xl border border-green-100 text-center">
-                    <p className="text-xs text-green-600 font-medium mb-2 uppercase tracking-wider">New Temporary Password</p>
-                    <div className="text-2xl font-mono font-bold text-gray-900 tracking-widest">{tempPassword}</div>
-                    <p className="text-xs text-green-600 mt-2">Email notification has been sent via Resend.</p>
-                  </div>
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(tempPassword);
-                      toast.success('Password copied to clipboard');
-                    }}
-                    className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center gap-2"
-                  >
-                    Copy to Clipboard
-                  </button>
-                  <button onClick={() => setIsResetModalOpen(false)} className="w-full px-4 py-2.5 bg-green-600 text-white rounded-xl font-bold shadow-lg shadow-green-100">Done</button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

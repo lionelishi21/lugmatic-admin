@@ -1,20 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Gift as GiftIcon, 
-  TrendingUp, 
-  Calendar, 
-  DollarSign, 
-  ChevronDown, 
+import {
+  Gift as GiftIcon,
+  TrendingUp,
+  Calendar,
+  DollarSign,
   Search,
   Clock,
-  User,
-  MoreVertical,
   ArrowUpRight,
-  Filter,
   Play
 } from 'lucide-react';
-import { formatDistanceToNow, format } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import apiService, { getFullImageUrl } from '../../services/api';
 
 interface GiftStats {
@@ -35,6 +31,8 @@ interface Gift {
   song_title?: string;
   gift_image: string;
 }
+
+const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
 
 export default function Gifts() {
   const [stats, setStats] = useState<GiftStats>({
@@ -82,7 +80,7 @@ export default function Gifts() {
 
         setStats({
           totalGifts: fetchedGifts.length,
-          totalValue: total / 100, // Converts cents to dollars
+          totalValue: total / 100,
           monthlyGifts: monthlyGifts.length,
           monthlyValue: monthlyTotal / 100
         });
@@ -106,176 +104,167 @@ export default function Gifts() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 bg-zinc-50/40 min-h-screen font-['Geist'] text-zinc-900">
-      {/* Header - Soft UI Elevation */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-[2.5rem] p-8 mb-10 shadow-2xl shadow-zinc-200/50 flex flex-col lg:flex-row lg:items-center justify-between gap-8 border border-zinc-100"
-      >
-        <div className="flex items-center gap-6">
-          <div className="w-16 h-16 bg-purple-500 rounded-[2rem] flex items-center justify-center shadow-lg shadow-purple-500/20">
-            <GiftIcon className="h-8 w-8 text-white" />
+    <div className="max-w-5xl mx-auto pb-16 space-y-6">
+      {/* Header */}
+      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4`}>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-600/20">
+            <GiftIcon className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-4xl font-extrabold text-zinc-900 tracking-tight font-['Bebas_Neue'] uppercase leading-none">
-              Gifts & Donations
-            </h1>
-            <p className="text-zinc-500 text-sm font-medium mt-1">
-              Your community's massive support history.
-            </p>
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase">Gifts & Support</h1>
+            <p className="text-sm text-zinc-500 mt-0.5">Your community's digital contribution history.</p>
           </div>
         </div>
 
-        {/* Action Tray */}
-        <div className="flex items-center gap-4 bg-zinc-50 p-2 rounded-[2rem] border border-zinc-100/50">
-          <div className="flex bg-white rounded-full p-1 shadow-sm border border-zinc-200">
+        {/* Filters */}
+        <div className="flex items-center gap-3">
+          <div className="bg-zinc-100 dark:bg-zinc-800 rounded p-1 flex items-center gap-1">
             {['all', 'month', 'week'].map((p) => (
               <button
                 key={p}
                 onClick={() => setTimeFilter(p)}
-                className={`px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
-                  timeFilter === p 
-                  ? 'bg-zinc-900 text-white shadow-lg' 
-                  : 'text-zinc-400 hover:text-zinc-600'
+                className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all rounded ${
+                  timeFilter === p
+                    ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                    : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                 }`}
               >
                 {p}
               </button>
             ))}
           </div>
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-300 group-hover:text-purple-500 transition-colors" />
-            <input 
-              type="text" 
-              placeholder="Filter support..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-11 pr-6 py-3 bg-white border border-zinc-200 rounded-full text-xs font-bold focus:ring-2 focus:ring-purple-500/20 outline-none w-48 transition-all"
-            />
-          </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Gifts', value: stats.totalGifts, icon: <GiftIcon />, color: 'text-purple-600', bg: 'bg-purple-50', trend: 'All Time' },
-          { label: 'Total Value', value: `$${stats.totalValue.toLocaleString()}`, icon: <DollarSign />, color: 'text-emerald-600', bg: 'bg-emerald-50', trend: '+12.5%' },
-          { label: 'Monthly Gifts', value: stats.monthlyGifts, icon: <Calendar />, color: 'text-amber-600', bg: 'bg-amber-50', trend: 'Last 30 Days' },
-          { label: 'Monthly Value', value: `$${stats.monthlyValue.toLocaleString()}`, icon: <TrendingUp />, color: 'text-indigo-600', bg: 'bg-indigo-50', trend: '+8.3%' },
+          { label: 'Total Gifts', value: stats.totalGifts, icon: <GiftIcon className="h-5 w-5" />, color: 'purple', trend: 'All Time' },
+          { label: 'Total Value', value: `$${stats.totalValue.toLocaleString()}`, icon: <DollarSign className="h-5 w-5" />, color: 'emerald', trend: '+12.5%' },
+          { label: 'Monthly Gifts', value: stats.monthlyGifts, icon: <Calendar className="h-5 w-5" />, color: 'amber', trend: 'Last 30 Days' },
+          { label: 'Monthly Value', value: `$${stats.monthlyValue.toLocaleString()}`, icon: <TrendingUp className="h-5 w-5" />, color: 'indigo', trend: '+8.3%' },
         ].map((stat, idx) => (
           <motion.div
             key={idx}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="group bg-white rounded-[2rem] p-6 border border-zinc-100 shadow-xl shadow-zinc-100/50 hover:scale-[1.02] transition-transform"
+            className={`${card} p-5 hover:border-zinc-300 dark:hover:border-white/10 transition-all group`}
           >
             <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color} shadow-inner`}>
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-${stat.color}-500/10 text-${stat.color}-500 border border-${stat.color}-500/20 shadow-sm`}>
                 {stat.icon}
               </div>
-              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded bg-zinc-50 ${stat.color}`}>
+              <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
                 {stat.trend}
               </span>
             </div>
-            <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">{stat.label}</p>
-            <h4 className="text-2xl font-black text-zinc-900 mt-1">{stat.value}</h4>
+            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1">{stat.label}</p>
+            <p className="text-2xl font-black text-zinc-900 dark:text-white italic tracking-tighter tabular-nums">{stat.value}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* History Stream */}
-      <div className="space-y-6">
+      {/* Gift History */}
+      <div className={`${card} overflow-hidden`}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-800/20">
+          <div className="flex items-center gap-3">
+            <h2 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Transaction History</h2>
+            <span className="px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[10px] font-bold text-zinc-500">
+              {filteredGifts.length}
+            </span>
+          </div>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+            <input
+              type="text"
+              placeholder="FILTER SUPPORT..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 pr-4 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded text-[10px] font-bold uppercase tracking-widest focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none w-44 transition-all text-zinc-900 dark:text-white placeholder:text-zinc-400"
+            />
+          </div>
+        </div>
+
         <AnimatePresence mode="wait">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-40 grayscale opacity-30">
-              <div className="w-12 h-12 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
+            <div className="flex items-center justify-center py-24">
+              <div className="w-10 h-10 border-2 border-purple-500/10 border-t-purple-500 rounded-full animate-spin" />
             </div>
           ) : filteredGifts.length === 0 ? (
-            <div className="bg-white rounded-[3rem] border border-dashed border-zinc-200/60 p-24 text-center">
-              <div className="w-20 h-20 bg-zinc-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner shadow-zinc-100">
-                <GiftIcon className="h-10 w-10 text-zinc-200" />
+            <div className="py-24 text-center">
+              <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-2xl mx-auto mb-4 flex items-center justify-center border border-zinc-200 dark:border-white/5">
+                <GiftIcon className="h-8 w-8 text-zinc-400" />
               </div>
-              <h3 className="text-xl font-bold text-zinc-900 italic">No Support Received</h3>
-              <p className="text-zinc-500 text-sm mt-2 max-w-xs mx-auto font-medium">
-                When fans send you digital gifts, they'll appear here for you to acknowledge.
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">No support yet</h3>
+              <p className="text-xs text-zinc-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                When fans send you digital gifts, they'll appear here. Keep performing to earn support!
               </p>
             </div>
           ) : (
-            filteredGifts.map((gift, idx) => (
-              <motion.div
-                key={gift.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className="group bg-white rounded-[2.5rem] p-6 border border-zinc-100 shadow-lg shadow-zinc-200/40 hover:shadow-2xl hover:scale-[1.01] transition-all duration-300"
-              >
-                <div className="flex items-center gap-8">
-                  {/* Gift Icon Display */}
-                  <div className="w-24 h-24 bg-zinc-50 rounded-[2rem] p-4 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
-                    <img src={gift.gift_image} alt={gift.name} className="w-full h-full object-contain filter drop-shadow-md" />
+            <div className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
+              {filteredGifts.map((gift, idx) => (
+                <motion.div
+                  key={gift.id}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.03 }}
+                  className="group flex items-center gap-5 px-6 py-5 hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors"
+                >
+                  {/* Gift Image */}
+                  <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center flex-shrink-0 border border-zinc-200 dark:border-white/5 group-hover:scale-110 transition-transform">
+                    <img src={gift.gift_image} alt={gift.name} className="w-8 h-8 object-contain" />
                   </div>
 
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h4 className="text-lg font-black text-zinc-900 flex items-center gap-3">
-                          {gift.name}
-                          <span className="text-[10px] font-black uppercase text-purple-500 bg-purple-50 px-3 py-1 rounded-full border border-purple-100">
-                            +${(gift.value / 100).toFixed(2)}
-                          </span>
-                        </h4>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="w-6 h-6 rounded-full bg-zinc-100 overflow-hidden border border-zinc-200 shadow-sm">
-                            <img src={gift.sender_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(gift.sender_name)}&background=random`} alt={gift.sender_name} className="w-full h-full object-cover" />
-                          </div>
-                          <span className="text-xs font-bold text-zinc-500 tracking-tight">
-                            From <span className="text-zinc-900">{gift.sender_name}</span>
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-[10px] text-zinc-400 font-bold flex items-center gap-1.5 bg-zinc-50 px-3 py-1.5 rounded-full border border-zinc-100 shadow-sm float-right">
-                          <Clock className="h-3 w-3" />
-                          {formatDistanceToNow(new Date(gift.created_at), { addSuffix: true })}
-                        </span>
-                      </div>
-                    </div>
+                  {/* Sender */}
+                  <div className="relative flex-shrink-0">
+                    <img
+                      src={gift.sender_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(gift.sender_name)}&background=random`}
+                      alt={gift.sender_name}
+                      className="w-11 h-11 rounded-full object-cover border-2 border-zinc-100 dark:border-white/10"
+                    />
+                  </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {gift.stream_title ? (
-                          <div className="flex items-center gap-2 px-4 py-2 bg-rose-50 rounded-xl text-[10px] font-bold text-rose-600 border border-rose-100 shadow-sm group/btn cursor-pointer transition-all hover:bg-rose-500 hover:text-white">
-                            <Play className="h-3.5 w-3.5" />
-                            LIVE: {gift.stream_title}
-                          </div>
-                        ) : gift.song_title ? (
-                          <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-xl text-[10px] font-bold text-indigo-600 border border-indigo-100 shadow-sm">
-                            SONG: {gift.song_title}
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 px-4 py-2 bg-zinc-50 rounded-xl text-[10px] font-bold text-zinc-400 border border-zinc-100 shadow-sm">
-                            Direct Profile Gift
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="flex items-center gap-2 px-5 py-2.5 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-purple-500 transition-all shadow-lg hover:shadow-purple-500/20">
-                          Acknowledge
-                          <ArrowUpRight className="h-3.5 w-3.5 font-black" />
-                        </button>
-                        <button className="p-2.5 text-zinc-300 hover:text-zinc-900 bg-zinc-100 rounded-xl transition-colors">
-                          <MoreVertical className="h-5 w-5" />
-                        </button>
-                      </div>
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 flex-wrap mb-1">
+                      <span className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">{gift.name}</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        +${(gift.value / 100).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                        From <span className="text-zinc-900 dark:text-zinc-200">{gift.sender_name}</span>
+                      </p>
+                      {gift.stream_title && (
+                        <>
+                          <div className="w-1 h-1 rounded-full bg-zinc-700" />
+                          <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-tighter text-rose-500">
+                            <Play className="h-2.5 w-2.5 fill-current" />
+                            {gift.stream_title}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))
+
+                  {/* Time & Action */}
+                  <div className="flex items-center gap-8 flex-shrink-0">
+                    <div className="text-right">
+                      <div className="flex items-center justify-end gap-1.5 text-zinc-400 text-[10px] font-bold uppercase tracking-widest">
+                        <Clock className="h-3 w-3" />
+                        {formatDistanceToNow(new Date(gift.created_at), { addSuffix: true })}
+                      </div>
+                    </div>
+                    <button className="p-2 text-zinc-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded transition-all">
+                      <ArrowUpRight className="h-5 w-5" />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           )}
         </AnimatePresence>
       </div>

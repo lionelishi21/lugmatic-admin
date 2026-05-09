@@ -32,7 +32,10 @@ import {
   ChevronRight,
   Swords,
   Trophy,
-  Zap
+  Zap,
+  Share2,
+  Copy,
+  Check
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -103,6 +106,8 @@ export default function Live() {
   const [clashScores, setClashScores] = useState({ challenger: 0, opponent: 0 });
   const [totalCoins, setTotalCoins] = useState(0);
   const [lastGift, setLastGift] = useState<ChatMessage | null>(null);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const isLive = phase === 'live';
   const isBusy = ['creating', 'getting_token', 'connecting', 'publishing', 'ending'].includes(phase);
@@ -559,64 +564,147 @@ export default function Live() {
   };
 
   // ─── Format duration ──────────────────────────────────────────────────
-  const formatDuration = (seconds: number): string => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    if (h > 0) return `${h}h ${m}m ${s}s`;
-    if (m > 0) return `${m}m ${s}s`;
-    return `${s}s`;
+  const handleCopyLink = () => {
+    if (!streamData?._id) return;
+    const url = `https://lugmaticmusic.com/stream/${streamData._id}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    toast.success('Link copied to clipboard');
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSocialShare = (platform: 'twitter' | 'facebook' | 'whatsapp') => {
+    if (!streamData?._id) return;
+    const url = `https://lugmaticmusic.com/stream/${streamData._id}`;
+    const text = `I'm live on Lugmatic! Come watch my stream: ${streamSettings.title}`;
+    
+    let shareUrl = '';
+    switch (platform) {
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+        break;
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + ' ' + url)}`;
+        break;
+    }
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+    setShowShareMenu(false);
   };
 
   // ─── Render ───────────────────────────────────────────────────────────
+  const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+
   return (
     <div className="max-w-6xl mx-auto space-y-4">
 
       {/* ── Page header ── */}
-      <div className="flex items-center justify-between">
+      <div className={`${card} p-6 flex items-center justify-between`}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Go Live</h1>
-          <p className="text-sm text-gray-600 mt-0.5">Broadcast to your fans in real time</p>
+          <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase">Go Live</h1>
+          <p className="text-sm text-zinc-500 mt-0.5">Broadcast to your fans in real time</p>
         </div>
-        {!isLive && !isBusy && phase !== 'error' && (
-          <button
-            onClick={openSettings}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold shadow-sm transition-all"
-          >
-            <Radio className="h-4 w-4" />
-            Go Live
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          {isLive && (
+            <div className="relative">
+              <button
+                onClick={() => setShowShareMenu(!showShareMenu)}
+                className="flex items-center gap-2 px-4 py-2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all border border-zinc-200 dark:border-white/10"
+              >
+                <Share2 className="h-3.5 w-3.5" />
+                Share Stream
+              </button>
+
+              <AnimatePresence>
+                {showShareMenu && (
+                  <>
+                    <div className="fixed inset-0 z-30" onClick={() => setShowShareMenu(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                      className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-lg shadow-2xl z-40 overflow-hidden"
+                    >
+                      <div className="px-4 py-2 border-b border-zinc-100 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
+                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Share to Social</p>
+                      </div>
+                      <button
+                        onClick={() => handleSocialShare('twitter')}
+                        className="w-full px-4 py-2 text-left text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3 uppercase tracking-wider"
+                      >
+                        <div className="w-5 h-5 bg-black rounded flex items-center justify-center"><span className="text-white text-[10px]">X</span></div>
+                        Twitter
+                      </button>
+                      <button
+                        onClick={() => handleSocialShare('facebook')}
+                        className="w-full px-4 py-2 text-left text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3 uppercase tracking-wider"
+                      >
+                        <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center"><span className="text-white text-[10px]">f</span></div>
+                        Facebook
+                      </button>
+                      <button
+                        onClick={() => handleSocialShare('whatsapp')}
+                        className="w-full px-4 py-2 text-left text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3 uppercase tracking-wider"
+                      >
+                        <div className="w-5 h-5 bg-green-500 rounded flex items-center justify-center"><span className="text-white text-[10px]">w</span></div>
+                        WhatsApp
+                      </button>
+                      <button
+                        onClick={handleCopyLink}
+                        className="w-full px-4 py-3 border-t border-zinc-100 dark:border-white/5 text-left text-[11px] font-bold text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 flex items-center gap-3 uppercase tracking-wider"
+                      >
+                        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        {copied ? 'Copied!' : 'Copy Link'}
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+          
+          {!isLive && !isBusy && phase !== 'error' && (
+            <button
+              onClick={openSettings}
+              className="flex items-center gap-2 px-6 py-2.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all"
+            >
+              <Radio className="h-4 w-4" />
+              Go Live
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ── Live status banner ── */}
       {(isLive || phase === 'ending') && (
-        <div className="flex items-center justify-between bg-red-600 text-white rounded-2xl px-5 py-3 shadow-sm">
-          <div className="flex items-center gap-4 flex-wrap">
-            <span className="flex items-center gap-2 font-bold text-base">
-              <span className="w-2.5 h-2.5 bg-white rounded-full animate-pulse" />
-              LIVE
+        <div className="flex items-center justify-between bg-rose-600 text-white rounded-lg px-6 py-4 shadow-xl shadow-rose-600/10 border border-white/10">
+          <div className="flex items-center gap-6 flex-wrap">
+            <span className="flex items-center gap-2 font-black text-sm italic tracking-tighter">
+              <span className="w-2.5 h-2.5 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]" />
+              LIVE NOW
             </span>
-            <span className="flex items-center gap-1.5 text-sm bg-white/20 px-3 py-1 rounded-full font-mono">
-              <Clock className="h-3.5 w-3.5" />
+            <span className="flex items-center gap-2 text-[11px] bg-black/20 px-3 py-1.5 rounded font-bold tracking-widest tabular-nums">
+              <Clock className="h-3.5 w-3.5 text-white/70" />
               {elapsedTime}
             </span>
-            <span className="flex items-center gap-1.5 text-sm bg-white/20 px-3 py-1 rounded-full">
-              <Users className="h-3.5 w-3.5" />
-              {viewerCount} watching
+            <span className="flex items-center gap-2 text-[11px] bg-black/20 px-3 py-1.5 rounded font-bold tracking-widest">
+              <Users className="h-3.5 w-3.5 text-white/70" />
+              {viewerCount} WATCHING
             </span>
-            <span className="flex items-center gap-1.5 text-sm">
+            <span className="flex items-center gap-2 text-[11px] font-bold tracking-widest opacity-80">
               {liveKitConnected ? (
-                <><Wifi className="h-3.5 w-3.5 text-green-300" /><span className="text-green-200 text-sm">Connected</span></>
+                <><Wifi className="h-3.5 w-3.5 text-emerald-400" />CONNECTED</>
               ) : (
-                <><WifiOff className="h-3.5 w-3.5 text-yellow-300" /><span className="text-yellow-200 text-sm">Reconnecting...</span></>
+                <><WifiOff className="h-3.5 w-3.5 text-amber-400 animate-pulse" />RECONNECTING...</>
               )}
             </span>
           </div>
           <button
             onClick={handleEndStream}
             disabled={phase === 'ending'}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 rounded-xl font-semibold hover:bg-red-50 disabled:opacity-50 transition-colors text-sm"
+            className="flex items-center gap-2 px-6 py-2 bg-white text-rose-600 rounded font-bold text-[10px] uppercase tracking-widest hover:bg-rose-50 disabled:opacity-50 transition-all shadow-lg"
           >
             {phase === 'ending' && <Loader2 className="animate-spin h-4 w-4" />}
             End Stream
