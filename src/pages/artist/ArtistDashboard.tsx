@@ -67,9 +67,14 @@ export default function ArtistDashboard() {
     try {
       setLoadingContributions(true);
       const res = await userService.getContributorDashboard();
-      if (res.data.success) setContributions(res.data.data.songs);
-    } catch (err) {
-      console.error('Failed to fetch contributions:', err);
+      // Ensure we check for data safely
+      const songs = res.data?.data?.songs || res.data?.songs || [];
+      setContributions(songs);
+    } catch (err: any) {
+      // Suppress 404 error logs for contributor dashboard as it's common for new artists
+      if (err.response?.status !== 404) {
+        console.error('Failed to fetch contributions:', err);
+      }
     } finally {
       setLoadingContributions(false);
     }

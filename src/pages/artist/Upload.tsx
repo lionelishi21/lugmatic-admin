@@ -23,7 +23,8 @@ import {
   Target,
   ShieldCheck,
   Smartphone,
-  ChevronDown
+  ChevronDown,
+  Calendar
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
