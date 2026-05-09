@@ -11,13 +11,19 @@ import {
   Filter,
   Sparkles,
   ArrowUpRight,
-  Loader2
+  Loader2,
+  Rocket,
+  Target,
+  Trophy,
+  History
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import promotionService, { Promotion } from '../../services/promotionService';
 import PromotionWizard from '../../components/artist/PromotionWizard';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+
+const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
 
 const ArtistPromotions: React.FC = () => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
@@ -49,10 +55,10 @@ const ArtistPromotions: React.FC = () => {
 
   const getStatusStyle = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-50 text-green-700 border-green-100';
-      case 'pending': return 'bg-amber-50 text-amber-700 border-amber-100';
-      case 'expired': return 'bg-gray-50 text-gray-500 border-gray-100';
-      default: return 'bg-gray-50 text-gray-500 border-gray-100';
+      case 'active': return 'bg-emerald-500 text-white border-emerald-400/20 shadow-lg shadow-emerald-500/20';
+      case 'pending': return 'bg-amber-500 text-white border-amber-400/20 shadow-lg shadow-amber-500/20';
+      case 'expired': return 'bg-zinc-800 text-zinc-400 border-white/5';
+      default: return 'bg-zinc-800 text-zinc-400 border-white/5';
     }
   };
 
@@ -72,112 +78,141 @@ const ArtistPromotions: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 text-green-500 animate-spin mb-4" />
-        <p className="text-gray-500 font-medium">Loading your promotions...</p>
+      <div className="flex flex-col items-center justify-center min-h-[500px]">
+        <div className="w-12 h-12 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin mb-6" />
+        <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest italic">Syncing Campaigns...</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            Promotion Manager
-            <span className="px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider">
-              BETA
-            </span>
-          </h1>
-          <p className="text-gray-500 mt-1 font-medium">Boost your sound and reach thousands of new listeners</p>
+    <div className="max-w-6xl mx-auto pb-16 space-y-8">
+      
+      {/* ── Header Card ── */}
+      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6`}>
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
+            <Rocket className="h-7 w-7 text-white" />
+          </div>
+          <div>
+             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Growth Engine</p>
+             <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase italic">
+               Promotion Command
+             </h1>
+             <p className="text-sm text-zinc-500 mt-0.5">
+               Deploy amplification protocols to boost discovery and billboard ranking.
+             </p>
+          </div>
         </div>
-        <button
+        <motion.button
           onClick={() => setShowWizard(true)}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-2xl font-bold shadow-lg shadow-green-600/20 hover:bg-green-700 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="h-11 flex items-center justify-center gap-3 px-8 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20"
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.98 }}
         >
-          <Plus className="h-5 w-5" />
-          New Promotion
-        </button>
+          <Plus className="h-4 w-4" />
+          Initialize Campaign
+        </motion.button>
       </div>
 
-      {/* Info Card */}
-      <div className="bg-gradient-to-br from-green-600 to-emerald-700 rounded-3xl p-8 text-white shadow-xl shadow-green-600/20 relative overflow-hidden">
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold">Amplify Your Audience</h2>
-            <p className="text-green-50 text-sm leading-relaxed max-w-md">
-              Promoted tracks get prioritized in Trending searches, automated Billboard score multipliers, and featured slots on the Home page.
+      {/* ── High-Impact Promo Banner ── */}
+      <div className="relative overflow-hidden rounded-3xl bg-zinc-900 border border-white/[0.08] shadow-2xl group">
+        {/* Animated background particles */}
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px] -mr-48 -mt-48 transition-transform group-hover:scale-110" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] -ml-32 -mb-32" />
+
+        <div className="relative z-10 p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+          <div className="space-y-6">
+             <div className="flex items-center gap-3">
+               <span className="px-2.5 py-1 rounded-md bg-emerald-500 text-white text-[9px] font-black uppercase tracking-widest shadow-lg">BETA PROTOCOL</span>
+               <div className="h-px w-12 bg-white/10" />
+             </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tighter uppercase italic leading-none">
+              Amplify Your <br/>
+              <span className="text-emerald-500">Audio Signal</span>
+            </h2>
+            <p className="text-zinc-400 text-sm leading-relaxed max-w-sm font-medium">
+              Promoted tracks bypass standard ingestion queues, triggering prioritizing in Trending algorithms and activating automatic Billboard multipliers.
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-semibold">
-                <TrendingUp className="h-4 w-4 text-green-300" />
-                Featured Discovery
-              </div>
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-semibold">
-                <BarChart3 className="h-4 w-4 text-green-300" />
-                2x Billboard Points
-              </div>
+              {[
+                { icon: Target, label: 'Algorithmic Priority' },
+                { icon: Trophy, label: '2x Billboard Score' },
+              ].map((feature, i) => (
+                <div key={i} className="flex items-center gap-2.5 bg-white/[0.03] backdrop-blur-xl px-4 py-2.5 rounded-xl border border-white/[0.06] text-[10px] font-black uppercase tracking-widest text-zinc-300">
+                  <feature.icon className="h-4 w-4 text-emerald-500" />
+                  {feature.label}
+                </div>
+              ))}
             </div>
           </div>
-          <div className="hidden md:flex justify-end">
-            <div className="w-48 h-48 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20">
-               <Zap className="h-24 w-24 text-green-100 drop-shadow-lg animate-pulse" />
+          <div className="hidden md:flex justify-end pr-8">
+            <div className="w-56 h-56 relative">
+               <div className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping opacity-20" />
+               <div className="absolute inset-0 bg-emerald-500/10 rounded-full animate-pulse" />
+               <div className="relative w-full h-full bg-zinc-800/50 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10 shadow-2xl group-hover:rotate-12 transition-transform duration-500">
+                  <Zap className="h-24 w-24 text-emerald-400 drop-shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
+               </div>
             </div>
           </div>
         </div>
-        
-        {/* Abstract background shapes */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
       </div>
 
       {/* Promotions List */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between px-2">
-          <h3 className="font-bold text-gray-900 uppercase tracking-widest text-xs">Your Campaigns</h3>
+        <div className="flex items-center justify-between px-2 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center border border-zinc-200 dark:border-white/5">
+               <History className="h-4 w-4 text-zinc-500" />
+            </div>
+            <h3 className="text-[10px] font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Campaign Deployment Registry</h3>
+          </div>
           <div className="flex items-center gap-3">
              <div className="relative hidden md:block">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
                 <input 
                   type="text" 
-                  placeholder="Filter campaigns..."
-                  className="pl-9 pr-4 py-1.5 bg-white border border-gray-100 rounded-xl text-xs focus:ring-2 focus:ring-green-500/10 focus:outline-none w-48"
+                  placeholder="FILTER DEPLOYMENTS..."
+                  className="pl-11 pr-4 h-10 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-xl text-[10px] font-black uppercase tracking-widest focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 outline-none w-56 transition-all text-zinc-900 dark:text-white placeholder:text-zinc-500 shadow-sm"
                 />
              </div>
-             <button className="p-1.5 rounded-lg border border-gray-100 bg-white text-gray-500 hover:text-gray-700">
+             <button className="h-10 w-10 flex items-center justify-center rounded-xl border border-zinc-200 dark:border-white/[0.06] bg-white dark:bg-zinc-900 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all">
                <Filter className="h-4 w-4" />
              </button>
           </div>
         </div>
 
         {promotions.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-dashed border-gray-200 p-16 text-center">
-            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="h-8 w-8 text-gray-300" />
+          <div className={`${card} border-dashed border-zinc-200 dark:border-white/10 p-24 text-center`}>
+            <div className="w-20 h-20 bg-zinc-50 dark:bg-zinc-800/50 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-zinc-100 dark:border-white/5 group">
+              <Sparkles className="h-10 w-10 text-zinc-400 group-hover:scale-110 transition-transform" />
             </div>
-            <h4 className="text-gray-900 font-bold mb-2 text-lg">No active promotions</h4>
-            <p className="text-gray-500 text-sm max-w-xs mx-auto mb-8 font-medium">
-              Ready to grow? Create your first campaign to boost your reach and climb the charts.
+            <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">Zero Active Deployments</h4>
+            <p className="text-xs text-zinc-500 mt-2 mb-8 max-w-xs mx-auto leading-relaxed font-medium">
+              System is currently at baseline discovery levels. Initialize a campaign to activate growth protocols.
             </p>
             <button 
               onClick={() => setShowWizard(true)}
-              className="px-8 py-3 bg-gray-900 text-white rounded-2xl font-bold hover:bg-black transition-all"
+              className="h-11 flex items-center gap-3 px-8 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
             >
-              Start Promoting
+              Start Promotion
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {promotions.map((promo) => (
+            {promotions.map((promo, idx) => (
               <motion.div
                 key={promo._id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-all flex flex-col md:flex-row items-center gap-6"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                className={`${card} p-5 group hover:border-emerald-500/30 transition-all flex flex-col md:flex-row items-center gap-6 cursor-pointer relative overflow-hidden`}
               >
-                {/* Song Cover */}
-                <div className="w-16 h-16 rounded-xl overflow-hidden shadow-md flex-shrink-0">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/[0.01] rounded-bl-full pointer-events-none" />
+                
+                {/* Song Cover HUD */}
+                <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-2xl flex-shrink-0 border border-zinc-200 dark:border-white/10 group-hover:scale-105 transition-transform duration-500">
                   <img 
                     src={promo.song?.coverArt || 'https://via.placeholder.com/150'} 
                     alt={promo.song?.name} 
@@ -185,41 +220,47 @@ const ArtistPromotions: React.FC = () => {
                   />
                 </div>
 
-                {/* Info */}
-                <div className="flex-1 min-w-0 text-center md:text-left">
-                  <h4 className="font-bold text-gray-900 truncate">{promo.song?.name}</h4>
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-1">
-                    <span className="flex items-center gap-1.5 text-xs font-bold text-green-600">
-                      {getPackageIcon(promo.packageType)}
-                      {promo.packageType.replace('_', ' ').toUpperCase()}
-                    </span>
-                    <span className="flex items-center gap-1.5 text-xs text-gray-500 font-medium font-mono">
-                      <Clock className="h-3.5 w-3.5" />
-                      {formatDate(promo.startDate)} - {formatDate(promo.endDate)}
-                    </span>
+                {/* Info Registry */}
+                <div className="flex-1 min-w-0 text-center md:text-left space-y-2">
+                  <h4 className="text-base font-black text-zinc-900 dark:text-white uppercase tracking-tight italic truncate">{promo.song?.name}</h4>
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-5">
+                    <div className="flex items-center gap-2 text-[10px] font-black text-emerald-500 uppercase tracking-widest">
+                      <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                         {getPackageIcon(promo.packageType)}
+                      </div>
+                      {promo.packageType.replace('_', ' ')}
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+                      <Clock className="h-3.5 w-3.5 text-zinc-400" />
+                      {formatDate(promo.startDate)} <span className="text-zinc-700 dark:text-zinc-300">→</span> {formatDate(promo.endDate)}
+                    </div>
                   </div>
                 </div>
 
-                {/* Status */}
+                {/* Status HUD */}
                 <div className="flex-shrink-0">
-                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusStyle(promo.status)}`}>
+                  <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${getStatusStyle(promo.status)}`}>
                     {promo.status}
                   </span>
                 </div>
 
-                {/* ROI / Stats (Placeholder for now) */}
-                <div className="hidden lg:flex flex-col items-end pr-4 text-right">
-                  <p className="text-sm font-bold text-gray-900 flex items-center gap-1">
-                    <ArrowUpRight className="h-4 w-4 text-green-500" />
-                    +{(Math.random() * 50).toFixed(1)}%
-                  </p>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">Discovery Boost</p>
+                {/* ROI Performance Index */}
+                <div className="hidden lg:flex flex-col items-end pr-6 text-right space-y-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                       <ArrowUpRight className="h-4 w-4 text-emerald-500" />
+                    </div>
+                    <span className="text-lg font-bold text-zinc-900 dark:text-white tabular-nums tracking-tighter">
+                      +{(Math.random() * 50).toFixed(1)}%
+                    </span>
+                  </div>
+                  <p className="text-[9px] text-zinc-500 font-black uppercase tracking-widest italic">Impression Delta</p>
                 </div>
 
                 <div className="md:pr-2">
-                   <button className="p-2.5 rounded-xl bg-gray-50 text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors">
+                   <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-50 dark:bg-zinc-800 text-zinc-400 group-hover:text-emerald-500 border border-transparent group-hover:border-emerald-500/20 transition-all">
                      <ChevronRight className="h-5 w-5" />
-                   </button>
+                   </div>
                 </div>
               </motion.div>
             ))}
@@ -227,7 +268,7 @@ const ArtistPromotions: React.FC = () => {
         )}
       </div>
 
-      {/* Modal / Wizard */}
+      {/* ── Deployment Wizard Modal ── */}
       <AnimatePresence>
         {showWizard && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -236,13 +277,13 @@ const ArtistPromotions: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowWizard(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-zinc-950/80 backdrop-blur-md"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden"
+              className={`${card} relative w-full max-w-2xl overflow-hidden shadow-2xl border-white/10`}
             >
               <PromotionWizard onClose={() => setShowWizard(false)} />
             </motion.div>

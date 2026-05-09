@@ -35,7 +35,13 @@ import {
   Zap,
   Share2,
   Copy,
-  Check
+  Check,
+  Play,
+  Heart,
+  TrendingUp,
+  Settings,
+  Monitor,
+  Volume2
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -51,6 +57,11 @@ import socketService, { type ChatMessage, type StreamState } from '../../service
 import apiService from '../../services/api';
 import clashService from '../../services/clashService';
 import ChallengeModal from '../../components/clash/ChallengeModal';
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const inputClass = 'w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium';
+const labelClass = 'text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 block italic';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -72,14 +83,14 @@ interface UserProfile {
 }
 
 const PHASE_LABELS: Record<StreamPhase, string> = {
-  idle: 'Ready',
-  creating: 'Creating stream...',
-  getting_token: 'Getting streaming token...',
-  connecting: 'Connecting to live server...',
-  publishing: 'Publishing camera & microphone...',
-  live: 'YOU ARE LIVE',
-  ending: 'Ending stream...',
-  error: 'Error',
+  idle: 'System Ready',
+  creating: 'Initializing Uplink...',
+  getting_token: 'Syncing Security Tokens...',
+  connecting: 'Establishing Handshake...',
+  publishing: 'Syncing Audio/Video Arrays...',
+  live: 'LIVE BROADCAST',
+  ending: 'Deactivating Signal...',
+  error: 'Critical Failure',
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -126,9 +137,8 @@ export default function Live() {
   const [giftCount, setGiftCount] = useState(0);
 
   const roomRef = useRef<Room | null>(null);
-  const clashRoomRef = useRef<Room | null>(null); // shared clash room for mutual A/V
+  const clashRoomRef = useRef<Room | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [remoteVideoTrack, setRemoteVideoTrack] = useState<any>(null);
@@ -136,7 +146,6 @@ export default function Live() {
   const [isPreviewActive, setIsPreviewActive] = useState(false);
   const localTracksRef = useRef<Awaited<ReturnType<typeof createLocalTracks>> | null>(null);
 
-  // ─── Fetch artist profile ─────────────────────────────────────────────
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -150,14 +159,11 @@ export default function Live() {
           ...prev,
           title: prev.title || (name ? `${name} Live` : ''),
         }));
-      } catch {
-        // silently ignore
-      }
+      } catch {}
     };
     fetchProfile();
   }, []);
 
-  // ─── Elapsed timer ────────────────────────────────────────────────────
   useEffect(() => {
     if (!liveSince) return;
     const interval = setInterval(() => {
@@ -174,28 +180,23 @@ export default function Live() {
     return () => clearInterval(interval);
   }, [liveSince]);
 
-  // ─── Turn Timer Countdown ───────────────────────────────────────────────
   useEffect(() => {
     if (!activeClash || !clashTurn) return;
-
     const interval = setInterval(() => {
       const expiresAt = new Date(clashTurn.turnExpiresAt).getTime();
       const now = Date.now();
       const diff = Math.max(0, Math.floor((expiresAt - now) / 1000));
       setTurnTimeLeft(diff);
     }, 1000);
-
     return () => clearInterval(interval);
   }, [activeClash, clashTurn]);
 
-  // ─── Auto-scroll chat ─────────────────────────────────────────────────
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // ─── Camera preview ───────────────────────────────────────────────────
   const startPreview = useCallback(async () => {
     try {
       const tracks = await createLocalTracks({
@@ -209,7 +210,7 @@ export default function Live() {
       }
       setIsPreviewActive(true);
     } catch {
-      toast.error('Could not access camera/microphone. Check browser permissions.');
+      toast.error('Could not access hardware. Check permissions.');
     }
   }, []);
 
@@ -224,7 +225,6 @@ export default function Live() {
     setIsPreviewActive(false);
   }, []);
 
-  // ─── Cleanup on unmount ───────────────────────────────────────────────
   useEffect(() => {
     return () => {
       stopPreview();
@@ -233,10 +233,8 @@ export default function Live() {
       if (streamData?._id) socketService.leaveStream(streamData._id);
       socketService.disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ─── Socket listeners ─────────────────────────────────────────────────
   const setupSocketListeners = useCallback((streamId: string) => {
     try {
       socketService.onStreamState((state: StreamState) => {
@@ -256,18 +254,18 @@ export default function Live() {
       });
       socketService.onViewerJoined((data) => setViewerCount(data.currentViewers));
       socketService.onViewerLeft((data) => setViewerCount(data.currentViewers));
-      socketService.onStreamEnded(() => toast('Stream has ended'));
+      socketService.onStreamEnded(() => toast('Broadcast terminated'));
       socketService.onError((data) => { console.error('[Socket] Error:', data.message); });
       
-      // ─── Clash Listeners ───
       socketService.onClashInvitation((data) => {
         toast((t) => (
-          <div className="flex items-center gap-4">
+          <div className={`${card} p-4 flex items-center gap-4 bg-zinc-900 border-emerald-500/20`}>
             <div className="flex-1">
-              <p className="text-sm font-bold">{data.challenger.name} challenged you to a War!</p>
-              <p className="text-xs text-gray-500">{data.duration / 60} minutes</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 italic mb-1">Incoming Challenge</p>
+              <p className="text-sm font-bold text-white">{data.challenger.name} challenged you to a War!</p>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase mt-1">{data.duration / 60} minutes duration</p>
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
               <button
                 onClick={async () => {
                   try {
@@ -277,7 +275,7 @@ export default function Live() {
                     toast.error(err.response?.data?.message || 'Failed to accept');
                   }
                 }}
-                className="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-lg"
+                className="px-4 py-2 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-emerald-600/20"
               >
                 Accept
               </button>
@@ -288,13 +286,13 @@ export default function Live() {
                     toast.dismiss(t.id);
                   } catch (err) {}
                 }}
-                className="px-3 py-1 bg-gray-200 text-gray-700 text-xs font-bold rounded-lg"
+                className="px-4 py-2 bg-zinc-800 text-zinc-400 text-[10px] font-black uppercase tracking-widest rounded-lg"
               >
-                Decline
+                Ignore
               </button>
             </div>
           </div>
-        ), { duration: 10000, icon: '⚔️' });
+        ), { duration: 15000, icon: null });
       });
 
       socketService.onClashStarted(async (data) => {
@@ -308,15 +306,13 @@ export default function Live() {
           });
         }
         setClashScores({ challenger: 0, opponent: 0 });
-        toast.success('Clash started! Get those bars ready!', { icon: '🔥' });
+        toast.success('Clash started! Deployment active!', { icon: '🔥' });
 
-        // Connect to the shared clash room so we can see/hear the opponent
         if (data.clashRoom?.token && data.clashRoom?.url) {
           try {
             const clashRoom = new Room();
             clashRoomRef.current = clashRoom;
 
-            // When a remote participant publishes video/audio, show/play it as opponent feed
             clashRoom.on(RoomEvent.TrackSubscribed, (track: any) => {
               if (track.kind === 'video') setRemoteVideoTrack(track);
               else if (track.kind === 'audio') setRemoteAudioTrack(track);
@@ -328,8 +324,6 @@ export default function Live() {
 
             await clashRoom.connect(data.clashRoom.url, data.clashRoom.token);
 
-            // Re-publish the existing native media tracks into the clash room instead of
-            // requesting the camera/mic again (which would fail as they are already acquired)
             const mainRoom = roomRef.current;
             if (mainRoom) {
               const camPub = mainRoom.localParticipant.getTrackPublication(Track.Source.Camera);
@@ -347,7 +341,6 @@ export default function Live() {
               }
             }
 
-            // Fallback: Check if opponent tracks were already published
             clashRoom.remoteParticipants.forEach(p => {
               p.trackPublications.forEach(pub => {
                 if (pub.isSubscribed && pub.track) {
@@ -386,19 +379,18 @@ export default function Live() {
         clashRoomRef.current = null;
         const isWinner = data.winnerId === streamData?.host?._id;
         if (isWinner) {
-          toast.success('Victory! You won the Lyrical War!', { icon: <Trophy className="h-5 w-5 text-yellow-500" />, duration: 5000 });
+          toast.success('Victory! Deployment Successful!', { icon: <Trophy className="h-5 w-5 text-emerald-500" />, duration: 5000 });
         } else if (data.winnerId) {
-          toast.error('Gave it your best! Your opponent won this round.', { icon: '💀', duration: 5000 });
+          toast.error('Mission Failed. Hostile artist secured victory.', { icon: '💀', duration: 5000 });
         } else {
-          toast('It was a draw!', { icon: '🤝' });
+          toast('Stalemate Protocol Active.', { icon: '🤝' });
         }
       });
 
       socketService.onClashRejected(() => {
-        toast.error('Your challenge was declined.');
+        toast.error('Tactical challenge was declined.');
       });
 
-      // Update realm in real-time without re-rendering the whole clash
       socketService.connect().on('clash:realm-changed', (data: any) => {
         setActiveClash((prev: any) => prev ? { ...prev, realm: data.realm, realmLabel: data.realmLabel } : prev);
       });
@@ -406,14 +398,13 @@ export default function Live() {
       socketService.joinStream(streamId);
     } catch (err) {
       console.warn('[Socket] Setup failed:', err);
-      toast.error('Live chat is unavailable — check your connection and refresh.', { duration: 8000 });
+      toast.error('Live chat offline — check uplink status.', { duration: 8000 });
     }
   }, []);
 
-  // ─── Start stream ─────────────────────────────────────────────────────
   const handleStartStream = async () => {
     if (!streamSettings.title.trim()) {
-      toast.error('Please set a stream title');
+      toast.error('Provide broadcast identifier (title)');
       return;
     }
     setErrorMsg('');
@@ -450,7 +441,6 @@ export default function Live() {
         if (pub.track?.kind === 'video' && videoRef.current) {
           pub.track.attach(videoRef.current);
         }
-        console.log('[LiveKit] Published:', pub.track?.kind, 'by', participant.identity);
       });
 
       room.on(RoomEvent.TrackSubscribed, (track) => {
@@ -474,7 +464,6 @@ export default function Live() {
       if (camPub?.track && videoRef.current) {
         camPub.track.attach(videoRef.current);
       } else if (room.localParticipant.videoTrackPublications.size > 0 && videoRef.current) {
-        // Fallback: attach any available video track
         const track = Array.from(room.localParticipant.videoTrackPublications.values())[0]?.track;
         if (track) track.attach(videoRef.current);
       }
@@ -485,17 +474,15 @@ export default function Live() {
       setIsSettingsOpen(false);
       setSummary(null);
       setLiveSince(Date.now());
-      toast.success('You are now live!');
+      toast.success('System Live. Broadast active.');
     } catch (error: unknown) {
-      const errMsg = error instanceof Error ? error.message : 'Failed to start stream';
-      console.error('Start stream error:', error);
+      const errMsg = error instanceof Error ? error.message : 'Uplink synchronization failed';
       setPhase('error');
       setErrorMsg(errMsg);
       toast.error(errMsg);
     }
   };
 
-  // ─── End stream ───────────────────────────────────────────────────────
   const handleEndStream = async () => {
     if (!streamData?._id) return;
     setPhase('ending');
@@ -517,16 +504,14 @@ export default function Live() {
       setLiveSince(null);
       setElapsedTime('0:00');
       setLiveKitConnected(false);
-      toast.success('Stream ended');
+      toast.success('Broadcast terminated.');
     } catch (error: unknown) {
-      const errMsg = error instanceof Error ? error.message : 'Failed to end stream';
-      console.error('End stream error:', error);
+      const errMsg = error instanceof Error ? error.message : 'Deactivation failed';
       toast.error(errMsg);
       setPhase('live');
     }
   };
 
-  // ─── Toggle mic / camera ──────────────────────────────────────────────
   const toggleMic = async () => {
     if (!roomRef.current) return;
     try {
@@ -543,7 +528,6 @@ export default function Live() {
     } catch (err) { console.error('Toggle camera error:', err); }
   };
 
-  // ─── Send chat message ────────────────────────────────────────────────
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !streamData?._id) return;
@@ -551,7 +535,6 @@ export default function Live() {
     setNewMessage('');
   };
 
-  // ─── Settings form ────────────────────────────────────────────────────
   const handleSettingsChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -563,20 +546,19 @@ export default function Live() {
     setIsSettingsOpen(true);
   };
 
-  // ─── Format duration ──────────────────────────────────────────────────
   const handleCopyLink = () => {
     if (!streamData?._id) return;
     const url = `https://lugmaticmusic.com/stream/${streamData._id}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
-    toast.success('Link copied to clipboard');
+    toast.success('Signal link extracted');
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleSocialShare = (platform: 'twitter' | 'facebook' | 'whatsapp') => {
     if (!streamData?._id) return;
     const url = `https://lugmaticmusic.com/stream/${streamData._id}`;
-    const text = `I'm live on Lugmatic! Come watch my stream: ${streamSettings.title}`;
+    const text = `System live on Lugmatic. Syncing now: ${streamSettings.title}`;
     
     let shareUrl = '';
     switch (platform) {
@@ -594,27 +576,32 @@ export default function Live() {
     setShowShareMenu(false);
   };
 
-  // ─── Render ───────────────────────────────────────────────────────────
-  const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
-
   return (
-    <div className="max-w-6xl mx-auto space-y-4">
+    <div className="max-w-6xl mx-auto space-y-6 pb-20">
 
-      {/* ── Page header ── */}
-      <div className={`${card} p-6 flex items-center justify-between`}>
-        <div>
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase">Go Live</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">Broadcast to your fans in real time</p>
+      {/* ── Branded HUD Header ── */}
+      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 overflow-hidden relative`}>
+        <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/[0.02] rounded-bl-full pointer-events-none" />
+        <div className="flex items-center gap-5 relative z-10">
+          <div className="w-14 h-14 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
+            <Radio className="h-7 w-7 text-white" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Uplink Command</p>
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase italic">Go Live</h1>
+            <p className="text-sm text-zinc-500 mt-0.5">Initialize real-time broadcast and combat deployment.</p>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+        
+        <div className="flex items-center gap-3 relative z-10">
           {isLive && (
             <div className="relative">
               <button
                 onClick={() => setShowShareMenu(!showShareMenu)}
-                className="flex items-center gap-2 px-4 py-2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all border border-zinc-200 dark:border-white/10"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-black text-[10px] uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all border border-zinc-200 dark:border-white/10"
               >
-                <Share2 className="h-3.5 w-3.5" />
-                Share Stream
+                <Share2 className="h-4 w-4" />
+                Signal Sync
               </button>
 
               <AnimatePresence>
@@ -622,42 +609,43 @@ export default function Live() {
                   <>
                     <div className="fixed inset-0 z-30" onClick={() => setShowShareMenu(false)} />
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      initial={{ opacity: 0, scale: 0.95, y: 12 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                      className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-lg shadow-2xl z-40 overflow-hidden"
+                      exit={{ opacity: 0, scale: 0.95, y: 12 }}
+                      className={`${card} absolute top-full right-0 mt-3 w-56 shadow-2xl z-40 overflow-hidden border-emerald-500/20`}
                     >
-                      <div className="px-4 py-2 border-b border-zinc-100 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
-                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Share to Social</p>
+                      <div className="px-5 py-3 border-b border-zinc-100 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
+                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic">Global Protocol</p>
                       </div>
-                      <button
-                        onClick={() => handleSocialShare('twitter')}
-                        className="w-full px-4 py-2 text-left text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3 uppercase tracking-wider"
-                      >
-                        <div className="w-5 h-5 bg-black rounded flex items-center justify-center"><span className="text-white text-[10px]">X</span></div>
-                        Twitter
-                      </button>
-                      <button
-                        onClick={() => handleSocialShare('facebook')}
-                        className="w-full px-4 py-2 text-left text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3 uppercase tracking-wider"
-                      >
-                        <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center"><span className="text-white text-[10px]">f</span></div>
-                        Facebook
-                      </button>
-                      <button
-                        onClick={() => handleSocialShare('whatsapp')}
-                        className="w-full px-4 py-2 text-left text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3 uppercase tracking-wider"
-                      >
-                        <div className="w-5 h-5 bg-green-500 rounded flex items-center justify-center"><span className="text-white text-[10px]">w</span></div>
-                        WhatsApp
-                      </button>
-                      <button
-                        onClick={handleCopyLink}
-                        className="w-full px-4 py-3 border-t border-zinc-100 dark:border-white/5 text-left text-[11px] font-bold text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 flex items-center gap-3 uppercase tracking-wider"
-                      >
-                        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                        {copied ? 'Copied!' : 'Copy Link'}
-                      </button>
+                      <div className="p-2 space-y-1">
+                        {[
+                          { id: 'twitter', label: 'X Array', icon: 'X', color: 'bg-zinc-950' },
+                          { id: 'facebook', label: 'Meta Net', icon: 'M', color: 'bg-blue-600' },
+                          { id: 'whatsapp', label: 'Secure P2P', icon: 'S', color: 'bg-emerald-600' }
+                        ].map((plat) => (
+                          <button
+                            key={plat.id}
+                            onClick={() => handleSocialShare(plat.id as any)}
+                            className="w-full px-4 py-2.5 text-left text-[11px] font-black text-zinc-700 dark:text-zinc-300 hover:bg-emerald-500/10 hover:text-emerald-500 rounded-xl flex items-center gap-4 uppercase tracking-widest transition-all"
+                          >
+                            <div className={`w-6 h-6 ${plat.color} rounded-lg flex items-center justify-center`}>
+                              <span className="text-white text-[10px] font-black italic">{plat.icon}</span>
+                            </div>
+                            {plat.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="p-2 border-t border-zinc-100 dark:border-white/5">
+                        <button
+                          onClick={handleCopyLink}
+                          className="w-full px-4 py-3 text-left text-[11px] font-black text-emerald-500 hover:bg-emerald-500/5 rounded-xl flex items-center gap-4 uppercase tracking-widest transition-all"
+                        >
+                          <div className="w-6 h-6 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          </div>
+                          {copied ? 'Copied' : 'Extract URL'}
+                        </button>
+                      </div>
                     </motion.div>
                   </>
                 )}
@@ -668,109 +656,179 @@ export default function Live() {
           {!isLive && !isBusy && phase !== 'error' && (
             <button
               onClick={openSettings}
-              className="flex items-center gap-2 px-6 py-2.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all"
+              className="flex items-center gap-3 px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-emerald-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
-              <Radio className="h-4 w-4" />
-              Go Live
+              <Zap className="h-4.5 w-4.5 fill-current" />
+              Initialize Uplink
             </button>
           )}
         </div>
       </div>
 
-      {/* ── Live status banner ── */}
+      {/* ── Active Live HUD Banner ── */}
       {(isLive || phase === 'ending') && (
-        <div className="flex items-center justify-between bg-rose-600 text-white rounded-lg px-6 py-4 shadow-xl shadow-rose-600/10 border border-white/10">
-          <div className="flex items-center gap-6 flex-wrap">
-            <span className="flex items-center gap-2 font-black text-sm italic tracking-tighter">
-              <span className="w-2.5 h-2.5 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]" />
-              LIVE NOW
-            </span>
-            <span className="flex items-center gap-2 text-[11px] bg-black/20 px-3 py-1.5 rounded font-bold tracking-widest tabular-nums">
-              <Clock className="h-3.5 w-3.5 text-white/70" />
-              {elapsedTime}
-            </span>
-            <span className="flex items-center gap-2 text-[11px] bg-black/20 px-3 py-1.5 rounded font-bold tracking-widest">
-              <Users className="h-3.5 w-3.5 text-white/70" />
-              {viewerCount} WATCHING
-            </span>
-            <span className="flex items-center gap-2 text-[11px] font-bold tracking-widest opacity-80">
-              {liveKitConnected ? (
-                <><Wifi className="h-3.5 w-3.5 text-emerald-400" />CONNECTED</>
-              ) : (
-                <><WifiOff className="h-3.5 w-3.5 text-amber-400 animate-pulse" />RECONNECTING...</>
-              )}
-            </span>
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col sm:flex-row items-center justify-between bg-zinc-950 text-white rounded-2xl px-8 py-5 shadow-2xl border border-rose-500/20 relative overflow-hidden group"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-transparent pointer-events-none" />
+          <div className="flex items-center gap-8 flex-wrap relative z-10">
+            <div className="flex items-center gap-3">
+               <div className="w-3 h-3 bg-rose-500 rounded-full animate-pulse shadow-[0_0_12px_rgba(244,63,94,0.8)]" />
+               <span className="font-black text-base italic tracking-tighter uppercase">Signal Active</span>
+            </div>
+            
+            <div className="h-8 w-px bg-white/10 hidden sm:block" />
+            
+            <div className="flex items-center gap-6">
+              <div className="flex flex-col">
+                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Duration</span>
+                <span className="flex items-center gap-2 text-xs font-bold tracking-widest tabular-nums text-white">
+                  <Clock className="h-3.5 w-3.5 text-rose-500" />
+                  {elapsedTime}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Viewers</span>
+                <span className="flex items-center gap-2 text-xs font-bold tracking-widest text-white">
+                  <Users className="h-3.5 w-3.5 text-emerald-500" />
+                  {viewerCount} SYNCED
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Uplink</span>
+                <span className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase">
+                  {liveKitConnected ? (
+                    <><Wifi className="h-3.5 w-3.5 text-emerald-500" /> Secure</>
+                  ) : (
+                    <><WifiOff className="h-3.5 w-3.5 text-amber-500 animate-pulse" /> Lossy</>
+                  )}
+                </span>
+              </div>
+            </div>
           </div>
+          
           <button
             onClick={handleEndStream}
             disabled={phase === 'ending'}
-            className="flex items-center gap-2 px-6 py-2 bg-white text-rose-600 rounded font-bold text-[10px] uppercase tracking-widest hover:bg-rose-50 disabled:opacity-50 transition-all shadow-lg"
+            className="mt-4 sm:mt-0 flex items-center gap-3 px-8 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest disabled:opacity-50 transition-all shadow-xl shadow-rose-500/20 hover:scale-105 active:scale-95"
           >
-            {phase === 'ending' && <Loader2 className="animate-spin h-4 w-4" />}
-            End Stream
+            {phase === 'ending' ? <Loader2 className="animate-spin h-4 w-4" /> : <X className="h-4 w-4" />}
+            Terminate Signal
           </button>
-        </div>
+        </motion.div>
       )}
 
-      {/* ── Clash Score Overlay (Global) ── */}
+      {/* ── Combat Interface HUD ── */}
       {activeClash && isLive && (
-        <div className="bg-gradient-to-r from-purple-700 via-indigo-800 to-purple-900 text-white rounded-2xl px-6 py-4 shadow-lg border border-white/20 flex items-center justify-between overflow-hidden relative">
-          <div className="absolute inset-0 bg-black/10 opacity-10" />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-zinc-950 text-white rounded-2xl px-8 py-6 shadow-2xl border border-purple-500/30 overflow-hidden relative"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-indigo-500/5 to-purple-500/10 opacity-50" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
           
-          <div className="flex items-center gap-4 relative z-10 flex-1">
-            <div className="text-right flex-1">
-              <p className="text-[10px] uppercase tracking-tighter font-bold text-purple-300">Challenger</p>
-              <p className="text-2xl font-black italic">{clashScores.challenger}</p>
-            </div>
-            <div className="flex flex-col items-center px-4">
-              <div className="bg-white/10 p-2 rounded-full mb-1">
-                <Swords className="h-5 w-5 text-yellow-400" />
+          <div className="flex flex-col md:flex-row items-center justify-between gap-10 relative z-10">
+            {/* Challenger Score */}
+            <div className="flex items-center gap-6 flex-1 justify-end">
+              <div className="text-right">
+                <p className="text-[9px] uppercase tracking-widest font-black text-purple-400 italic mb-1">Friendly Unit</p>
+                <p className="text-4xl font-black italic tabular-nums tracking-tighter text-white">{clashScores.challenger}</p>
               </div>
-              <div className="h-1.5 w-24 bg-white/20 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-yellow-400 transition-all duration-500" 
-                  style={{ width: `${(clashScores.challenger / (clashScores.challenger + clashScores.opponent || 1)) * 100}%` }}
-                />
+              <div className="w-16 h-16 rounded-full border-2 border-purple-500/30 overflow-hidden shadow-2xl bg-zinc-900">
+                 <img src={streamData?.host?.image || 'https://via.placeholder.com/150'} className="w-full h-full object-cover opacity-80" alt="Host" />
               </div>
             </div>
-            <div className="text-left flex-1">
-              <p className="text-[10px] uppercase tracking-tighter font-bold text-indigo-300">Opponent</p>
-              <p className="text-2xl font-black italic">{clashScores.opponent}</p>
-            </div>
-          </div>
 
-          <div className="flex flex-col items-end gap-1 relative z-10 ml-6 pl-6 border-l border-white/10 font-black">
-            <div className="flex items-center gap-1 text-yellow-400 text-xs animate-pulse">
-               <Zap className="h-3.5 w-3.5 fill-current" />
-               WAR IN PROGRESS
-            </div>
-            {activeClash.realmLabel && (
-              <div className="text-xs font-bold text-white/70 bg-white/10 px-2 py-0.5 rounded-full">
-                {activeClash.realmLabel}
+            {/* Combat Center HUD */}
+            <div className="flex flex-col items-center gap-4 px-8 border-x border-white/5">
+              <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+                    <Swords className="h-5 w-5 text-white" />
+                 </div>
+                 <div className="flex flex-col">
+                    <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest italic animate-pulse">Engaging Target</span>
+                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{activeClash.realmLabel || 'Standard Sector'}</span>
+                 </div>
               </div>
-            )}
-            <div className="text-xl text-white/90">
-              {activeClash.endTime ? formatDistanceToNow(new Date(activeClash.endTime)).replace('about ', '') : 'LIVE'}
+              <div className="flex flex-col items-center">
+                 <div className="h-1.5 w-48 bg-zinc-800 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                    <motion.div 
+                      className="h-full bg-gradient-to-r from-purple-500 to-indigo-500" 
+                      initial={{ width: "50%" }}
+                      animate={{ width: `${(clashScores.challenger / (clashScores.challenger + clashScores.opponent || 1)) * 100}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                    />
+                 </div>
+                 <div className="mt-3 flex items-center gap-4 text-xs font-black tracking-widest text-white/70 tabular-nums uppercase">
+                    <span className="text-zinc-500">Timer:</span>
+                    <span className="text-white bg-zinc-900 px-3 py-1 rounded-lg border border-white/5 shadow-lg">
+                       {activeClash.endTime ? formatDistanceToNow(new Date(activeClash.endTime)).replace('about ', '') : '0:00'}
+                    </span>
+                 </div>
+              </div>
+            </div>
+
+            {/* Opponent Score */}
+            <div className="flex items-center gap-6 flex-1">
+              <div className="w-16 h-16 rounded-full border-2 border-rose-500/30 overflow-hidden shadow-2xl bg-zinc-900">
+                 <img src={activeClash.opponent?.image || 'https://via.placeholder.com/150'} className="w-full h-full object-cover opacity-80" alt="Opponent" />
+              </div>
+              <div className="text-left">
+                <p className="text-[9px] uppercase tracking-widest font-black text-rose-400 italic mb-1">Hostile Signal</p>
+                <p className="text-4xl font-black italic tabular-nums tracking-tighter text-white">{clashScores.opponent}</p>
+              </div>
             </div>
           </div>
-        </div>
+          
+          {/* Turn HUD Overlay */}
+          {clashTurn && (
+            <div className="mt-6 flex items-center justify-center gap-4 py-3 bg-white/5 rounded-xl border border-white/5">
+               <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${clashTurn.currentTurn === streamData?.host?._id ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-600'}`} />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Current Phase:</span>
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${clashTurn.currentTurn === streamData?.host?._id ? 'text-emerald-500' : 'text-zinc-300'}`}>
+                    {clashTurn.currentTurn === streamData?.host?._id ? 'Your Initiative' : 'Opponent Deployment'}
+                  </span>
+               </div>
+               <div className="h-4 w-px bg-white/10" />
+               <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 italic">Phase Ends:</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white tabular-nums">{turnTimeLeft}s</span>
+               </div>
+            </div>
+          )}
+        </motion.div>
       )}
 
-      {/* ── Progress banner ── */}
+      {/* ── Phase HUD Progress ── */}
       {isBusy && phase !== 'ending' && (
-        <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl px-5 py-3">
-          <Loader2 className="animate-spin h-5 w-5 flex-shrink-0 text-emerald-600" />
-          <span className="font-medium text-sm">{PHASE_LABELS[phase]}</span>
+        <div className="flex items-center gap-4 bg-zinc-900 border border-emerald-500/30 text-emerald-500 rounded-2xl px-6 py-4 shadow-2xl">
+          <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+             <Loader2 className="animate-spin h-5 w-5 text-emerald-500" />
+          </div>
+          <div className="flex flex-col">
+             <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500 mb-0.5 italic">Sequence Status</span>
+             <span className="font-black text-xs uppercase tracking-widest">{PHASE_LABELS[phase]}</span>
+          </div>
         </div>
       )}
 
-      {/* ── Error banner ── */}
+      {/* ── Critical Error HUD ── */}
       {phase === 'error' && (
-        <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-4">
-          <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="font-semibold text-sm">Failed to start stream</p>
-            <p className="text-sm mt-0.5 text-red-600">{errorMsg}</p>
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="flex items-start gap-5 bg-rose-500/5 border border-rose-500/20 text-rose-500 rounded-2xl px-6 py-5 shadow-2xl"
+        >
+          <div className="w-12 h-12 bg-rose-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+             <AlertCircle className="h-6 w-6" />
+          </div>
+          <div className="flex-1">
+            <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-1 italic">Synchronization Failed</p>
+            <p className="text-sm font-bold text-zinc-900 dark:text-white">{errorMsg}</p>
             <button
               onClick={() => { setPhase('idle'); setErrorMsg(''); }}
               className="mt-2 text-sm font-medium text-red-600 hover:text-red-800 underline"

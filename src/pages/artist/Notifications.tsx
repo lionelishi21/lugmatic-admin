@@ -16,7 +16,9 @@ import {
   X,
   CreditCard,
   Mic2,
-  ArrowRight
+  ArrowRight,
+  ChevronRight,
+  LayoutGrid
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useSelector } from 'react-redux';
@@ -82,13 +84,13 @@ const Notifications: React.FC = () => {
         setNotifications(prev => [newNotification, ...prev]);
         setUnreadCount(prev => prev + 1);
         toast(() => (
-          <div className="flex items-center gap-3">
-            <div className="bg-emerald-500/10 p-2 rounded">
-              <Bell className="h-4 w-4 text-emerald-500" />
+          <div className="flex items-center gap-4">
+            <div className="bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">
+              <Bell className="h-5 w-5 text-emerald-500" />
             </div>
             <div>
-              <p className="text-xs font-bold text-zinc-900 dark:text-white">{newNotification.title}</p>
-              <p className="text-[10px] text-zinc-500 line-clamp-1">{newNotification.message}</p>
+              <p className="text-[11px] font-black uppercase tracking-widest text-zinc-900 dark:text-white italic">{newNotification.title}</p>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1 line-clamp-1">{newNotification.message}</p>
             </div>
           </div>
         ));
@@ -111,7 +113,7 @@ const Notifications: React.FC = () => {
     try {
       const promise = notificationService.markAllAsRead();
       toast.promise(promise, {
-        loading: 'Cleaning up...',
+        loading: 'Syncing inbox...',
         success: 'Inbox cleared!',
         error: 'Failed to clear inbox'
       });
@@ -146,17 +148,17 @@ const Notifications: React.FC = () => {
   const getNotificationStyles = (type: string) => {
     switch (type) {
       case 'gift':
-        return { icon: <Gift className="h-4 w-4" />, iconCls: 'text-rose-600 dark:text-rose-400', iconBg: 'bg-rose-50 dark:bg-rose-500/10' };
+        return { icon: <Gift className="h-4 w-4" />, iconCls: 'text-rose-500', iconBg: 'bg-rose-500/10', border: 'border-rose-500/10' };
       case 'comment':
-        return { icon: <MessageSquare className="h-4 w-4" />, iconCls: 'text-blue-600 dark:text-blue-400', iconBg: 'bg-blue-50 dark:bg-blue-500/10' };
+        return { icon: <MessageSquare className="h-4 w-4" />, iconCls: 'text-blue-500', iconBg: 'bg-blue-500/10', border: 'border-blue-500/10' };
       case 'follow':
-        return { icon: <UserPlus className="h-4 w-4" />, iconCls: 'text-emerald-600 dark:text-emerald-400', iconBg: 'bg-emerald-50 dark:bg-emerald-500/10' };
+        return { icon: <UserPlus className="h-4 w-4" />, iconCls: 'text-emerald-500', iconBg: 'bg-emerald-500/10', border: 'border-emerald-500/10' };
       case 'earnings':
-        return { icon: <CreditCard className="h-4 w-4" />, iconCls: 'text-amber-600 dark:text-amber-400', iconBg: 'bg-amber-50 dark:bg-amber-500/10' };
+        return { icon: <CreditCard className="h-4 w-4" />, iconCls: 'text-amber-500', iconBg: 'bg-amber-500/10', border: 'border-amber-500/10' };
       case 'podcast':
-        return { icon: <Mic2 className="h-4 w-4" />, iconCls: 'text-purple-600 dark:text-purple-400', iconBg: 'bg-purple-50 dark:bg-purple-500/10' };
+        return { icon: <Mic2 className="h-4 w-4" />, iconCls: 'text-purple-500', iconBg: 'bg-purple-500/10', border: 'border-purple-500/10' };
       default:
-        return { icon: <Zap className="h-4 w-4" />, iconCls: 'text-indigo-600 dark:text-indigo-400', iconBg: 'bg-indigo-50 dark:bg-indigo-500/10' };
+        return { icon: <Zap className="h-4 w-4" />, iconCls: 'text-indigo-500', iconBg: 'bg-indigo-500/10', border: 'border-indigo-500/10' };
     }
   };
 
@@ -169,62 +171,64 @@ const Notifications: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto pb-16 space-y-6">
 
-      {/* Header */}
-      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4`}>
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Bell className="h-6 w-6 text-white" />
+      {/* ── Header Card ── */}
+      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6`}>
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
+            <Bell className="h-7 w-7 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">
-              Notifications
-            </h1>
-            <p className="text-sm text-zinc-500 mt-0.5">
-              Your real-time activity stream and platform updates.
-            </p>
+             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Event Log</p>
+             <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase italic">
+               Signal Center
+             </h1>
+             <p className="text-sm text-zinc-500 mt-0.5">
+               Your real-time activity stream and ecosystem updates.
+             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowSettings(!showSettings)}
-            className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors ${
+            className={`h-11 px-4 rounded-lg flex items-center justify-center transition-all ${
               showSettings
-                ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
+                ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-xl shadow-black/20'
                 : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
             }`}
           >
-            <Settings2 className="h-4 w-4" />
+            <Settings2 className="h-5 w-5" />
           </button>
           <button
             onClick={handleMarkAllAsRead}
             disabled={unreadCount === 0}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="h-11 flex items-center gap-2 px-6 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
           >
             <CheckCircle2 className="h-4 w-4" />
-            Mark All Read
+            Dismiss All
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-        {/* Sidebar */}
-        <div className="space-y-4">
+        {/* ── Sidebar ── */}
+        <div className="space-y-6">
           {/* Tab filter */}
-          <div className={card}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-white/[0.06]">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Focus</span>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 px-1">
+               <LayoutGrid className="h-3.5 w-3.5 text-zinc-500" />
+               <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Inbound Focus</p>
             </div>
-            <div className="p-2 flex flex-col gap-0.5">
+            <div className={`${card} p-1.5 flex flex-col gap-1 bg-zinc-50/50 dark:bg-zinc-800/20`}>
               {(['all', 'unread', 'read'] as NotificationTab[]).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`flex items-center justify-between px-3 py-2 rounded text-sm font-semibold capitalize transition-colors ${
+                  className={`flex items-center justify-between px-3 py-2.5 rounded text-[10px] font-black uppercase tracking-widest transition-all ${
                     activeTab === tab
-                      ? 'bg-zinc-900 dark:bg-zinc-700 text-white'
-                      : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-white/[0.02] hover:text-zinc-900 dark:hover:text-white'
+                      ? 'bg-zinc-900 dark:bg-zinc-700 text-white shadow-lg'
+                      : 'text-zinc-500 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-white'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -232,7 +236,7 @@ const Notifications: React.FC = () => {
                     {tab}
                   </div>
                   {tab === 'unread' && unreadCount > 0 && (
-                    <span className="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400">
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-black">
                       {unreadCount}
                     </span>
                   )}
@@ -242,27 +246,28 @@ const Notifications: React.FC = () => {
           </div>
 
           {/* Category filter */}
-          <div className={card}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-white/[0.06]">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Categories</span>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 px-1">
+               <Filter className="h-3.5 w-3.5 text-zinc-500" />
+               <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Signal Categories</p>
             </div>
-            <div className="p-2 flex flex-col gap-0.5">
+            <div className={`${card} p-1.5 flex flex-col gap-1 bg-zinc-50/50 dark:bg-zinc-800/20`}>
               {(['all', 'gift', 'comment', 'follow', 'system', 'earnings', 'podcast'] as NotificationCategory[]).map(cat => {
                 const styles = cat === 'all' ? null : getNotificationStyles(cat);
                 return (
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
-                    className={`flex items-center gap-3 px-3 py-2 rounded text-sm font-semibold capitalize transition-colors ${
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded text-[10px] font-black uppercase tracking-widest transition-all ${
                       activeCategory === cat
-                        ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
-                        : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-white/[0.02] hover:text-zinc-900 dark:hover:text-white'
+                        ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                        : 'text-zinc-500 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-white'
                     }`}
                   >
                     <div className={`w-6 h-6 rounded flex items-center justify-center ${
                       activeCategory === cat
-                        ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500'
+                        ? 'text-emerald-500'
+                        : 'text-zinc-400'
                     }`}>
                       {cat === 'all' ? <Filter className="h-3.5 w-3.5" /> : styles?.icon}
                     </div>
@@ -274,44 +279,41 @@ const Notifications: React.FC = () => {
           </div>
         </div>
 
-        {/* Main content */}
+        {/* ── Main Feed ── */}
         <div className="lg:col-span-3">
           <AnimatePresence mode="wait">
             {showSettings ? (
               <motion.div
                 key="settings"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
                 className={card}
               >
-                <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-white/[0.06]">
-                  <span className="text-sm font-semibold text-zinc-900 dark:text-white">Delivery Preferences</span>
-                  <button
-                    onClick={() => setShowSettings(false)}
-                    className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded text-xs font-semibold hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+                   <div className="flex items-center gap-2">
+                      <Settings2 className="h-4 w-4 text-emerald-500" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Transmission Config</span>
+                   </div>
                 </div>
 
-                <div className="p-5 space-y-3">
+                <div className="p-6 space-y-3">
                   {Object.entries(settings).map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between px-4 py-3 rounded border border-zinc-100 dark:border-white/[0.06] hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded flex items-center justify-center bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500">
-                          <Zap className="h-4 w-4" />
+                    <div key={key} className="flex items-center justify-between px-5 py-4 rounded-xl border border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01] hover:border-zinc-300 dark:hover:border-white/10 transition-all group">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-emerald-500 border border-transparent group-hover:border-emerald-500/20 transition-all">
+                          <Zap className="h-5 w-5" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-zinc-900 dark:text-white capitalize">{key.replace(/([A-Z])/g, ' $1')}</p>
-                          <p className="text-[11px] text-zinc-400">Receive platform alerts for {key}.</p>
+                          <p className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">{key.replace(/([A-Z])/g, ' $1')}</p>
+                          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Receive platform alerts for this frequency.</p>
                         </div>
                       </div>
                       <button
                         onClick={() => toggleSetting(key)}
-                        className={`relative h-5 w-9 rounded-full transition-colors ${value ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-600'}`}
+                        className={`relative h-6 w-11 rounded-full transition-all duration-300 ${value ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-700'}`}
                       >
-                        <div className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${value ? 'translate-x-4' : 'translate-x-0'}`} />
+                        <div className={`absolute top-1 left-1 h-4 w-4 rounded-full bg-white shadow-lg transition-transform duration-300 ${value ? 'translate-x-5' : 'translate-x-0'}`} />
                       </button>
                     </div>
                   ))}
@@ -320,70 +322,76 @@ const Notifications: React.FC = () => {
             ) : (
               <motion.div
                 key="feed"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="space-y-4"
               >
                 {loading ? (
                   <div className="flex items-center justify-center py-24">
-                    <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+                    <div className="w-10 h-10 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin" />
                   </div>
                 ) : filteredNotifications.length === 0 ? (
-                  <div className={`${card} flex flex-col items-center justify-center py-20 text-center px-8`}>
-                    <div className="w-14 h-14 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center mb-4">
-                      <Inbox className="h-6 w-6 text-zinc-400" />
+                  <div className={`${card} flex flex-col items-center justify-center py-32 text-center px-8 bg-zinc-50/30 dark:bg-white/[0.01]`}>
+                    <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-3xl flex items-center justify-center mb-6 border border-zinc-200 dark:border-white/5">
+                      <Inbox className="h-10 w-10 text-zinc-400 dark:text-zinc-700" />
                     </div>
-                    <p className="font-semibold text-zinc-700 dark:text-zinc-300">Clear Skies!</p>
-                    <p className="text-sm text-zinc-400 mt-1 max-w-xs">
-                      Your notification stream is currently empty. Check back later for music updates.
+                    <p className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">Clear Horizon</p>
+                    <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-widest mt-2 max-w-xs leading-relaxed">
+                      Your signal stream is currently quiet. inbound events will materialize here.
                     </p>
                   </div>
                 ) : (
-                  <div className={`${card} divide-y divide-zinc-100 dark:divide-white/[0.04]`}>
-                    {filteredNotifications.map((notification) => {
+                  <div className="space-y-3">
+                    {filteredNotifications.map((notification, i) => {
                       const styles = getNotificationStyles(notification.type);
                       return (
                         <motion.div
                           layout
                           key={notification._id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.03 }}
                           onClick={() => !notification.isRead && handleMarkAsRead(notification._id)}
-                          className={`group flex items-start gap-4 px-5 py-4 hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer ${
-                            !notification.isRead ? 'border-l-2 border-emerald-500' : ''
+                          className={`${card} group flex items-start gap-5 px-6 py-5 hover:border-zinc-300 dark:hover:border-white/10 transition-all cursor-pointer relative overflow-hidden ${
+                            !notification.isRead ? 'ring-1 ring-emerald-500/20' : ''
                           }`}
                         >
-                          <div className={`w-10 h-10 rounded flex items-center justify-center flex-shrink-0 ${styles.iconBg} ${styles.iconCls}`}>
+                          {!notification.isRead && (
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
+                          )}
+                          
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border ${styles.iconBg} ${styles.iconCls} ${styles.border} group-hover:scale-105 transition-transform duration-300`}>
                             {styles.icon}
                           </div>
 
-                          <div className="flex-1 min-w-0 py-0.5">
-                            <div className="flex items-center justify-between gap-4 mb-1">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <h3 className={`text-sm font-semibold truncate ${notification.isRead ? 'text-zinc-500 dark:text-zinc-400' : 'text-zinc-900 dark:text-white'}`}>
+                          <div className="flex-1 min-w-0 py-1">
+                            <div className="flex items-center justify-between gap-4 mb-1.5">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <h3 className={`text-sm font-bold uppercase tracking-tight truncate ${notification.isRead ? 'text-zinc-500' : 'text-zinc-900 dark:text-white'}`}>
                                   {notification.title}
                                 </h3>
                                 {!notification.isRead && (
-                                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0" />
+                                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0 shadow-[0_0_10px_rgba(16,185,129,1)]" />
                                 )}
                               </div>
-                              <span className="text-[10px] text-zinc-400 font-semibold flex items-center gap-1 flex-shrink-0">
+                              <span className="text-[10px] text-zinc-400 font-black uppercase tracking-widest flex items-center gap-1.5 flex-shrink-0 bg-zinc-50 dark:bg-zinc-800/50 px-2 py-0.5 rounded border border-zinc-100 dark:border-white/5">
                                 <Clock className="h-3 w-3" />
                                 {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                               </span>
                             </div>
-                            <p className={`text-sm leading-relaxed ${notification.isRead ? 'text-zinc-400 line-clamp-1' : 'text-zinc-600 dark:text-zinc-300'}`}>
+                            <p className={`text-sm font-medium leading-relaxed ${notification.isRead ? 'text-zinc-500 line-clamp-1' : 'text-zinc-600 dark:text-zinc-300'}`}>
                               {notification.message}
                             </p>
                           </div>
 
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 pt-0.5">
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 pt-1">
                             <button
                               onClick={(e) => handleDelete(notification._id, e)}
-                              className="px-3 py-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded text-xs font-semibold transition-colors"
+                              className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-rose-500 bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-500/10 rounded-lg transition-all"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <Trash2 className="h-4 w-4" />
                             </button>
-                            <ArrowRight className="h-4 w-4 text-zinc-300 dark:text-zinc-600" />
+                            <ChevronRight className="h-5 w-5 text-zinc-300 dark:text-zinc-700 group-hover:text-emerald-500 transition-all" />
                           </div>
                         </motion.div>
                       );

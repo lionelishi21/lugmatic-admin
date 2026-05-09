@@ -9,13 +9,19 @@ import {
   AlertCircle,
   Share2,
   Copy,
-  Check
+  Check,
+  Zap,
+  Target,
+  History,
+  Play
 } from 'lucide-react';
 import { format } from 'date-fns';
 import api from '../../services/api';
 import { Skeleton } from '../../components/ui/skeleton';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
 
 interface Artist {
   _id: string;
@@ -39,32 +45,30 @@ const statusBadge = (status: string) => {
   switch (status) {
     case 'active':
       return (
-        <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 animate-pulse">
+        <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-md bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 animate-pulse">
           LIVE WAR
         </span>
       );
     case 'ended':
       return (
-        <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-500/10 text-zinc-400 border border-white/5">
+        <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-md bg-zinc-800 text-zinc-400 border border-white/5">
           CONCLUDED
         </span>
       );
     case 'accepted':
       return (
-        <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+        <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
           UPCOMING
         </span>
       );
     default:
       return (
-        <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20">
+        <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-md bg-amber-500 text-white shadow-lg shadow-amber-500/20">
           {status}
         </span>
       );
   }
 };
-
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
 
 export default function Clashes() {
   const [clashes, setClashes] = useState<Clash[]>([]);
@@ -124,152 +128,180 @@ export default function Clashes() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto pb-16 space-y-6">
+    <div className="max-w-5xl mx-auto pb-16 space-y-8">
 
-      {/* Header */}
-      <div className={`${card} p-6 flex items-center justify-between`}>
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-600/20">
-            <Swords className="h-6 w-6 text-white" />
+      {/* ── Header Card ── */}
+      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6`}>
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
+            <Swords className="h-7 w-7 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase">Live Clash</h1>
-            <p className="text-sm text-zinc-500 mt-0.5">Manage and review your Lyrical War history</p>
+             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Combat Registry</p>
+             <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase italic">
+               Battle History
+             </h1>
+             <p className="text-sm text-zinc-500 mt-0.5">
+               Review lyrical war performance and historical combat data.
+             </p>
           </div>
         </div>
       </div>
 
-      {/* Error */}
+      {/* Error Block */}
       {error && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 p-4 rounded-lg flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
-          <p className="text-sm font-bold uppercase tracking-tight">{error}</p>
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 p-5 rounded-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-4">
+          <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center">
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          </div>
+          <p className="text-[10px] font-black uppercase tracking-widest italic">{error}</p>
         </div>
       )}
 
-      {/* Content */}
-      <div className="space-y-4">
+      {/* Content Feed */}
+      <div className="space-y-6">
         {loading ? (
           [1, 2, 3].map((i) => (
-            <div key={i} className={`${card} p-6 space-y-6 animate-pulse`}>
+            <div key={i} className={`${card} p-8 space-y-8 animate-pulse border-white/5 bg-white/[0.01]`}>
               <div className="flex justify-between items-center">
-                <div className="h-4 w-32 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                <div className="h-4 w-32 bg-zinc-800 rounded-md" />
+                <div className="h-6 w-24 bg-zinc-800 rounded-md" />
               </div>
               <div className="flex items-center justify-around py-4">
-                <div className="h-20 w-20 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
-                <div className="h-8 w-8 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                <div className="h-20 w-20 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
+                <div className="h-24 w-24 bg-zinc-800 rounded-full" />
+                <div className="h-10 w-10 bg-zinc-800 rounded-xl" />
+                <div className="h-24 w-24 bg-zinc-800 rounded-full" />
               </div>
             </div>
           ))
         ) : clashes.length === 0 ? (
-          <div className={`${card} py-24 text-center`}>
-            <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-zinc-200 dark:border-white/5">
-              <Swords className="h-8 w-8 text-zinc-400" />
+          <div className={`${card} py-32 text-center border-dashed border-zinc-200 dark:border-white/10 shadow-inner bg-zinc-50/30 dark:bg-white/[0.01]`}>
+            <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-zinc-200 dark:border-white/5 group">
+              <Swords className="h-10 w-10 text-zinc-400 group-hover:scale-110 transition-transform" />
             </div>
-            <p className="font-bold text-zinc-900 dark:text-white uppercase tracking-tight">No Clashes Yet</p>
-            <p className="text-sm text-zinc-500 mt-1 max-w-xs mx-auto">
-              You haven't participated in any Lyrical Wars yet. Go live to challenge other artists!
+            <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">Zero Combat Records</h4>
+            <p className="text-xs text-zinc-500 mt-2 max-w-xs mx-auto leading-relaxed font-medium">
+              You haven't participated in any Lyrical Wars yet. Go live to challenge other artists and build your history.
             </p>
           </div>
         ) : (
-          clashes.map((clash) => (
+          clashes.map((clash, idx) => (
             <motion.div
               key={clash._id}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`${card} overflow-hidden hover:border-purple-500/30 transition-all group`}
+              transition={{ delay: idx * 0.05 }}
+              className={`${card} overflow-hidden hover:border-emerald-500/30 transition-all group relative`}
             >
-              {/* Card body */}
-              <div className="p-6">
-                {/* Top row: date + status */}
-                <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-                    <Calendar className="h-3.5 w-3.5 text-zinc-400" />
-                    {format(new Date(clash.createdAt), 'MMM dd, yyyy')}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/[0.01] rounded-bl-full pointer-events-none" />
+              
+              {/* Card Body HUD */}
+              <div className="p-8">
+                {/* Meta Row */}
+                <div className="flex items-center justify-between mb-10">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center border border-zinc-200 dark:border-white/5">
+                       <History className="h-4 w-4 text-zinc-400" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">
+                        {format(new Date(clash.createdAt), 'MMM dd, yyyy')}
+                      </span>
+                      <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mt-0.5">Deployment Sequence</span>
+                    </div>
                   </div>
                   {statusBadge(clash.status)}
                 </div>
 
-                {/* Scoreboard */}
-                <div className="flex items-center justify-between gap-4">
-                  {/* Challenger */}
-                  <div className="flex flex-col items-center text-center flex-1 space-y-3">
+                {/* Scoreboard HUD */}
+                <div className="flex items-center justify-between gap-8 max-w-2xl mx-auto">
+                  {/* Challenger Entity */}
+                  <div className="flex flex-col items-center text-center flex-1 space-y-4">
                     <div className="relative">
-                      <div className="absolute inset-0 bg-purple-600/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <img
-                        src={clash.challenger.image || '/default-artist.jpg'}
-                        alt={clash.challenger.name}
-                        className="w-20 h-20 rounded-full object-cover border-2 border-zinc-200 dark:border-white/10 relative z-10"
-                      />
+                      <div className="absolute inset-0 bg-emerald-500/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-zinc-100 dark:border-white/10 relative z-10 shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                        <img
+                          src={clash.challenger.image || 'https://via.placeholder.com/150'}
+                          alt={clash.challenger.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                       {clash.winner?._id === clash.challenger._id && (
-                        <div className="absolute -top-1 -right-1 bg-amber-500 p-1.5 rounded-full shadow-lg z-20 border border-white/20">
-                          <Trophy className="h-3.5 w-3.5 text-white" />
+                        <div className="absolute -top-1 -right-1 bg-emerald-500 p-2 rounded-full shadow-2xl z-20 border-2 border-white dark:border-zinc-900">
+                          <Trophy className="h-4 w-4 text-white" />
                         </div>
                       )}
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-zinc-900 dark:text-white truncate w-full uppercase tracking-tight">{clash.challenger.name}</p>
-                      <p className="text-3xl font-black text-zinc-900 dark:text-white tabular-nums mt-1 italic tracking-tighter">{clash.challengerScore}</p>
+                      <p className="text-[11px] font-black text-zinc-900 dark:text-white truncate w-full uppercase tracking-tight italic">{clash.challenger.name}</p>
+                      <p className="text-4xl font-black text-zinc-900 dark:text-white tabular-nums mt-2 italic tracking-tighter shadow-sm">{clash.challengerScore}</p>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-[10px] font-black text-zinc-300 dark:text-zinc-700 italic uppercase">VS</span>
-                    <div className="h-8 w-px bg-zinc-100 dark:bg-white/[0.04]" />
+                  {/* VS Divider */}
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-white/5">
+                       <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-600 italic uppercase">VS</span>
+                    </div>
+                    <div className="h-12 w-px bg-zinc-100 dark:bg-white/[0.04]" />
                   </div>
 
-                  {/* Opponent */}
-                  <div className="flex flex-col items-center text-center flex-1 space-y-3">
+                  {/* Opponent Entity */}
+                  <div className="flex flex-col items-center text-center flex-1 space-y-4">
                     <div className="relative">
-                      <div className="absolute inset-0 bg-purple-600/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <img
-                        src={clash.opponent.image || '/default-artist.jpg'}
-                        alt={clash.opponent.name}
-                        className="w-20 h-20 rounded-full object-cover border-2 border-zinc-200 dark:border-white/10 relative z-10"
-                      />
+                      <div className="absolute inset-0 bg-emerald-500/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-zinc-100 dark:border-white/10 relative z-10 shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                        <img
+                          src={clash.opponent.image || 'https://via.placeholder.com/150'}
+                          alt={clash.opponent.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                       {clash.winner?._id === clash.opponent._id && (
-                        <div className="absolute -top-1 -right-1 bg-amber-500 p-1.5 rounded-full shadow-lg z-20 border border-white/20">
-                          <Trophy className="h-3.5 w-3.5 text-white" />
+                        <div className="absolute -top-1 -right-1 bg-emerald-500 p-2 rounded-full shadow-2xl z-20 border-2 border-white dark:border-zinc-900">
+                          <Trophy className="h-4 w-4 text-white" />
                         </div>
                       )}
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-zinc-900 dark:text-white truncate w-full uppercase tracking-tight">{clash.opponent.name}</p>
-                      <p className="text-3xl font-black text-zinc-900 dark:text-white tabular-nums mt-1 italic tracking-tighter">{clash.opponentScore}</p>
+                      <p className="text-[11px] font-black text-zinc-900 dark:text-white truncate w-full uppercase tracking-tight italic">{clash.opponent.name}</p>
+                      <p className="text-4xl font-black text-zinc-900 dark:text-white tabular-nums mt-2 italic tracking-tighter shadow-sm">{clash.opponentScore}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Card footer */}
-              <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+              {/* Functional Footer HUD */}
+              <div className="flex items-center justify-between px-8 py-5 border-t border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
                 <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                  <div className="flex items-center gap-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">
                     {clash.status === 'ended' ? (
                       <>
-                        <TrendingUp className="h-3.5 w-3.5 text-purple-500" />
-                        <span>Game concluded</span>
+                        <div className="w-7 h-7 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center">
+                          <Target className="h-3.5 w-3.5 text-zinc-500" />
+                        </div>
+                        <span>Signal Concluded</span>
                       </>
                     ) : (
                       <>
-                        <Clock className="h-3.5 w-3.5 text-emerald-500" />
-                        <span>Active session</span>
+                        <div className="w-7 h-7 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                          <Zap className="h-3.5 w-3.5 text-emerald-500" />
+                        </div>
+                        <span className="text-emerald-500">Active Session</span>
                       </>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  {/* Share Menu */}
+                <div className="flex items-center gap-3">
+                  {/* Share Controller */}
                   <div className="relative">
                     <button
                       onClick={() => setShowShareMenu(showShareMenu === clash._id ? null : clash._id)}
-                      className="p-2 text-zinc-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded transition-all"
-                      title="Share Battle"
+                      className="h-10 w-10 flex items-center justify-center rounded-xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 text-zinc-500 hover:text-emerald-500 transition-all hover:scale-105 active:scale-95"
+                      title="Broadast Sync"
                     >
-                      <Share2 className="h-4 w-4" />
+                      <Share2 className="h-4.5 w-4.5" />
                     </button>
                     
                     <AnimatePresence>
@@ -277,42 +309,43 @@ export default function Clashes() {
                         <>
                           <div className="fixed inset-0 z-30" onClick={() => setShowShareMenu(null)} />
                           <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            initial={{ opacity: 0, scale: 0.95, y: 12 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            className="absolute bottom-full right-0 mb-2 w-48 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-lg shadow-2xl z-40 overflow-hidden"
+                            exit={{ opacity: 0, scale: 0.95, y: 12 }}
+                            className={`${card} absolute bottom-full right-0 mb-3 w-56 shadow-2xl z-40 overflow-hidden border-emerald-500/20`}
                           >
-                            <div className="px-4 py-2 border-b border-zinc-100 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
-                              <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Share to Social</p>
+                            <div className="px-5 py-3 border-b border-zinc-100 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
+                              <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic">Signal Broadast</p>
                             </div>
-                            <button
-                              onClick={() => handleSocialShare(clash, 'twitter')}
-                              className="w-full px-4 py-2 text-left text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3 uppercase tracking-wider"
-                            >
-                              <div className="w-5 h-5 bg-black rounded flex items-center justify-center"><span className="text-white text-[10px]">X</span></div>
-                              Twitter
-                            </button>
-                            <button
-                              onClick={() => handleSocialShare(clash, 'facebook')}
-                              className="w-full px-4 py-2 text-left text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3 uppercase tracking-wider"
-                            >
-                              <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center"><span className="text-white text-[10px]">f</span></div>
-                              Facebook
-                            </button>
-                            <button
-                              onClick={() => handleSocialShare(clash, 'whatsapp')}
-                              className="w-full px-4 py-2 text-left text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 flex items-center gap-3 uppercase tracking-wider"
-                            >
-                              <div className="w-5 h-5 bg-green-500 rounded flex items-center justify-center"><span className="text-white text-[10px]">w</span></div>
-                              WhatsApp
-                            </button>
-                            <button
-                              onClick={() => handleCopyLink(clash._id)}
-                              className="w-full px-4 py-3 border-t border-zinc-100 dark:border-white/5 text-left text-[11px] font-bold text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 flex items-center gap-3 uppercase tracking-wider"
-                            >
-                              {copiedId === clash._id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                              {copiedId === clash._id ? 'Copied!' : 'Copy Link'}
-                            </button>
+                            <div className="p-2 space-y-1">
+                              {[
+                                { id: 'twitter', label: 'X / Twitter', icon: 'X', color: 'bg-zinc-950' },
+                                { id: 'facebook', label: 'Meta Pulse', icon: 'M', color: 'bg-blue-600' },
+                                { id: 'whatsapp', label: 'Secure Link', icon: 'S', color: 'bg-emerald-600' }
+                              ].map((plat) => (
+                                <button
+                                  key={plat.id}
+                                  onClick={() => handleSocialShare(clash, plat.id as any)}
+                                  className="w-full px-4 py-2.5 text-left text-[11px] font-black text-zinc-700 dark:text-zinc-300 hover:bg-emerald-500/10 hover:text-emerald-500 rounded-xl flex items-center gap-4 uppercase tracking-widest transition-all"
+                                >
+                                  <div className={`w-6 h-6 ${plat.color} rounded-lg flex items-center justify-center shadow-lg`}>
+                                    <span className="text-white text-[10px] font-black italic">{plat.icon}</span>
+                                  </div>
+                                  {plat.label}
+                                </button>
+                              ))}
+                            </div>
+                            <div className="p-2 border-t border-zinc-100 dark:border-white/5">
+                              <button
+                                onClick={() => handleCopyLink(clash._id)}
+                                className="w-full px-4 py-3 text-left text-[11px] font-black text-emerald-500 hover:bg-emerald-500/5 rounded-xl flex items-center gap-4 uppercase tracking-widest transition-all"
+                              >
+                                <div className="w-6 h-6 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                                  {copiedId === clash._id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                </div>
+                                {copiedId === clash._id ? 'Copied' : 'Extract Link'}
+                              </button>
+                            </div>
                           </motion.div>
                         </>
                       )}
@@ -323,10 +356,10 @@ export default function Clashes() {
                     href={`https://lugmaticmusic.com/clash/${clash._id}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-bold uppercase tracking-widest rounded transition-all shadow-lg shadow-purple-600/20"
+                    className="h-10 flex items-center gap-3 px-6 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-xl shadow-zinc-950/20"
                   >
-                    Watch Back
-                    <ExternalLink className="h-3 w-3" />
+                    Watch Replay
+                    <Play className="h-3.5 w-3.5 fill-current" />
                   </a>
                 </div>
               </div>
