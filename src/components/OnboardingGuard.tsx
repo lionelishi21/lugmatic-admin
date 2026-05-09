@@ -1,16 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import Preloader from './ui/Preloader';
 import api from '@/services/api';
 
-interface OnboardingStatus {
-  verificationStatus: 'not_submitted' | 'pending' | 'approved' | 'rejected';
-  onboardingCompleted: boolean;
-  onboardingStep: number;
-  rejectionReason?: string;
-}
+type CheckState = 'idle' | 'checking' | 'approved' | 'needs-onboarding';
 
 interface OnboardingGuardProps {
   children: React.ReactNode;
@@ -18,70 +13,51 @@ interface OnboardingGuardProps {
 
 const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
   const { user, loading: authLoading } = useSelector((state: RootState) => state.auth);
-  const { currentArtist, loading: artistLoading } = useSelector((state: RootState) => state.artist);
   const location = useLocation();
 
-  const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus | null>(null);
-  const [statusLoading, setStatusLoading] = useState(false);
+  const [check, setCheck] = useState<CheckState>('idle');
+  const fetched = useRef(false);
 
-  // Fetch live onboarding status when artist is loaded
+  const isArtist = user?.role === 'artist';
+
   useEffect(() => {
-    if (!user || user.role !== 'artist' || !currentArtist) return;
-    setStatusLoading(true);
-    api.get('/onboarding/status')
-      .then(res => setOnboardingStatus(res.data.data as OnboardingStatus))
-      .catch(() => setOnboardingStatus(null))
-      .finally(() => setStatusLoading(false));
-  }, [user, currentArtist]);
+    // Only run for artists, only once
+    if (!isArtist || fetched.current) return;
+    fetched.current = true;
+    setCheck('checking');
 
-  if (authLoading || artistLoading || statusLoading) {
-    return <Preloader isVisible={true} text="Verifying artist status..." />;
+    api.get('/onboarding/status')
+      .then(res => {
+        const data = res.data?.data as { verificationStatus?: string } | null;
+        setCheck(data?.verificationStatus === 'approved' ? 'approved' : 'needs-onboarding');
+      })
+      .catch(() => {
+        // API error (e.g. no artist profile yet) — send to onboarding
+        setCheck('needs-onboarding');
+      });
+  }, [isArtist]);
+
+  // Still initialising auth
+  if (authLoading) {
+    return <Preloader isVisible={true} text="Loading..." />;
   }
 
-  // Non-artists pass through unchanged
-  if (!user || user.role !== 'artist') {
+  // Non-artists (admins acting on artist pages, etc.) pass straight through
+  if (!user || !isArtist) {
     return <>{children}</>;
   }
 
-  const path = location.pathname;
-  const onOnboardingPage = path === '/artist/onboarding';
-
-  if (currentArtist && onboardingStatus) {
-    const { verificationStatus } = onboardingStatus;
-
-    // Approved — full access, bounce off onboarding page
-    if (verificationStatus === 'approved') {
-      if (onOnboardingPage) return <Navigate to="/artist" replace />;
-      return <>{children}</>;
-    }
-
-    // Pending review — lock everything except the onboarding status page
-    if (verificationStatus === 'pending') {
-      if (!onOnboardingPage) return <Navigate to="/artist/onboarding" replace />;
-      return <>{children}</>;
-    }
-
-    // Rejected — redirect to onboarding so they can revise and resubmit
-    if (verificationStatus === 'rejected') {
-      if (!onOnboardingPage) return <Navigate to="/artist/onboarding" replace />;
-      return <>{children}</>;
-    }
-
-    // Not yet submitted — force onboarding
-    if (!onboardingStatus.onboardingCompleted) {
-      if (!onOnboardingPage) return <Navigate to="/artist/onboarding" replace />;
-      return <>{children}</>;
-    }
-  } else if (currentArtist && !onboardingStatus) {
-    // Status fetch failed or not yet available — fall back to local artist data
-    if (!currentArtist.onboardingCompleted && !onOnboardingPage) {
-      return <Navigate to="/artist/onboarding" replace />;
-    }
-    if (currentArtist.onboardingCompleted && onOnboardingPage) {
-      return <Navigate to="/artist" replace />;
-    }
+  // Waiting for the status API call
+  if (check === 'idle' || check === 'checking') {
+    return <Preloader isVisible={true} text="Verifying artist status..." />;
   }
 
+  // Not yet approved — send to onboarding (the onboarding route is a sibling, outside this guard)
+  if (check === 'needs-onboarding') {
+    return <Navigate to="/artist/onboarding" replace />;
+  }
+
+  // Approved — render the protected content
   return <>{children}</>;
 };
 

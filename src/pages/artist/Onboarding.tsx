@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   User, FileText, ShieldCheck, CheckCircle2, ArrowRight, ArrowLeft,
   Upload, AlertCircle, Loader2, Music2, Clock, XCircle, RefreshCw,
@@ -441,6 +442,7 @@ function RejectedScreen({ reason, onResubmit }: { reason: string; onResubmit: ()
 // ── Main component ────────────────────────────────────────────────────
 
 export default function Onboarding() {
+  const navigate = useNavigate();
   const [step, setStep]           = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [saving, setSaving]       = useState(false);
@@ -457,13 +459,18 @@ export default function Onboarding() {
       .then(res => {
         const artist = res.data.data;
         if (!artist) return;
+        if (artist.verificationStatus === 'approved') {
+          // Already approved — go to dashboard (guard would normally handle this, but just in case)
+          navigate('/artist', { replace: true });
+          return;
+        }
         if (artist.verificationStatus === 'pending') { setStatus('pending'); return; }
         if (artist.verificationStatus === 'rejected') {
           setRejectionReason(artist.rejectionReason || '');
           setStatus('rejected');
           return;
         }
-        // Pre-populate saved fields so uploads / partial saves survive a refresh
+        // not_submitted — pre-populate any previously saved fields
         setData(prev => ({ ...prev, ...artist }));
         if (typeof artist.onboardingStep === 'number' && artist.onboardingStep > 0) {
           setStep(Math.min(artist.onboardingStep, STEPS.length - 1));
@@ -471,7 +478,7 @@ export default function Onboarding() {
       })
       .catch(() => { /* start fresh on error */ })
       .finally(() => setLoading(false));
-  }, []);
+  }, [navigate]);
 
   const update = useCallback((key: string, value: any) => {
     setData(prev => ({ ...prev, [key]: value }));
