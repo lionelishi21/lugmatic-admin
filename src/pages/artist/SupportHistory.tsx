@@ -7,9 +7,15 @@ import {
   MessageSquare,
   Search,
   Filter,
-  ArrowRight
+  ArrowRight,
+  LifeBuoy,
+  History,
+  Activity,
+  ShieldCheck,
+  ChevronRight
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { userService } from '../../services/userService';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -23,7 +29,13 @@ interface SupportTicket {
   createdAt: string;
 }
 
+// ── Shared primitives ─────────────────────────────────────────────
+const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1.5 italic';
+const inputClass = 'w-full px-5 py-3 bg-zinc-950 border border-white/[0.08] rounded-xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-700 italic tracking-widest';
+
 export default function SupportHistory() {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -49,23 +61,23 @@ export default function SupportHistory() {
       case 'resolved':
       case 'closed':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 text-green-600 text-[10px] font-bold uppercase tracking-wider">
-            <CheckCircle2 className="h-3 w-3" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase tracking-[0.2em] border border-emerald-500/20 italic">
+            <ShieldCheck className="h-2.5 w-2.5" />
             {status}
           </span>
         );
       case 'in-progress':
       case 'open':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider">
-            <Clock className="h-3 w-3" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-blue-500/10 text-blue-500 text-[9px] font-black uppercase tracking-[0.2em] border border-blue-500/20 italic">
+            <Activity className="h-2.5 w-2.5 animate-pulse" />
             {status}
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-600 text-[10px] font-bold uppercase tracking-wider">
-            <AlertCircle className="h-3 w-3" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-amber-500/10 text-amber-500 text-[9px] font-black uppercase tracking-[0.2em] border border-amber-500/20 italic">
+            <Clock className="h-2.5 w-2.5" />
             {status}
           </span>
         );
@@ -78,56 +90,76 @@ export default function SupportHistory() {
   );
 
   return (
-    <div className="max-w-5xl mx-auto pb-20">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <Link 
-            to="/artist/support" 
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 font-medium transition-colors mb-2"
+    <div className="max-w-5xl mx-auto pb-20 space-y-6 animate-in fade-in duration-700">
+      
+      {/* ── Branded Header HUD ── */}
+      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden group`}>
+        <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/[0.02] rounded-bl-full pointer-events-none" />
+        <div className="flex items-center gap-5 relative z-10">
+          <button 
+            onClick={() => navigate('/artist/support')}
+            className="w-12 h-12 flex items-center justify-center bg-zinc-950 hover:bg-emerald-500 hover:text-white text-zinc-500 rounded-xl transition-all border border-white/[0.06] shadow-xl group/back"
           >
-            <ChevronLeft className="h-4 w-4" />
-            Back to Support
+            <ChevronLeft size={24} className="group-hover/back:-translate-x-1 transition-transform" />
+          </button>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Uplink Log</p>
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase italic">Support History</h1>
+            <p className="text-sm text-zinc-500 mt-0.5">Track the status of your reported issues and protocol inquiries.</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3 relative z-10">
+          <Link 
+            to="/artist/support"
+            className="h-11 flex items-center justify-center gap-3 px-6 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20"
+          >
+            New Request
+            <ArrowRight className="h-4 w-4" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Support History</h1>
-          <p className="text-gray-500 text-sm mt-1">Track the status of your reported issues</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-50 flex flex-col sm:flex-row gap-4 justify-between items-center bg-gray-50/30">
-          <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+      {/* ── Ticket Feed HUD ── */}
+      <div className={`${card} overflow-hidden shadow-2xl`}>
+        <div className="p-6 border-b border-zinc-100 dark:border-white/[0.06] flex flex-col sm:flex-row gap-6 justify-between items-center bg-zinc-50/30 dark:bg-zinc-950/20">
+          <div className="relative w-full sm:w-80 group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-emerald-500 transition-colors" />
             <input
               type="text"
-              placeholder="Search tickets..."
+              placeholder="SEARCH LOGS..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+              className={inputClass + " pl-12 h-11"}
             />
           </div>
-          <div className="flex items-center gap-2">
-            <button className="p-2 bg-white border border-gray-200 rounded-xl text-gray-500 hover:text-blue-600 transition-all">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-4 py-2 bg-zinc-950 rounded-xl border border-white/[0.02] text-emerald-500 shadow-inner">
+               <History className="w-4 h-4" />
+               <span className="text-[9px] font-black uppercase tracking-[0.2em] italic">{tickets.length} RECORDS</span>
+            </div>
+            <button className="w-11 h-11 flex items-center justify-center bg-zinc-950 border border-white/[0.06] rounded-xl text-zinc-500 hover:text-white transition-all shadow-inner">
               <Filter className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        <div className="divide-y divide-gray-50">
+        <div className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
           {loading ? (
-            <div className="p-12 text-center">
-              <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-              <p className="text-sm text-gray-500 mt-4">Loading your tickets...</p>
+            <div className="p-24 text-center">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-emerald-500/10 border-t-emerald-500"></div>
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-6 italic">Synchronizing Log Data...</p>
             </div>
           ) : filteredTickets.length === 0 ? (
-            <div className="p-20 text-center">
-              <div className="p-4 bg-gray-50 rounded-2xl inline-block mb-4">
-                <MessageSquare className="h-8 w-8 text-gray-300" />
+            <div className="p-24 text-center">
+              <div className="p-6 bg-zinc-950 rounded-3xl inline-block mb-6 border border-zinc-900 shadow-inner">
+                <MessageSquare className="h-10 w-10 text-zinc-700" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900">No tickets found</h3>
-              <p className="text-sm text-gray-500 mt-2">Any support requests you submit will appear here.</p>
+              <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Zero Log Entries</h3>
+              <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest font-black opacity-60">Any support requests you submit will emerge in this registry.</p>
               <Link 
                 to="/artist/support"
-                className="inline-flex items-center gap-2 mt-6 px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all"
+                className="inline-flex items-center gap-3 mt-8 px-8 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
               >
                 Submit New Request
                 <ArrowRight className="h-4 w-4" />
@@ -135,25 +167,29 @@ export default function SupportHistory() {
             </div>
           ) : (
             filteredTickets.map((ticket) => (
-              <div key={ticket._id} className="p-6 hover:bg-gray-50/50 transition-colors group">
-                <div className="flex items-start justify-between gap-4">
+              <div key={ticket._id} className="p-8 hover:bg-emerald-500/[0.02] transition-colors group relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] rounded-bl-full pointer-events-none" />
+                <div className="flex items-start justify-between gap-8 relative z-10">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-1.5">
+                    <div className="flex items-center gap-4 mb-3">
                       {getStatusBadge(ticket.status)}
-                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{ticket.category}</span>
-                      <span className="text-[10px] text-gray-300">•</span>
-                      <span className="text-[10px] text-gray-400 font-medium">{format(new Date(ticket.createdAt), 'MMM d, h:mm a')}</span>
+                      <span className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.2em] italic bg-emerald-500/5 px-2 py-0.5 rounded-md border border-emerald-500/10">{ticket.category}</span>
+                      <div className="w-1 h-1 rounded-full bg-zinc-800" />
+                      <span className="text-[9px] text-zinc-500 font-black uppercase tracking-widest italic flex items-center gap-1.5">
+                        <Clock className="h-3 w-3" />
+                        {format(new Date(ticket.createdAt), 'MMM d, h:mm a')}
+                      </span>
                     </div>
-                    <h3 className="text-base font-bold text-gray-900 truncate mb-1 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-lg font-black text-zinc-900 dark:text-white truncate mb-2 group-hover:text-emerald-500 transition-colors uppercase italic tracking-tight">
                       {ticket.subject}
                     </h3>
-                    <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                    <p className="text-sm text-zinc-500 line-clamp-2 leading-relaxed font-medium">
                       {ticket.message}
                     </p>
                   </div>
                   <Link 
                     to={`/artist/support/ticket/${ticket._id}`}
-                    className="p-2 bg-gray-50 text-gray-400 rounded-xl group-hover:bg-blue-50 group-hover:text-blue-600 transition-all"
+                    className="w-12 h-12 flex items-center justify-center bg-zinc-950 text-zinc-500 rounded-xl border border-white/[0.04] group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-500 transition-all shadow-inner"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </Link>
@@ -167,21 +203,3 @@ export default function SupportHistory() {
   );
 }
 
-function ChevronRight(props: any) {
-  return (
-    <svg 
-      {...props} 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
-      <path d="m9 18 6-6-6-6"/>
-    </svg>
-  );
-}

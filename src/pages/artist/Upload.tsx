@@ -18,7 +18,12 @@ import {
   Search,
   Mail,
   UserPlus,
-  PlayCircle
+  PlayCircle,
+  Activity,
+  Target,
+  ShieldCheck,
+  Smartphone,
+  ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -27,10 +32,10 @@ import songService, { CreateSongData } from '../../services/songService';
 import artistService, { Artist } from '../../services/artistService';
 import { useAuth } from '../../hooks/useAuth';
 
-// ─── Constants ───────────────────────────────────────────────────────────────
+// ── Shared primitives ─────────────────────────────────────────────
 const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
-const inputClass = 'w-full px-5 py-3.5 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/[0.06] rounded-xl text-zinc-900 dark:text-white placeholder:text-zinc-500 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-xs font-black uppercase tracking-widest italic';
-const labelClass = 'block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2.5 ml-1 italic';
+const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic';
+const inputClass = 'w-full px-5 py-3.5 bg-zinc-950 border border-white/[0.08] rounded-xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-700 italic tracking-widest';
 
 interface Contributor {
   name: string;
@@ -265,12 +270,12 @@ export default function Upload() {
       
       if (!artistId) {
         toast.error(
-          <div className={`${card} p-5 border-rose-500/20 bg-zinc-900`}>
+          <div className="bg-zinc-950 p-6 border border-rose-500/20 rounded-2xl shadow-2xl">
             <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 italic mb-2">Protocol Error</p>
-            <p className="text-sm font-bold text-white mb-4">Artist registry profile required for tactical deployment.</p>
+            <p className="text-sm font-bold text-white mb-4 italic leading-relaxed">Artist registry profile required for tactical deployment.</p>
             <button 
               onClick={() => navigate('/artist/profile')}
-              className="w-full py-2 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20"
+              className="w-full h-12 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20 italic"
             >
               Initialize Profile
             </button>
@@ -376,30 +381,31 @@ export default function Upload() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-20">
+    <div className="max-w-7xl mx-auto space-y-8 pb-20 animate-in fade-in duration-700">
       
-      {/* ── Branded HUD Header ── */}
-      <div className={`${card} p-8 flex flex-col md:flex-row md:items-center justify-between gap-8 overflow-hidden relative`}>
+      {/* ── Branded Header ── */}
+      <div className={`${card} p-8 flex flex-col md:flex-row md:items-center justify-between gap-8 relative overflow-hidden group`}>
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/[0.02] rounded-bl-full pointer-events-none" />
         <div className="flex items-center gap-6 relative z-10">
-          <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl shadow-emerald-500/20">
-            <UploadIcon className="h-8 w-8 text-white" />
+          <div className="w-14 h-14 bg-zinc-950 border border-white/[0.06] rounded-2xl flex items-center justify-center shadow-2xl relative overflow-hidden group-hover:border-emerald-500/50 transition-colors">
+            <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <UploadIcon className="w-7 h-7 text-emerald-500 relative z-10" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Asset Ingestion</p>
-            <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">Deploy Track</h1>
-            <p className="text-sm text-zinc-500 mt-0.5 font-medium">Broadcast your sonic masterpiece to the global network.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Asset Ingestion v2.1</p>
+            <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">Deploy Track <span className="text-zinc-600">/</span> Broadcast</h1>
+            <p className="text-sm text-zinc-500 mt-1 font-medium italic">Initiate sonic transmission to the global network.</p>
           </div>
         </div>
-        
-        <div className="flex items-start gap-5 p-5 bg-zinc-950 border border-emerald-500/20 rounded-2xl max-w-md relative z-10">
-          <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-             <Shield className="h-5 w-5 text-emerald-500" />
+
+        <div className="flex items-start gap-5 p-6 bg-zinc-950 border border-white/[0.04] rounded-2xl max-w-md relative z-10 group-hover:border-emerald-500/20 transition-all">
+          <div className="w-10 h-10 bg-zinc-900 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner">
+             <ShieldCheck className="h-5 w-5 text-emerald-500" />
           </div>
           <div>
             <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest italic mb-1">Registry Audit</p>
-            <p className="text-[10px] text-zinc-500 font-bold leading-relaxed">
-              All transmissions undergo tactical review. Ensure high-fidelity visuals and accurate metadata for priority deployment.
+            <p className="text-[10px] text-zinc-600 font-black uppercase tracking-widest leading-relaxed italic">
+              Transmissions undergo tactical review. Ensure high-fidelity assets for priority deployment.
             </p>
           </div>
         </div>
@@ -411,17 +417,19 @@ export default function Upload() {
         <div className="lg:col-span-1 space-y-8">
           
           {/* Visual Array Zone */}
-          <div className={`${card} p-8`}>
-            <p className={labelClass + ' flex items-center gap-3'}>
-              <ImageIcon className="h-4 w-4 text-emerald-500" />
-              Visual Array (Cover)
-            </p>
+          <div className={`${card} p-8 overflow-hidden group/card`}>
+            <div className="flex items-center gap-4 mb-6">
+                <div className="w-8 h-8 bg-zinc-950 rounded-lg flex items-center justify-center border border-white/[0.04]">
+                    <ImageIcon className="h-4 w-4 text-emerald-500" />
+                </div>
+                <h3 className="text-[10px] font-black text-white uppercase tracking-widest italic">Visual Array</h3>
+            </div>
             <div
               className={`relative rounded-2xl border-2 border-dashed transition-all duration-500 cursor-pointer overflow-hidden group shadow-inner
                 ${coverImage
                   ? 'border-emerald-500 bg-emerald-500/5'
                   : dragOverCover
-                    ? 'border-emerald-500 bg-emerald-500/10'
+                    ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.1)]'
                     : 'border-zinc-200 dark:border-white/[0.06] hover:border-emerald-500/50 bg-zinc-50 dark:bg-zinc-950/50'
                 }`}
               style={{ aspectRatio: '1 / 1' }}
@@ -442,7 +450,7 @@ export default function Upload() {
                         setCoverPreview('');
                         if (imageInputRef.current) imageInputRef.current.value = '';
                       }}
-                      className="p-4 bg-rose-500 text-white rounded-2xl shadow-2xl hover:bg-rose-600 transition-all scale-90 group-hover:scale-100"
+                      className="h-14 w-14 bg-rose-500 text-white rounded-2xl shadow-2xl hover:bg-rose-600 transition-all scale-90 group-hover:scale-100 flex items-center justify-center"
                     >
                       <X className="h-6 w-6" />
                     </button>
@@ -450,11 +458,11 @@ export default function Upload() {
                 </>
               ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-                  <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-900 rounded-3xl flex items-center justify-center mb-6 border border-zinc-200 dark:border-white/10 group-hover:scale-110 transition-transform duration-500 shadow-xl">
-                    <ImageIcon className="h-9 w-9 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
+                  <div className="w-20 h-20 bg-zinc-950 rounded-3xl flex items-center justify-center mb-6 border border-white/[0.04] group-hover:scale-110 transition-transform duration-500 shadow-2xl">
+                    <ImageIcon className="h-9 w-9 text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                   </div>
-                  <p className="text-[10px] font-black text-zinc-700 dark:text-zinc-300 uppercase tracking-widest italic">Sync Image Signal</p>
-                  <p className="text-[9px] text-zinc-500 mt-3 font-black uppercase tracking-tighter opacity-60">1:1 JPG/PNG · 5MB LIMIT</p>
+                  <p className="text-[10px] font-black text-zinc-500 dark:text-zinc-500 uppercase tracking-[0.2em] italic group-hover:text-white transition-colors">Sync Visual Signal</p>
+                  <p className="text-[9px] text-zinc-700 mt-3 font-black uppercase tracking-widest opacity-60">1:1 JPG/PNG · 5MB LIMIT</p>
                 </div>
               )}
               <input
@@ -469,17 +477,19 @@ export default function Upload() {
           </div>
 
           {/* Audio Sequence Zone */}
-          <div className={`${card} p-8`}>
-            <p className={labelClass + ' flex items-center gap-3'}>
-              <FileAudio className="h-4 w-4 text-emerald-500" />
-              Sonic Sequence (Master)
-            </p>
+          <div className={`${card} p-8 overflow-hidden group/card`}>
+            <div className="flex items-center gap-4 mb-6">
+                <div className="w-8 h-8 bg-zinc-950 rounded-lg flex items-center justify-center border border-white/[0.04]">
+                    <FileAudio className="h-4 w-4 text-emerald-500" />
+                </div>
+                <h3 className="text-[10px] font-black text-white uppercase tracking-widest italic">Sonic Sequence</h3>
+            </div>
             <div
               className={`relative rounded-2xl border-2 border-dashed transition-all duration-500 cursor-pointer p-6 shadow-inner
                 ${audioFile
                   ? 'border-emerald-500 bg-emerald-500/5'
                   : dragOverAudio
-                    ? 'border-emerald-500 bg-emerald-500/10'
+                    ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.1)]'
                     : 'border-zinc-200 dark:border-white/[0.06] hover:border-emerald-500/50 bg-zinc-50 dark:bg-zinc-950/50'
                 }`}
               onDragOver={e => { e.preventDefault(); setDragOverAudio(true); }}
@@ -489,19 +499,19 @@ export default function Upload() {
             >
               {audioFile ? (
                 <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-xl shadow-emerald-500/20">
-                    <Music className="h-7 w-7 text-white" />
+                  <div className="w-14 h-14 bg-zinc-950 border border-emerald-500/20 rounded-xl flex items-center justify-center flex-shrink-0 shadow-2xl">
+                    <Music className="h-7 w-7 text-emerald-500" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-tight truncate italic">{audioFile.name}</p>
-                    <div className="flex items-center gap-3 mt-1.5">
-                       <span className="text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-md uppercase tracking-widest">
+                    <p className="text-[11px] font-black text-white uppercase tracking-widest truncate italic mb-1.5">{audioFile.name}</p>
+                    <div className="flex items-center gap-3">
+                       <span className="text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-lg uppercase tracking-widest border border-emerald-500/20 italic">
                           {audioDuration > 0
                             ? `${Math.floor(audioDuration / 60)}:${String(audioDuration % 60).padStart(2, '0')}`
                             : 'SYNCING...'
                           }
                        </span>
-                       <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">
+                       <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest italic">
                           {(audioFile.size / (1024 * 1024)).toFixed(1)} MB
                        </span>
                     </div>
@@ -514,18 +524,18 @@ export default function Upload() {
                       setAudioDuration(0);
                       if (audioInputRef.current) audioInputRef.current.value = '';
                     }}
-                    className="p-2 text-zinc-400 hover:text-rose-500 transition-colors"
+                    className="w-10 h-10 flex items-center justify-center text-zinc-700 hover:text-rose-500 transition-colors"
                   >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
               ) : (
-                <div className="flex flex-col items-center text-center py-4">
-                  <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-900 rounded-3xl flex items-center justify-center mb-5 border border-zinc-200 dark:border-white/10 group-hover:rotate-12 transition-transform duration-500 shadow-xl">
-                    <Music className="h-8 w-8 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
+                <div className="flex flex-col items-center text-center py-6">
+                  <div className="w-16 h-16 bg-zinc-950 rounded-3xl flex items-center justify-center mb-6 border border-white/[0.04] group-hover:rotate-12 transition-transform duration-500 shadow-2xl">
+                    <Music className="h-8 w-8 text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                   </div>
-                  <p className="text-[10px] font-black text-zinc-700 dark:text-zinc-300 uppercase tracking-widest italic">Sync Audio Signal</p>
-                  <p className="text-[9px] text-zinc-500 mt-3 font-black uppercase tracking-tighter opacity-60">MP3/WAV/FLAC · 50MB LIMIT</p>
+                  <p className="text-[10px] font-black text-zinc-500 dark:text-zinc-500 uppercase tracking-[0.2em] italic group-hover:text-white transition-colors">Sync Audio Signal</p>
+                  <p className="text-[9px] text-zinc-700 mt-3 font-black uppercase tracking-widest opacity-60">MP3/WAV/FLAC · 50MB LIMIT</p>
                 </div>
               )}
               <input
@@ -540,16 +550,18 @@ export default function Upload() {
           </div>
 
           {/* Video Array (Optional) */}
-          <div className={`${card} p-8`}>
-            <p className={labelClass + ' flex items-center gap-3'}>
-              <Film className="h-4 w-4 text-emerald-500" />
-              Visual Feed (Video)
-            </p>
+          <div className={`${card} p-8 overflow-hidden group/card`}>
+            <div className="flex items-center gap-4 mb-6">
+                <div className="w-8 h-8 bg-zinc-950 rounded-lg flex items-center justify-center border border-white/[0.04]">
+                    <Film className="h-4 w-4 text-emerald-500" />
+                </div>
+                <h3 className="text-[10px] font-black text-white uppercase tracking-widest italic">Visual Feed</h3>
+            </div>
             <div className="space-y-6">
               <div 
                 onClick={() => videoInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-500 shadow-inner ${
-                  videoFile ? 'border-emerald-500 bg-emerald-500/5' : 'border-zinc-200 dark:border-white/[0.06] hover:border-emerald-500/50 bg-zinc-50 dark:bg-zinc-950/50'
+                className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-500 shadow-inner ${
+                  videoFile ? 'border-emerald-500 bg-emerald-500/5 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'border-zinc-200 dark:border-white/[0.06] hover:border-emerald-500/50 bg-zinc-50 dark:bg-zinc-950/50'
                 }`}
               >
                 <input 
@@ -569,32 +581,32 @@ export default function Upload() {
                   className="hidden"
                 />
                 {videoFile ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-1">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center shadow-2xl">
                        <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                     </div>
                     <span className="text-[10px] font-black text-white truncate max-w-[200px] uppercase italic tracking-widest">{videoFile.name}</span>
                     <button 
                        type="button"
                       onClick={(e) => { e.stopPropagation(); setVideoFile(null); if(videoInputRef.current) videoInputRef.current.value=''; }}
-                      className="text-[9px] text-rose-500 font-black uppercase tracking-widest hover:underline mt-2 italic"
+                      className="text-[9px] text-rose-500 font-black uppercase tracking-widest hover:text-rose-400 mt-2 italic flex items-center gap-2"
                     >
-                      Delete Source
+                      <X size={12} /> Delete Source
                     </button>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-900 rounded-xl flex items-center justify-center border border-zinc-200 dark:border-white/5">
-                       <UploadIcon className="w-6 h-6 text-zinc-400" />
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/[0.04] shadow-2xl">
+                       <UploadIcon className="w-6 h-6 text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                     </div>
-                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Sync MP4/MOV Source</span>
+                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic group-hover:text-white transition-colors">Sync MP4/MOV Source</span>
                   </div>
                 )}
               </div>
               
-              <div className="relative">
-                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                   <PlayCircle className="h-4 w-4 text-zinc-500" />
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+                   <PlayCircle className="h-5 w-5 text-zinc-800 transition-colors group-focus-within:text-emerald-500" />
                 </div>
                 <input
                   type="text"
@@ -602,7 +614,7 @@ export default function Upload() {
                   value={form.videoUrl}
                   onChange={handleFormChange}
                   placeholder="EXTERNAL SIGNAL URL (YOUTUBE/VIMEO)..."
-                  className={inputClass + ' pl-12'}
+                  className={inputClass + ' pl-14'}
                 />
               </div>
             </div>
@@ -613,91 +625,105 @@ export default function Upload() {
         <div className="lg:col-span-2 space-y-8">
           
           {/* Track Parameters */}
-          <div className={`${card} p-8 relative overflow-hidden`}>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-zinc-500/[0.02] rounded-bl-full pointer-events-none" />
-            <div className="flex items-center gap-4 mb-10 border-b border-zinc-100 dark:border-white/[0.04] pb-6">
-              <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
-                 <Sparkles className="h-5 w-5 text-emerald-500" />
+          <div className={`${card} p-10 relative overflow-hidden group`}>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/[0.02] rounded-bl-full pointer-events-none" />
+            <div className="flex items-center gap-5 mb-10 border-b border-white/[0.04] pb-8">
+              <div className="w-12 h-12 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/[0.04] shadow-inner relative overflow-hidden">
+                 <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                 <Sparkles className="h-6 w-6 text-emerald-500 relative z-10" />
               </div>
               <div>
-                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-0.5 italic">Protocol Detail</p>
-                 <h2 className="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Track Parameters</h2>
+                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-1.5 italic">Deployment Matrix</p>
+                 <h2 className="text-xl font-black text-white uppercase tracking-widest italic">Track Parameters</h2>
               </div>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-10">
               {isAdmin && (
-                <div className="bg-rose-500/[0.02] border border-rose-500/10 p-6 rounded-2xl">
+                <div className="bg-rose-500/[0.02] border border-rose-500/10 p-8 rounded-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/[0.03] rounded-bl-full pointer-events-none" />
                   <label className={labelClass + ' text-rose-500'}>Target Artist Profile <span className="text-rose-500">*</span></label>
-                  <select
-                    value={selectedArtistId}
-                    onChange={(e) => setSelectedArtistId(e.target.value)}
-                    className={inputClass + ' border-rose-500/20 focus:ring-rose-500/20 focus:border-rose-500'}
-                    required
-                    disabled={loadingArtists}
-                  >
-                    <option value="">{loadingArtists ? 'SYNCING ARTIST REGISTRY...' : 'SELECT TARGET RECIPIENT ARTIST'}</option>
-                    {artistsList.map(artist => (
-                      <option key={artist._id} value={artist._id}>
-                        {(artist.name || artist.fullName || artist.email).toUpperCase()}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative group">
+                    <select
+                      value={selectedArtistId}
+                      onChange={(e) => setSelectedArtistId(e.target.value)}
+                      className={inputClass + ' appearance-none border-rose-500/20 focus:border-rose-500'}
+                      required
+                      disabled={loadingArtists}
+                    >
+                      <option value="">{loadingArtists ? 'SYNCING ARTIST REGISTRY...' : 'SELECT TARGET RECIPIENT ARTIST'}</option>
+                      {artistsList.map(artist => (
+                        <option key={artist._id} value={artist._id}>
+                          {(artist.name || artist.fullName || artist.email).toUpperCase()}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-rose-500 pointer-events-none" />
+                  </div>
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <label className={labelClass}>Operational Title <span className="text-rose-500">*</span></label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={form.title}
-                    onChange={handleFormChange}
-                    className={inputClass}
-                    placeholder="E.G. SONIC PROTOCOL 01"
-                    required
-                  />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-3">
+                  <label className={labelClass}>Operational Title <span className="text-emerald-500">*</span></label>
+                  <div className="relative group">
+                     <input
+                        type="text"
+                        name="title"
+                        value={form.title}
+                        onChange={handleFormChange}
+                        className={inputClass}
+                        placeholder="E.G. SONIC PROTOCOL 01"
+                        required
+                      />
+                      <Target className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-800 transition-colors group-focus-within:text-emerald-500" />
+                  </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <label className={labelClass}>Deployment Date <span className="text-rose-500">*</span></label>
-                  <input
-                    type="date"
-                    name="releaseDate"
-                    value={form.releaseDate}
-                    onChange={handleFormChange}
-                    className={inputClass}
-                    required
-                  />
+                <div className="space-y-3">
+                  <label className={labelClass}>Deployment Date <span className="text-emerald-500">*</span></label>
+                  <div className="relative group">
+                    <input
+                        type="date"
+                        name="releaseDate"
+                        value={form.releaseDate}
+                        onChange={handleFormChange}
+                        className={inputClass}
+                        required
+                      />
+                      <Calendar className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-800 transition-colors group-focus-within:text-emerald-500" />
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className={labelClass}>Primary Sector (Genre) <span className="text-rose-500">*</span></label>
-                <select
-                  name="genre"
-                  value={form.genre}
-                  onChange={handleFormChange}
-                  className={inputClass}
-                  required
-                  disabled={loadingGenres}
-                >
-                  <option value="">{loadingGenres ? 'SYNCING SECTOR DATA...' : 'SELECT SECTOR (GENRE)'}</option>
-                  {genres.map(genre => (
-                    <option key={genre._id} value={genre._id}>{genre.name.toUpperCase()}</option>
-                  ))}
-                </select>
+              <div className="space-y-3">
+                <label className={labelClass}>Primary Sector (Genre) <span className="text-emerald-500">*</span></label>
+                <div className="relative group">
+                    <select
+                        name="genre"
+                        value={form.genre}
+                        onChange={handleFormChange}
+                        className={inputClass + ' appearance-none'}
+                        required
+                        disabled={loadingGenres}
+                    >
+                        <option value="">{loadingGenres ? 'SYNCING SECTOR DATA...' : 'SELECT SECTOR (GENRE)'}</option>
+                        {genres.map(genre => (
+                        <option key={genre._id} value={genre._id}>{genre.name.toUpperCase()}</option>
+                        ))}
+                    </select>
+                    <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-800 pointer-events-none group-focus-within:text-emerald-500 transition-colors" />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <label className={labelClass}>Lyric Matrix <span className="text-zinc-500 font-black">(OPTIONAL)</span></label>
+              <div className="space-y-3">
+                <label className={labelClass}>Lyric Matrix <span className="text-zinc-700 italic">(OPTIONAL)</span></label>
                 <textarea
                   name="lyrics"
                   value={form.lyrics}
                   onChange={handleFormChange}
-                  rows={8}
-                  className={inputClass + ' resize-none normal-case tracking-normal font-medium h-64'}
+                  rows={10}
+                  className={inputClass + ' resize-none normal-case tracking-normal font-medium h-72 py-6'}
                   placeholder="Paste lyrical sequence here..."
                 />
               </div>
@@ -705,96 +731,97 @@ export default function Upload() {
           </div>
 
           {/* Revenue Split Console */}
-          <div className={`${card} p-8 relative overflow-hidden`}>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/[0.02] rounded-bl-full pointer-events-none" />
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10 border-b border-zinc-100 dark:border-white/[0.04] pb-6">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                   <Layers className="h-5 w-5 text-purple-500" />
+          <div className={`${card} p-10 relative overflow-hidden group`}>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/[0.02] rounded-bl-full pointer-events-none" />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 mb-10 border-b border-white/[0.04] pb-8">
+              <div className="flex items-center gap-5">
+                <div className="w-12 h-12 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/[0.04] shadow-inner relative overflow-hidden">
+                    <div className="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Layers className="h-6 w-6 text-purple-500 relative z-10" />
                 </div>
                 <div>
-                   <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-0.5 italic">Financial Protocol</p>
-                   <h2 className="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Revenue Split</h2>
+                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-500 mb-1.5 italic">Financial Ledger</p>
+                   <h2 className="text-xl font-black text-white uppercase tracking-widest italic">Revenue Split</h2>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={addContributor}
-                className="h-10 px-6 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-xl shadow-zinc-950/20 flex items-center gap-2"
+                className="h-14 px-8 bg-white text-zinc-950 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:scale-105 transition-all shadow-2xl italic flex items-center gap-3"
               >
-                <Plus className="h-3.5 w-3.5" />
+                <Plus className="h-4 w-4" />
                 Add Entity
               </button>
             </div>
             
-            <div className="space-y-6">
+            <div className="space-y-4">
               {contributors.map((contributor, index) => (
                 <motion.div 
                   key={index} 
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="grid grid-cols-1 sm:grid-cols-12 gap-6 p-6 bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl border border-zinc-100 dark:border-white/[0.04] relative group/row"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="grid grid-cols-1 md:grid-cols-12 gap-6 p-8 bg-zinc-950/40 rounded-3xl border border-white/[0.02] relative group/row hover:border-emerald-500/20 transition-all shadow-inner"
                 >
-                  <div className="sm:col-span-6 relative">
-                    <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-2 block italic">Signal Identity / Email</label>
+                  <div className="md:col-span-6 relative space-y-2">
+                    <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2 block italic">Signal Identity / Email</label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                         <Search className="h-3.5 w-3.5 text-zinc-500" />
+                      <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+                         <Search className="h-4 w-4 text-zinc-800" />
                       </div>
                       <input
                         type="text"
                         value={contributor.name}
                         onChange={(e) => handleContributorSearch(index, e.target.value)}
                         placeholder="SEARCH NETWORK..."
-                        className={inputClass + ` pl-11 ${contributor.userId ? 'border-emerald-500/40 bg-emerald-500/5 text-emerald-500' : ''}`}
+                        className={inputClass + ` pl-14 ${contributor.userId ? 'border-emerald-500/40 bg-emerald-500/5 text-emerald-400' : ''}`}
                         required
                       />
-                      {contributor.userId && <CheckCircle2 className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />}
+                      {contributor.userId && <CheckCircle2 className="absolute right-5 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-500 animate-in zoom-in" />}
                     </div>
 
                     {/* Network Search HUD Dropdown */}
                     <AnimatePresence>
                       {activeSearchIndex === index && (searchResults.length > 0 || (!isSearching && contributor.name.length >= 2)) && (
                         <motion.div
-                          initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                          initial={{ opacity: 0, scale: 0.98, y: 15 }}
                           animate={{ opacity: 1, scale: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.98, y: 10 }}
-                          className={`${card} absolute z-50 w-full mt-3 shadow-2xl overflow-hidden border-emerald-500/20`}
+                          exit={{ opacity: 0, scale: 0.98, y: 15 }}
+                          className={`${card} absolute z-50 w-full mt-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden border-emerald-500/20 bg-zinc-900/95 backdrop-blur-xl`}
                         >
-                          <div className="px-5 py-3 border-b border-zinc-100 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
-                             <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic">Signal Detection</p>
+                          <div className="px-6 py-4 border-b border-white/[0.04] bg-zinc-950/50">
+                             <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Signal Detection</p>
                           </div>
-                          <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                          <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
                             {searchResults.map((result) => (
                               <button
                                 key={result._id}
                                 type="button"
                                 onClick={() => selectContributor(index, result)}
-                                className="w-full px-5 py-4 text-left hover:bg-emerald-500/10 flex items-center gap-4 transition-all border-b border-zinc-50 dark:border-white/5 group/item"
+                                className="w-full px-6 py-5 text-left hover:bg-emerald-500/10 flex items-center gap-5 transition-all border-b border-white/[0.02] group/item"
                               >
-                                <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white text-xs font-black uppercase italic shadow-lg shadow-emerald-500/20 group-hover/item:scale-110 transition-transform">
+                                <div className="w-12 h-12 rounded-2xl bg-zinc-950 border border-white/[0.04] flex items-center justify-center text-emerald-500 text-[10px] font-black uppercase italic shadow-2xl group-hover/item:border-emerald-500/50 transition-all">
                                   {result.firstName[0]}{result.lastName[0]}
                                 </div>
-                                <div className="flex flex-col">
-                                  <span className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">{result.firstName} {result.lastName}</span>
-                                  <span className="text-[9px] text-zinc-500 font-bold tracking-widest mt-0.5">{result.email.toUpperCase()}</span>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="text-[11px] font-black text-white uppercase tracking-widest italic truncate">{result.firstName} {result.lastName}</span>
+                                  <span className="text-[9px] text-zinc-600 font-black tracking-[0.2em] mt-1 uppercase italic truncate">{result.email}</span>
                                 </div>
-                                <ChevronRight className="h-4 w-4 text-zinc-600 ml-auto opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                                <ChevronRight className="h-5 w-5 text-zinc-800 ml-auto group-hover/item:text-emerald-500 transition-colors" />
                               </button>
                             ))}
                           </div>
                           {searchResults.length === 0 && !isSearching && (
-                            <div className="p-6 text-center">
-                               <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center mx-auto mb-4 border border-zinc-200 dark:border-white/5">
-                                  <Mail className="h-5 w-5 text-zinc-500" />
+                            <div className="p-10 text-center">
+                               <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-white/[0.04] shadow-2xl">
+                                  <Mail className="h-7 w-7 text-zinc-800" />
                                </div>
-                               <p className="text-[10px] text-zinc-500 font-black mb-4 uppercase tracking-widest italic">Identity Unknown</p>
+                               <p className="text-[10px] text-zinc-500 font-black mb-8 uppercase tracking-[0.2em] italic">Identity Unknown In Network</p>
                                <button
                                  type="button"
                                  onClick={() => inviteContributor(index)}
-                                 className="w-full bg-emerald-600 text-white py-3 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-2"
+                                 className="w-full h-14 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-3 italic"
                                >
-                                 <UserPlus className="h-3.5 w-3.5" />
+                                 <UserPlus className="h-5 w-5" />
                                  Broadcast Invite
                                </button>
                             </div>
@@ -804,43 +831,46 @@ export default function Upload() {
                     </AnimatePresence>
                   </div>
                   
-                  <div className="sm:col-span-3">
-                    <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-2 block italic">Sector Role</label>
-                    <select
-                      value={contributor.role}
-                      onChange={(e) => updateContributor(index, 'role', e.target.value)}
-                      className={inputClass}
-                    >
-                      {['ARTIST', 'PRODUCER', 'SONGWRITER', 'VOCALIST', 'COMPOSER'].map(r => (
-                        <option key={r} value={r}>{r}</option>
-                      ))}
-                    </select>
+                  <div className="md:col-span-3 space-y-2">
+                    <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2 block italic">Sector Role</label>
+                    <div className="relative group">
+                        <select
+                        value={contributor.role}
+                        onChange={(e) => updateContributor(index, 'role', e.target.value)}
+                        className={inputClass + ' appearance-none'}
+                        >
+                        {['ARTIST', 'PRODUCER', 'SONGWRITER', 'VOCALIST', 'COMPOSER'].map(r => (
+                            <option key={r} value={r}>{r}</option>
+                        ))}
+                        </select>
+                        <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-800 pointer-events-none group-focus-within:text-emerald-500 transition-colors" />
+                    </div>
                   </div>
                   
-                  <div className="sm:col-span-2">
-                    <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-2 block italic">Allocation</label>
-                    <div className="relative">
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2 block italic">Allocation</label>
+                    <div className="relative group">
                       <input
                         type="number"
                         min="0"
                         max="100"
                         value={contributor.share}
-                        onChange={(e) => updateContributor(index, 'share', e.target.value)}
-                        className={inputClass + ' pr-10'}
+                        onChange={(e) => updateContributor(index, 'share', Number(e.target.value))}
+                        className={inputClass + ' pr-12'}
                         required
                       />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-black text-zinc-500">%</span>
+                      <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[11px] font-black text-zinc-800 group-focus-within:text-emerald-500 transition-colors">%</span>
                     </div>
                   </div>
                   
-                  <div className="sm:col-span-1 flex items-end justify-center pb-2">
+                  <div className="md:col-span-1 flex items-end justify-center pb-2.5">
                     {contributors.length > 1 && (
                       <button
                         type="button"
                         onClick={() => removeContributor(index)}
-                        className="h-10 w-10 flex items-center justify-center text-zinc-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all"
+                        className="h-14 w-14 flex items-center justify-center text-zinc-800 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all border border-transparent hover:border-rose-500/20"
                       >
-                        <X className="h-5 w-5" />
+                        <X className="h-6 w-6" />
                       </button>
                     )}
                   </div>
@@ -848,157 +878,46 @@ export default function Upload() {
               ))}
             </div>
 
-            <div className="mt-10 pt-10 border-t border-zinc-100 dark:border-white/[0.04] space-y-8">
-              <label className="flex items-start gap-4 cursor-pointer group bg-zinc-50 dark:bg-zinc-950/50 p-6 rounded-2xl border border-zinc-100 dark:border-white/5 transition-all hover:border-emerald-500/20">
+            <div className="mt-12 pt-10 border-t border-white/[0.04] space-y-10">
+              <label className="flex items-start gap-6 cursor-pointer group bg-zinc-950/40 p-8 rounded-3xl border border-white/[0.02] transition-all hover:border-emerald-500/20 shadow-inner">
                 <div className="relative mt-0.5">
                   <input
                     type="checkbox"
                     checked={termsAccepted}
                     onChange={(e) => setTermsAccepted(e.target.checked)}
-                    className="w-5 h-5 rounded-md border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-900 text-emerald-600 focus:ring-emerald-500 transition-all cursor-pointer"
+                    className="w-6 h-6 rounded-lg border-white/[0.08] bg-zinc-950 text-emerald-500 focus:ring-emerald-500/20 transition-all cursor-pointer shadow-inner"
                     required
                   />
                 </div>
-                <span className="text-[10px] font-black text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors leading-relaxed uppercase tracking-widest italic">
-                  I AGREE TO THE SPLIT SHEET PROTOCOL. I CONFIRM THE LEGAL AUTHORITY TO BROADCAST THIS CONTENT AND ATTEST TO THE ACCURACY OF ALL CONTRIBUTOR ALLOCATIONS.
+                <span className="text-[10px] font-black text-zinc-600 group-hover:text-zinc-400 transition-colors leading-relaxed uppercase tracking-[0.2em] italic">
+                  I AGREE TO THE SPLIT SHEET PROTOCOL. I CONFIRM THE LEGAL AUTHORITY TO BROADCAST THIS CONTENT AND ATTEST TO THE ACCURACY OF ALL CONTRIBUTOR ALLOCATIONS AS DEFINED IN THE FINANCIAL LEDGER.
                 </span>
               </label>
 
-              <button
+              <motion.button
                 type="submit"
                 disabled={isUploading}
-                            {searchResults.map((result) => (
-                              <button
-                                key={result._id}
-                                type="button"
-                                onClick={() => selectContributor(index, result)}
-                                className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                              >
-                                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-xs font-bold uppercase">
-                                  {result.firstName[0]}{result.lastName[0]}
-                                </div>
-                                <div className="flex flex-col">
-                                  <span className="text-sm font-medium text-gray-800">{result.firstName} {result.lastName}</span>
-                                  <span className="text-[10px] text-gray-500">{result.email}</span>
-                                </div>
-                                <span className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 capitalize">{result.role}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        {activeSearchIndex === index && !isSearching && contributor.name.length >= 2 && searchResults.length === 0 && (
-                          <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden p-4 text-center">
-                             <p className="text-xs text-gray-500 mb-3">No user found with this name or email.</p>
-                             <button
-                               type="button"
-                               onClick={() => inviteContributor(index)}
-                               className="w-full bg-green-500 text-white py-2 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-green-600 transition-all"
-                             >
-                               Invite "{contributor.name}" via Email
-                             </button>
-                          </div>
-                        )}
-                        {isSearching && activeSearchIndex === index && (
-                          <div className="absolute right-10 top-1/2 -translate-y-1/2">
-                            <Loader2 className="h-3.5 w-3.5 text-green-500 animate-spin" />
-                          </div>
-                        )}
-                        </div>
-                      <div className="sm:col-span-3">
-                        <label className="text-[10px] text-gray-400 font-medium mb-1 block">Role</label>
-                        <select
-                          value={contributor.role}
-                          onChange={(e) => updateContributor(index, 'role', e.target.value)}
-                          className={inputClass}
-                        >
-                          <option value="Artist">Artist</option>
-                          <option value="Songwriter">Songwriter</option>
-                          <option value="Producer">Producer</option>
-                          <option value="Vocalist">Vocalist</option>
-                          <option value="Composer">Composer</option>
-                        </select>
-                      </div>
-                      <div className="sm:col-span-2">
-                        <label className="text-[10px] text-gray-400 font-medium mb-1 block">Share %</label>
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={contributor.share}
-                          onChange={(e) => updateContributor(index, 'share', e.target.value)}
-                          className={inputClass}
-                          required
-                        />
-                      </div>
-                      <div className="sm:col-span-1 flex justify-end">
-                        {contributors.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeContributor(index)}
-                            className="p-2.5 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-xl mb-[1px] transition-colors"
-                          >
-                            <X className="h-4.5 w-4.5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <button
-                type="button"
-                onClick={addContributor}
-                className="text-xs font-medium text-green-600 hover:text-green-700 flex items-center gap-1.5 px-2 py-1 hover:bg-green-50 rounded-lg transition-colors"
-                disabled={contributors.reduce((sum, c) => sum + Number(c.share), 0) >= 100}
+                className="w-full h-16 relative bg-white text-zinc-950 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_20px_60px_rgba(16,185,129,0.2)] transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group/submit italic"
+                whileHover={{ scale: isUploading ? 1 : 1.01 }}
+                whileTap={{ scale: 0.98 }}
               >
-                + Add Contributor
-              </button>
-
-              <div className="mt-6 pt-6 border-t border-gray-100">
-                <label className="flex items-start gap-3 cursor-pointer group">
-                  <div className="relative flex items-center pt-0.5">
-                    <input
-                      type="checkbox"
-                      checked={termsAccepted}
-                      onChange={(e) => setTermsAccepted(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-5 h-5 border-2 border-gray-300 rounded-md peer-checked:bg-green-500 peer-checked:border-green-500 transition-all duration-200" />
-                    <CheckCircle2 className="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 left-0.5" />
-                  </div>
-                  <span className="text-xs text-gray-500 leading-relaxed group-hover:text-gray-700 transition-colors">
-                    I have read and agree to the <strong>Split Sheet Agreement</strong> and <strong>Terms of Service</strong>. 
-                    I confirm that all revenue shares listed above are accurate and agreed upon by all parties.
-                  </span>
-                </label>
-              </div>
+                <div className="absolute inset-0 bg-emerald-500 opacity-0 group-hover/submit:opacity-100 transition-opacity duration-500" />
+                <div className="relative flex items-center justify-center gap-4 z-10 group-hover/submit:text-white transition-colors duration-500">
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="animate-spin h-6 w-6" />
+                      <span>Uplink In Progress...</span>
+                    </>
+                  ) : (
+                    <>
+                      <UploadIcon className="h-6 w-6" />
+                      <span>Execute Tactical Deployment</span>
+                      <ChevronRight className="h-5 w-5 group-hover/submit:translate-x-2 transition-transform duration-500" />
+                    </>
+                  )}
+                </div>
+              </motion.button>
             </div>
-
-            {/* Upload progress / submit */}
-            <motion.button
-              type="submit"
-              disabled={isUploading}
-              className="w-full relative bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 text-white py-3.5 px-6 rounded-xl font-semibold shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
-              whileHover={{ scale: isUploading ? 1 : 1.01, y: isUploading ? 0 : -1 }}
-              whileTap={{ scale: 0.99 }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative flex items-center justify-center gap-2.5">
-                {isUploading ? (
-                  <>
-                    <Loader2 className="animate-spin h-5 w-5" />
-                    <span>Uploading your track...</span>
-                  </>
-                ) : (
-                  <>
-                    <UploadIcon className="h-5 w-5" />
-                    <span>Upload Track</span>
-                    <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-                  </>
-                )}
-              </div>
-            </motion.button>
           </div>
         </div>
       </form>

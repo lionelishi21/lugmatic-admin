@@ -37,7 +37,7 @@ const Billboard: React.FC = () => {
             {/* Header section */}
             <div className="bg-zinc-900 border border-white/[0.06] rounded-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-                
+
                 <div className="flex items-center gap-4 relative z-10">
                     <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/30 rounded-sm flex items-center justify-center flex-shrink-0">
                         <Award className="h-7 w-7 text-emerald-500" />
@@ -55,22 +55,20 @@ const Billboard: React.FC = () => {
                 <div className="flex bg-black/40 border border-white/[0.06] rounded-sm p-1 gap-1 relative z-10">
                     <button
                         onClick={() => setPeriod('week')}
-                        className={`flex items-center gap-2 px-6 py-2 rounded-sm text-[10px] font-bold uppercase tracking-widest transition-all ${
-                            period === 'week' 
-                            ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' 
-                            : 'text-zinc-500 hover:text-white'
-                        }`}
+                        className={`flex items-center gap-2 px-6 py-2 rounded-sm text-[10px] font-bold uppercase tracking-widest transition-all ${period === 'week'
+                                ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                                : 'text-zinc-500 hover:text-white'
+                            }`}
                     >
                         <Calendar className="h-3.5 w-3.5" />
                         Weekly
                     </button>
                     <button
                         onClick={() => setPeriod('month')}
-                        className={`flex items-center gap-2 px-6 py-2 rounded-sm text-[10px] font-bold uppercase tracking-widest transition-all ${
-                            period === 'month' 
-                            ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' 
-                            : 'text-zinc-500 hover:text-white'
-                        }`}
+                        className={`flex items-center gap-2 px-6 py-2 rounded-sm text-[10px] font-bold uppercase tracking-widest transition-all ${period === 'month'
+                                ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                                : 'text-zinc-500 hover:text-white'
+                            }`}
                     >
                         <Clock className="h-3.5 w-3.5" />
                         Monthly
@@ -95,7 +93,7 @@ const Billboard: React.FC = () => {
 
                 <div className="relative min-h-[500px]">
                     <Preloader isVisible={loading} text={`Syncing Neural Data...`} />
-                    
+
                     {error && (
                         <div className="p-20 text-center">
                             <div className="w-16 h-16 bg-rose-500/10 rounded-sm flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
@@ -103,8 +101,8 @@ const Billboard: React.FC = () => {
                             </div>
                             <h3 className="text-white font-black italic text-xl uppercase tracking-tighter mb-2">Sync Interrupted</h3>
                             <p className="text-zinc-500 text-xs mb-6 max-w-xs mx-auto font-mono">{error}</p>
-                            <button 
-                                onClick={() => fetchBillboard(period)} 
+                            <button
+                                onClick={() => fetchBillboard(period)}
                                 className="px-8 py-3 bg-zinc-800 border border-white/[0.06] text-white text-[10px] font-bold uppercase tracking-widest rounded-sm hover:border-emerald-500/50 transition-all"
                             >
                                 Re-Establish Link
@@ -137,20 +135,19 @@ const Billboard: React.FC = () => {
                                         <div className="flex items-center gap-6">
                                             {/* Rank */}
                                             <div className="w-10 text-center flex-shrink-0">
-                                                <span className={`text-2xl font-black italic tracking-tighter ${
-                                                    index === 0 ? 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 
-                                                    index === 1 ? 'text-zinc-300' : 
-                                                    index === 2 ? 'text-emerald-800' : 'text-zinc-800'
-                                                }`}>
+                                                <span className={`text-2xl font-black italic tracking-tighter ${index === 0 ? 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]' :
+                                                        index === 1 ? 'text-zinc-300' :
+                                                            index === 2 ? 'text-emerald-800' : 'text-zinc-800'
+                                                    }`}>
                                                     {(index + 1).toString().padStart(2, '0')}
                                                 </span>
                                             </div>
 
                                             {/* Artwork */}
                                             <div className="relative w-16 h-16 flex-shrink-0 rounded-sm bg-zinc-800 overflow-hidden shadow-xl border border-white/[0.06] group-hover:border-emerald-500/30 transition-all">
-                                                <img 
-                                                    src={song.coverArtUrl || song.coverArt} 
-                                                    alt={song.name} 
+                                                <img
+                                                    src={song.coverArtUrl || song.coverArt}
+                                                    alt={song.name}
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                     onError={(e: any) => e.target.src = '/placeholder-song.png'}
                                                 />
@@ -204,7 +201,7 @@ const Billboard: React.FC = () => {
             <div className="bg-zinc-900 border border-white/[0.06] rounded-sm p-10 overflow-hidden relative group">
                 <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 rounded-full -mr-40 -mt-40 blur-3xl group-hover:bg-emerald-500/10 transition-colors duration-1000" />
                 <div className="absolute bottom-0 left-0 w-1 h-0 group-hover:h-full bg-emerald-500 transition-all duration-700" />
-                
+
                 <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8">
                     <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-sm flex items-center justify-center flex-shrink-0 shadow-2xl">
                         <TrendingUp className="h-8 w-8 text-emerald-500" />
@@ -228,5 +225,8 @@ const Billboard: React.FC = () => {
         </div>
     );
 };
+
+export default Billboard;
+
 
 export default Billboard;
