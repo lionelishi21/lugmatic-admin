@@ -14,7 +14,10 @@ import {
   ArrowUpRight,
   Zap,
   Play,
-  Upload as UploadIcon
+  Upload as UploadIcon,
+  Shield,
+  Layers,
+  Activity
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -27,7 +30,9 @@ import { userService } from '../../services/userService';
 import ContributionList from '../../components/artist/ContributionList';
 import { Skeleton } from '../../components/ui/skeleton';
 
+// ── Shared primitives ─────────────────────────────────────────────
 const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1.5 italic';
 
 const fadeUp = {
   initial: { opacity: 0, y: 16 },
@@ -75,175 +80,179 @@ export default function ArtistDashboard() {
   const statCards = [
     {
       icon: Music2,
-      label: 'Total Tracks',
+      label: 'Asset Inventory',
       value: stats?.totalTracks ?? 0,
-      iconCls: 'text-indigo-600 dark:text-indigo-400',
-      iconBg: 'bg-indigo-50 dark:bg-indigo-500/10',
-      trend: 'Release',
+      iconCls: 'text-indigo-400',
+      iconBg: 'bg-indigo-500/10',
+      trend: 'Registry',
     },
     {
       icon: Headphones,
-      label: 'Monthly Listeners',
+      label: 'Signal Reach',
       value: (stats?.monthlyListeners ?? 0).toLocaleString(),
-      iconCls: 'text-emerald-600 dark:text-emerald-400',
-      iconBg: 'bg-emerald-50 dark:bg-emerald-500/10',
+      iconCls: 'text-emerald-400',
+      iconBg: 'bg-emerald-500/10',
       trend: '+12.5%',
     },
     {
       icon: DollarSign,
-      label: 'Total Earnings',
+      label: 'Fiscal Yield',
       value: `$${(earnings?.totalEarnings ?? 0).toLocaleString()}`,
-      iconCls: 'text-amber-600 dark:text-amber-400',
-      iconBg: 'bg-amber-50 dark:bg-amber-500/10',
+      iconCls: 'text-amber-400',
+      iconBg: 'bg-amber-500/10',
       trend: 'Revenue',
     },
     {
       icon: Users,
-      label: 'Social Followers',
+      label: 'Network Nodes',
       value: (stats?.socialMediaFollowers ?? 0).toLocaleString(),
-      iconCls: 'text-rose-600 dark:text-rose-400',
-      iconBg: 'bg-rose-50 dark:bg-rose-500/10',
+      iconCls: 'text-rose-400',
+      iconBg: 'bg-rose-500/10',
       trend: 'Growth',
     },
   ];
 
   return (
-    <div className="max-w-5xl mx-auto pb-16 space-y-6">
+    <div className="max-w-7xl mx-auto pb-16 space-y-8 animate-in fade-in duration-700">
 
-      {/* ── Welcome Banner ── */}
-      <motion.div {...fadeUp} className={`${card} p-8 relative overflow-hidden group`}>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-500/10 transition-colors" />
+      {/* ── Branded Welcome HUD ── */}
+      <motion.div {...fadeUp} className={`${card} p-10 relative overflow-hidden group`}>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/[0.03] blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
         
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
-          <div className="flex items-center gap-6">
-             <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
-                <Music2 className="h-8 w-8 text-white" />
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-10">
+          <div className="flex items-center gap-8">
+             <div className="w-20 h-20 bg-emerald-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-2xl shadow-emerald-500/30 group-hover:scale-110 transition-transform duration-500">
+                <Shield className="h-10 w-10 text-white" />
              </div>
              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1.5 italic">Studio Central</p>
-                <h1 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase italic">
-                  {user?.name ?? 'Artist'} Dashboard
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Studio Matrix v1.4</p>
+                <h1 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic leading-none">
+                  Welcome, {user?.name ?? 'Artist'}
                 </h1>
-                <p className="text-sm text-zinc-500 mt-0.5 max-w-sm">
-                  Control your sonic legacy and track your exponential growth in real-time.
+                <p className="text-sm text-zinc-500 mt-2 max-w-sm font-medium">
+                  Operational status: <span className="text-emerald-500 font-black italic">Active</span>. Real-time telemetry monitoring enabled.
                 </p>
              </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={() => navigate('/artist/upload')}
-              className="h-12 px-6 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-xl shadow-zinc-900/10 flex items-center justify-center gap-3"
+              className="h-14 px-8 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl shadow-zinc-950/20 flex items-center justify-center gap-4 group/btn"
             >
-              <UploadIcon className="h-4 w-4" />
-              Upload Track
+              <UploadIcon className="h-4.5 w-4.5 group-hover:-translate-y-1 transition-transform" />
+              Upload Source
             </button>
             <button
               onClick={() => navigate('/artist/live')}
-              className="h-12 px-6 bg-emerald-500 text-white rounded text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-3"
+              className="h-14 px-8 bg-emerald-500 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-emerald-600 hover:scale-105 transition-all shadow-2xl shadow-emerald-500/30 flex items-center justify-center gap-4 group/btn"
             >
-              <Radio className="h-4 w-4" />
-              Go Live Now
+              <Radio className="h-4.5 w-4.5 animate-pulse" />
+              Initialize Live
             </button>
           </div>
         </div>
       </motion.div>
 
-      {/* ── Stats Grid ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ── Telemetry Grid ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((card_, i) => (
           <motion.div
             key={card_.label}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.07 }}
-            className={`${card} p-5 hover:border-zinc-300 dark:hover:border-white/10 transition-all group`}
+            className={`${card} p-6 hover:border-emerald-500/20 transition-all group cursor-default`}
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${card_.iconBg} border border-zinc-100 dark:border-white/5`}>
-                <card_.icon className={`h-5 w-5 ${card_.iconCls}`} />
+            <div className="flex items-center justify-between mb-6">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${card_.iconBg} border border-white/[0.04] shadow-inner`}>
+                <card_.icon className={`h-6 w-6 ${card_.iconCls}`} />
               </div>
-              <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-zinc-50 dark:bg-zinc-800 text-zinc-500">
+              <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded bg-zinc-950 text-zinc-500 border border-white/[0.04]">
                 {card_.trend}
               </span>
             </div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1">{card_.label}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-zinc-500 mb-2 italic">{card_.label}</p>
             {isLoading ? (
-              <Skeleton className="h-7 w-24 mt-1" />
+              <Skeleton className="h-8 w-24 mt-1 bg-zinc-800" />
             ) : (
-              <p className="text-2xl font-black text-zinc-900 dark:text-white italic tracking-tighter tabular-nums">{card_.value}</p>
+              <p className="text-3xl font-black text-zinc-900 dark:text-white italic tracking-tighter tabular-nums group-hover:text-emerald-500 transition-colors">{card_.value}</p>
             )}
           </motion.div>
         ))}
       </div>
 
-      {/* ── Main Grid ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* ── Main Operations Grid ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        {/* Latest Releases */}
+        {/* Source Discography */}
         <motion.div {...stagger(4)} className={`${card} overflow-hidden flex flex-col`}>
-          <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-800/20">
-            <div className="flex items-center gap-3">
-              <h2 className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Discography</h2>
-              <div className="w-1 h-1 rounded-full bg-zinc-700" />
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Recent Drops</p>
+          <div className="flex items-center justify-between px-8 py-6 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-950/20">
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                 <Music2 className="h-4 w-4 text-emerald-500" />
+              </div>
+              <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Source Registry</h2>
             </div>
             <button
               onClick={() => navigate('/artist/songs')}
-              className="text-[10px] font-black text-emerald-500 hover:text-emerald-600 uppercase tracking-widest transition-all flex items-center gap-1.5"
+              className="text-[10px] font-black text-emerald-500 hover:text-emerald-600 uppercase tracking-widest transition-all flex items-center gap-2 group"
             >
-              Vault
-              <ChevronRight className="h-3 w-3" />
+              Master List
+              <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
           
           <div className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
             {isLoading ? (
               [1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center gap-4 px-6 py-4">
-                  <Skeleton className="w-12 h-12 rounded-lg" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-36" />
-                    <Skeleton className="h-3 w-20" />
+                <div key={i} className="flex items-center gap-5 px-8 py-6">
+                  <Skeleton className="w-14 h-14 rounded-xl bg-zinc-800" />
+                  <div className="flex-1 space-y-3">
+                    <Skeleton className="h-4 w-48 bg-zinc-800" />
+                    <Skeleton className="h-3 w-24 bg-zinc-800" />
                   </div>
                 </div>
               ))
             ) : songs && songs.length > 0 ? (
               songs.slice(0, 5).map((track: any) => (
-                <div key={track._id} className="flex items-center justify-between px-6 py-4 hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors group">
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="relative flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                <div key={track._id} className="flex items-center justify-between px-8 py-6 hover:bg-emerald-500/[0.02] transition-colors group">
+                  <div className="flex items-center gap-5 min-w-0">
+                    <div className="relative flex-shrink-0 group-hover:scale-105 transition-all duration-500">
                       <img
                         src={track.coverArtUrl || track.coverArt || '/default-track-cover.jpg'}
                         alt={track.name || track.title}
-                        className="w-12 h-12 rounded-lg object-cover border border-zinc-200 dark:border-white/10"
+                        className="w-14 h-14 rounded-xl object-cover border border-zinc-200 dark:border-white/10 shadow-lg"
                         onError={(e) => { (e.target as HTMLImageElement).src = '/default-track-cover.jpg'; }}
                       />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
-                        <Play className="h-5 w-5 text-white fill-current" />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl backdrop-blur-[2px]">
+                        <Play className="h-6 w-6 text-white fill-current" />
                       </div>
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight truncate">{track.name || track.title}</h3>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-2 mt-1">
-                        <BarChart2 className="h-3 w-3 text-emerald-500" />
-                        {(track.playCount ?? track.plays ?? 0).toLocaleString()} <span className="text-zinc-600">Plays</span>
-                      </p>
+                      <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight truncate italic">{track.name || track.title}</h3>
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <p className="text-[9px] text-emerald-500 font-black uppercase tracking-widest flex items-center gap-1.5 bg-emerald-500/10 px-2 py-0.5 rounded">
+                          <BarChart2 className="h-3 w-3" />
+                          {(track.playCount ?? track.plays ?? 0).toLocaleString()}
+                        </p>
+                        <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Plays</span>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-5">
                     <div className="hidden sm:flex flex-col items-end gap-1">
-                       <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${
+                       <span className={`text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md border ${
                          track.status === 'approved' 
-                           ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
-                           : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                           ? 'bg-emerald-500/5 text-emerald-500 border-emerald-500/20' 
+                           : 'bg-amber-500/5 text-amber-500 border-amber-500/20'
                        }`}>
                          {track.status || 'Pending'}
                        </span>
                     </div>
                     <button
                       onClick={() => navigate(`/artist/songs/${track._id}/analytics`)}
-                      className="p-2 text-zinc-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded transition-all"
+                      className="w-10 h-10 flex items-center justify-center text-zinc-500 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all border border-transparent hover:border-emerald-500/20"
                     >
                       <ArrowUpRight className="h-5 w-5" />
                     </button>
@@ -251,133 +260,139 @@ export default function ArtistDashboard() {
                 </div>
               ))
             ) : (
-              <div className="py-20 text-center">
-                <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-zinc-200 dark:border-white/5">
-                  <Music2 className="h-8 w-8 text-zinc-400" />
+              <div className="py-24 text-center">
+                <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-950 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-zinc-200 dark:border-white/5 shadow-inner">
+                  <Music2 className="h-10 w-10 text-zinc-600" />
                 </div>
-                <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">No tracks yet</p>
-                <p className="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Upload your first track to begin.</p>
+                <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Inventory Depleted</h4>
+                <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest font-black opacity-60">Upload core assets to initialize registry.</p>
               </div>
             )}
           </div>
         </motion.div>
 
-        {/* Activity Feed */}
+        {/* Operational Logbook */}
         <motion.div {...stagger(5)} className={`${card} overflow-hidden flex flex-col`}>
-          <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-800/20">
-            <div className="flex items-center gap-3">
-              <h2 className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Logbook</h2>
-              <div className="w-1 h-1 rounded-full bg-zinc-700" />
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Latest Events</p>
+          <div className="flex items-center justify-between px-8 py-6 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-950/20">
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                 <Activity className="h-4 w-4 text-indigo-500" />
+              </div>
+              <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Operational Log</h2>
             </div>
             <button
               onClick={() => navigate('/artist/earnings')}
-              className="text-[10px] font-black text-emerald-500 hover:text-emerald-600 uppercase tracking-widest transition-all flex items-center gap-1.5"
+              className="text-[10px] font-black text-emerald-500 hover:text-emerald-600 uppercase tracking-widest transition-all flex items-center gap-2 group"
             >
-              Ledger
-              <ChevronRight className="h-3 w-3" />
+              Audit Ledger
+              <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
 
           <div className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
             {isLoading ? (
               [1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center gap-4 px-6 py-4">
-                  <Skeleton className="w-12 h-12 rounded-lg" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-44" />
-                    <Skeleton className="h-3 w-24" />
+                <div key={i} className="flex items-center gap-5 px-8 py-6">
+                  <Skeleton className="w-14 h-14 rounded-xl bg-zinc-800" />
+                  <div className="flex-1 space-y-3">
+                    <Skeleton className="h-4 w-56 bg-zinc-800" />
+                    <Skeleton className="h-3 w-32 bg-zinc-800" />
                   </div>
                 </div>
               ))
             ) : earnings?.history && earnings.history.length > 0 ? (
               earnings.history.slice(0, 5).map((activity: any) => (
-                <div key={activity._id} className="flex items-center gap-4 px-6 py-4 hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 border border-zinc-200 dark:border-white/5 ${
+                <div key={activity._id} className="flex items-center gap-5 px-8 py-6 hover:bg-zinc-950/30 transition-colors group">
+                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 border border-white/[0.04] shadow-inner ${
                     activity.type === 'gift_received'
-                      ? 'bg-emerald-500/10 text-emerald-500'
-                      : 'bg-indigo-500/10 text-indigo-500'
+                      ? 'bg-emerald-500/5 text-emerald-500'
+                      : 'bg-indigo-500/5 text-indigo-500'
                   }`}>
                     {activity.type === 'gift_received'
-                      ? <DollarSign className="h-5 w-5" />
-                      : <Music2 className="h-5 w-5" />
+                      ? <DollarSign className="h-6 w-6" />
+                      : <Music2 className="h-6 w-6" />
                     }
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight truncate">{activity.description}</p>
-                    <div className="flex items-center gap-3 mt-1">
-                       <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                         <Clock className="h-3 w-3" />
+                    <p className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight truncate italic">{activity.description}</p>
+                    <div className="flex items-center gap-4 mt-1.5">
+                       <p className="text-[9px] text-zinc-500 font-black uppercase tracking-widest flex items-center gap-1.5">
+                         <Clock className="h-3.5 w-3.5" />
                          {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
                        </p>
-                       <div className="w-1 h-1 rounded-full bg-zinc-700" />
-                       <span className="text-[9px] font-black uppercase tracking-tighter text-emerald-500">Live</span>
+                       <div className="w-1 h-1 rounded-full bg-zinc-800" />
+                       <span className="text-[9px] font-black uppercase tracking-tighter text-emerald-500 animate-pulse">Telemetry Live</span>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="py-20 text-center">
-                <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-zinc-200 dark:border-white/5">
-                  <Zap className="h-8 w-8 text-zinc-400" />
+              <div className="py-24 text-center">
+                <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-950 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-zinc-200 dark:border-white/5 shadow-inner">
+                  <Zap className="h-10 w-10 text-zinc-600" />
                 </div>
-                <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">No activity</p>
-                <p className="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Events will appear once you start earning.</p>
+                <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Zero Activity Detected</h4>
+                <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest font-black opacity-60">Deployment metrics will emerge upon fiscal events.</p>
               </div>
             )}
           </div>
         </motion.div>
       </div>
 
-      {/* ── Contributions + Earnings Row ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* ── Secondary HUD Row ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        {/* Contributions */}
-        <motion.div {...stagger(6)} className={`${card} overflow-hidden`}>
-          <div className="px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-800/20">
+        {/* Network Collaborations */}
+        <motion.div {...stagger(6)} className={`${card} overflow-hidden flex flex-col`}>
+          <div className="px-8 py-6 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-950/20">
              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                   <Users className="h-4 w-4 text-purple-500" />
-                   <h2 className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Collaborations</h2>
+                <div className="flex items-center gap-4">
+                   <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                      <Layers className="h-4 w-4 text-purple-500" />
+                   </div>
+                   <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Entity Collaborations</h2>
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 border border-purple-500/20">
-                  Splits
+                <span className="text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-md bg-purple-500/10 text-purple-500 border border-purple-500/20">
+                  Split Protocol
                 </span>
              </div>
           </div>
-          <div className="p-6">
+          <div className="p-8">
             <ContributionList contributions={contributions} loading={loadingContributions} />
           </div>
         </motion.div>
 
-        {/* Earnings Overview */}
-        <motion.div {...stagger(7)} className={`${card} overflow-hidden`}>
-          <div className="px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-800/20">
+        {/* Fiscal HUD */}
+        <motion.div {...stagger(7)} className={`${card} overflow-hidden flex flex-col`}>
+          <div className="px-8 py-6 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-950/20">
              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                   <TrendingUp className="h-4 w-4 text-emerald-500" />
-                   <h2 className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Fiscal Performance</h2>
+                <div className="flex items-center gap-4">
+                   <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                      <TrendingUp className="h-4 w-4 text-emerald-500" />
+                   </div>
+                   <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Fiscal HUD</h2>
                 </div>
                 <button
                   onClick={() => navigate('/artist/earnings')}
                   className="text-[10px] font-black text-emerald-500 hover:text-emerald-600 uppercase tracking-widest transition-all"
                 >
-                  Statement
+                  Fiscal Ledger
                 </button>
              </div>
           </div>
-          <div className="p-6 grid grid-cols-2 gap-4">
+          <div className="p-8 grid grid-cols-2 gap-6">
             {[
               { label: 'Cumulative Revenue', value: `$${(earnings?.totalEarnings ?? 0).toLocaleString()}`, dot: 'bg-emerald-500' },
-              { label: 'Active Period', value: `$${(earnings?.monthlyEarnings ?? 0).toLocaleString()}`, dot: 'bg-indigo-500' },
+              { label: 'Active Period Yield', value: `$${(earnings?.monthlyEarnings ?? 0).toLocaleString()}`, dot: 'bg-indigo-500' },
             ].map(({ label, value, dot }) => (
-              <div key={label} className="p-6 bg-zinc-50 dark:bg-zinc-800/30 rounded-xl border border-zinc-100 dark:border-white/[0.04] group hover:border-zinc-300 dark:hover:border-white/10 transition-all">
-                <div className={`w-1.5 h-1.5 rounded-full ${dot} mb-4 shadow-sm`} />
-                <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1.5">{label}</p>
+              <div key={label} className="p-8 bg-zinc-950/50 rounded-2xl border border-white/[0.04] group hover:border-emerald-500/20 transition-all relative overflow-hidden shadow-inner">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-white/[0.01] rounded-bl-full pointer-events-none" />
+                <div className={`w-2 h-2 rounded-full ${dot} mb-5 shadow-lg group-hover:scale-125 transition-transform`} />
+                <p className="text-[9px] font-black uppercase tracking-[0.15em] text-zinc-500 mb-2 italic">{label}</p>
                 {isLoading ? (
-                  <Skeleton className="h-8 w-24 mt-1" />
+                  <Skeleton className="h-10 w-28 mt-1 bg-zinc-800" />
                 ) : (
-                  <p className="text-2xl font-black text-zinc-900 dark:text-white italic tracking-tighter tabular-nums">{value}</p>
+                  <p className="text-3xl font-black text-zinc-900 dark:text-white italic tracking-tighter tabular-nums group-hover:text-emerald-500 transition-colors">{value}</p>
                 )}
               </div>
             ))}

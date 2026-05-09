@@ -17,7 +17,10 @@ import {
   MessageCircle,
   ShieldCheck,
   ChevronRight,
-  Filter
+  Filter,
+  Activity,
+  Zap,
+  Target
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,16 +29,18 @@ import { commentService } from '../../services/commentService';
 import { Comment } from '../../types';
 import toast from 'react-hot-toast';
 
+// ── Shared primitives ─────────────────────────────────────────────
 const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1.5 italic';
 
 // Sub-component for individual comment cards
 const CommentItem = ({ comment, onModerate, onReplyOpen, expanded, onToggleExpand }: any) => {
   const statusBadgeClass = (s: string) => {
     switch (s) {
-      case 'approved': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
-      case 'rejected': return 'bg-rose-500/10 text-rose-500 border-rose-500/20';
-      case 'pending': return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
-      default: return 'bg-zinc-500/10 text-zinc-500 border-zinc-500/20';
+      case 'approved': return 'bg-emerald-500/5 text-emerald-500 border-emerald-500/20';
+      case 'rejected': return 'bg-rose-500/5 text-rose-500 border-rose-500/20';
+      case 'pending': return 'bg-amber-500/5 text-amber-500 border-amber-500/20';
+      default: return 'bg-zinc-500/5 text-zinc-500 border-zinc-500/20';
     }
   };
 
@@ -46,97 +51,99 @@ const CommentItem = ({ comment, onModerate, onReplyOpen, expanded, onToggleExpan
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`${card} group hover:border-zinc-300 dark:hover:border-white/10 transition-all ${
+      className={`${card} group hover:border-emerald-500/20 transition-all relative overflow-hidden ${
         isPending ? 'ring-1 ring-amber-500/20' : ''
       }`}
     >
-      <div className="flex items-start gap-4 px-6 py-5">
-        {/* Avatar */}
-        <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-500 dark:text-emerald-500 font-black text-lg flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/[0.01] rounded-bl-full pointer-events-none" />
+      
+      <div className="flex items-start gap-6 px-8 py-6 relative z-10">
+        {/* Avatar HUD */}
+        <div className="w-14 h-14 rounded-2xl bg-zinc-950 border border-white/[0.04] flex items-center justify-center text-emerald-500 font-black text-xl flex-shrink-0 group-hover:scale-105 transition-transform duration-500 shadow-inner">
           {(typeof comment.user === 'string' ? 'U' : comment.user.firstName?.[0]) || 'U'}
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-4 flex-wrap">
+              <span className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">
                 {typeof comment.user === 'string' ? 'Station Listener' : `${comment.user.firstName} ${comment.user.lastName}`}
               </span>
-              <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${statusBadgeClass(comment.moderationStatus)}`}>
+              <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md border ${statusBadgeClass(comment.moderationStatus)}`}>
                 {comment.moderationStatus}
               </span>
             </div>
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                <Clock className="h-3 w-3" />
+            <div className="flex items-center gap-4 flex-shrink-0">
+              <span className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.15em] flex items-center gap-2 italic">
+                <Clock className="h-3.5 w-3.5" />
                 {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
               </span>
-              <button className="text-zinc-300 dark:text-zinc-700 hover:text-zinc-500 dark:hover:text-zinc-400 transition-colors">
-                <MoreVertical className="h-4 w-4" />
+              <button className="w-8 h-8 flex items-center justify-center text-zinc-600 hover:text-emerald-500 transition-colors">
+                <MoreVertical className="h-4.5 w-4.5" />
               </button>
             </div>
           </div>
 
-          <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4 font-medium">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6 font-medium">
             {comment.content}
           </p>
 
-          {/* Action Row */}
+          {/* Action Row HUD */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button
                 onClick={onReplyOpen}
-                className="h-8 px-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all flex items-center gap-2"
+                className="h-10 px-5 bg-zinc-950 border border-white/[0.04] text-zinc-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:text-emerald-500 hover:border-emerald-500/20 transition-all flex items-center gap-2.5 group/btn"
               >
-                <ReplyIcon className="h-3 w-3" />
+                <ReplyIcon className="h-3.5 w-3.5 group-hover:-translate-x-0.5 transition-transform" />
                 Dispatch Reply
               </button>
-              <div className="flex items-center gap-2 px-3 h-8 bg-zinc-50 dark:bg-zinc-800/30 border border-zinc-100 dark:border-white/5 rounded text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-                <TrendingUp className="h-3 w-3 text-rose-500" />
+              <div className="flex items-center gap-2.5 px-5 h-10 bg-zinc-950/50 border border-white/[0.02] rounded-xl text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                <Zap className="h-3.5 w-3.5 text-emerald-500 animate-pulse" />
                 {comment.likes} High-Fives
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
               {isPending && (
                 <>
                   <button
                     onClick={() => onModerate(comment._id, 'approve')}
-                    className="w-8 h-8 flex items-center justify-center text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20 rounded border border-emerald-500/10 transition-all"
-                    title="Approve"
+                    className="w-10 h-10 flex items-center justify-center text-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10 rounded-xl border border-emerald-500/10 transition-all shadow-lg"
+                    title="Approve Signal"
                   >
-                    <CheckCircle2 className="h-4 w-4" />
+                    <CheckCircle2 className="h-4.5 w-4.5" />
                   </button>
                   <button
                     onClick={() => onModerate(comment._id, 'reject')}
-                    className="w-8 h-8 flex items-center justify-center text-rose-500 bg-rose-500/10 hover:bg-rose-500/20 rounded border border-rose-500/10 transition-all"
-                    title="Reject"
+                    className="w-10 h-10 flex items-center justify-center text-rose-500 bg-rose-500/5 hover:bg-rose-500/10 rounded-xl border border-rose-500/10 transition-all shadow-lg"
+                    title="Reject Signal"
                   >
-                    <XCircle className="h-4 w-4" />
+                    <XCircle className="h-4.5 w-4.5" />
                   </button>
                 </>
               )}
               <button
                 onClick={() => onModerate(comment._id, 'delete')}
-                className="w-8 h-8 flex items-center justify-center text-zinc-400 bg-zinc-100 dark:bg-zinc-800 hover:text-rose-500 hover:bg-rose-500/10 rounded border border-transparent hover:border-rose-500/10 transition-all"
-                title="Purge"
+                className="w-10 h-10 flex items-center justify-center text-zinc-600 bg-zinc-950 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl border border-white/[0.04] hover:border-rose-500/20 transition-all"
+                title="Purge Entry"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-4.5 w-4.5" />
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Nested Replies */}
+      {/* Nested Replies HUD */}
       {comment.replies?.length > 0 && (
-        <div className="px-6 pb-5 pl-[4.5rem] border-t border-zinc-100 dark:border-white/[0.04] pt-4 space-y-3">
+        <div className="px-8 pb-6 pl-[5.5rem] border-t border-zinc-100 dark:border-white/[0.04] pt-5 space-y-4 bg-zinc-950/20">
           <button
             onClick={onToggleExpand}
-            className="flex items-center gap-2 text-[10px] font-black text-zinc-400 hover:text-emerald-500 uppercase tracking-widest transition-colors"
+            className="flex items-center gap-2.5 text-[10px] font-black text-zinc-500 hover:text-emerald-500 uppercase tracking-widest transition-colors italic"
           >
-            {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-            {expanded ? 'Collapse Stream' : `Unfold ${comment.replies.length} ${comment.replies.length === 1 ? 'Response' : 'Responses'}`}
+            {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {expanded ? 'Signal Collapsed' : `Unfold ${comment.replies.length} ${comment.replies.length === 1 ? 'Response' : 'Responses'}`}
           </button>
 
           <AnimatePresence>
@@ -145,19 +152,19 @@ const CommentItem = ({ comment, onModerate, onReplyOpen, expanded, onToggleExpan
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="space-y-2 overflow-hidden"
+                className="space-y-3 overflow-hidden"
               >
                 {comment.replies.map((reply: any) => (
-                  <div key={reply._id} className="flex gap-4 p-4 rounded-lg bg-zinc-50/50 dark:bg-zinc-800/30 border border-zinc-100 dark:border-white/5">
-                    <div className="w-8 h-8 rounded-lg bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 dark:text-zinc-400 text-[10px] font-black flex-shrink-0">
+                  <div key={reply._id} className="flex gap-5 p-5 rounded-2xl bg-zinc-950 border border-white/[0.04] shadow-inner group/reply">
+                    <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-white/[0.02] flex items-center justify-center text-zinc-600 dark:text-emerald-500/70 text-[11px] font-black flex-shrink-0 shadow-inner group-hover/reply:scale-105 transition-transform">
                       {(typeof reply.user === 'string' ? 'U' : reply.user.firstName?.[0]) || 'U'}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-bold text-zinc-900 dark:text-white uppercase tracking-tight">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">
                           {typeof reply.user === 'string' ? 'Station Listener' : `${reply.user.firstName} ${reply.user.lastName}`}
                         </span>
-                        <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">
+                        <span className="text-[9px] text-zinc-500 font-black uppercase tracking-[0.1em] italic">
                            {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}
                         </span>
                       </div>
@@ -255,76 +262,82 @@ const Comments: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto pb-16 space-y-6">
+    <div className="max-w-7xl mx-auto pb-16 space-y-8 animate-in fade-in duration-700">
       
-      {/* ── Header Card ── */}
-      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6`}>
-        <div className="flex items-center gap-5">
-          <div className="w-14 h-14 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
-            <MessageSquare className="h-7 w-7 text-white" />
+      {/* ── Branded Engagement Header ── */}
+      <div className={`${card} p-8 flex flex-col md:flex-row md:items-center justify-between gap-8 relative overflow-hidden group`}>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/[0.02] rounded-bl-full pointer-events-none" />
+        <div className="flex items-center gap-6 relative z-10">
+          <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-500">
+            <MessageSquare className="h-8 w-8 text-white" />
           </div>
           <div>
-             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Listener Engagement</p>
-             <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase italic">
-               Sonic Feedback
-             </h1>
-             <p className="text-sm text-zinc-500 mt-0.5">
-               Moderate conversations and connect with your audience.
-             </p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Signal Intelligence v1.0</p>
+            <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">
+              Sonic Feedback
+            </h1>
+            <p className="text-sm text-zinc-500 mt-1 font-medium">
+              Tactical moderation and listener engagement hub.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* ── Stats Grid ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* ── engagement Telemetry ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {[
-          { label: 'Total Stream', value: stats.total, color: 'indigo', icon: <MessageCircle className="h-4 w-4" /> },
-          { label: 'Attention Required', value: stats.pending, color: 'amber', icon: <AlertCircle className="h-4 w-4" /> },
-          { label: 'Cleared Feed', value: stats.approved, color: 'emerald', icon: <CheckCircle2 className="h-4 w-4" /> },
-          { label: 'Global Impact', value: stats.likes, color: 'rose', icon: <TrendingUp className="h-4 w-4" /> },
+          { label: 'Signal Stream', value: stats.total, color: 'indigo', icon: <MessageCircle className="h-6 w-6" /> },
+          { label: 'Priority Pulse', value: stats.pending, color: 'amber', icon: <AlertCircle className="h-6 w-6" /> },
+          { label: 'Cleared Feed', value: stats.approved, color: 'emerald', icon: <CheckCircle2 className="h-6 w-6" /> },
+          { label: 'Global Impact', value: stats.likes, color: 'rose', icon: <TrendingUp className="h-6 w-6" /> },
         ].map((stat, idx) => (
           <motion.div 
             key={idx}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.05 }}
-            className={`${card} p-5 hover:border-zinc-300 dark:hover:border-white/10 transition-all`}
+            className={`${card} p-6 hover:border-emerald-500/20 transition-all shadow-sm group cursor-default`}
           >
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 bg-${stat.color}-500/10 text-${stat.color}-500 border border-${stat.color}-500/20`}>
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 bg-zinc-950 border border-white/[0.04] shadow-inner text-${stat.color}-500 group-hover:scale-110 transition-transform`}>
               {stat.icon}
             </div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1">{stat.label}</p>
-            <p className="text-2xl font-black text-zinc-900 dark:text-white tabular-nums italic tracking-tighter">{stat.value}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-zinc-500 mb-2 italic">{stat.label}</p>
+            <p className="text-3xl font-black text-zinc-900 dark:text-white tabular-nums italic tracking-tighter group-hover:text-emerald-500 transition-colors">{stat.value}</p>
           </motion.div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* ── Navigation Sidebar ── */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 px-1">
-             <Filter className="h-3.5 w-3.5 text-zinc-500" />
-             <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Filter Engine</p>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* ── Operational Sidebar ── */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-3 px-2">
+             <Filter className="h-4 w-4 text-emerald-500" />
+             <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-500 italic">Signal Filters</p>
           </div>
-          <div className={`${card} p-1.5 flex flex-col gap-1 bg-zinc-50/50 dark:bg-zinc-800/20`}>
+          <div className={`${card} p-2 flex flex-col gap-1.5 bg-zinc-950/20 shadow-inner`}>
             {[
-              { label: 'Full Spectrum', count: stats.total },
-              { label: 'Pending Review', count: stats.pending },
-              { label: 'Approved Feed', count: stats.approved },
-              { label: 'Archive', count: stats.total - stats.approved - stats.pending }
+              { label: 'Full Spectrum', count: stats.total, icon: <Activity className="h-3.5 w-3.5" /> },
+              { label: 'Pending Review', count: stats.pending, icon: <AlertCircle className="h-3.5 w-3.5" /> },
+              { label: 'Approved Feed', count: stats.approved, icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
+              { label: 'Archive Registry', count: stats.total - stats.approved - stats.pending, icon: <Target className="h-3.5 w-3.5" /> }
             ].map((item, idx) => (
               <button
                 key={idx}
                 onClick={() => setActiveTab(idx)}
-                className={`flex items-center justify-between px-3 py-2.5 rounded text-[10px] font-black uppercase tracking-widest transition-all ${
+                className={`flex items-center justify-between px-4 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all italic group ${
                   activeTab === idx
-                    ? 'bg-zinc-900 dark:bg-zinc-700 text-white shadow-lg'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-white'
+                    ? 'bg-white text-zinc-950 shadow-2xl'
+                    : 'text-zinc-500 hover:bg-white/[0.03] hover:text-white'
                 }`}
               >
-                <span>{item.label}</span>
+                <div className="flex items-center gap-3">
+                   <span className={activeTab === idx ? 'text-emerald-600' : 'text-zinc-600 group-hover:text-emerald-500'}>
+                     {item.icon}
+                   </span>
+                   <span>{item.label}</span>
+                </div>
                 {item.count > 0 && (
-                   <span className={`px-2 py-0.5 rounded-full text-[9px] font-black ${activeTab === idx ? 'bg-emerald-500 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'}`}>
+                   <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black tracking-tighter ${activeTab === idx ? 'bg-zinc-900 text-white' : 'bg-zinc-900 text-emerald-500 shadow-inner'}`}>
                       {item.count}
                    </span>
                 )}
@@ -333,25 +346,29 @@ const Comments: React.FC = () => {
           </div>
         </div>
 
-        {/* ── Comment Stream ── */}
-        <div className="lg:col-span-3 space-y-4">
+        {/* ── Comment Stream HUD ── */}
+        <div className="lg:col-span-3 space-y-6">
           <AnimatePresence mode="wait">
             {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <div className="w-10 h-10 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin" />
+              <div className="flex flex-col items-center justify-center py-32 bg-zinc-950/20 rounded-2xl border border-white/[0.04]">
+                <div className="relative">
+                   <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin shadow-2xl shadow-emerald-500/20" />
+                   <Activity className="absolute inset-0 m-auto h-5 w-5 text-emerald-500 animate-pulse" />
+                </div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mt-6 italic animate-pulse">Syncing Signal Stream...</p>
               </div>
             ) : filteredComments.length === 0 ? (
-              <div className={`${card} py-24 text-center bg-zinc-50/30 dark:bg-white/[0.01]`}>
-                <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-3xl mx-auto mb-6 flex items-center justify-center border border-zinc-200 dark:border-white/5">
-                  <MessageSquare className="h-10 w-10 text-zinc-400 dark:text-zinc-700" />
+              <div className={`${card} py-32 text-center bg-zinc-950/20 shadow-inner`}>
+                <div className="w-20 h-20 bg-zinc-950 rounded-3xl mx-auto mb-8 flex items-center justify-center border border-white/[0.04] shadow-2xl group cursor-default">
+                  <MessageSquare className="h-10 w-10 text-zinc-700 group-hover:text-emerald-500 transition-colors" />
                 </div>
-                <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight">Signal Loss</h3>
-                <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-widest mt-2 max-w-xs mx-auto leading-relaxed">
+                <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Signal Loss</h3>
+                <p className="text-[11px] text-zinc-500 font-black uppercase tracking-[0.15em] mt-3 max-w-xs mx-auto leading-relaxed opacity-60">
                   The frequency is quiet. listener interactions will materialize here.
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-6">
                  {filteredComments.map((comment) => (
                    <CommentItem
                      key={comment._id}
@@ -371,66 +388,72 @@ const Comments: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Reply Modal ── */}
+      {/* ── Dispatch Modal HUD ── */}
       <AnimatePresence>
         {showReplyModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-zinc-950/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-zinc-950/90 backdrop-blur-xl">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={`${card} w-full max-w-xl overflow-hidden shadow-2xl shadow-black/50`}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              className={`${card} w-full max-w-2xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] border-emerald-500/20`}
             >
-              {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-800/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center border border-emerald-500/20">
-                     <ReplyIcon className="h-4 w-4 text-emerald-500" />
+              {/* Modal Header HUD */}
+              <div className="flex items-center justify-between px-8 py-6 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-950/50">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20 shadow-inner">
+                     <ReplyIcon className="h-5 w-5 text-emerald-500" />
                   </div>
-                  <span className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Draft Transmission</span>
+                  <div className="flex flex-col">
+                     <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] italic">Dispatch Controller</span>
+                     <span className="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">Draft Transmission</span>
+                  </div>
                 </div>
                 <button
                   onClick={() => setShowReplyModal(false)}
-                  className="w-8 h-8 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors group"
+                  className="w-10 h-10 flex items-center justify-center hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 rounded-xl transition-all group"
                 >
-                  <X className="h-4 w-4 text-zinc-400 group-hover:text-rose-500 transition-colors" />
+                  <X className="h-5 w-5 text-zinc-500 group-hover:text-rose-500 transition-colors" />
                 </button>
               </div>
 
-              <div className="p-6 space-y-6">
-                {/* Quoted comment */}
-                <div className="bg-zinc-50/50 dark:bg-zinc-800/30 border border-zinc-100 dark:border-white/5 rounded-xl p-4 text-[11px] text-zinc-500 dark:text-zinc-400 italic font-medium leading-relaxed relative">
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500/20 rounded-l-xl" />
-                  "{selectedComment?.content}"
+              <div className="p-8 space-y-8">
+                {/* Quoted Signal HUD */}
+                <div className="bg-zinc-950 border border-white/[0.04] rounded-2xl p-6 text-sm text-zinc-500 dark:text-zinc-400 italic font-medium leading-relaxed relative shadow-inner">
+                  <div className="absolute left-0 top-6 bottom-6 w-1 bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
+                  <div className="pl-4">
+                     <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 mb-3 not-italic">Intercepted Signal:</p>
+                     "{selectedComment?.content}"
+                  </div>
                 </div>
 
-                <div className="space-y-3">
-                   <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
-                      <Send className="h-3 w-3" />
-                      Your Response
+                <div className="space-y-4">
+                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-3 italic">
+                      <Send className="h-4 w-4 text-emerald-500" />
+                      Transmission Payload
                    </p>
                    <textarea
                      value={replyText}
                      onChange={(e) => setReplyText(e.target.value)}
-                     placeholder="Compose your reply..."
-                     className="w-full h-40 p-4 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-white/[0.08] rounded-xl text-sm font-medium text-zinc-900 dark:text-white placeholder:text-zinc-500 focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 outline-none transition-all resize-none"
+                     placeholder="Compose high-fidelity response..."
+                     className="w-full h-48 p-6 bg-zinc-950 border border-white/[0.08] rounded-2xl text-sm font-medium text-zinc-900 dark:text-white placeholder:text-zinc-600 focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 outline-none transition-all resize-none shadow-inner"
                    />
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-4">
                   <button
                     onClick={() => setShowReplyModal(false)}
-                    className="h-11 flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-400 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
+                    className="h-14 flex-1 bg-zinc-900 border border-white/[0.04] text-zinc-500 rounded-xl text-[11px] font-black uppercase tracking-widest hover:text-white hover:bg-zinc-800 transition-all italic"
                   >
-                    Discard
+                    Abort Sequence
                   </button>
                   <button
                     onClick={handleReply}
                     disabled={!replyText.trim()}
-                    className="h-11 flex-[2] flex items-center justify-center gap-2 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                    className="h-14 flex-[2] flex items-center justify-center gap-3 bg-emerald-500 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-emerald-600 hover:scale-[1.02] transition-all shadow-2xl shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none italic"
                   >
-                    Post Reply
-                    <ChevronRight className="h-4 w-4" />
+                    Initialize Post
+                    <ChevronRight className="h-5 w-5" />
                   </button>
                 </div>
               </div>

@@ -1,22 +1,21 @@
 import { useState, useEffect } from 'react';
 import {
   Lock, Eye, EyeOff, Bell, Trash2, AlertTriangle,
-  Loader2, Check, CreditCard, Mail, Wallet,
+  Loader2, Check, CreditCard, Mail, Wallet, ShieldLock,
+  Smartphone, Activity, Target, ShieldAlert, Settings as SettingsIcon,
+  ChevronRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
 
-// ── Reusable primitives ───────────────────────────────────────────
-
-const inputCls =
-  'w-full px-3 py-2.5 bg-zinc-800 border border-white/[0.08] rounded text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-all';
-
-const labelCls =
-  'block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-1.5';
+// ── Shared primitives ─────────────────────────────────────────────
+const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const labelCls = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic';
+const inputCls = 'w-full px-5 py-3.5 bg-zinc-950 border border-white/[0.08] rounded-xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-700 italic tracking-widest';
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div>
+    <div className="space-y-1.5">
       <label className={labelCls}>{label}</label>
       {children}
     </div>
@@ -28,26 +27,29 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`relative h-5 w-9 flex-none rounded-full transition-colors ${
-        checked ? 'bg-emerald-500' : 'bg-zinc-700'
+      className={`relative h-6 w-11 flex-none rounded-full transition-all duration-300 ${
+        checked ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.3)]' : 'bg-zinc-800'
       }`}
     >
       <span
-        className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-          checked ? 'translate-x-4' : 'translate-x-0'
+        className={`absolute top-1 left-1 h-4 w-4 rounded-full bg-white shadow-xl transition-transform duration-300 transform ${
+          checked ? 'translate-x-5' : 'translate-x-0'
         }`}
       />
     </button>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, icon: Icon, children }: { title: string; icon: any; children: React.ReactNode }) {
   return (
-    <div className="bg-zinc-900 border border-white/[0.06] rounded-lg overflow-hidden">
-      <div className="px-6 py-4 border-b border-white/[0.06]">
-        <h2 className="text-sm font-semibold text-white">{title}</h2>
+    <div className={`${card} overflow-hidden group`}>
+      <div className="px-8 py-6 border-b border-white/[0.04] bg-zinc-900/50 flex items-center gap-4">
+        <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center border border-white/[0.04] shadow-inner">
+           <Icon className="h-5 w-5 text-emerald-500" />
+        </div>
+        <h2 className="text-[10px] font-black text-white uppercase tracking-[0.2em] italic">{title} Sector</h2>
       </div>
-      <div className="p-6">{children}</div>
+      <div className="p-8">{children}</div>
     </div>
   );
 }
@@ -56,20 +58,21 @@ function SaveBtn({
   loading,
   children,
   variant = 'white',
+  icon: Icon,
   ...props
-}: { loading: boolean; children: React.ReactNode; variant?: 'white' | 'emerald' } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+}: { loading: boolean; children: React.ReactNode; variant?: 'white' | 'emerald'; icon: any } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       type="submit"
       disabled={loading}
-      className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold disabled:opacity-50 transition-colors ${
+      className={`h-12 flex items-center justify-center gap-3 px-8 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50 transition-all italic ${
         variant === 'emerald'
-          ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-          : 'bg-white text-zinc-900 hover:bg-zinc-100'
+          ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-xl shadow-emerald-500/20'
+          : 'bg-white text-zinc-900 hover:bg-zinc-100 shadow-xl'
       }`}
       {...props}
     >
-      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icon className="h-4 w-4" />}
       {children}
     </button>
   );
@@ -100,7 +103,6 @@ export default function Settings() {
   });
   const [savingNotifs, setSavingNotifs] = useState(false);
 
-  // Load saved prefs on mount
   useEffect(() => {
     userService.getUserPreferences()
       .then(res => {
@@ -171,19 +173,29 @@ export default function Settings() {
   ];
 
   return (
-    <div className="max-w-2xl mx-auto pb-16 space-y-4">
+    <div className="max-w-3xl mx-auto pb-20 space-y-8 animate-in fade-in duration-700">
 
-      {/* Page header */}
-      <div className="mb-6">
-        <h1 className="text-white font-bold text-xl tracking-tight">Settings</h1>
-        <p className="text-zinc-500 text-sm mt-1">Manage your account security, payouts, and preferences</p>
+      {/* ── Branded Header ── */}
+      <div className={`${card} p-8 flex flex-col md:flex-row md:items-center justify-between gap-8 relative overflow-hidden group`}>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/[0.02] rounded-bl-full pointer-events-none" />
+        <div className="flex items-center gap-6 relative z-10">
+          <div className="w-14 h-14 bg-zinc-950 border border-white/[0.06] rounded-2xl flex items-center justify-center shadow-2xl relative overflow-hidden group-hover:border-emerald-500/50 transition-colors">
+            <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <SettingsIcon className="w-7 h-7 text-emerald-500 relative z-10 animate-spin-slow" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Terminal Configuration v4.8</p>
+            <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">Settings <span className="text-zinc-600">/</span> Preferences</h1>
+            <p className="text-sm text-zinc-500 mt-1 font-medium italic">Manage account security, distribution payouts, and network protocols.</p>
+          </div>
+        </div>
       </div>
 
-      {/* ── Password ─────────────────────────────────────────────── */}
-      <Section title="Password">
-        <form onSubmit={handlePasswordChange} className="space-y-4">
-          <Field label="Current Password">
-            <div className="relative">
+      {/* ── Account Security ── */}
+      <Section title="Security Intelligence" icon={ShieldLock}>
+        <form onSubmit={handlePasswordChange} className="space-y-8">
+          <Field label="Current Authentication Key">
+            <div className="relative group">
               <input
                 type={showPw.current ? 'text' : 'password'}
                 className={inputCls}
@@ -195,16 +207,16 @@ export default function Settings() {
               <button
                 type="button"
                 onClick={() => setShowPw(p => ({ ...p, current: !p.current }))}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-700 hover:text-emerald-500 transition-colors"
               >
-                {showPw.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPw.current ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
           </Field>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="New Password">
-              <div className="relative">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <Field label="New Security Sequence">
+              <div className="relative group">
                 <input
                   type={showPw.newPass ? 'text' : 'password'}
                   className={inputCls}
@@ -217,13 +229,13 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => setShowPw(p => ({ ...p, newPass: !p.newPass }))}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-700 hover:text-emerald-500 transition-colors"
                 >
-                  {showPw.newPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPw.newPass ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </Field>
-            <Field label="Confirm New Password">
+            <Field label="Confirm Sequence">
               <input
                 type="password"
                 className={inputCls}
@@ -235,94 +247,103 @@ export default function Settings() {
             </Field>
           </div>
 
-          <div className="pt-1">
-            <SaveBtn loading={savingPw}>
-              <Lock className="h-4 w-4" />
-              Update Password
+          <div className="pt-4 flex justify-end">
+            <SaveBtn loading={savingPw} icon={Lock} variant="white">
+              Update Auth Sequence
             </SaveBtn>
           </div>
         </form>
       </Section>
 
-      {/* ── Payout Settings ──────────────────────────────────────── */}
-      <Section title="Payout Settings">
-        <form onSubmit={handlePayoutSave} className="space-y-5">
+      {/* ── Payout Matrix ── */}
+      <Section title="Payout Distribution Matrix" icon={CreditCard}>
+        <form onSubmit={handlePayoutSave} className="space-y-8">
           <div>
-            <label className={labelCls}>Payment Method</label>
-            <div className="flex gap-2">
+            <label className={labelCls}>Primary Transfer Protocol</label>
+            <div className="bg-zinc-950 p-1.5 rounded-2xl border border-white/[0.04] flex gap-2 shadow-inner">
               {(['bank_transfer', 'paypal'] as const).map(m => (
                 <button
                   key={m}
                   type="button"
                   onClick={() => setPayout(p => ({ ...p, method: m }))}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold border rounded transition-colors ${
+                  className={`flex-1 flex items-center justify-center gap-3 h-12 text-[10px] font-black uppercase tracking-widest transition-all rounded-xl italic ${
                     payout.method === m
-                      ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400'
-                      : 'bg-zinc-800 border-white/[0.08] text-zinc-400 hover:border-white/20'
+                      ? 'bg-white text-zinc-900 shadow-2xl'
+                      : 'text-zinc-600 hover:text-zinc-300 hover:bg-white/[0.02]'
                   }`}
                 >
-                  {m === 'paypal' ? <Mail className="h-3.5 w-3.5" /> : <CreditCard className="h-3.5 w-3.5" />}
-                  {m === 'paypal' ? 'PayPal' : 'Bank Transfer'}
+                  {m === 'paypal' ? <Mail className="h-4 w-4" /> : <Activity className="h-4 w-4" />}
+                  {m === 'paypal' ? 'PayPal Hub' : 'Bank Transfer'}
                 </button>
               ))}
             </div>
           </div>
 
           {payout.method === 'paypal' ? (
-            <Field label="PayPal Email">
-              <input
-                type="email"
-                className={inputCls}
-                placeholder="your@paypal.com"
-                value={payout.paypalEmail}
-                onChange={e => setPayout(p => ({ ...p, paypalEmail: e.target.value }))}
-                required
-              />
+            <Field label="Target PayPal Terminal (Email)">
+              <div className="relative group">
+                <input
+                  type="email"
+                  className={inputCls}
+                  placeholder="IDENTITY@SECTOR.COM"
+                  value={payout.paypalEmail}
+                  onChange={e => setPayout(p => ({ ...p, paypalEmail: e.target.value }))}
+                  required
+                />
+                <Mail className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-800 transition-colors group-focus-within:text-emerald-500" />
+              </div>
             </Field>
           ) : (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Bank Name">
-                  <input className={inputCls} placeholder="e.g. NCB Jamaica" value={payout.bankAccount.bankName}
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <Field label="Financial Institution">
+                  <input className={inputCls} placeholder="E.G. GLOBAL RESERVE" value={payout.bankAccount.bankName}
                     onChange={e => setPayout(p => ({ ...p, bankAccount: { ...p.bankAccount, bankName: e.target.value } }))} required />
                 </Field>
-                <Field label="Account Holder Name">
-                  <input className={inputCls} value={payout.bankAccount.accountHolder}
+                <Field label="Account Holder Identity">
+                  <input className={inputCls} placeholder="FULL LEGAL NAME" value={payout.bankAccount.accountHolder}
                     onChange={e => setPayout(p => ({ ...p, bankAccount: { ...p.bankAccount, accountHolder: e.target.value } }))} required />
                 </Field>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Account Number">
-                  <input className={inputCls} value={payout.bankAccount.accountNumber}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <Field label="Account Sequence Number">
+                  <input className={inputCls} placeholder="XXXX-XXXX-XXXX" value={payout.bankAccount.accountNumber}
                     onChange={e => setPayout(p => ({ ...p, bankAccount: { ...p.bankAccount, accountNumber: e.target.value } }))} required />
                 </Field>
-                <Field label="Routing / Sort Code">
-                  <input className={inputCls} value={payout.bankAccount.routingNumber}
+                <Field label="Routing / Sort Vector">
+                  <input className={inputCls} placeholder="ROUTING CODE" value={payout.bankAccount.routingNumber}
                     onChange={e => setPayout(p => ({ ...p, bankAccount: { ...p.bankAccount, routingNumber: e.target.value } }))} required />
                 </Field>
               </div>
             </div>
           )}
 
-          <SaveBtn loading={savingPayout} variant="emerald">
-            <Wallet className="h-4 w-4" />
-            Save Payout Info
-          </SaveBtn>
+          <div className="pt-4 flex justify-end">
+            <SaveBtn loading={savingPayout} variant="emerald" icon={Wallet}>
+              Save Distribution Matrix
+            </SaveBtn>
+          </div>
         </form>
       </Section>
 
-      {/* ── Notifications ─────────────────────────────────────────── */}
-      <Section title="Notifications">
-        <form onSubmit={handleNotifSave}>
-          <div className="space-y-0 divide-y divide-white/[0.05]">
+      {/* ── Notification Protocols ── */}
+      <Section title="Network Alert Protocols" icon={Bell}>
+        <form onSubmit={handleNotifSave} className="space-y-8">
+          <div className="space-y-2">
             {NOTIF_ROWS.map(row => (
-              <div key={row.key} className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-600">{row.tag}</span>
-                    <span className="text-sm text-zinc-200">{row.label}</span>
-                  </div>
-                  <p className="text-xs text-zinc-600 mt-0.5">{row.desc}</p>
+              <div key={row.key} className="group flex items-center justify-between p-5 bg-zinc-950/40 rounded-2xl border border-white/[0.02] hover:border-emerald-500/20 transition-all shadow-inner">
+                <div className="flex items-center gap-5">
+                   <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center border border-white/[0.04] shadow-inner text-zinc-700 group-hover:text-emerald-500 transition-colors">
+                      {row.tag === 'Email' ? <Mail size={18} /> : <Smartphone size={18} />}
+                   </div>
+                   <div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest italic">{row.tag} PROTOCOL</span>
+                        <ChevronRight className="w-3 h-3 text-zinc-800" />
+                        <span className="text-[11px] font-black text-white uppercase italic tracking-tight">{row.label}</span>
+                      </div>
+                      <p className="text-[10px] text-zinc-600 font-black uppercase tracking-widest mt-1 italic opacity-60 group-hover:opacity-100 transition-opacity">{row.desc}</p>
+                   </div>
                 </div>
                 <Toggle
                   checked={notifs[row.key]}
@@ -331,33 +352,38 @@ export default function Settings() {
               </div>
             ))}
           </div>
-          <div className="pt-5 mt-1 border-t border-white/[0.05]">
-            <SaveBtn loading={savingNotifs}>
-              <Bell className="h-4 w-4" />
-              Save Preferences
+          <div className="pt-4 flex justify-end">
+            <SaveBtn loading={savingNotifs} icon={Target} variant="white">
+              Commit Protocol Changes
             </SaveBtn>
           </div>
         </form>
       </Section>
 
-      {/* ── Danger Zone ───────────────────────────────────────────── */}
-      <div className="bg-zinc-900 border border-red-500/20 rounded-lg p-6">
-        <div className="flex items-start gap-3 mb-5">
-          <AlertTriangle className="h-4 w-4 text-red-400 flex-none mt-0.5" />
-          <div>
-            <h2 className="text-sm font-semibold text-white">Danger Zone</h2>
-            <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
-              Permanently delete your artist account and all your uploaded content. This action cannot be undone.
-            </p>
+      {/* ── Terminal Purge Zone ── */}
+      <div className={`${card} border-rose-500/20 bg-rose-500/[0.02] p-8 relative overflow-hidden group`}>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/[0.05] rounded-bl-full pointer-events-none" />
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative z-10">
+          <div className="flex items-start gap-6">
+            <div className="w-14 h-14 bg-rose-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl shadow-rose-500/20 group-hover:scale-110 transition-transform duration-500">
+               <ShieldAlert className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-500 mb-2 italic">Terminal Purge Protocol</p>
+              <h2 className="text-xl font-black text-white uppercase italic">Danger Zone</h2>
+              <p className="text-xs text-zinc-500 mt-2 font-medium italic leading-relaxed max-w-md">
+                Permanently eliminate artist identity and all associated sonic assets from the network. This action is irreversible.
+              </p>
+            </div>
           </div>
+          <button
+            onClick={handleDeleteAccount}
+            className="h-14 px-10 bg-rose-500/10 border border-rose-500/30 text-rose-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-rose-500 hover:text-white transition-all italic flex items-center gap-3 group-hover:scale-105"
+          >
+            <Trash2 className="h-4 h-4" />
+            Initialize Terminal Purge
+          </button>
         </div>
-        <button
-          onClick={handleDeleteAccount}
-          className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 text-red-400 rounded text-sm font-semibold hover:bg-red-500/20 transition-colors"
-        >
-          <Trash2 className="h-4 w-4" />
-          Delete Artist Account
-        </button>
       </div>
 
     </div>
