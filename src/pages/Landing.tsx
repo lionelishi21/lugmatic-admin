@@ -79,24 +79,23 @@ export default function Landing() {
   const heroCTAY = useTransform(heroProgress, [0.65, 0.75, 1], [shouldReduceMotion ? 0 : 30, 0, 0]);
 
   /* ─── Showcase Scroll Logic ─── */
-  const showcaseProgress = useScrollVideo(showcaseContainerRef, showcaseVideoRef);
-  const showcase1Opacity = useTransform(showcaseProgress, [0, 0.1, 0.3, 0.35], [0, 1, 1, 0]);
-  const showcase1Y = useTransform(showcaseProgress, [0, 0.1, 0.3, 0.35], [shouldReduceMotion ? 0 : 50, 0, 0, shouldReduceMotion ? 0 : -50]);
-  const showcase1Scale = useTransform(showcaseProgress, [0, 0.1, 0.3, 0.35], [shouldReduceMotion ? 1 : 0.95, 1, 1, shouldReduceMotion ? 1 : 1.05]);
-
-  const showcase2Opacity = useTransform(showcaseProgress, [0.35, 0.45, 0.6, 0.65], [0, 1, 1, 0]);
-  const showcase2Y = useTransform(showcaseProgress, [0.35, 0.45, 0.6, 0.65], [shouldReduceMotion ? 0 : 50, 0, 0, shouldReduceMotion ? 0 : -50]);
-
-  const showcase3Opacity = useTransform(showcaseProgress, [0.65, 0.75, 1], [0, 1, 1]);
-  const showcase3Y = useTransform(showcaseProgress, [0.65, 0.75, 1], [shouldReduceMotion ? 0 : 40, 0, 0]);
-
-  const showcaseVideoScale = useTransform(showcaseProgress, [0, 1], [1.0, shouldReduceMotion ? 1.0 : 1.4]);
-  const showcaseVideoY = useTransform(showcaseProgress, [0, 1], ["0%", shouldReduceMotion ? "0%" : "10%"]);
-
-  const showcaseProgress = useScroll({
+  const showcaseScroll = useScroll({
     target: showcaseContainerRef,
     offset: ["start end", "end start"]
-  }).scrollYProgress;
+  });
+  const showcaseVideoProgress = useScrollVideo(showcaseContainerRef, showcaseVideoRef);
+  const showcase1Opacity = useTransform(showcaseVideoProgress, [0, 0.1, 0.3, 0.35], [0, 1, 1, 0]);
+  const showcase1Y = useTransform(showcaseVideoProgress, [0, 0.1, 0.3, 0.35], [shouldReduceMotion ? 0 : 50, 0, 0, shouldReduceMotion ? 0 : -50]);
+  const showcase1Scale = useTransform(showcaseVideoProgress, [0, 0.1, 0.3, 0.35], [shouldReduceMotion ? 1 : 0.95, 1, 1, shouldReduceMotion ? 1 : 1.05]);
+
+  const showcase2Opacity = useTransform(showcaseVideoProgress, [0.35, 0.45, 0.6, 0.65], [0, 1, 1, 0]);
+  const showcase2Y = useTransform(showcaseVideoProgress, [0.35, 0.45, 0.6, 0.65], [shouldReduceMotion ? 0 : 50, 0, 0, shouldReduceMotion ? 0 : -50]);
+
+  const showcase3Opacity = useTransform(showcaseVideoProgress, [0.65, 0.75, 1], [0, 1, 1]);
+  const showcase3Y = useTransform(showcaseVideoProgress, [0.65, 0.75, 1], [shouldReduceMotion ? 0 : 40, 0, 0]);
+
+  const showcaseVideoScale = useTransform(showcaseVideoProgress, [0, 1], [1.0, shouldReduceMotion ? 1.0 : 1.4]);
+  const showcaseVideoY = useTransform(showcaseVideoProgress, [0, 1], ["0%", shouldReduceMotion ? "0%" : "10%"]);
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-green-500 selection:text-black overflow-x-hidden">
