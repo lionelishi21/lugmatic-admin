@@ -66,10 +66,11 @@ import ContributorDashboard from './pages/contributor/ContributorDashboard';
 import PayoutSettings from './pages/contributor/PayoutSettings';
 import Billboard from './pages/admin/Billboard';
 import ArtistApprovals from './pages/admin/ArtistApprovals';
+import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
   return (
-    <>
+    <ThemeProvider>
       <Toaster position="top-center" />
       <AuthInitializer>
         <Router>
@@ -186,7 +187,7 @@ function App() {
           </Routes>
         </Router>
       </AuthInitializer>
-    </>
+    </ThemeProvider>
   )
 }
 

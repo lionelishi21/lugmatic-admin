@@ -5,9 +5,8 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════
-   LUGMATIC STUDIO — UNIFIED DESIGN SYSTEM
-   Light dashboard (bg-gray-50) + Dark sidebar (bg-gray-950)
-   All contrast ratios meet WCAG AA (≥4.5:1 for text)
+   LUGMATIC STUDIO — DESIGN SYSTEM
+   Supports light + dark mode via Tailwind `dark` class on <html>
    ═══════════════════════════════════════════════════════════ */
 
 @layer base {
@@ -19,17 +18,12 @@
   }
 
   body {
-    @apply bg-zinc-950 text-zinc-100;
+    @apply bg-gray-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100;
     font-family: 'Geist', sans-serif;
     font-size: 15px;
     line-height: 1.6;
     letter-spacing: -0.011em;
-  }
-
-  h1, h2, h3, .display-font {
-    font-family: 'Bebas Neue', sans-serif;
-    letter-spacing: 0.01em;
-    line-height: 1.1;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   ::selection {
@@ -38,171 +32,27 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   DASHBOARD CONTENT — Premium Dark Surface System
-   The .dashboard-content wrapper targets the main content
-   area with a high-impact, dark aesthetic.
+   SIDEBAR — always dark regardless of theme
    ═══════════════════════════════════════════════════════════ */
 
-.dashboard-content {
-  font-family: 'Geist', sans-serif;
-  color: #f4f4f5;                  /* zinc-100 */
-  font-size: 0.9375rem;
-  line-height: 1.65;
-  letter-spacing: -0.01em;
-}
-
-/* ── Type scale ─────────────────────────────────────────── */
-
-.dashboard-content h1 {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #ffffff;                  /* white */
-  letter-spacing: -0.035em;
-  line-height: 1.15;
-}
-
-.dashboard-content h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #f4f4f5;                  /* zinc-100 */
-  letter-spacing: -0.025em;
-  line-height: 1.25;
-}
-
-.dashboard-content h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #e4e4e7;                  /* zinc-200 */
-  letter-spacing: -0.02em;
-}
-
-.dashboard-content h4,
-.dashboard-content h5,
-.dashboard-content h6 {
-  font-family: 'Geist', sans-serif;
-  font-weight: 600;
-  color: #a1a1aa;                  /* zinc-400 */
-  letter-spacing: -0.015em;
-}
-
-.dashboard-content p {
-  color: #a1a1aa;                  /* zinc-400 */
-}
-
-/* ── Muted / secondary text ─────────────────────────────── */
-
-.dashboard-content .text-zinc-400,
-.dashboard-content .text-gray-400 {
-  color: #a1a1aa !important;       /* zinc-400 */
-}
-
-.dashboard-content .text-zinc-500,
-.dashboard-content .text-gray-500 {
-  color: #71717a !important;       /* zinc-500 */
-}
-
-.dashboard-content .text-zinc-600,
-.dashboard-content .text-gray-600 {
-  color: #52525b !important;       /* zinc-600 */
-}
-
-/* Ensure white text stays white or is slightly dimmed for UI */
-.dashboard-content .text-white {
-  color: #ffffff !important;
-}
-
-/* ── Labels ─────────────────────────────────────────────── */
-
-.dashboard-content label {
-  color: #e4e4e7;
-  font-weight: 500;
-  font-size: 0.875rem;
-  letter-spacing: -0.01em;
-}
-
-/* ── Borders ─────────────────────────────────────────────── */
-
-.dashboard-content * {
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-/* ── Tables ─────────────────────────────────────────────── */
-
-.dashboard-content th {
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.dashboard-content td {
-  color: #a1a1aa;
-  font-size: 0.9375rem;
-}
-
-/* ── Inputs / Selects / Textareas ───────────────────────── */
-
-.dashboard-content input,
-.dashboard-content select,
-.dashboard-content textarea {
-  color: #ffffff !important;
-  background-color: rgba(255, 255, 255, 0.03) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  font-family: 'Geist', sans-serif;
-  font-size: 0.9375rem;
-}
-
-.dashboard-content input:focus,
-.dashboard-content select:focus,
-.dashboard-content textarea:focus {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  border-color: #10b981 !important;         /* emerald-500 */
-  outline: none !important;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
-}
-
-/* ── Autofill ───────────────────────────────────────────── */
-
-.dashboard-content input:-webkit-autofill,
-.dashboard-content input:-webkit-autofill:hover,
-.dashboard-content input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px #09090b inset !important;
-  -webkit-text-fill-color: #ffffff !important;
-  transition: background-color 5000s ease-in-out 0s;
-}
-
-/* ── Selection ──────────────────────────────────────────── */
-
-.dashboard-content ::selection {
-  background-color: rgba(16, 185, 129, 0.3) !important;
-  color: #ffffff !important;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   SIDEBAR — Dark Surface System
-   bg-gray-950 sidebar with green accent
-   ═══════════════════════════════════════════════════════════ */
-
-/* Smooth scrollbar in sidebar nav */
 .sidebar-nav {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
-.sidebar-nav::-webkit-scrollbar {
-  width: 4px;
-}
+.sidebar-nav::-webkit-scrollbar { width: 4px; }
 .sidebar-nav::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   STAT CARDS — Reusable utility classes
+   STAT CARDS
    ═══════════════════════════════════════════════════════════ */
 
 .stat-card {
-  @apply bg-zinc-900/60 rounded-lg p-6 border border-white/[0.07] hover:border-emerald-500/30 transition-all;
+  @apply bg-white dark:bg-zinc-900/60 rounded-lg p-6
+         border border-zinc-100 dark:border-white/[0.07]
+         hover:border-emerald-500/30 transition-all;
 }
 
 .stat-card-label {
@@ -210,13 +60,13 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   font-weight: 600;
-  color: #71717a;                    /* zinc-500 — readable on dark */
+  @apply text-zinc-500;
 }
 
 .stat-card-value {
   font-size: 1.875rem;
   font-weight: 800;
-  color: #ffffff;                    /* white — always visible on dark card */
+  @apply text-zinc-900 dark:text-white;
   letter-spacing: -0.04em;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
@@ -228,49 +78,49 @@
   letter-spacing: 0.04em;
 }
 
-/* ── Page section header ────────────────────────────────── */
+/* ── Page header ─────────────────────────────────────────── */
 
 .page-header-title {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 2rem;
-  color: #ffffff;                    /* white on dark pages */
+  @apply text-zinc-900 dark:text-white;
   letter-spacing: 0.01em;
   line-height: 1.1;
 }
 
 .page-header-subtitle {
   font-size: 0.875rem;
-  color: #a1a1aa;                    /* zinc-400 — visible on dark */
+  @apply text-zinc-500;
   font-weight: 400;
   margin-top: 0.25rem;
 }
 
-/* ── Section title ─────────────────────────────────────── */
-
 .section-title {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #f4f4f5;                    /* zinc-100 — bright on dark */
+  @apply text-zinc-800 dark:text-zinc-100;
   letter-spacing: -0.02em;
 }
 
-/* ── Empty state ────────────────────────────────────────── */
+/* ── Empty state ─────────────────────────────────────────── */
 
 .empty-state-title {
   font-size: 1rem;
   font-weight: 700;
-  color: #e4e4e7;                    /* zinc-200 */
+  @apply text-zinc-700 dark:text-zinc-200;
 }
 
 .empty-state-body {
   font-size: 0.875rem;
-  color: #71717a;                    /* zinc-500 — muted but readable */
+  @apply text-zinc-500;
   max-width: 24rem;
   margin: 0.5rem auto 0;
   text-align: center;
 }
 
-/* ── Badge system ───────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   BADGE SYSTEM — dark-theme tinted, works on both modes
+   ═══════════════════════════════════════════════════════════ */
 
 .badge {
   display: inline-flex;
@@ -284,30 +134,40 @@
   line-height: 1.6;
 }
 
-/* Dark-theme badge variants */
-.badge-green  { background: rgba(16,185,129,0.12);  color: #34d399; }
-.badge-amber  { background: rgba(245,158,11,0.12);  color: #fbbf24; }
-.badge-red    { background: rgba(239,68,68,0.12);   color: #f87171; }
-.badge-blue   { background: rgba(59,130,246,0.12);  color: #60a5fa; }
-.badge-gray   { background: rgba(255,255,255,0.07); color: #a1a1aa; }
-.badge-purple { background: rgba(124,58,237,0.12);  color: #a78bfa; }
+.badge-green  { background: rgba(16,185,129,0.12);  color: #059669; }
+.badge-amber  { background: rgba(245,158,11,0.12);  color: #d97706; }
+.badge-red    { background: rgba(239,68,68,0.12);   color: #dc2626; }
+.badge-blue   { background: rgba(59,130,246,0.12);  color: #2563eb; }
+.badge-gray   { background: rgba(0,0,0,0.06);       color: #52525b; }
+.badge-purple { background: rgba(124,58,237,0.12);  color: #7c3aed; }
 
-/* ── Action button (table / card icon buttons) ─────────── */
+.dark .badge-green  { color: #34d399; }
+.dark .badge-amber  { color: #fbbf24; }
+.dark .badge-red    { color: #f87171; }
+.dark .badge-blue   { color: #60a5fa; }
+.dark .badge-gray   { background: rgba(255,255,255,0.07); color: #a1a1aa; }
+.dark .badge-purple { color: #a78bfa; }
+
+/* ── Icon buttons ─────────────────────────────────────────── */
 
 .icon-btn {
-  @apply p-2 rounded transition-all duration-150;
-  color: #71717a;                    /* zinc-500 */
+  @apply p-2 rounded transition-all duration-150 text-zinc-500;
 }
-.icon-btn:hover {
-  background: rgba(255,255,255,0.07);
-  color: #f4f4f5;                    /* zinc-100 */
+.icon-btn:hover                { @apply bg-zinc-100 dark:bg-white/[0.07] text-zinc-800 dark:text-zinc-100; }
+.icon-btn-emerald:hover        { background: rgba(16,185,129,0.12); color: #34d399; }
+.icon-btn-red:hover            { background: rgba(239,68,68,0.12);  color: #f87171; }
+.icon-btn-purple:hover         { background: rgba(124,58,237,0.12); color: #a78bfa; }
+
+/* ═══════════════════════════════════════════════════════════
+   FORM INPUTS — theme-aware defaults (no !important)
+   ═══════════════════════════════════════════════════════════ */
+
+.field-input {
+  @apply w-full px-3 py-2.5 rounded border text-sm transition-all
+         bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400
+         focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20
+         dark:bg-zinc-800 dark:border-white/[0.08] dark:text-white dark:placeholder:text-zinc-600;
 }
-.icon-btn-emerald:hover {
-  background: rgba(16,185,129,0.12);
-  color: #34d399;                    /* emerald-400 */
-}
-.icon-btn-red:hover    { background: rgba(239,68,68,0.12);   color: #f87171; } /* red-400 */
-.icon-btn-purple:hover { background: rgba(124,58,237,0.12);  color: #a78bfa; } /* violet-400 */
 
 /* ═══════════════════════════════════════════════════════════
    ANIMATIONS
@@ -317,31 +177,30 @@
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
 @keyframes shimmer {
   from { background-position: -200% 0; }
-  to   { background-position: 200% 0; }
+  to   { background-position:  200% 0; }
 }
 
-.animate-fade-up   { animation: fade-up 0.4s ease both; }
-.animate-fade-in   { animation: fade-in 0.3s ease both; }
+.animate-fade-up { animation: fade-up 0.4s ease both; }
+.animate-fade-in { animation: fade-in 0.3s ease both; }
 
-/* Loading skeleton shimmer — dark-theme aware */
 .skeleton {
-  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.05) 75%);
+  background: linear-gradient(90deg,
+    rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
   border-radius: 4px;
 }
-
-/* ═══════════════════════════════════════════════════════════
-   REDUCED MOTION
-   ═══════════════════════════════════════════════════════════ */
+.dark .skeleton {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto !important; }

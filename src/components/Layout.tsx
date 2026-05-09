@@ -8,7 +8,9 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../context/ThemeContext';
 import lugmaticIcon from '../assets/lugmaticIcon.png';
+import { Sun, Moon } from 'lucide-react';
 interface LayoutProps {
   children: React.ReactNode;
   userRole?: 'admin' | 'artist' | 'contributor';
@@ -63,6 +65,8 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const { theme, toggle: toggleTheme } = useTheme();
 
   const handleLogout = async () => {
     // Call logout which will:
@@ -510,12 +514,26 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
           </nav>
 
           {/* Footer */}
-          <div className="border-t border-white/5 p-3">
+          <div className="border-t border-white/5 p-3 space-y-0.5">
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="w-full flex items-center px-3 py-2.5 rounded text-zinc-500 hover:bg-white/5 hover:text-zinc-300 transition-all duration-150"
+            >
+              {theme === 'dark'
+                ? <Sun className="h-4 w-4 mr-3 flex-shrink-0" />
+                : <Moon className="h-4 w-4 mr-3 flex-shrink-0" />}
+              {isSidebarOpen && (
+                <span className="text-sm font-medium">
+                  {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </span>
+              )}
+            </button>
             <button
               onClick={handleLogout}
               className="w-full flex items-center px-3 py-2.5 rounded text-zinc-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-150 group"
             >
-              <LogOut className="h-4.5 w-4.5 mr-3 text-zinc-600 group-hover:text-red-400 transition-colors flex-shrink-0" />
+              <LogOut className="h-4 w-4 mr-3 text-zinc-600 group-hover:text-red-400 transition-colors flex-shrink-0" />
               {isSidebarOpen && <span className="text-sm font-medium">Logout</span>}
             </button>
           </div>
@@ -533,7 +551,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       )}
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto bg-zinc-950 text-zinc-100 dashboard-content">
+      <div className="flex-1 overflow-auto bg-gray-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
         <main className={`p-5 ${isMobile ? 'pt-16' : ''}`}>
           {children}
         </main>
