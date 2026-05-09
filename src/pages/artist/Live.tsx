@@ -59,9 +59,9 @@ import clashService from '../../services/clashService';
 import ChallengeModal from '../../components/clash/ChallengeModal';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
-const inputClass = 'w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium';
-const labelClass = 'text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 block italic';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
+const inputClass = 'w-full px-5 py-4 bg-zinc-950 border border-white/[0.08] rounded-xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-700 italic tracking-widest';
+const labelClass = 'text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block italic';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -313,11 +313,13 @@ export default function Live() {
             const clashRoom = new Room();
             clashRoomRef.current = clashRoom;
 
-            clashRoom.on(RoomEvent.TrackSubscribed, (track: any) => {
+            clashRoom.on(RoomEvent.TrackSubscribed, (track: any, publication: any, participant: any) => {
+              if (participant.isLocal) return;
               if (track.kind === 'video') setRemoteVideoTrack(track);
               else if (track.kind === 'audio') setRemoteAudioTrack(track);
             });
-            clashRoom.on(RoomEvent.TrackUnsubscribed, (track: any) => {
+            clashRoom.on(RoomEvent.TrackUnsubscribed, (track: any, publication: any, participant: any) => {
+              if (participant.isLocal) return;
               if (track.kind === 'video') setRemoteVideoTrack(null);
               else if (track.kind === 'audio') setRemoteAudioTrack(null);
             });
@@ -443,13 +445,15 @@ export default function Live() {
         }
       });
 
-      room.on(RoomEvent.TrackSubscribed, (track) => {
+      room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+        if (participant.isLocal) return;
         if (track.kind === Track.Kind.Video) {
           setRemoteVideoTrack(track);
         }
       });
 
-      room.on(RoomEvent.TrackUnsubscribed, (track) => {
+      room.on(RoomEvent.TrackUnsubscribed, (track, publication, participant) => {
+        if (participant.isLocal) return;
         if (track.kind === Track.Kind.Video) {
           setRemoteVideoTrack(null);
         }
@@ -587,9 +591,9 @@ export default function Live() {
             <Radio className="h-7 w-7 text-white" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Uplink Command</p>
-            <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase italic">Go Live</h1>
-            <p className="text-sm text-zinc-500 mt-0.5">Initialize real-time broadcast and combat deployment.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Uplink Command</p>
+            <h1 className="text-xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">Go Live <span className="text-zinc-600">/</span> Session</h1>
+            <p className="text-sm text-zinc-500 mt-1 font-medium italic">Initialize real-time broadcast and combat deployment.</p>
           </div>
         </div>
         
@@ -836,39 +840,39 @@ export default function Live() {
               Dismiss and try again
             </button>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* ── Stream ended summary ── */}
       {summary && phase === 'idle' && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-green-100 flex items-center justify-center">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
+        <div className={`${card} p-8`}>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
               </div>
               <div>
-                <h2 className="text-base font-semibold text-gray-900">Stream Ended</h2>
-                <p className="text-xs text-gray-600">Here's how your session went</p>
+                <h2 className="text-lg font-black text-white uppercase italic tracking-tight">Stream Ended</h2>
+                <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mt-0.5">Session metrics archived</p>
               </div>
             </div>
             <button
               onClick={() => setSummary(null)}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-all"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { label: 'Duration', value: formatDuration(summary.duration), color: 'bg-green-50 text-green-700' },
-              { label: 'Total Viewers', value: summary.totalViewers, color: 'bg-blue-50 text-blue-700' },
-              { label: 'Peak Viewers', value: summary.peakViewers, color: 'bg-purple-50 text-purple-700' },
-              { label: 'Gifts Received', value: summary.totalGiftsReceived, color: 'bg-amber-50 text-amber-700' },
+              { label: 'Duration', value: formatDuration(summary.duration), color: 'bg-emerald-500/5 text-emerald-500 border-emerald-500/10' },
+              { label: 'Total Syncs', value: summary.totalViewers, color: 'bg-indigo-500/5 text-indigo-500 border-indigo-500/10' },
+              { label: 'Peak Signal', value: summary.peakViewers, color: 'bg-purple-500/5 text-purple-500 border-purple-500/10' },
+              { label: 'Fiscal Yield', value: summary.totalGiftsReceived, color: 'bg-amber-500/5 text-amber-500 border-amber-500/10' },
             ].map(({ label, value, color }) => (
-              <div key={label} className={`${color} rounded-xl p-4 text-center`}>
-                <p className="text-2xl font-bold">{value}</p>
-                <p className="text-xs mt-0.5 opacity-75">{label}</p>
+              <div key={label} className={`${color} rounded-2xl p-6 text-center border shadow-inner`}>
+                <p className="text-3xl font-black italic tracking-tighter tabular-nums mb-1">{value}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-60 italic">{label}</p>
               </div>
             ))}
           </div>
@@ -1098,20 +1102,21 @@ export default function Live() {
           </div>
 
           {/* Stream info card */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-            <div className="flex items-start justify-between gap-3 mb-4">
+          <div className={`${card} p-8`}>
+            <div className="flex items-start justify-between gap-6 mb-8">
               <div className="min-w-0">
-                <h2 className="text-base font-semibold text-gray-900 truncate">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Broadcast Meta</p>
+                <h2 className="text-xl font-black text-white uppercase italic tracking-tight truncate">
                   {streamData?.title || streamSettings.title || 'Untitled Stream'}
                 </h2>
-                <p className="text-sm text-gray-500 mt-0.5 truncate">
+                <p className="text-sm text-zinc-500 mt-2 font-medium truncate">
                   {streamData?.description || streamSettings.description || 'No description set'}
                 </p>
               </div>
               {(isLive || phase === 'ending') && (
-                <span className="flex-shrink-0 flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
-                  <Wifi className="h-3 w-3" />
-                  {liveKitConnected ? 'Connected' : 'Reconnecting...'}
+                <span className="flex-shrink-0 flex items-center gap-2 text-[10px] font-black text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 rounded-xl uppercase tracking-widest italic shadow-lg shadow-emerald-500/5">
+                  <Wifi className="h-3.5 w-3.5" />
+                  {liveKitConnected ? 'SECURE_UPLINK' : 'SYNC_LOSS_RETRY'}
                 </span>
               )}
             </div>
@@ -1149,16 +1154,16 @@ export default function Live() {
         </div>
 
         {/* ── Chat ── */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col" style={{ height: 'calc(100vh - 16rem)', minHeight: '420px' }}>
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-gray-400" />
-              <h3 className="text-sm font-semibold text-gray-900">Live Chat</h3>
+        <div className={`${card} flex flex-col`} style={{ height: 'calc(100vh - 16rem)', minHeight: '420px' }}>
+          <div className="px-6 py-4 border-b border-white/[0.06] bg-zinc-950/20 flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <MessageSquare className="h-4 w-4 text-emerald-500" />
+              <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] italic">Telemetry Stream</h3>
             </div>
             {isLive && (
-              <span className="flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                Active
+              <span className="flex items-center gap-2 text-[8px] font-black text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-md uppercase tracking-widest">
+                <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />
+                Live
               </span>
             )}
           </div>
@@ -1230,90 +1235,86 @@ export default function Live() {
 
       {/* ── Settings Modal ── */}
       {isSettingsOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 border border-white/[0.06] rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div className="flex items-center justify-between px-8 py-6 border-b border-white/[0.06] bg-zinc-950/40">
               <div>
-                <h3 className="text-base font-semibold text-gray-900">
-                  {artistName ? `Go Live as ${artistName}` : 'Go Live'}
+                <h3 className="text-lg font-black text-white uppercase italic tracking-tight">
+                  {artistName ? `Initialize: ${artistName}` : 'Uplink Setup'}
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">Set up your stream details</p>
+                <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mt-1">Configure broadcast parameters</p>
               </div>
               <button
                 onClick={() => { setIsSettingsOpen(false); if (!isLive) stopPreview(); }}
-                className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+                className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-zinc-400 hover:text-white transition-all"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="px-6 py-5 space-y-4">
+            <div className="px-8 py-8 space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Stream Title <span className="text-red-500">*</span>
+                <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic">
+                  Signal Designation <span className="text-emerald-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="title"
                   value={streamSettings.title}
                   onChange={handleSettingsChange}
-                  placeholder={artistName ? `${artistName} Live` : 'e.g. Friday Night Vibes'}
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder={artistName ? `${artistName} Live` : 'e.g. Protocol Alpha'}
+                  className="w-full bg-zinc-950 border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium placeholder:text-zinc-700"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+                <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic">Data Manifest</label>
                 <textarea
                   name="description"
                   value={streamSettings.description}
                   onChange={handleSettingsChange}
                   rows={3}
-                  placeholder="Tell viewers what your stream is about..."
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                  placeholder="Operational notes for viewers..."
+                  className="w-full bg-zinc-950 border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium resize-none placeholder:text-zinc-700"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Category</label>
+                <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic">Deployment Sector</label>
                 <select
                   name="category"
                   value={streamSettings.category}
                   onChange={handleSettingsChange}
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full bg-zinc-950 border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium appearance-none cursor-pointer"
                 >
-                  <option value="music">Music</option>
-                  <option value="performance">Live Performance</option>
-                  <option value="talk">Talk Show</option>
-                  <option value="podcast">Podcast</option>
-                  <option value="interview">Interview</option>
-                  <option value="listening_party">Listening Party</option>
-                  <option value="q_and_a">Q&A</option>
-                  <option value="other">Other</option>
+                  <option value="music">CORE_AUDIO</option>
+                  <option value="performance">LIVE_EXECUTION</option>
+                  <option value="talk">LOG_STREAM</option>
+                  <option value="podcast">VOICE_ARCHIVE</option>
+                  <option value="interview">INTEL_GATHERING</option>
+                  <option value="listening_party">SYNC_EVENT</option>
+                  <option value="q_and_a">QUERY_SESSION</option>
+                  <option value="other">UNCLASSIFIED</option>
                 </select>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
+            <div className="flex items-center justify-end gap-4 px-8 py-6 border-t border-white/[0.06] bg-zinc-950/40">
               <button
                 onClick={() => { setIsSettingsOpen(false); if (!isLive) stopPreview(); }}
-                className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
+                className="px-6 py-3 rounded-xl bg-white/5 text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all"
               >
-                Cancel
+                Abort
               </button>
               <button
                 onClick={handleStartStream}
                 disabled={isBusy || !streamSettings.title.trim()}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm font-semibold disabled:opacity-50 transition-all"
+                className="flex items-center gap-3 px-8 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest disabled:opacity-50 transition-all shadow-xl shadow-emerald-500/20"
               >
-                {isBusy ? (
-                  <Loader2 className="animate-spin h-4 w-4" />
-                ) : (
-                  <Radio className="h-4 w-4" />
-                )}
-                {isBusy ? PHASE_LABELS[phase] : 'Go Live'}
+                {isBusy ? <Loader2 className="animate-spin h-4 w-4" /> : <Radio className="h-4 w-4" />}
+                {isBusy ? PHASE_LABELS[phase] : 'Engage Signal'}
               </button>
             </div>
           </div>

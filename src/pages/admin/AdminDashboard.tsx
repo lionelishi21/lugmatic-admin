@@ -65,7 +65,7 @@ interface DashboardData {
   revenue: Revenue;
 }
 
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 
 const fadeUp = {
   initial: { opacity: 0, y: 16 },
@@ -117,10 +117,10 @@ export default function MusicAdminDashboard() {
     index: number
   }) => {
     const colorMap = {
-      emerald: { bg: 'bg-emerald-50 dark:bg-emerald-500/10', icon: 'text-emerald-600 dark:text-emerald-400' },
-      blue:    { bg: 'bg-blue-50 dark:bg-blue-500/10',       icon: 'text-blue-600 dark:text-blue-400' },
-      amber:   { bg: 'bg-amber-50 dark:bg-amber-500/10',     icon: 'text-amber-600 dark:text-amber-400' },
-      rose:    { bg: 'bg-rose-50 dark:bg-rose-500/10',       icon: 'text-rose-600 dark:text-rose-400' },
+      emerald: { bg: 'bg-emerald-500/10', icon: 'text-emerald-500', pulse: 'bg-emerald-500' },
+      blue:    { bg: 'bg-blue-500/10',    icon: 'text-blue-500',    pulse: 'bg-blue-500' },
+      amber:   { bg: 'bg-amber-500/10',   icon: 'text-amber-500',   pulse: 'bg-amber-500' },
+      rose:    { bg: 'bg-rose-500/10',    icon: 'text-rose-500',    pulse: 'bg-rose-500' },
     };
     const c = colorMap[color];
     return (
@@ -128,36 +128,30 @@ export default function MusicAdminDashboard() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.07 }}
-        className={`${card} p-5 hover:border-zinc-300 dark:hover:border-white/10 transition-all group`}
+        className={`${card} p-6 hover:border-emerald-500/20 transition-all shadow-xl`}
       >
         <div className="flex items-center justify-between mb-4">
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${c.bg} border border-zinc-100 dark:border-white/5`}>
+          <div className={`w-10 h-10 rounded flex items-center justify-center ${c.bg} border border-white/5`}>
             <Icon className={`h-5 w-5 ${c.icon}`} />
           </div>
-          {trend ? (
-             <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-zinc-50 dark:bg-zinc-800 text-zinc-500">
-                {trend}
-             </span>
-          ) : (
-            <ArrowUpRight className="h-4 w-4 text-zinc-400" />
-          )}
+          <div className={`w-1.5 h-1.5 rounded-full ${c.pulse} animate-pulse`} />
         </div>
-        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1">{title}</p>
-        <p className="text-2xl font-black text-zinc-900 dark:text-white italic tracking-tighter tabular-nums">{value}</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1.5 italic">{title}</p>
+        <p className="text-2xl font-black text-white tracking-tighter uppercase italic">{value}</p>
       </motion.div>
     );
   };
 
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto pb-16 space-y-6">
-        <Skeleton className="h-32 w-full rounded-lg" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-lg" />)}
+      <div className="max-w-6xl mx-auto pb-24 space-y-8">
+        <Skeleton className="h-48 w-full rounded-lg bg-zinc-900 border border-white/5" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-lg bg-zinc-900 border border-white/5" />)}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-96 rounded-lg" />
-          <Skeleton className="h-96 rounded-lg" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Skeleton className="h-96 rounded-lg bg-zinc-900 border border-white/5" />
+          <Skeleton className="h-96 rounded-lg bg-zinc-900 border border-white/5" />
         </div>
       </div>
     );
@@ -165,15 +159,15 @@ export default function MusicAdminDashboard() {
 
   if (error || !data) {
     return (
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-8">
         <div className={`${card} p-12 text-center`}>
-          <AlertCircle className="h-10 w-10 text-red-500 mx-auto mb-4" />
-          <p className="text-zinc-900 dark:text-white font-bold text-lg mb-4">{error || 'Failed to load dashboard data'}</p>
+          <AlertCircle className="h-10 w-10 text-rose-500 mx-auto mb-4" />
+          <p className="text-[11px] font-black uppercase tracking-widest text-white mb-6 italic">{error || 'Failed to load dashboard data'}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold rounded hover:opacity-90 transition-opacity"
+            className="px-8 py-3 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded hover:bg-emerald-400 transition-all italic"
           >
-            Retry
+            Retry Connection
           </button>
         </div>
       </div>
@@ -185,41 +179,39 @@ export default function MusicAdminDashboard() {
   const recentActivity = Array.isArray(data.recentActivity) ? data.recentActivity : [];
 
   return (
-    <div className="max-w-5xl mx-auto pb-16 space-y-6">
+    <div className="max-w-6xl mx-auto pb-24 space-y-8">
       
       {/* ── Welcome Banner ── */}
-      <motion.div {...fadeUp} className={`${card} p-8 relative overflow-hidden group`}>
+      <motion.div {...fadeUp} className={`${card} p-8 group`}>
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-500/10 transition-colors" />
         
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
-             <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
-                <LayoutGrid className="h-8 w-8 text-white" />
+             <div className="w-16 h-16 bg-emerald-500 rounded flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
+                <LayoutGrid className="h-8 w-8 text-black" />
              </div>
              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1.5 italic">Admin Operations</p>
-                <h1 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase italic">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Operational Intelligence</p>
+                <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">
                   Command Center
                 </h1>
-                <p className="text-sm text-zinc-500 mt-0.5 max-w-sm">
+                <p className="text-xs text-zinc-500 mt-1 uppercase font-bold tracking-widest max-w-sm">
                   Global platform oversight and executive control. Monitoring live ecosystem health.
                 </p>
              </div>
           </div>
-          <div className="flex items-center gap-3">
-             <div className="flex flex-col items-end">
-                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest animate-pulse flex items-center gap-2">
-                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                   Live Stream Active
-                </span>
-                <p className="text-[11px] text-zinc-500 font-bold mt-1 uppercase tracking-widest">v2.4.0 Studio Edition</p>
-             </div>
+          <div className="flex flex-col items-end">
+             <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest animate-pulse flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Live Sync Active
+             </span>
+             <p className="text-[11px] text-zinc-600 font-bold mt-1 uppercase tracking-widest italic">v2.4.0 Studio Edition</p>
           </div>
         </div>
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           icon={Users}
           title="Total Artists"
@@ -251,53 +243,59 @@ export default function MusicAdminDashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
         {/* Top Artists Section */}
         <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className={`${card} overflow-hidden`}>
-          <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-800/20">
+          <div className="flex items-center justify-between px-8 py-6 border-b border-white/[0.06] bg-zinc-800/30">
             <div className="flex items-center gap-3">
-              <h2 className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Leaderboard</h2>
-              <div className="w-1 h-1 rounded-full bg-zinc-700" />
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Top Performers</p>
+               <div className="w-6 h-6 bg-emerald-500/10 rounded flex items-center justify-center">
+                  <TrendingUp className="h-3 w-3 text-emerald-500" />
+               </div>
+               <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 italic">Leaderboard</h2>
             </div>
-            <button className="text-[10px] font-black text-emerald-500 hover:text-emerald-600 uppercase tracking-widest transition-all flex items-center gap-1.5">
-              Full List
+            <button className="text-[10px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest transition-all flex items-center gap-1.5 italic">
+              Full Registry
               <ChevronRight className="h-3 w-3" />
             </button>
           </div>
-          <div className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
+          <div className="divide-y divide-white/[0.04]">
             {topArtists.length === 0 ? (
-              <div className="py-20 text-center text-sm text-zinc-400 uppercase tracking-widest font-bold">
-                No artists detected
+              <div className="py-24 text-center">
+                <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">No data detected</p>
               </div>
             ) : (
               topArtists.map((artist, index) => (
                 <div
                   key={artist._id}
-                  className="flex items-center justify-between px-6 py-4 hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors group"
+                  className="flex items-center justify-between px-8 py-5 hover:bg-white/[0.02] transition-colors group cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <span className="text-[10px] font-black text-zinc-300 dark:text-zinc-800 w-4 italic">{index + 1}</span>
-                    <img
-                      src={artist.image || '/api/placeholder/50/50'}
-                      alt={artist.name}
-                      className="w-12 h-12 rounded-lg object-cover border border-zinc-200 dark:border-white/10"
-                      onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&background=10b981&color=fff`; }}
-                    />
+                    <span className="text-[11px] font-black text-zinc-800 w-4 italic">{index + 1}</span>
+                    <div className="relative">
+                       <img
+                         src={artist.image || '/api/placeholder/50/50'}
+                         alt={artist.name}
+                         className="w-12 h-12 rounded object-cover border border-white/10 group-hover:border-emerald-500/30 transition-all"
+                         onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&background=10b981&color=fff`; }}
+                       />
+                       <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-zinc-950 border border-white/10 rounded flex items-center justify-center">
+                          <Heart className="w-2 h-2 text-rose-500 fill-rose-500" />
+                       </div>
+                    </div>
                     <div>
-                      <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight truncate">{artist.name}</h3>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-2 mt-1">
-                        <Users className="h-3 w-3 text-emerald-500" />
+                      <h3 className="text-sm font-black text-white uppercase tracking-tight truncate italic">{artist.name}</h3>
+                      <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-2 mt-1">
+                        <Users className="h-2.5 w-2.5 text-emerald-500" />
                         {(artist.followerCount ?? 0).toLocaleString()} <span className="text-zinc-600">Followers</span>
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="hidden sm:block text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border border-zinc-200 dark:border-white/10 text-zinc-500">
+                  <div className="flex items-center gap-4">
+                    <span className="hidden sm:block text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-zinc-950 border border-white/5 text-zinc-600 italic">
                       {(artist.genres || [])[0] || 'Artist'}
                     </span>
-                    <PlayCircle className="h-5 w-5 text-zinc-400 group-hover:text-emerald-500 transition-colors cursor-pointer" />
+                    <PlayCircle className="h-5 w-5 text-zinc-700 group-hover:text-emerald-500 transition-all" />
                   </div>
                 </div>
               ))
@@ -307,29 +305,31 @@ export default function MusicAdminDashboard() {
 
         {/* Recent Activity Section */}
         <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className={`${card} overflow-hidden`}>
-          <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-800/20">
+          <div className="flex items-center justify-between px-8 py-6 border-b border-white/[0.06] bg-zinc-800/30">
             <div className="flex items-center gap-3">
-              <h2 className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Event Stream</h2>
-              <div className="w-1 h-1 rounded-full bg-zinc-700" />
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Real-time Ops</p>
+               <div className="w-6 h-6 bg-blue-500/10 rounded flex items-center justify-center">
+                  <Globe className="h-3 w-3 text-blue-500" />
+               </div>
+               <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 italic">Event Stream</h2>
             </div>
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           </div>
-          <div className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
+          <div className="divide-y divide-white/[0.04]">
             {recentActivity.length === 0 ? (
-              <div className="py-20 text-center text-sm text-zinc-400 uppercase tracking-widest font-bold">
-                Silence in the stream
+              <div className="py-24 text-center">
+                <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest italic">Stream silent</p>
               </div>
             ) : (
               recentActivity.map((activity) => (
                 <div
                   key={activity.id}
-                  className="flex items-center gap-4 px-6 py-4 hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors group"
+                  className="flex items-center gap-4 px-8 py-5 hover:bg-white/[0.02] transition-colors group"
                 >
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 border border-zinc-200 dark:border-white/5 ${
+                  <div className={`w-12 h-12 rounded flex items-center justify-center flex-shrink-0 border border-white/5 ${
                     activity.type === 'track_upload' ? 'bg-blue-500/10 text-blue-500' :
                     activity.type === 'live_stream' ? 'bg-emerald-500/10 text-emerald-500' :
                     activity.type === 'artist_signup' ? 'bg-rose-500/10 text-rose-500' :
-                    'bg-zinc-800 text-zinc-400'
+                    'bg-zinc-800 text-zinc-600'
                   }`}>
                     {activity.type === 'track_upload' ? <Music2 className="h-5 w-5" /> :
                       activity.type === 'live_stream' ? <Radio className="h-5 w-5" /> :
@@ -337,9 +337,9 @@ export default function MusicAdminDashboard() {
                           <Globe className="h-5 w-5" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight truncate">
+                    <p className="text-[11px] font-black text-white uppercase tracking-tight truncate italic">
                       {activity.artistName}{' '}
-                      <span className="text-zinc-500 font-bold lowercase tracking-normal">
+                      <span className="text-zinc-500 font-bold lowercase tracking-normal italic">
                         {activity.type === 'track_upload' ? 'uploaded' :
                           activity.type === 'live_stream' ? 'started live' :
                             activity.type === 'artist_signup' ? 'joined' :
@@ -347,9 +347,9 @@ export default function MusicAdminDashboard() {
                       </span>{' '}
                       {activity.title && <span>"{activity.title}"</span>}
                     </p>
-                    <div className="flex items-center gap-3 mt-1">
-                       <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                         <Clock className="h-3 w-3" />
+                    <div className="flex items-center gap-3 mt-1.5">
+                       <p className="text-[9px] text-zinc-600 font-black uppercase tracking-widest flex items-center gap-1.5 italic">
+                         <Clock className="h-3 w-3 text-zinc-700" />
                          {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
                        </p>
                     </div>

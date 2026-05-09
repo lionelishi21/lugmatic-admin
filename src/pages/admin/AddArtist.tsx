@@ -6,7 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { toast } from 'react-hot-toast';
 import { CreateArtistData } from '../../services/artistService';
-import { Upload, ArrowLeft, User, Mail, Music, FileText, ImageIcon, X } from 'lucide-react';
+import { Upload, ArrowLeft, User, Mail, Music, FileText, ImageIcon, X, Loader2, Shield } from 'lucide-react';
 import { usePostArtist } from '../../hooks/artist/usePostArtist';
 
 interface ArtistFormData {
@@ -26,6 +26,16 @@ const schema: yup.ObjectSchema<ArtistFormData> = yup.object({
   bio: yup.string().required('Artist bio is required'),
   genre: yup.string().required('Genre is required'),
 }) as yup.ObjectSchema<ArtistFormData>;
+
+const inputClass = (hasError: boolean) =>
+  `w-full px-4 py-3 bg-zinc-950 border rounded transition-all duration-200 focus:outline-none font-black italic uppercase text-xs tracking-widest ${
+    hasError
+      ? 'border-rose-500 text-rose-500 placeholder-rose-500/50'
+      : 'border-white/10 text-white placeholder-white/20 focus:border-emerald-500'
+  }`;
+
+const labelClass = "block text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-2 italic";
+const cardClass = "bg-zinc-900 border border-white/[0.06] rounded-lg p-6 shadow-2xl relative overflow-hidden group";
 
 const AddArtist = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -95,7 +105,7 @@ const AddArtist = () => {
       reset();
       setImagePreview(null);
       setSelectedImageFile(null);
-      navigate('/admin/artists');
+      navigate('/admin/artist-management');
     } catch (error) {
       console.error('Error in form submission:', error);
       toast.error('Failed to add artist. Please try again.');
@@ -103,203 +113,230 @@ const AddArtist = () => {
   };
 
   const handleCancel = () => {
-    navigate('/admin/artists');
+    navigate('/admin/artist-management');
   };
-
-  const inputClass = (hasError: boolean) =>
-    `w-full px-3.5 py-2.5 bg-gray-50/50 border rounded-xl text-sm text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:bg-white ${
-      hasError
-        ? 'border-red-300 focus:ring-red-500/20 focus:border-red-400'
-        : 'border-gray-200 focus:ring-green-500/20 focus:border-green-400'
-    }`;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="max-w-3xl mx-auto"
+      className="max-w-4xl mx-auto space-y-8"
     >
-      {/* Page header */}
-      <div className="mb-6">
-        <button
-          onClick={handleCancel}
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-4"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Artists
-        </button>
-        <h1 className="text-xl font-semibold text-gray-900">Add New Artist</h1>
-        <p className="text-sm text-gray-500 mt-1">Fill in the details below to register a new artist on the platform.</p>
+      {/* ── Page header ── */}
+      <div className={`${cardClass} p-8`}>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-6">
+             <button
+               onClick={handleCancel}
+               className="w-12 h-12 bg-zinc-950 border border-white/10 rounded flex items-center justify-center text-zinc-400 hover:text-emerald-500 hover:border-emerald-500/30 transition-all group/back"
+             >
+               <ArrowLeft className="h-5 w-5 group-hover/back:-translate-x-1 transition-transform" />
+             </button>
+             <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Ecosystem Registry</p>
+                <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">
+                  Initialize Artist
+                </h1>
+                <p className="text-sm text-zinc-500 mt-1 max-w-md">
+                  Onboarding new talent into the Lugmatic Intelligence loop.
+                </p>
+             </div>
+          </div>
+          <div className="flex flex-col items-end">
+             <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest animate-pulse flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Live Connection
+             </span>
+             <p className="text-[11px] text-zinc-600 font-bold mt-1 uppercase tracking-widest">v2.4.0 Registry</p>
+          </div>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Profile image section */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <ImageIcon className="h-4 w-4 text-gray-400" />
-            <h2 className="text-sm font-semibold text-gray-900">Profile Image</h2>
-          </div>
-          <div className="flex items-center gap-5">
-            {imagePreview ? (
-              <div className="relative group">
-                <img
-                  src={imagePreview}
-                  alt="Artist preview"
-                  className="h-24 w-24 rounded-2xl object-cover border-2 border-gray-100"
-                />
-                <button
-                  type="button"
-                  onClick={clearImage}
-                  className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                >
-                  <X className="h-3 w-3" />
-                </button>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          {/* Profile image section */}
+          <div className="lg:col-span-4 h-fit">
+            <div className={cardClass}>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-emerald-500/10 rounded flex items-center justify-center">
+                   <ImageIcon className="h-4 w-4 text-emerald-500" />
+                </div>
+                <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Visual Identity</h2>
               </div>
-            ) : (
-              <div className="h-24 w-24 rounded-2xl bg-gray-100 border-2 border-dashed border-gray-200 flex items-center justify-center">
-                <User className="h-8 w-8 text-gray-300" />
+              
+              <div className="flex flex-col items-center gap-6">
+                {imagePreview ? (
+                  <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-tr from-emerald-500 to-blue-500 rounded blur opacity-20 group-hover:opacity-40 transition-opacity" />
+                    <img
+                      src={imagePreview}
+                      alt="Artist preview"
+                      className="relative h-48 w-48 rounded object-cover border border-white/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={clearImage}
+                      className="absolute -top-3 -right-3 w-8 h-8 bg-rose-500 text-white rounded flex items-center justify-center shadow-lg hover:bg-rose-600 transition-colors z-10"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="h-48 w-48 rounded bg-zinc-950 border border-dashed border-white/10 flex flex-col items-center justify-center gap-3 group-hover:border-emerald-500/30 transition-all">
+                    <User className="h-10 w-10 text-zinc-800" />
+                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">No Signature</p>
+                  </div>
+                )}
+                
+                <div className="w-full">
+                  <label className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-zinc-950 border border-white/10 rounded text-[10px] font-black text-white uppercase tracking-widest cursor-pointer hover:bg-white/5 hover:border-emerald-500/30 transition-all">
+                    <Upload className="h-4 w-4 text-emerald-500" />
+                    {imagePreview ? 'Change Avatar' : 'Upload Avatar'}
+                    <input type="file" accept="image/*" hidden onChange={handleImageChange} />
+                  </label>
+                  <p className="text-[9px] text-zinc-500 text-center mt-3 font-bold uppercase tracking-widest">RAW / HQ / MAX 5MB</p>
+                </div>
               </div>
-            )}
-            <div>
-              <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 cursor-pointer transition-colors">
-                <Upload className="h-4 w-4" />
-                {imagePreview ? 'Change Image' : 'Upload Image'}
-                <input
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={handleImageChange}
+            </div>
+          </div>
+
+          {/* Form Content */}
+          <div className="lg:col-span-8 space-y-6">
+            {/* Personal information */}
+            <div className={cardClass}>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-8 h-8 bg-blue-500/10 rounded flex items-center justify-center">
+                   <User className="h-4 w-4 text-blue-500" />
+                </div>
+                <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Core Credentials</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label className={labelClass}>First Name</label>
+                  <input
+                    type="text"
+                    placeholder="ENTER GIVEN NAME"
+                    {...register('firstName')}
+                    className={inputClass(!!errors.firstName)}
+                  />
+                  {errors.firstName && (
+                    <p className="mt-2 text-[10px] font-bold text-rose-500 uppercase tracking-widest">{errors.firstName.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label className={labelClass}>Last Name</label>
+                  <input
+                    type="text"
+                    placeholder="ENTER SURNAME"
+                    {...register('lastName')}
+                    className={inputClass(!!errors.lastName)}
+                  />
+                  {errors.lastName && (
+                    <p className="mt-2 text-[10px] font-bold text-rose-500 uppercase tracking-widest">{errors.lastName.message}</p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-6">
+                <label className={labelClass}>Neural Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <input
+                    type="email"
+                    placeholder="USER@ECOSYSTEM.COM"
+                    {...register('email')}
+                    className={`${inputClass(!!errors.email)} pl-12`}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="mt-2 text-[10px] font-bold text-rose-500 uppercase tracking-widest">{errors.email.message}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Artist details */}
+            <div className={cardClass}>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-8 h-8 bg-emerald-500/10 rounded flex items-center justify-center">
+                   <Music className="h-4 w-4 text-emerald-500" />
+                </div>
+                <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Sonic Intelligence</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label className={labelClass}>Stage Designation</label>
+                  <input
+                    type="text"
+                    placeholder="E.G. NEON VORTEX"
+                    {...register('stageName')}
+                    className={inputClass(!!errors.stageName)}
+                  />
+                  {errors.stageName && (
+                    <p className="mt-2 text-[10px] font-bold text-rose-500 uppercase tracking-widest">{errors.stageName.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label className={labelClass}>Primary Frequency (Genre)</label>
+                  <input
+                    type="text"
+                    placeholder="E.G. SYNTHWAVE / TRAP"
+                    {...register('genre')}
+                    className={inputClass(!!errors.genre)}
+                  />
+                  {errors.genre && (
+                    <p className="mt-2 text-[10px] font-bold text-rose-500 uppercase tracking-widest">{errors.genre.message}</p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-6">
+                <div className="flex items-center justify-between mb-2">
+                  <label className={labelClass}>Combat Bio / Artist Profile</label>
+                  <FileText className="h-3.5 w-3.5 text-zinc-700" />
+                </div>
+                <textarea
+                  {...register('bio')}
+                  rows={4}
+                  placeholder="TRANSMIT ARTIST HISTORY AND MISSION OBJECTIVES..."
+                  className={inputClass(!!errors.bio)}
                 />
-              </label>
-              <p className="text-xs text-gray-400 mt-2">JPG, PNG or WebP. Max 5MB.</p>
+                {errors.bio && (
+                  <p className="mt-2 text-[10px] font-bold text-rose-500 uppercase tracking-widest">{errors.bio.message}</p>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Personal information */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center gap-2 mb-5">
-            <User className="h-4 w-4 text-gray-400" />
-            <h2 className="text-sm font-semibold text-gray-900">Personal Information</h2>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1.5">First Name</label>
-              <input
-                type="text"
-                placeholder="John"
-                {...register('firstName')}
-                className={inputClass(!!errors.firstName)}
-              />
-              {errors.firstName && (
-                <p className="mt-1.5 text-xs text-red-500">{errors.firstName.message}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1.5">Last Name</label>
-              <input
-                type="text"
-                placeholder="Doe"
-                {...register('lastName')}
-                className={inputClass(!!errors.lastName)}
-              />
-              {errors.lastName && (
-                <p className="mt-1.5 text-xs text-red-500">{errors.lastName.message}</p>
-              )}
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-4 pt-4">
+              <button
+                type="button"
+                onClick={handleCancel}
+                disabled={isLoading}
+                className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors disabled:opacity-50 italic"
+              >
+                Abort Protocol
+              </button>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="px-10 py-4 bg-emerald-500 text-black text-[10px] font-black uppercase tracking-widest rounded hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 italic"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="animate-spin h-4 w-4" />
+                    Transmitting...
+                  </>
+                ) : (
+                  <>
+                    <Shield className="h-4 w-4" />
+                    Finalize Registration
+                  </>
+                )}
+              </button>
             </div>
           </div>
-          <div className="mt-4">
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Email Address</label>
-            <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="email"
-                placeholder="john@example.com"
-                {...register('email')}
-                className={`${inputClass(!!errors.email)} pl-10`}
-              />
-            </div>
-            {errors.email && (
-              <p className="mt-1.5 text-xs text-red-500">{errors.email.message}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Artist details */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center gap-2 mb-5">
-            <Music className="h-4 w-4 text-gray-400" />
-            <h2 className="text-sm font-semibold text-gray-900">Artist Details</h2>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1.5">Stage Name</label>
-              <input
-                type="text"
-                placeholder="e.g., DJ Nova"
-                {...register('stageName')}
-                className={inputClass(!!errors.stageName)}
-              />
-              {errors.stageName && (
-                <p className="mt-1.5 text-xs text-red-500">{errors.stageName.message}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1.5">Genre</label>
-              <input
-                type="text"
-                placeholder="e.g., Pop, Rock, Hip Hop"
-                {...register('genre')}
-                className={inputClass(!!errors.genre)}
-              />
-              {errors.genre && (
-                <p className="mt-1.5 text-xs text-red-500">{errors.genre.message}</p>
-              )}
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-medium text-gray-600">Bio</label>
-              <FileText className="h-3.5 w-3.5 text-gray-300" />
-            </div>
-            <textarea
-              {...register('bio')}
-              rows={4}
-              placeholder="Write a short biography about the artist..."
-              className={inputClass(!!errors.bio)}
-            />
-            {errors.bio && (
-              <p className="mt-1.5 text-xs text-red-500">{errors.bio.message}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-2 pb-4">
-          <button
-            type="button"
-            onClick={handleCancel}
-            disabled={isLoading}
-            className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Saving...
-              </>
-            ) : 'Save Artist'}
-          </button>
         </div>
       </form>
     </motion.div>

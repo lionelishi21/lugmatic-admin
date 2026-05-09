@@ -30,7 +30,7 @@ import { Comment } from '../../types';
 import toast from 'react-hot-toast';
 
 // ── Shared primitives ─────────────────────────────────────────────
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1.5 italic';
 
 // Sub-component for individual comment cards
@@ -399,7 +399,7 @@ const Comments: React.FC = () => {
               className={`${card} w-full max-w-2xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] border-emerald-500/20`}
             >
               {/* Modal Header HUD */}
-              <div className="flex items-center justify-between px-8 py-6 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-950/50">
+              <div className="flex items-center justify-between px-8 py-6 border-b border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-950/50">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20 shadow-inner">
                      <ReplyIcon className="h-5 w-5 text-emerald-500" />

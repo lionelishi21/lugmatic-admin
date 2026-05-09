@@ -23,7 +23,7 @@ import PromotionWizard from '../../components/artist/PromotionWizard';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 
 const ArtistPromotions: React.FC = () => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);

@@ -5,7 +5,7 @@ import { useArtistContext } from '../../context/ArtistContext';
 import Preloader from '../../components/ui/Preloader';
 import artistService from '../../services/artistService';
 import ContributionList from '../../components/artist/ContributionList';
-import { Users, ChevronRight } from 'lucide-react';
+import { Users, ChevronRight, ArrowLeft, Music, Music2 } from 'lucide-react';
 
 const ArtistDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -95,43 +95,42 @@ const ArtistDetails: React.FC = () => {
 
   // Go back to artists list
   const handleBack = () => {
-    navigate('/admin/artists');
+    navigate('/admin/artist-management');
   };
 
   if (loading && !selectedArtist) {
-    return <Preloader isVisible={true} text="Loading artist details..." />;
+    return <Preloader isVisible={true} text="Collecting intelligence..." />;
   }
 
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-100 p-4 rounded-lg text-red-700 mb-4">
-          Error: {error}
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 p-4 rounded text-xs font-black uppercase tracking-widest italic mb-4">
+          SYSTEM ERROR: {error}
         </div>
         <button
           onClick={handleBack}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+          className="px-6 py-3 bg-zinc-800 text-white rounded text-[10px] font-black uppercase tracking-widest italic border border-white/5 hover:bg-zinc-700 transition-all"
         >
-          Back to Artists
+          Abort Protocol
         </button>
       </div>
     );
   }
 
-  const isLoadingAll =
-    loading || albumsLoading || songsLoading;
+  const isLoadingAll = loading || albumsLoading || songsLoading;
 
   if (!isLoadingAll && !selectedArtist) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-yellow-100 p-4 rounded-lg text-yellow-700 mb-4">
-          Artist not found
+        <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 p-4 rounded text-xs font-black uppercase tracking-widest italic mb-4">
+          RECORD NOT FOUND IN REGISTRY
         </div>
         <button
           onClick={handleBack}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+          className="px-6 py-3 bg-zinc-800 text-white rounded text-[10px] font-black uppercase tracking-widest italic border border-white/5 hover:bg-zinc-700 transition-all"
         >
-          Back to Artists
+          Return to Registry
         </button>
       </div>
     );
@@ -149,285 +148,327 @@ const ArtistDetails: React.FC = () => {
     (selectedArtist as any).imageUrl ||
     selectedArtist.profilePicture ||
     (selectedArtist.image as string) ||
-    'https://placehold.co/200x200/gray/white?text=Artist';
+    '';
   const statusValue =
     selectedArtist?.status ||
     (selectedArtist?.isApproved ? 'active' : selectedArtist?.isVerified ? 'verified' : 'pending');
   const normalizedStatus = (statusValue || '').toLowerCase();
-  const statusClass =
-    normalizedStatus === 'active' || normalizedStatus === 'approved'
-      ? 'bg-green-100 text-green-800'
-      : normalizedStatus === 'pending'
-        ? 'bg-yellow-100 text-yellow-800'
-        : 'bg-red-100 text-red-800';
+  
+  const statusStyles: Record<string, string> = {
+    active: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+    approved: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+    pending: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+    verified: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+  };
+
+  const statusClass = statusStyles[normalizedStatus] || 'bg-zinc-800 text-zinc-500 border border-white/10';
+
   const joinDate = (() => {
     if (!selectedArtist.createdAt) return '—';
     try {
       const d = new Date(selectedArtist.createdAt);
-      return !isNaN(d.getTime()) ? d.toLocaleDateString() : '—';
+      return !isNaN(d.getTime()) ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
     } catch { return '—'; }
   })();
+  
   const genres =
     Array.isArray(selectedArtist.genres) && selectedArtist.genres.length > 0
       ? selectedArtist.genres
       : Array.isArray((selectedArtist as any).favoriteGenres)
         ? ((selectedArtist as any).favoriteGenres as string[])
         : [];
+  
   const canReviewArtist =
     (selectedArtist.status && selectedArtist.status.toLowerCase() === 'pending') ||
     selectedArtist.isApproved === false;
 
-  if (!selectedArtist) return null;
+  const cardClass = "bg-zinc-900 border border-white/[0.06] rounded-lg p-6 shadow-2xl relative overflow-hidden group";
+  const labelClass = "text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1 italic";
+  const valueClass = "text-sm font-black text-white italic uppercase tracking-tight";
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Page Header */}
+    <div className="max-w-6xl mx-auto pb-24 space-y-8">
+      {/* ── Page Header ── */}
       <motion.div
-        className="mb-6 flex justify-between items-center"
+        className={`${cardClass} p-8`}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
       >
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">{displayName}</h1>
-          <p className="text-gray-600">{displayEmail}</p>
-        </div>
-        <div className="flex space-x-3">
-          <button
-            onClick={handleBack}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
-          >
-            Back
-          </button>
-          <button
-            onClick={handleEdit}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-          >
-            Edit
-          </button>
-        </div>
-      </motion.div>
-
-      {/* Artist Card */}
-      <motion.div
-        className="bg-white rounded-lg shadow-md overflow-hidden mb-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <div className="p-6">
-          <div className="flex flex-col md:flex-row">
-            {/* Artist Image */}
-            <div className="md:w-1/4 flex justify-center mb-4 md:mb-0">
-              <img
-                src={avatarSrc}
-                alt={displayName}
-                className="w-48 h-48 rounded-full object-cover"
-              />
-            </div>
-
-            {/* Artist Info */}
-            <div className="md:w-3/4 md:pl-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Genres</h3>
-                  <p className="font-medium">
-                    {genres.length > 0 ? genres.join(', ') : '—'}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Status</h3>
-                  <span className={`px-2 py-1 rounded-full text-xs ${statusClass} capitalize`}>
-                    {statusValue}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Joined</h3>
-                  <p>{joinDate}</p>
-                </div>
-              </div>
-
-              {/* Actions based on artist status */}
-              {canReviewArtist && (
-                <div className="mt-6 flex space-x-3">
-                  <button
-                    onClick={handleApprove}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                  >
-                    Approve
-                  </button>
-                  <button
-                    onClick={handleReject}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                  >
-                    Reject
-                  </button>
-                </div>
-              )}
-
-              {/* Analytics button */}
-              <div className="mt-6">
-                <button
-                  onClick={handleViewAnalytics}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-                >
-                  View Analytics
-                </button>
-              </div>
-            </div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-6">
+             <button
+               onClick={handleBack}
+               className="w-12 h-12 bg-zinc-950 border border-white/10 rounded flex items-center justify-center text-zinc-400 hover:text-emerald-500 hover:border-emerald-500/30 transition-all group/back"
+             >
+               <ArrowLeft className="h-5 w-5 group-hover/back:-translate-x-1 transition-transform" />
+             </button>
+             <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Artist Profile Registry</p>
+                <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">
+                  {displayName}
+                </h1>
+                <p className="text-xs font-bold text-zinc-500 mt-1 uppercase tracking-widest">
+                  {displayEmail}
+                </p>
+             </div>
+          </div>
+          <div className="flex gap-3">
+             <button
+               onClick={handleEdit}
+               className="px-6 py-3 bg-zinc-800 text-white text-[10px] font-black uppercase tracking-widest rounded border border-white/5 hover:bg-zinc-700 transition-all italic"
+             >
+               Modify Profile
+             </button>
+             <button
+               onClick={handleViewAnalytics}
+               className="px-6 py-3 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded hover:bg-emerald-400 transition-all shadow-xl italic"
+             >
+               Intelligence Link
+             </button>
           </div>
         </div>
       </motion.div>
 
-      {/* Albums */}
-      <motion.div
-        className="bg-white rounded-lg shadow-md overflow-hidden mb-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-gray-800">Albums</h2>
-            {albumsLoading && <span className="text-sm text-gray-500">Loading albums...</span>}
-          </div>
-          {albumsError && (
-            <div className="bg-red-100 text-red-700 px-4 py-3 rounded mb-4">
-              {albumsError}
-            </div>
-          )}
-          {!albumsLoading && !albumsError && albums.length === 0 && (
-            <p className="text-gray-500">No albums found for this artist.</p>
-          )}
-          {!albumsLoading && !albumsError && albums.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {albums.map((album) => (
-                <div key={album._id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center space-x-4">
-                    {(album.cover || (album as any).coverArt) && (
-                      <img
-                        src={album.cover || (album as any).coverArt}
-                        alt={album.title}
-                        className="w-16 h-16 rounded object-cover"
-                      />
-                    )}
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900">{album.title}</h3>
-                      <p className="text-sm text-gray-500">
-                        Released:{' '}
-                        {(() => {
-                          if (!album.releaseDate) return '—';
-                          try {
-                            const d = new Date(album.releaseDate);
-                            return !isNaN(d.getTime()) ? d.toLocaleDateString() : '—';
-                          } catch { return '—'; }
-                        })()}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Tracks:{' '}
-                        {Array.isArray(album.tracks)
-                          ? album.tracks.length
-                          : (album as any).trackCount ?? 0}
-                      </p>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Column: Visual & Core Intel */}
+        <div className="lg:col-span-4 space-y-8">
+          <motion.div
+            className={cardClass}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <div className="flex flex-col items-center py-4">
+              <div className="relative group mb-6">
+                <div className="absolute -inset-1 bg-gradient-to-tr from-emerald-500 to-blue-500 rounded-full blur opacity-20 group-hover:opacity-40 transition-opacity" />
+                {avatarSrc ? (
+                  <img
+                    src={avatarSrc}
+                    alt={displayName}
+                    className="relative w-48 h-48 rounded-full object-cover border-2 border-white/10 p-1 bg-zinc-950"
+                  />
+                ) : (
+                  <div className="relative w-48 h-48 rounded-full bg-zinc-950 border-2 border-white/10 flex items-center justify-center">
+                    <Users className="w-16 h-16 text-zinc-800" />
+                  </div>
+                )}
+              </div>
+              
+              <div className="w-full space-y-6 pt-4 border-t border-white/5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>Registry Status</label>
+                    <div className="mt-1">
+                      <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest italic ${statusClass}`}>
+                        {statusValue}
+                      </span>
                     </div>
                   </div>
+                  <div>
+                    <label className={labelClass}>Joined Date</label>
+                    <p className={valueClass}>{joinDate}</p>
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </motion.div>
+                
+                <div>
+                  <label className={labelClass}>Sonic Frequencies</label>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {genres.length > 0 ? genres.map((g, i) => (
+                      <span key={i} className="px-2 py-0.5 bg-emerald-500/5 border border-emerald-500/20 rounded text-[9px] font-black text-emerald-500 uppercase tracking-widest italic">
+                        {g}
+                      </span>
+                    )) : <p className="text-zinc-600 text-[10px] font-bold">NO GENRE DATA</p>}
+                  </div>
+                </div>
 
-      {/* Songs */}
-      <motion.div
-        className="bg-white rounded-lg shadow-md overflow-hidden"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-gray-800">Songs</h2>
-            {songsLoading && <span className="text-sm text-gray-500">Loading songs...</span>}
-          </div>
-          {songsError && (
-            <div className="bg-red-100 text-red-700 px-4 py-3 rounded mb-4">
-              {songsError}
+                {canReviewArtist && (
+                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/5">
+                    <button
+                      onClick={handleApprove}
+                      className="w-full py-3 bg-emerald-500 text-black text-[10px] font-black uppercase tracking-widest rounded hover:bg-emerald-400 transition-all italic"
+                    >
+                      Authorize
+                    </button>
+                    <button
+                      onClick={handleReject}
+                      className="w-full py-3 bg-zinc-800 text-rose-500 text-[10px] font-black uppercase tracking-widest rounded hover:bg-rose-500/10 transition-all italic border border-white/5"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-          {!songsLoading && !songsError && songs.length === 0 && (
-            <p className="text-gray-500">No songs found for this artist.</p>
-          )}
-          {!songsLoading && !songsError && songs.length > 0 && (
-            <div className="space-y-4">
-              {songs.map((song) => (
-                <div key={song._id} className="flex items-center justify-between border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center space-x-4">
-                    {(song.coverArt || (song as any).cover) && (
-                      <img
-                        src={song.coverArt || (song as any).cover}
-                        alt={song.title}
-                        className="w-12 h-12 rounded object-cover"
-                      />
-                    )}
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 leading-tight">{song.title}</h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <p className="text-xs text-gray-500">
-                          {song.duration
-                            ? `${Math.floor(song.duration / 60)}:${(song.duration % 60)
-                              .toString()
-                              .padStart(2, '0')}`
-                            : (song as any).formattedDuration || '—'}
-                        </p>
-                        {song.splitSheet && song.splitSheet.length > 0 && (
-                          <span className="flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded">
-                            <Users className="w-2.5 h-2.5" />
-                            {song.splitSheet.length} Contributors
-                          </span>
+          </motion.div>
+        </div>
+
+        {/* Right Column: Discography & Contributions */}
+        <div className="lg:col-span-8 space-y-8">
+          {/* Albums Section */}
+          <motion.div
+            className={cardClass}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                 <div className="w-8 h-8 bg-blue-500/10 rounded flex items-center justify-center">
+                    <Music className="h-4 w-4 text-blue-500" />
+                 </div>
+                 <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Album Repositories</h2>
+              </div>
+              {albumsLoading && <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />}
+            </div>
+
+            {albumsError && (
+              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-bold uppercase tracking-widest p-4 rounded mb-6 italic">
+                PROTOCOL ERROR: {albumsError}
+              </div>
+            )}
+            
+            {!albumsLoading && !albumsError && albums.length === 0 && (
+              <div className="py-12 text-center border border-dashed border-white/5 rounded">
+                <p className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">No album archives detected.</p>
+              </div>
+            )}
+            
+            {!albumsLoading && !albumsError && albums.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {albums.map((album) => (
+                  <div key={album._id} className="bg-zinc-950 border border-white/5 rounded-lg p-4 hover:border-emerald-500/30 transition-all group/album">
+                    <div className="flex items-center gap-4">
+                      <div className="relative w-16 h-16 rounded overflow-hidden flex-shrink-0 bg-zinc-900 border border-white/10">
+                        {(album.cover || (album as any).coverArt) ? (
+                          <img
+                            src={album.cover || (album as any).coverArt}
+                            alt={album.title}
+                            className="w-full h-full object-cover group-hover/album:scale-110 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-zinc-800">
+                             <Music2 className="w-6 h-6" />
+                          </div>
                         )}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-[11px] font-black text-white uppercase tracking-tight truncate italic">{album.title}</h3>
+                        <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
+                          RELEASE: {album.releaseDate ? new Date(album.releaseDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : '—'}
+                        </p>
+                        <p className="text-[9px] text-emerald-500 font-black uppercase tracking-widest mt-0.5 italic">
+                          SYNC: {Array.isArray(album.tracks) ? album.tracks.length : (album as any).trackCount ?? 0} UNITS
+                        </p>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-500 hidden sm:block">
-                      {song.album ? `Album: ${song.album}` : 'Single'}
-                    </span>
-                    <button 
-                      onClick={() => navigate(`/admin/songs/${song._id}`)}
-                      className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-indigo-600 transition-all"
-                      title="View Song Details & Split Sheet"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
+          </motion.div>
+
+          {/* Songs Section */}
+          <motion.div
+            className={cardClass}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+             <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                 <div className="w-8 h-8 bg-emerald-500/10 rounded flex items-center justify-center">
+                    <Music2 className="h-4 w-4 text-emerald-500" />
+                 </div>
+                 <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Signal Transmission (Songs)</h2>
+              </div>
+              {songsLoading && <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />}
             </div>
-          )}
+
+            {songsError && (
+              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-bold uppercase tracking-widest p-4 rounded mb-6 italic">
+                SIGNAL ERROR: {songsError}
+              </div>
+            )}
+
+            {!songsLoading && !songsError && songs.length === 0 && (
+              <div className="py-12 text-center border border-dashed border-white/5 rounded">
+                <p className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">No active signals detected.</p>
+              </div>
+            )}
+
+            {!songsLoading && !songsError && songs.length > 0 && (
+              <div className="space-y-3">
+                {songs.map((song) => (
+                  <div key={song._id} className="flex items-center justify-between bg-zinc-950 border border-white/5 rounded p-4 hover:bg-white/[0.02] transition-all group/song">
+                    <div className="flex items-center gap-4">
+                      <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-zinc-900 border border-white/10">
+                        {(song.coverArt || (song as any).cover) ? (
+                          <img
+                            src={song.coverArt || (song as any).cover}
+                            alt={song.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-zinc-800">
+                             <Music className="w-4 h-4" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-xs font-black text-white uppercase italic tracking-tight truncate">{song.title}</h3>
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest italic">
+                            {song.duration
+                              ? `${Math.floor(song.duration / 60)}:${(song.duration % 60).toString().padStart(2, '0')}`
+                              : (song as any).formattedDuration || '—'}
+                          </p>
+                          {song.splitSheet && song.splitSheet.length > 0 && (
+                            <span className="flex items-center gap-1.5 text-[9px] font-black text-blue-400 bg-blue-500/5 px-2 py-0.5 rounded border border-blue-500/10 italic">
+                              <Users className="w-2.5 h-2.5" />
+                              {song.splitSheet.length} NODES
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-6">
+                      <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest italic hidden sm:block">
+                        {song.album ? `DEP: ${song.album}` : 'PROTOCOL: SINGLE'}
+                      </span>
+                      <button 
+                        onClick={() => navigate(`/admin/song-management/${song._id}`)}
+                        className="w-10 h-10 bg-zinc-900 border border-white/10 rounded flex items-center justify-center text-zinc-600 hover:text-emerald-500 hover:border-emerald-500/30 transition-all"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+          
+          {/* Contributions Section */}
+          <motion.div
+            className={cardClass}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                 <div className="w-8 h-8 bg-purple-500/10 rounded flex items-center justify-center">
+                    <Users className="h-4 w-4 text-purple-500" />
+                 </div>
+                 <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Contribution Graph</h2>
+              </div>
+              {loadingContributions && <div className="w-2 h-2 bg-purple-500 rounded-full animate-ping" />}
+            </div>
+            <div className="bg-zinc-950/50 border border-white/5 rounded p-1">
+              <ContributionList contributions={contributions} loading={loadingContributions} />
+            </div>
+          </motion.div>
         </div>
-      </motion.div>
-      
-      {/* Contributions */}
-      <motion.div
-        className="bg-white rounded-lg shadow-md overflow-hidden mt-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.35 }}
-      >
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-              <Users className="h-6 w-6 text-purple-600" />
-              Contributions
-            </h2>
-            {loadingContributions && <span className="text-sm text-gray-500">Loading contributions...</span>}
-          </div>
-          <ContributionList contributions={contributions} loading={loadingContributions} />
-        </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
 
-export default ArtistDetails; 
+export default ArtistDetails;

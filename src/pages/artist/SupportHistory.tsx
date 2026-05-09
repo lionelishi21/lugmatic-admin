@@ -30,7 +30,7 @@ interface SupportTicket {
 }
 
 // ── Shared primitives ─────────────────────────────────────────────
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1.5 italic';
 const inputClass = 'w-full px-5 py-3 bg-zinc-950 border border-white/[0.08] rounded-xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-700 italic tracking-widest';
 
@@ -122,7 +122,7 @@ export default function SupportHistory() {
 
       {/* ── Ticket Feed HUD ── */}
       <div className={`${card} overflow-hidden shadow-2xl`}>
-        <div className="p-6 border-b border-zinc-100 dark:border-white/[0.06] flex flex-col sm:flex-row gap-6 justify-between items-center bg-zinc-50/30 dark:bg-zinc-950/20">
+        <div className="p-6 border-b border-white/[0.06] flex flex-col sm:flex-row gap-6 justify-between items-center bg-zinc-50/30 dark:bg-zinc-950/20">
           <div className="relative w-full sm:w-80 group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-emerald-500 transition-colors" />
             <input

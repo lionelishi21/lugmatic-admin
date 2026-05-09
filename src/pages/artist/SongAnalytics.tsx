@@ -19,7 +19,7 @@ interface AnalyticsData {
 }
 
 // ── Shared primitives ─────────────────────────────────────────────
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1.5 italic';
 
 export default function SongAnalytics() {

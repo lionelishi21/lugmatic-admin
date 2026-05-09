@@ -537,10 +537,3 @@ const PricingSection = () => {
     </div>
   );
 };
-rencies</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};

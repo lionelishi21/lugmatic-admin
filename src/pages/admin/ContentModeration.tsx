@@ -1,38 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Tabs,
-  Tab,
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  Grid,
-  Chip,
-  Avatar,
-  CircularProgress,
-  Alert,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Snackbar,
-  TextField,
-  Pagination,
-} from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle as ApproveIcon,
-  Cancel as RejectIcon,
-  Delete as DeleteIcon,
-  PlayCircle as PlayIcon,
-  Report as FlagIcon,
+  XCircle as RejectIcon,
+  Trash2 as DeleteIcon,
+  Play as PlayIcon,
+  AlertTriangle as FlagIcon,
   Edit as EditIcon,
-} from '@mui/icons-material';
+  ChevronRight,
+  MoreVertical,
+  Clock,
+  User,
+  Music,
+  Check,
+  X,
+  Search,
+  Filter
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { adminService } from '../../services/adminService';
+import Preloader from '../../components/ui/Preloader';
+import { toast } from 'react-hot-toast';
 
 interface ModerationItem {
   _id: string;
@@ -64,26 +52,11 @@ const ContentModeration: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<ModerationItem | null>(null);
   const [rejectReason, setRejectReason] = useState('');
 
-  // Snackbar state
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
-
-  const showSnackbar = (message: string, severity: 'success' | 'error' = 'success') => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setSnackbarOpen(true);
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
   const tabConfigs = [
-    { label: 'Songs', type: 'songs' },
-    { label: 'Albums', type: 'albums' },
-    { label: 'Podcasts', type: 'podcasts' },
-    { label: 'Comments', type: 'comments' },
+    { label: 'Songs', type: 'songs', icon: Music },
+    { label: 'Albums', type: 'albums', icon: PlayIcon },
+    { label: 'Podcasts', type: 'podcasts', icon: PlayIcon },
+    { label: 'Comments', type: 'comments', icon: FlagIcon },
   ];
 
   const fetchContent = async () => {
@@ -113,9 +86,9 @@ const ContentModeration: React.FC = () => {
     fetchContent();
   }, [activeTab, page]);
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-    setPage(1); // Reset to page 1 when switching tabs
+  const handleTabChange = (index: number) => {
+    setActiveTab(index);
+    setPage(1);
   };
 
   const handleAction = async (itemId: string, action: 'approve' | 'reject' | 'delete', reason?: string) => {
@@ -124,15 +97,14 @@ const ContentModeration: React.FC = () => {
       const response = await adminService.moderateContent(contentType, itemId, action, reason);
 
       if (response.data.success) {
-        showSnackbar(`Content successfully ${action}d`, 'success');
-        // Remove item from UI
+        toast.success(`Content successfully ${action}ed`);
         setItems((prev) => prev.filter((item) => item._id !== itemId));
       } else {
         throw new Error(response.data.message || `Failed to ${action} content`);
       }
     } catch (err: any) {
       console.error(`Error moderating content:`, err);
-      showSnackbar(err.message || 'An error occurred', 'error');
+      toast.error(err.message || 'An error occurred');
     }
   };
 
@@ -149,204 +121,220 @@ const ContentModeration: React.FC = () => {
     setRejectDialogOpen(false);
   };
 
+  const cardClass = "bg-zinc-900 border border-white/[0.06] rounded-lg overflow-hidden flex flex-col group hover:border-emerald-500/20 transition-all shadow-2xl relative";
+  
   const renderItemCard = (item: ModerationItem) => {
     const isComment = tabConfigs[activeTab].type === 'comments';
-    const title = item.title || item.name || (isComment ? 'Comment' : 'Unknown');
+    const title = item.title || item.name || (isComment ? 'Comment Entry' : 'Unknown Unit');
     const image = item.coverArt || item.coverImage;
     const subtitle = isComment
       ? `${item.author?.firstName || 'Unknown'} ${item.author?.lastName || ''}`
       : (typeof item.artist === 'object' ? item.artist?.name : item.artist) || 'Unknown Artist';
 
     return (
-      <Grid item xs={12} sm={6} md={4} lg={3} key={item._id}>
-        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-          {isComment && item.isFlagged && (
-            <Chip
-              icon={<FlagIcon />}
-              label="Flagged"
-              color="error"
-              size="small"
-              sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1 }}
-            />
-          )}
-
-          <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-            <Avatar
-              src={isComment ? item.author?.profilePicture : image}
-              variant={isComment ? "circular" : "rounded"}
-              sx={{ width: 56, height: 56 }}
-            >
-              {!image && !isComment && <PlayIcon />}
-            </Avatar>
-            <Box sx={{ overflow: 'hidden' }}>
-              <Typography variant="subtitle1" noWrap title={title}>
-                {title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" noWrap>
-                {subtitle}
-              </Typography>
-            </Box>
-          </Box>
-
-          <CardContent sx={{ flexGrow: 1 }}>
-            {isComment && (
-              <Typography variant="body2" sx={{
-                display: '-webkit-box',
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden'
-              }}>
-                "{item.content}"
-              </Typography>
-            )}
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-              Submitted: {new Date(item.createdAt).toLocaleDateString()}
-            </Typography>
-          </CardContent>
-
-          <CardActions sx={{ justifyContent: 'space-between', p: 2, pt: 0 }}>
-            <Button
-              size="small"
-              color="success"
-              startIcon={<ApproveIcon />}
-              onClick={() => handleAction(item._id, 'approve')}
-            >
-              Approve
-            </Button>
-            <Box>
-              <IconButton
-                size="small"
-                color="warning"
-                title="Reject"
-                onClick={() => openRejectDialog(item)}
-              >
-                <RejectIcon />
-              </IconButton>
-              <IconButton
-                size="small"
-                color="error"
-                title="Delete"
-                onClick={() => handleAction(item._id, 'delete')}
-              >
-                <DeleteIcon />
-              </IconButton>
-              {tabConfigs[activeTab].type === 'songs' && (
-                <IconButton
-                  size="small"
-                  color="info"
-                  title="Edit Song"
-                  onClick={() => navigate(`/admin/songs/${item._id}`)}
-                >
-                  <EditIcon />
-                </IconButton>
+      <motion.div
+        layout
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        className={cardClass}
+        key={item._id}
+      >
+        <div className="p-5 border-b border-white/5 bg-zinc-800/30">
+          <div className="flex items-center gap-4">
+            <div className={`relative flex-shrink-0 w-14 h-14 rounded overflow-hidden bg-zinc-950 border border-white/10 ${isComment ? 'rounded-full' : ''}`}>
+              {(image || item.author?.profilePicture) ? (
+                <img
+                  src={isComment ? item.author?.profilePicture : image}
+                  alt={title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-zinc-800">
+                  <PlayIcon className="w-6 h-6" />
+                </div>
               )}
-            </Box>
-          </CardActions>
-        </Card>
-      </Grid>
+            </div>
+            <div className="min-w-0">
+               <h3 className="text-sm font-black text-white uppercase italic tracking-tight truncate">{title}</h3>
+               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest truncate mt-0.5">{subtitle}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 flex-grow space-y-4">
+          {isComment && (
+            <div className="bg-zinc-950 border border-white/5 p-3 rounded italic">
+               <p className="text-[11px] text-zinc-400 font-bold uppercase leading-relaxed">
+                 "{item.content}"
+               </p>
+            </div>
+          )}
+          
+          <div className="flex items-center justify-between">
+             <div className="flex items-center gap-2 text-zinc-600">
+                <Clock className="w-3 h-3" />
+                <span className="text-[9px] font-black uppercase tracking-widest italic">{new Date(item.createdAt).toLocaleDateString()}</span>
+             </div>
+             {item.isFlagged && (
+               <span className="px-2 py-0.5 bg-rose-500/10 text-rose-500 text-[9px] font-black uppercase tracking-widest border border-rose-500/20 italic rounded">
+                 FLAGGED
+               </span>
+             )}
+          </div>
+        </div>
+
+        <div className="p-5 pt-0 mt-auto grid grid-cols-3 gap-2">
+          <button
+            onClick={() => handleAction(item._id, 'approve')}
+            className="py-3 bg-emerald-500 text-black text-[9px] font-black uppercase tracking-widest rounded hover:bg-emerald-400 transition-all italic flex items-center justify-center gap-1.5 shadow-lg"
+          >
+            <Check className="w-3 h-3" />
+            Approve
+          </button>
+          <button
+            onClick={() => openRejectDialog(item)}
+            className="py-3 bg-zinc-800 text-amber-500 text-[9px] font-black uppercase tracking-widest rounded border border-white/5 hover:bg-zinc-700 transition-all italic flex items-center justify-center gap-1.5"
+          >
+            <RejectIcon className="w-3 h-3" />
+            Reject
+          </button>
+          <button
+            onClick={() => handleAction(item._id, 'delete')}
+            className="py-3 bg-zinc-800 text-rose-500 text-[9px] font-black uppercase tracking-widest rounded border border-white/5 hover:bg-zinc-700 transition-all italic flex items-center justify-center gap-1.5"
+          >
+            <DeleteIcon className="w-3 h-3" />
+            Purge
+          </button>
+        </div>
+      </motion.div>
     );
   };
 
-  return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
-        Content Moderation
-      </Typography>
-      <Typography variant="body1" color="text.secondary" gutterBottom>
-        Review and manage pending uploads and flagged content across the platform.
-      </Typography>
+  if (loading && items.length === 0) {
+    return <Preloader isVisible={true} text="Verifying integrity..." />;
+  }
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, mt: 4 }}>
-        <Tabs value={activeTab} onChange={handleTabChange} aria-label="moderation tabs">
-          {tabConfigs.map((tab, index) => (
-            <Tab key={index} label={tab.label} />
-          ))}
-        </Tabs>
-      </Box>
+  return (
+    <div className="max-w-6xl mx-auto pb-24 px-6 space-y-8">
+      {/* Header */}
+      <div>
+         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Operational Moderation</p>
+         <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">
+           Content Integrity
+         </h1>
+         <p className="text-xs text-zinc-500 mt-1 uppercase font-bold tracking-widest">
+           Review and sanitize pending transmissions across the grid.
+         </p>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex bg-zinc-900 border border-white/5 p-1.5 rounded-lg w-full max-w-2xl">
+        {tabConfigs.map((tab, index) => (
+          <button
+            key={index}
+            onClick={() => handleTabChange(index)}
+            className={`flex-1 py-3 px-4 text-[10px] font-black uppercase tracking-widest rounded transition-all italic flex items-center justify-center gap-2 ${
+              activeTab === index 
+                ? 'bg-emerald-500 text-black shadow-lg' 
+                : 'text-zinc-500 hover:text-white'
+            }`}
+          >
+            <tab.icon className="w-3.5 h-3.5" />
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 p-4 rounded text-xs font-black uppercase tracking-widest italic mb-6">
+          SCAN ERROR: {error}
+        </div>
       )}
 
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
-          <CircularProgress />
-        </Box>
+      {items.length === 0 ? (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className={`${cardClass} py-24 text-center border-dashed`}
+        >
+          <div className="w-16 h-16 rounded bg-zinc-950 border border-white/10 flex items-center justify-center mx-auto mb-6">
+            <Check className="w-8 h-8 text-emerald-500" />
+          </div>
+          <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest italic">INTEGRITY CHECK COMPLETE. NO PENDING UNITS IN THIS FREQUENCY.</p>
+        </motion.div>
       ) : (
-        <>
-          {items.length === 0 ? (
-            <Box sx={{ textAlign: 'center', p: 5, bgcolor: 'background.paper', borderRadius: 2 }}>
-              <Typography variant="h6" color="text.secondary">
-                No pending {tabConfigs[activeTab].label.toLowerCase()} to review.
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                You're all caught up!
-              </Typography>
-            </Box>
-          ) : (
-            <>
-              <Grid container spacing={3}>
-                {items.map(renderItemCard)}
-              </Grid>
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatePresence mode="popLayout">
+              {items.map(renderItemCard)}
+            </AnimatePresence>
+          </div>
 
-              {totalPages > 1 && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                  <Pagination
-                    count={totalPages}
-                    page={page}
-                    onChange={(_e, v) => setPage(v)}
-                    color="primary"
-                  />
-                </Box>
-              )}
-            </>
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 pt-8">
+               {Array.from({ length: totalPages }).map((_, i) => (
+                 <button
+                   key={i}
+                   onClick={() => setPage(i + 1)}
+                   className={`w-10 h-10 rounded text-[10px] font-black uppercase italic border transition-all ${
+                     page === i + 1 
+                       ? 'bg-emerald-500 text-black border-emerald-500' 
+                       : 'bg-zinc-900 text-zinc-500 border-white/5 hover:border-white/10 hover:text-white'
+                   }`}
+                 >
+                   {i + 1}
+                 </button>
+               ))}
+            </div>
           )}
-        </>
+        </div>
       )}
 
       {/* Reject Dialog */}
-      <Dialog open={rejectDialogOpen} onClose={() => setRejectDialogOpen(false)}>
-        <DialogTitle>Reject Content</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Please provide a reason for rejecting this {tabConfigs[activeTab].label.slice(0, -1).toLowerCase()}.
-            This will keep the item in the database as rejected.
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Rejection Reason (Optional)"
-            type="text"
-            fullWidth
-            variant="outlined"
-            multiline
-            rows={3}
-            value={rejectReason}
-            onChange={(e) => setRejectReason(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setRejectDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleRejectConfirm} color="warning" variant="contained">
-            Reject
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <AnimatePresence>
+        {rejectDialogOpen && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-zinc-900 border border-white/10 rounded-lg shadow-2xl w-full max-w-md overflow-hidden"
+            >
+              <div className="p-8 space-y-6">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500 mb-1 italic">Rejection Protocol</p>
+                  <h2 className="text-xl font-black text-white uppercase italic tracking-tighter">Enter Reason</h2>
+                </div>
+                
+                <textarea
+                  autoFocus
+                  placeholder="SPECIFY VIOLATION OR ERROR..."
+                  className="w-full bg-zinc-950 border border-white/10 rounded px-4 py-3 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:border-amber-500/50 transition-all font-bold italic uppercase tracking-tight h-32 resize-none"
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                />
 
-      {/* Snackbar Notification */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-    </Box>
+                <div className="flex justify-end gap-4 pt-2">
+                  <button
+                    onClick={() => setRejectDialogOpen(false)}
+                    className="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest italic hover:text-white transition-colors"
+                  >
+                    Abort
+                  </button>
+                  <button
+                    onClick={handleRejectConfirm}
+                    className="px-8 py-3 bg-amber-500 text-black text-[10px] font-black uppercase tracking-widest rounded hover:bg-amber-400 transition-all shadow-xl italic"
+                  >
+                    Confirm Rejection
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

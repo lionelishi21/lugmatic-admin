@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { searchService } from '../../services/searchService';
 import genreService, { Genre } from '../../services/genreService';
 
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 
 type Tab = 'all' | 'tracks' | 'artists' | 'podcasts';
 type SortBy = 'relevance' | 'popular' | 'newest';
@@ -430,7 +430,7 @@ export default function Search() {
                 {/* Tracks Result Block */}
                 {showTracks && (
                   <div className={`${card} overflow-hidden shadow-xl`}>
-                    <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
                       <h3 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest flex items-center gap-3 italic">
                         <Music2 className="h-4 w-4 text-emerald-500" /> Primary Audio Syncs
                       </h3>
@@ -474,7 +474,7 @@ export default function Search() {
                 {/* Artists Result Block */}
                 {showArtists && (
                   <div className={`${card} overflow-hidden shadow-xl`}>
-                    <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
                       <h3 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest flex items-center gap-3 italic">
                         <Mic2 className="h-4 w-4 text-emerald-500" /> Active Entities
                       </h3>
@@ -516,7 +516,7 @@ export default function Search() {
                 {/* Podcasts Result Block */}
                 {showPodcasts && (
                   <div className={`${card} overflow-hidden shadow-xl`}>
-                    <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
                       <h3 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest flex items-center gap-3 italic">
                         <BookOpen className="h-4 w-4 text-emerald-500" /> Broadcast Signals
                       </h3>

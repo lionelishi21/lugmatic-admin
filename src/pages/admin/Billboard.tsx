@@ -227,6 +227,3 @@ const Billboard: React.FC = () => {
 };
 
 export default Billboard;
-
-
-export default Billboard;

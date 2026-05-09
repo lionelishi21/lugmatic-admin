@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AlertTriangle, Trash2, X } from 'lucide-react';
 
 interface ConfirmDialogProps {
     isOpen: boolean;
@@ -16,8 +17,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     isOpen,
     title,
     message,
-    confirmLabel = 'Confirm',
-    cancelLabel = 'Cancel',
+    confirmLabel = 'CONFIRM_ACTION',
+    cancelLabel = 'ABORT_PROTOCOL',
     onConfirm,
     onCancel,
     isDestructive = true,
@@ -25,40 +26,53 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onCancel}>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={onCancel}>
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        className="w-full max-w-sm mx-4 rounded-2xl bg-white shadow-2xl p-6"
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        className="w-full max-w-sm bg-zinc-900 border border-white/10 rounded-lg shadow-2xl overflow-hidden relative"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 ${isDestructive ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500'}`}>
-                            {isDestructive ? (
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                            ) : (
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                            )}
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-900 text-center mb-1">{title}</h3>
-                        <p className="text-sm text-gray-500 text-center mb-6">{message}</p>
-                        <div className="flex items-center gap-3">
-                            <button
-                                type="button"
-                                onClick={onCancel}
-                                className="flex-1 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-                            >
-                                {cancelLabel}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={onConfirm}
-                                className={`flex-1 py-2.5 text-sm font-medium text-white rounded-xl transition-colors shadow-sm ${isDestructive ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 blur-[60px] rounded-full pointer-events-none" />
+                        
+                        <div className="px-8 py-8 text-center relative">
+                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 border ${
+                                isDestructive 
+                                    ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' 
+                                    : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+                            }`}>
+                                {isDestructive ? <Trash2 size={28} /> : <AlertTriangle size={28} />}
+                            </div>
+                            
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-2 italic">Security Authorization Required</p>
+                            <h3 className="text-xl font-black text-white uppercase italic tracking-tighter mb-2">{title}</h3>
+                            <p className="text-[11px] text-zinc-600 font-bold uppercase tracking-widest leading-relaxed italic mb-8 px-4">{message}</p>
+                            
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    type="button"
+                                    onClick={onConfirm}
+                                    className={`w-full py-4 text-[10px] font-black uppercase tracking-widest rounded transition-all italic shadow-xl ${
+                                        isDestructive 
+                                            ? 'bg-rose-600 text-white hover:bg-rose-500 shadow-rose-900/20' 
+                                            : 'bg-emerald-500 text-black hover:bg-emerald-400 shadow-emerald-900/20'
                                     }`}
-                            >
-                                {confirmLabel}
-                            </button>
+                                >
+                                    {confirmLabel}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={onCancel}
+                                    className="w-full py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest italic hover:text-white transition-colors"
+                                >
+                                    {cancelLabel}
+                                </button>
+                            </div>
                         </div>
+
+                        {/* HUD Decoration */}
+                        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                     </motion.div>
                 </div>
             )}

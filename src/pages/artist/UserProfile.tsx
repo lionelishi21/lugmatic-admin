@@ -31,7 +31,7 @@ import { refreshUser } from '../../store/slices/authSlice';
 import artistService, { Artist } from '../../services/artistService';
 import songService from '../../services/songService';
 
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 
 export default function UserProfile() {
   const dispatch = useDispatch<AppDispatch>();
@@ -287,7 +287,7 @@ export default function UserProfile() {
             >
               {activeTab === 'basic' && (
                 <>
-                  <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+                  <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white italic">Primary Signature</span>
                   </div>
                   <div className="p-6 space-y-6">
@@ -340,7 +340,7 @@ export default function UserProfile() {
 
               {activeTab === 'social' && (
                 <>
-                  <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+                  <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white italic">Signal Relays</span>
                   </div>
                   <div className="p-6">
@@ -375,7 +375,7 @@ export default function UserProfile() {
 
               {activeTab === 'contact' && (
                 <>
-                  <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+                  <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white italic">Inbound / Coordinates</span>
                   </div>
                   <div className="p-6 space-y-8">
@@ -445,7 +445,7 @@ export default function UserProfile() {
 
               {activeTab === 'media' && (
                 <>
-                  <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+                  <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white italic">System Logic</span>
                   </div>
                   <div className="p-6 space-y-10">
@@ -615,7 +615,7 @@ export default function UserProfile() {
 
               {activeTab === 'verification' && (
                 <>
-                  <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+                  <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white italic">Authority Verification</span>
                   </div>
                   <div className="p-6 space-y-8">

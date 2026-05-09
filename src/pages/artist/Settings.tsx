@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   Lock, Eye, EyeOff, Bell, Trash2, AlertTriangle,
-  Loader2, Check, CreditCard, Mail, Wallet, ShieldLock,
+  Loader2, Check, CreditCard, Mail, Wallet, ShieldCheck,
   Smartphone, Activity, Target, ShieldAlert, Settings as SettingsIcon,
   ChevronRight
 } from 'lucide-react';
@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
 
 // ── Shared primitives ─────────────────────────────────────────────
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 const labelCls = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic';
 const inputCls = 'w-full px-5 py-3.5 bg-zinc-950 border border-white/[0.08] rounded-xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-700 italic tracking-widest';
 
@@ -192,7 +192,7 @@ export default function Settings() {
       </div>
 
       {/* ── Account Security ── */}
-      <Section title="Security Intelligence" icon={ShieldLock}>
+      <Section title="Security Intelligence" icon={ShieldCheck}>
         <form onSubmit={handlePasswordChange} className="space-y-8">
           <Field label="Current Authentication Key">
             <div className="relative group">

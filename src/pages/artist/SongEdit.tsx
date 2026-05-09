@@ -15,7 +15,7 @@ import FileUpload from '../../components/ui/FileUpload';
 import Preloader from '../../components/ui/Preloader';
 
 // ── Shared primitives ─────────────────────────────────────────────
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic';
 const inputClass = 'w-full px-5 py-4 bg-zinc-950 border border-white/[0.08] rounded-xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-700 italic tracking-widest';
 

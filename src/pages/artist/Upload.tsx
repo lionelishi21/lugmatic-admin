@@ -33,9 +33,9 @@ import artistService, { Artist } from '../../services/artistService';
 import { useAuth } from '../../hooks/useAuth';
 
 // ── Shared primitives ─────────────────────────────────────────────
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic';
-const inputClass = 'w-full px-5 py-3.5 bg-zinc-950 border border-white/[0.08] rounded-xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-700 italic tracking-widest';
+const inputClass = 'w-full px-5 py-4 bg-zinc-950 border border-white/[0.08] rounded-xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-700 italic tracking-widest';
 
 interface Contributor {
   name: string;
@@ -398,12 +398,12 @@ export default function Upload() {
           </div>
         </div>
 
-        <div className="flex items-start gap-5 p-6 bg-zinc-950 border border-white/[0.04] rounded-2xl max-w-md relative z-10 group-hover:border-emerald-500/20 transition-all">
-          <div className="w-10 h-10 bg-zinc-900 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner">
+        <div className="flex items-start gap-5 p-6 bg-zinc-950 border border-white/[0.04] rounded-2xl max-w-md relative z-10 group-hover:border-emerald-500/20 transition-all shadow-inner">
+          <div className="w-10 h-10 bg-zinc-900 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner border border-white/[0.02]">
              <ShieldCheck className="h-5 w-5 text-emerald-500" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest italic mb-1">Registry Audit</p>
+            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest italic mb-1.5">Registry Audit</p>
             <p className="text-[10px] text-zinc-600 font-black uppercase tracking-widest leading-relaxed italic">
               Transmissions undergo tactical review. Ensure high-fidelity assets for priority deployment.
             </p>

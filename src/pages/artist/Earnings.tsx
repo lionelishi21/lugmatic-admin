@@ -29,8 +29,8 @@ interface EarningsData {
 }
 
 // ── Shared primitives ─────────────────────────────────────────────
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
-const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1.5 italic';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
+const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1.5 italic';
 
 export default function Earnings() {
   const [stats, setStats] = useState<EarningsStats>({
@@ -166,7 +166,7 @@ export default function Earnings() {
           </div>
           <button
             onClick={downloadReport}
-            className="flex items-center gap-3 px-6 h-12 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-xl shadow-zinc-950/20"
+            className="flex items-center gap-3 px-6 h-12 bg-white text-zinc-900 text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-xl shadow-zinc-950/20"
           >
             <Download className="h-4 w-4" />
             Export Ledger
@@ -207,22 +207,22 @@ export default function Earnings() {
       {/* ── Operational Ledger ── */}
       <div className={`${card} overflow-hidden`}>
         {/* Filter bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-8 py-6 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-zinc-950/20 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-8 py-6 border-b border-white/[0.06] bg-zinc-950/40 gap-4">
           <div className="flex items-center gap-4">
              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                 <History className="h-4 w-4 text-emerald-500" />
              </div>
              <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Operational Ledger</h2>
           </div>
-          <div className="flex bg-zinc-100 dark:bg-zinc-950 rounded-xl p-1 gap-1 border border-white/[0.04]">
+          <div className="flex bg-zinc-950 rounded-xl p-1 gap-1 border border-white/[0.04]">
             {(['all', 'pending', 'paid'] as const).map(s => (
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
                 className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all italic ${
                   statusFilter === s
-                    ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xl'
-                    : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-white/5'
+                    ? 'bg-zinc-800 text-white shadow-xl'
+                    : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
                 }`}
               >
                 {s}
@@ -242,7 +242,7 @@ export default function Earnings() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-32 text-center px-10 bg-zinc-950/20">
-              <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-950 rounded-3xl flex items-center justify-center mb-6 border border-zinc-200 dark:border-white/5 shadow-inner">
+              <div className="w-20 h-20 bg-zinc-950 rounded-3xl flex items-center justify-center mb-6 border border-white/5 shadow-inner">
                 <DollarSign className="h-10 w-10 text-zinc-600" />
               </div>
               <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Zero Fiscal Records</h4>

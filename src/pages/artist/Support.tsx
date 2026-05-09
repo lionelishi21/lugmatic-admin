@@ -19,7 +19,7 @@ import {
 import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
 
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 
 export default function Support() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,7 +80,7 @@ export default function Support() {
 
           {/* FAQ Card */}
           <div className={`${card} overflow-hidden`}>
-            <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center border border-blue-500/20">
                    <BookOpen className="h-4 w-4 text-blue-500" />
@@ -123,7 +123,7 @@ export default function Support() {
 
           {/* Submit a Request Card */}
           <div className={card}>
-            <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center border border-zinc-200 dark:border-white/5">
                    <MessageCircle className="h-4 w-4 text-zinc-400" />

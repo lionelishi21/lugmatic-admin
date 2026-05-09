@@ -12,7 +12,7 @@ import { podcastService } from '../../services/podcastService';
 import type { Podcast, CreatePodcastRequest } from '../../types';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
-const card = 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-lg';
+const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 
 function formatDuration(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -200,7 +200,7 @@ export default function Podcasts() {
 
       {/* Main Content Card */}
       <div className={`${card} overflow-hidden`}>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
           {/* Tabs */}
           <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl p-1 shadow-inner border border-zinc-200 dark:border-white/5">
             {tabs.map(t => (
@@ -440,7 +440,7 @@ export default function Podcasts() {
               transition={{ type: 'spring', duration: 0.4 }}
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-8 py-6 border-b border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-white/[0.01]">
+              <div className="flex items-center justify-between px-8 py-6 border-b border-white/[0.06] bg-zinc-50/50 dark:bg-white/[0.01]">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
                     <Mic className="h-6 w-6 text-white" />
@@ -525,7 +525,7 @@ export default function Podcasts() {
               </div>
 
               {/* Modal Footer */}
-              <div className="flex items-center justify-end gap-4 px-8 py-6 border-t border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-white/[0.01]">
+              <div className="flex items-center justify-end gap-4 px-8 py-6 border-t border-white/[0.06] bg-zinc-50/50 dark:bg-white/[0.01]">
                 <button
                   onClick={() => { setOpen(false); resetForm(); }}
                   className="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-all"
