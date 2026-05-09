@@ -195,8 +195,8 @@ export default function Upload() {
       setIsSearching(true);
       setActiveSearchIndex(index);
       const { userService } = await import('../../services/userService');
-      const response = await (userService as any).searchUsers(query);
-      setSearchResults(response.data);
+      const response = await userService.searchUsers(query);
+      setSearchResults(response.data.data);
     } catch (error) {
       console.error('Search failed:', error);
     } finally {
@@ -228,7 +228,7 @@ export default function Upload() {
     try {
       setIsSearching(true);
       const { userService } = await import('../../services/userService');
-      await (userService as any).sendContributorInvitation(email);
+      await userService.sendContributorInvitation(email);
       toast.success(`Broadast invitation sent to ${email}`);
       setSearchResults([]);
       setActiveSearchIndex(null);
@@ -252,8 +252,8 @@ export default function Upload() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user || (!user.id && !user.artistId)) {
-      toast.error('Identity required for broadcast.');
+    if (!user || (!user.id && !user._id && !user.artistId)) {
+      toast.error('Authentication required. Please log in again.');
       return;
     }
 
@@ -307,8 +307,8 @@ export default function Upload() {
     }
 
     const totalShare = contributors.reduce((sum, c) => sum + Number(c.share), 0);
-    if (totalShare !== 100) {
-      toast.error(`Share protocol mismatch. Current: ${totalShare}%, Required: 100%`);
+    if (Math.abs(totalShare - 100) > 0.01) {
+      toast.error(`Total shares must equal 100%. Current: ${totalShare}%`);
       return;
     }
 
@@ -326,8 +326,8 @@ export default function Upload() {
 
       let videoFileKey = '';
       if (videoFile) {
-        const videoRes = await songService.getPresignedUrl('profile-image' as any, videoFile.name, videoFile.type); 
-        toast.loading('Syncing Video Component...', { id: 'upload' });
+        const videoRes = await songService.getPresignedUrl('profile-image', videoFile.name, videoFile.type); 
+        toast.loading('Uploading Video...', { id: 'upload' });
         await songService.uploadToS3(videoRes.uploadUrl, videoFile, videoFile.type);
         videoFileKey = videoRes.key;
       }
@@ -392,9 +392,9 @@ export default function Upload() {
             <UploadIcon className="w-7 h-7 text-emerald-500 relative z-10" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Asset Ingestion v2.1</p>
-            <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">Deploy Track <span className="text-zinc-600">/</span> Broadcast</h1>
-            <p className="text-sm text-zinc-500 mt-1 font-medium italic">Initiate sonic transmission to the global network.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Music Upload</p>
+            <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">Upload Track</h1>
+            <p className="text-sm text-zinc-500 mt-1 font-medium italic">Share your music with the world.</p>
           </div>
         </div>
 
@@ -482,7 +482,7 @@ export default function Upload() {
                 <div className="w-8 h-8 bg-zinc-950 rounded-lg flex items-center justify-center border border-white/[0.04]">
                     <FileAudio className="h-4 w-4 text-emerald-500" />
                 </div>
-                <h3 className="text-[10px] font-black text-white uppercase tracking-widest italic">Sonic Sequence</h3>
+                <h3 className="text-[10px] font-black text-white uppercase tracking-widest italic">Audio File</h3>
             </div>
             <div
               className={`relative rounded-2xl border-2 border-dashed transition-all duration-500 cursor-pointer p-6 shadow-inner
@@ -633,8 +633,8 @@ export default function Upload() {
                  <Sparkles className="h-6 w-6 text-emerald-500 relative z-10" />
               </div>
               <div>
-                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-1.5 italic">Deployment Matrix</p>
-                 <h2 className="text-xl font-black text-white uppercase tracking-widest italic">Track Parameters</h2>
+                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-1.5 italic">Track Details</p>
+                 <h2 className="text-xl font-black text-white uppercase tracking-widest italic">Metadata</h2>
               </div>
             </div>
 
@@ -665,7 +665,7 @@ export default function Upload() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-3">
-                  <label className={labelClass}>Operational Title <span className="text-emerald-500">*</span></label>
+                  <label className={labelClass}>Track Title <span className="text-emerald-500">*</span></label>
                   <div className="relative group">
                      <input
                         type="text"
@@ -673,7 +673,7 @@ export default function Upload() {
                         value={form.title}
                         onChange={handleFormChange}
                         className={inputClass}
-                        placeholder="E.G. SONIC PROTOCOL 01"
+                        placeholder="ENTER TRACK TITLE..."
                         required
                       />
                       <Target className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-800 transition-colors group-focus-within:text-emerald-500" />

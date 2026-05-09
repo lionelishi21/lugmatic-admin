@@ -80,15 +80,15 @@ export default function ArtistDashboard() {
   const statCards = [
     {
       icon: Music2,
-      label: 'Asset Inventory',
+      label: 'Tracks',
       value: stats?.totalTracks ?? 0,
       iconCls: 'text-indigo-400',
       iconBg: 'bg-indigo-500/10',
-      trend: 'Registry',
+      trend: 'Total',
     },
     {
       icon: Headphones,
-      label: 'Signal Reach',
+      label: 'Monthly Listeners',
       value: (stats?.monthlyListeners ?? 0).toLocaleString(),
       iconCls: 'text-emerald-400',
       iconBg: 'bg-emerald-500/10',
@@ -96,7 +96,7 @@ export default function ArtistDashboard() {
     },
     {
       icon: DollarSign,
-      label: 'Fiscal Yield',
+      label: 'Total Earnings',
       value: `$${(earnings?.totalEarnings ?? 0).toLocaleString()}`,
       iconCls: 'text-amber-400',
       iconBg: 'bg-amber-500/10',
@@ -104,7 +104,7 @@ export default function ArtistDashboard() {
     },
     {
       icon: Users,
-      label: 'Network Nodes',
+      label: 'Followers',
       value: (stats?.socialMediaFollowers ?? 0).toLocaleString(),
       iconCls: 'text-rose-400',
       iconBg: 'bg-rose-500/10',
@@ -141,14 +141,14 @@ export default function ArtistDashboard() {
               className="h-14 px-8 bg-white text-zinc-900 rounded-xl text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl shadow-zinc-950/20 flex items-center justify-center gap-4 group/btn"
             >
               <UploadIcon className="h-4.5 w-4.5 group-hover:-translate-y-1 transition-transform" />
-              Upload Source
+              Upload Track
             </button>
             <button
               onClick={() => navigate('/artist/live')}
               className="h-14 px-8 bg-emerald-500 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-emerald-600 hover:scale-105 transition-all shadow-2xl shadow-emerald-500/30 flex items-center justify-center gap-4 group/btn"
             >
               <Radio className="h-4.5 w-4.5 animate-pulse" />
-              Initialize Live
+              Go Live
             </button>
           </div>
         </div>
@@ -194,13 +194,13 @@ export default function ArtistDashboard() {
               <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                  <Music2 className="h-4 w-4 text-emerald-500" />
               </div>
-              <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Source Registry</h2>
+              <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Recent Tracks</h2>
             </div>
             <button
               onClick={() => navigate('/artist/songs')}
               className="text-[10px] font-black text-emerald-500 hover:text-emerald-600 uppercase tracking-widest transition-all flex items-center gap-2 group"
             >
-              Master List
+              View All Tracks
               <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
@@ -240,7 +240,7 @@ export default function ArtistDashboard() {
                           <Activity className="h-3 w-3" />
                           {(track.playCount ?? track.plays ?? 0).toLocaleString()}
                         </p>
-                        <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest italic">Transmissions</span>
+                        <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest italic">Plays</span>
                       </div>
                     </div>
                   </div>
@@ -252,7 +252,7 @@ export default function ArtistDashboard() {
                            ? 'bg-emerald-500/5 text-emerald-500 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]' 
                            : 'bg-amber-500/5 text-amber-500 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]'
                        }`}>
-                         {track.status || 'Pending Signal'}
+                         {track.status || 'Pending'}
                        </span>
                     </div>
                     <button
@@ -269,8 +269,8 @@ export default function ArtistDashboard() {
                 <div className="w-20 h-20 bg-zinc-950 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-white/5 shadow-2xl group cursor-default">
                   <Music2 className="h-10 w-10 text-zinc-700 group-hover:text-emerald-500 transition-colors" />
                 </div>
-                <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Inventory Depleted</h4>
-                <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest font-black opacity-60">Upload core assets to initialize registry.</p>
+                <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">No Tracks Found</h4>
+                <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest font-black opacity-60">Upload your music to get started.</p>
               </div>
             )}
           </div>
@@ -283,13 +283,13 @@ export default function ArtistDashboard() {
               <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
                  <Activity className="h-4 w-4 text-indigo-500" />
               </div>
-              <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Operational Log</h2>
+              <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Recent Activity</h2>
             </div>
             <button
               onClick={() => navigate('/artist/earnings')}
               className="text-[10px] font-black text-emerald-500 hover:text-emerald-600 uppercase tracking-widest transition-all flex items-center gap-2 group"
             >
-              Audit Ledger
+              Earnings History
               <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
@@ -329,7 +329,7 @@ export default function ArtistDashboard() {
                          {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
                        </p>
                        <div className="w-1 h-1 rounded-full bg-zinc-800 shadow-[0_0_8px_rgba(255,255,255,0.1)]" />
-                       <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500 animate-pulse italic">Telemetry Live</span>
+                       <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500 animate-pulse italic">Processed</span>
                     </div>
                   </div>
                   <div className="text-right relative z-10">
@@ -344,8 +344,8 @@ export default function ArtistDashboard() {
                 <div className="w-20 h-20 bg-zinc-950 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-white/5 shadow-2xl group cursor-default">
                   <Zap className="h-10 w-10 text-zinc-700 group-hover:text-emerald-500 transition-colors" />
                 </div>
-                <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Zero Activity Detected</h4>
-                <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest font-black opacity-60">Deployment metrics will emerge upon fiscal events.</p>
+                <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">No Activity Yet</h4>
+                <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest font-black opacity-60">Your earnings and activity will appear here.</p>
               </div>
             )}
           </div>
@@ -363,10 +363,10 @@ export default function ArtistDashboard() {
                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
                       <Layers className="h-4 w-4 text-purple-500" />
                    </div>
-                   <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Entity Collaborations</h2>
+                   <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Collaborations</h2>
                 </div>
                 <span className="text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-md bg-purple-500/10 text-purple-500 border border-purple-500/20">
-                  Split Protocol
+                  Splits
                 </span>
              </div>
           </div>
@@ -383,20 +383,20 @@ export default function ArtistDashboard() {
                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                       <TrendingUp className="h-4 w-4 text-emerald-500" />
                    </div>
-                   <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Fiscal HUD</h2>
+                   <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Earnings Overview</h2>
                 </div>
                 <button
                   onClick={() => navigate('/artist/earnings')}
                   className="text-[10px] font-black text-emerald-500 hover:text-emerald-600 uppercase tracking-widest transition-all"
                 >
-                  Fiscal Ledger
+                  View Earnings
                 </button>
              </div>
           </div>
           <div className="p-8 grid grid-cols-2 gap-6">
             {[
-              { label: 'Cumulative Revenue', value: `$${(earnings?.totalEarnings ?? 0).toLocaleString()}`, dot: 'bg-emerald-500' },
-              { label: 'Active Period Yield', value: `$${(earnings?.monthlyEarnings ?? 0).toLocaleString()}`, dot: 'bg-indigo-500' },
+              { label: 'Total Revenue', value: `$${(earnings?.totalEarnings ?? 0).toLocaleString()}`, dot: 'bg-emerald-500' },
+              { label: 'Monthly Earnings', value: `$${(earnings?.monthlyEarnings ?? 0).toLocaleString()}`, dot: 'bg-indigo-500' },
             ].map(({ label, value, dot }) => (
               <div key={label} className="p-8 bg-zinc-950/50 rounded-2xl border border-white/[0.04] group hover:border-emerald-500/20 transition-all relative overflow-hidden shadow-inner">
                 <div className="absolute top-0 right-0 w-16 h-16 bg-white/[0.01] rounded-bl-full pointer-events-none" />

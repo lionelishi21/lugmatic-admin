@@ -209,5 +209,9 @@ export const userService = {
 
   sendContributorInvitation: async (email: string) => {
     return apiService.post<ApiResponse<void>>('/users/invitations/send', { email });
+  },
+
+  searchUsers: async (query: string) => {
+    return apiService.get<ApiResponse<User[]>>(`/users/search?q=${encodeURIComponent(query)}`);
   }
 };

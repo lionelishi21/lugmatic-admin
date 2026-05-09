@@ -83,14 +83,14 @@ interface UserProfile {
 }
 
 const PHASE_LABELS: Record<StreamPhase, string> = {
-  idle: 'System Ready',
-  creating: 'Initializing Uplink...',
-  getting_token: 'Syncing Security Tokens...',
-  connecting: 'Establishing Handshake...',
-  publishing: 'Syncing Audio/Video Arrays...',
-  live: 'LIVE BROADCAST',
-  ending: 'Deactivating Signal...',
-  error: 'Critical Failure',
+  idle: 'Ready',
+  creating: 'Starting...',
+  getting_token: 'Connecting...',
+  connecting: 'Connecting...',
+  publishing: 'Starting Media...',
+  live: 'LIVE',
+  ending: 'Ending Live...',
+  error: 'Error',
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -591,9 +591,9 @@ export default function Live() {
             <Radio className="h-7 w-7 text-white" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Uplink Command</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Live Dashboard</p>
             <h1 className="text-xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">Go Live <span className="text-zinc-600">/</span> Session</h1>
-            <p className="text-sm text-zinc-500 mt-1 font-medium italic">Initialize real-time broadcast and combat deployment.</p>
+            <p className="text-sm text-zinc-500 mt-1 font-medium italic">Start your live broadcast and connect with fans.</p>
           </div>
         </div>
         
@@ -663,7 +663,7 @@ export default function Live() {
               className="flex items-center gap-3 px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-emerald-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               <Zap className="h-4.5 w-4.5 fill-current" />
-              Initialize Uplink
+              Go Live
             </button>
           )}
         </div>
@@ -719,7 +719,7 @@ export default function Live() {
             className="mt-4 sm:mt-0 flex items-center gap-3 px-8 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest disabled:opacity-50 transition-all shadow-xl shadow-rose-500/20 hover:scale-105 active:scale-95"
           >
             {phase === 'ending' ? <Loader2 className="animate-spin h-4 w-4" /> : <X className="h-4 w-4" />}
-            Terminate Signal
+            End Live
           </button>
         </motion.div>
       )}

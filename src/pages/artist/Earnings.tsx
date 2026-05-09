@@ -90,7 +90,7 @@ export default function Earnings() {
 
   const STATS = [
     {
-      label: 'Monthly Yield',
+      label: 'Monthly Revenue',
       value: `$${stats.monthlyEarnings.toLocaleString()}`,
       icon: TrendingUp,
       iconCls: 'text-emerald-400',
@@ -99,16 +99,16 @@ export default function Earnings() {
       trendUp: true,
     },
     {
-      label: 'Stream Revenue',
+      label: 'Streaming',
       value: `$${stats.streamEarnings.toLocaleString()}`,
       icon: BarChart2,
       iconCls: 'text-indigo-400',
       iconBg:  'bg-indigo-500/10',
-      trend: 'Protocol',
+      trend: 'Revenue',
       trendUp: false,
     },
     {
-      label: 'Gift Inventory',
+      label: 'Gifts Received',
       value: `$${stats.giftEarnings.toLocaleString()}`,
       icon: Gift,
       iconCls: 'text-rose-400',
@@ -138,12 +138,12 @@ export default function Earnings() {
             <DollarSign className="h-8 w-8 text-white" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Fiscal Protocol v2.1</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Artist Earnings</p>
             <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">
               Financial Overview
             </h1>
             <p className="text-sm text-zinc-500 mt-1 font-medium">
-              Transparent telemetry and payout tracking for tactical revenue management.
+              Transparent tracking and payout history for your music revenue.
             </p>
           </div>
         </div>
@@ -169,7 +169,7 @@ export default function Earnings() {
             className="flex items-center gap-3 px-6 h-12 bg-white text-zinc-900 text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-xl shadow-zinc-950/20"
           >
             <Download className="h-4 w-4" />
-            Export Ledger
+            Export History
           </button>
         </div>
       </div>

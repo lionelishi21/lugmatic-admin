@@ -93,17 +93,10 @@ export default function Landing() {
   const showcaseVideoScale = useTransform(showcaseProgress, [0, 1], [1.0, shouldReduceMotion ? 1.0 : 1.4]);
   const showcaseVideoY = useTransform(showcaseProgress, [0, 1], ["0%", shouldReduceMotion ? "0%" : "10%"]);
 
-  const preloadVideo = useCallback((ref: React.RefObject<HTMLVideoElement | null>) => {
-    const v = ref.current;
-    if (v) {
-      v.pause();
-      v.currentTime = 0;
-    }
-  }, []);
-
-  useEffect(() => {
-    preloadVideo(showcaseVideoRef);
-  }, [preloadVideo]);
+  const showcaseProgress = useScroll({
+    target: showcaseContainerRef,
+    offset: ["start end", "end start"]
+  }).scrollYProgress;
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-green-500 selection:text-black overflow-x-hidden">
@@ -186,25 +179,18 @@ export default function Landing() {
         onMouseLeave={handleMouseLeave}
       >
         <div className="sticky top-0 h-screen w-full overflow-hidden">
-          {/* Background Video with Tilt */}
+          {/* 3D Grid Backdrop */}
           <motion.div 
             style={{ 
               rotateX, 
               rotateY,
-              scale: 1.05,
+              scale: 1.1,
               z: 0
             }}
             className="absolute inset-0 w-full h-full transform-gpu"
           >
-            <video
-              src="/lugmatic_3d1.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover scale-[1.02]"
-              style={{ filter: "brightness(0.6) saturate(1.2)" }}
-            />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/10 via-transparent to-transparent opacity-30" />
           </motion.div>
 
           {/* Dark Overlay with Tilt */}
@@ -360,19 +346,25 @@ export default function Landing() {
         style={{ height: "110vh", willChange: "transform" }}
       >
         <div className="sticky top-0 h-screen w-full overflow-hidden">
-          <motion.video
-            ref={showcaseVideoRef}
-            src="/lugmatic_3d2.mp4"
-            muted
-            playsInline
-            preload="auto"
-            className="absolute inset-0 w-full h-full object-cover"
+          {/* Expensive Glass showcase background */}
+          <motion.div
+            className="absolute inset-0 w-full h-full"
             style={{ 
-              filter: "brightness(0.5) saturate(1.3)",
               scale: showcaseVideoScale,
               y: showcaseVideoY
             }}
-          />
+          >
+            <div className="absolute inset-0 bg-zinc-950" />
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,rgba(16,185,129,0.15),transparent_70%)]" />
+            <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_120%,rgba(16,185,129,0.1),transparent_70%)]" />
+            
+            {/* Moving Light Rays */}
+            <motion.div 
+               animate={{ x: [-1000, 1000], opacity: [0, 0.5, 0] }}
+               transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+               className="absolute top-0 left-0 w-[500px] h-full bg-gradient-to-r from-transparent via-emerald-500/5 to-transparent skew-x-12"
+            />
+          </motion.div>
           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none" />
 
           {/* slide 1 */}
