@@ -82,46 +82,46 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
   };
 
   const adminNavItems: NavItemType[] = [
-    { path: '/admin', label: 'COMMAND_CENTER', icon: <BarChart2 className="h-5 w-5" /> },
-    { path: '/admin/home-page-management', label: 'INDEX_REDACTOR', icon: <LayoutGrid className="h-5 w-5" /> },
-    { path: '/admin/approvals', label: 'SIGNAL_AUDIT', icon: <Shield className="h-5 w-5" /> },
-    { path: '/admin/artist-approvals', label: 'ORIGIN_VETTING', icon: <UserCheck className="h-5 w-5" /> },
+    { path: '/admin', label: 'Dashboard', icon: <BarChart2 className="h-5 w-5" /> },
+    { path: '/admin/home-page-management', label: 'Home Management', icon: <LayoutGrid className="h-5 w-5" /> },
+    { path: '/admin/approvals', label: 'Song Approvals', icon: <Shield className="h-5 w-5" /> },
+    { path: '/admin/artist-approvals', label: 'Artist Approvals', icon: <UserCheck className="h-5 w-5" /> },
     {
       path: '/admin/artist-management',
-      label: 'ARTIST_CORES',
+      label: 'Artists',
       icon: <Music className="h-5 w-5" />,
       subItems: [
-        { path: '/admin/artist-management', label: 'ALL_NODES', icon: <UsersIcon className="h-4 w-4" /> },
-        { path: '/admin/artist-add', label: 'INITIALIZE_CORE', icon: <User className="h-4 w-4" /> },
-        { path: '/admin/artist-management/verified', label: 'VERIFIED_SIGNALS', icon: <Award className="h-4 w-4" /> }
+        { path: '/admin/artist-management', label: 'All Artists', icon: <UsersIcon className="h-4 w-4" /> },
+        { path: '/admin/artist-add', label: 'Add Artist', icon: <User className="h-4 w-4" /> },
+        { path: '/admin/artist-management/verified', label: 'Verified Artists', icon: <Award className="h-4 w-4" /> }
       ]
     },
-    { path: '/admin/user-management', label: 'IDENTITY_GRID', icon: <Users className="h-5 w-5" /> },
-    { path: '/admin/financial-management', label: 'CREDIT_LEDGER', icon: <DollarSign className="h-5 w-5" /> },
-    { path: '/admin/live-stream-management', label: 'LIVE_UPLINKS', icon: <Film className="h-5 w-5" /> },
-    { path: '/admin/clash-management', label: 'CLASH_PROTOCOLS', icon: <Swords className="h-5 w-5" /> },
+    { path: '/admin/user-management', label: 'Users', icon: <Users className="h-5 w-5" /> },
+    { path: '/admin/financial-management', label: 'Financials', icon: <DollarSign className="h-5 w-5" /> },
+    { path: '/admin/live-stream-management', label: 'Live Streams', icon: <Film className="h-5 w-5" /> },
+    { path: '/admin/clash-management', label: 'Clashes', icon: <Swords className="h-5 w-5" /> },
     {
       path: '/admin/content',
-      label: 'DATA_REPOSITORY',
+      label: 'Content',
       icon: <Disc className="h-5 w-5" />,
       subItems: [
-        { path: '/admin/album-management', label: 'REPOSITORIES', icon: <Music2 className="h-4 w-4" /> },
-        { path: '/admin/song-management', label: 'SIGNAL_UNITS', icon: <Music className="h-4 w-4" /> },
-        { path: '/admin/playlist-management', label: 'CURATED_SETS', icon: <ListMusic className="h-4 w-4" /> },
-        { path: '/admin/genre-management', label: 'FREQUENCY_TAGS', icon: <Tag className="h-4 w-4" /> }
+        { path: '/admin/album-management', label: 'Albums', icon: <Music2 className="h-4 w-4" /> },
+        { path: '/admin/song-management', label: 'Songs', icon: <Music className="h-4 w-4" /> },
+        { path: '/admin/playlist-management', label: 'Playlists', icon: <ListMusic className="h-4 w-4" /> },
+        { path: '/admin/genre-management', label: 'Genres', icon: <Tag className="h-4 w-4" /> }
       ]
     },
-    { path: '/admin/podcast-management', label: 'VOICE_LOGS', icon: <Podcast className="h-5 w-5" /> },
-    { path: '/admin/comment-management', label: 'FEEDBACK_STREAM', icon: <MessageSquare className="h-5 w-5" />, badge: '12' },
-    { path: '/admin/gift-management', label: 'CREDIT_TRANSFERS', icon: <Gift className="h-5 w-5" /> },
-    { path: '/admin/video-management', label: 'VISUAL_BUFFERS', icon: <VideoIcon className="h-5 w-5" /> },
-    { path: '/admin/notification-management', label: 'ALERT_PROPAGATION', icon: <Bell className="h-5 w-5" /> },
-    { path: '/admin/content-moderation', label: 'INTEGRITY_SCAN', icon: <AlertTriangle className="h-5 w-5" />, badge: '5' },
-    { path: '/admin/analytics', label: 'INTELLIGENCE_GRID', icon: <TrendingUp className="h-5 w-5" /> },
-    { path: '/admin/system-settings', label: 'CORE_SETTINGS', icon: <Cog className="h-5 w-5" /> },
-    { path: '/admin/promotions', label: 'SIGNAL_BOOST', icon: <Zap className="h-5 w-5" /> },
-    { path: '/admin/billboard', label: 'TOP_CHART_SYNC', icon: <Award className="h-5 w-5" /> },
-    { path: '/admin/reports', label: 'DATA_ARCHIVE', icon: <FileText className="h-5 w-5" /> }
+    { path: '/admin/podcast-management', label: 'Podcasts', icon: <Podcast className="h-5 w-5" /> },
+    { path: '/admin/comment-management', label: 'Comments', icon: <MessageSquare className="h-5 w-5" />, badge: '12' },
+    { path: '/admin/gift-management', label: 'Gifts', icon: <Gift className="h-5 w-5" /> },
+    { path: '/admin/video-management', label: 'Videos', icon: <VideoIcon className="h-5 w-5" /> },
+    { path: '/admin/notification-management', label: 'Notifications', icon: <Bell className="h-5 w-5" /> },
+    { path: '/admin/content-moderation', label: 'Moderation', icon: <AlertTriangle className="h-5 w-5" />, badge: '5' },
+    { path: '/admin/analytics', label: 'Analytics', icon: <TrendingUp className="h-5 w-5" /> },
+    { path: '/admin/system-settings', label: 'Settings', icon: <Cog className="h-5 w-5" /> },
+    { path: '/admin/promotions', label: 'Promotions', icon: <Zap className="h-5 w-5" /> },
+    { path: '/admin/billboard', label: 'Billboard', icon: <Award className="h-5 w-5" /> },
+    { path: '/admin/reports', label: 'Reports', icon: <FileText className="h-5 w-5" /> }
   ];
 
   const artistNavItems: NavItemType[] = [
