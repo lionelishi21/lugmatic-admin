@@ -1,439 +1,365 @@
-import React, { useState } from 'react';
-import { 
-  Shield, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  Bell, 
-  Mail, 
-  Trash2, 
-  AlertTriangle,
-  Loader2,
-  ChevronRight,
-  Settings as SettingsIcon,
-  Smartphone,
-  Wallet,
-  CreditCard,
-  Check
+import { useState, useEffect } from 'react';
+import {
+  Lock, Eye, EyeOff, Bell, Trash2, AlertTriangle,
+  Loader2, Check, CreditCard, Mail, Wallet,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
 
-export default function Settings() {
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
+// ── Reusable primitives ───────────────────────────────────────────
 
-  const [notifSettings, setNotifSettings] = useState({
+const inputCls =
+  'w-full px-3 py-2.5 bg-zinc-800 border border-white/[0.08] rounded text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-all';
+
+const labelCls =
+  'block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-1.5';
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className={labelCls}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={`relative h-5 w-9 flex-none rounded-full transition-colors ${
+        checked ? 'bg-emerald-500' : 'bg-zinc-700'
+      }`}
+    >
+      <span
+        className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+          checked ? 'translate-x-4' : 'translate-x-0'
+        }`}
+      />
+    </button>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-zinc-900 border border-white/[0.06] rounded-lg overflow-hidden">
+      <div className="px-6 py-4 border-b border-white/[0.06]">
+        <h2 className="text-sm font-semibold text-white">{title}</h2>
+      </div>
+      <div className="p-6">{children}</div>
+    </div>
+  );
+}
+
+function SaveBtn({
+  loading,
+  children,
+  variant = 'white',
+  ...props
+}: { loading: boolean; children: React.ReactNode; variant?: 'white' | 'emerald' } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      type="submit"
+      disabled={loading}
+      className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-semibold disabled:opacity-50 transition-colors ${
+        variant === 'emerald'
+          ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+          : 'bg-white text-zinc-900 hover:bg-zinc-100'
+      }`}
+      {...props}
+    >
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+      {children}
+    </button>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────
+
+export default function Settings() {
+  // ── Password ───────────────────────────────────────────────────
+  const [pw, setPw] = useState({ current: '', newPass: '', confirm: '' });
+  const [showPw, setShowPw] = useState({ current: false, newPass: false });
+  const [savingPw, setSavingPw] = useState(false);
+
+  // ── Payout ────────────────────────────────────────────────────
+  const [payout, setPayout] = useState({
+    method: 'bank_transfer' as 'bank_transfer' | 'paypal',
+    paypalEmail: '',
+    bankAccount: { bankName: '', accountHolder: '', accountNumber: '', routingNumber: '' },
+  });
+  const [savingPayout, setSavingPayout] = useState(false);
+
+  // ── Notifications ──────────────────────────────────────────────
+  const [notifs, setNotifs] = useState({
     emailTracks: true,
     emailGifts: true,
     pushLive: true,
-    pushMessages: true
+    pushMessages: true,
   });
-  
-  const [payoutData, setPayoutData] = useState({
-    method: 'bank_transfer',
-    paypalEmail: '',
-    bankAccount: {
-      accountNumber: '',
-      routingNumber: '',
-      accountHolder: '',
-      bankName: ''
-    }
-  });
-  const [isUpdatingPayout, setIsUpdatingPayout] = useState(false);
+  const [savingNotifs, setSavingNotifs] = useState(false);
+
+  // Load saved prefs on mount
+  useEffect(() => {
+    userService.getUserPreferences()
+      .then(res => {
+        const prefs = (res.data as any)?.data;
+        if (prefs?.notifications) setNotifs(p => ({ ...p, ...prefs.notifications }));
+        if (prefs?.payout)        setPayout(p => ({ ...p, ...prefs.payout }));
+      })
+      .catch(() => {});
+  }, []);
+
+  // ── Handlers ───────────────────────────────────────────────────
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error('New passwords do not match');
-      return;
-    }
-
-    setIsChangingPassword(true);
+    if (pw.newPass !== pw.confirm) { toast.error('Passwords do not match'); return; }
+    if (pw.newPass.length < 8)    { toast.error('Password must be at least 8 characters'); return; }
+    setSavingPw(true);
     try {
-      await userService.changePassword(passwordData.currentPassword, passwordData.newPassword);
-      toast.success('Password changed successfully');
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to change password');
-    } finally {
-      setIsChangingPassword(false);
-    }
+      await userService.changePassword(pw.current, pw.newPass);
+      toast.success('Password updated');
+      setPw({ current: '', newPass: '', confirm: '' });
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to change password');
+    } finally { setSavingPw(false); }
   };
 
-  const handlePayoutSubmit = async (e: React.FormEvent) => {
+  const handlePayoutSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsUpdatingPayout(true);
+    setSavingPayout(true);
     try {
-      await (userService as any).updatePayoutInfo(payoutData);
-      toast.success('Payout information updated successfully');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to update payout info');
-    } finally {
-      setIsUpdatingPayout(false);
+      await userService.updatePayoutInfo(payout);
+      toast.success('Payout settings saved');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to save payout settings');
+    } finally { setSavingPayout(false); }
+  };
+
+  const handleNotifSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingNotifs(true);
+    try {
+      await userService.updateUserPreferences({ notifications: notifs });
+      toast.success('Notification preferences saved');
+    } catch {
+      toast.error('Failed to save notification settings');
+    } finally { setSavingNotifs(false); }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm(
+      'Are you absolutely sure? This permanently deletes your account and all your content. This cannot be undone.'
+    )) return;
+    try {
+      await userService.requestAccountDeletion();
+      toast.success('Deletion requested — check your email to confirm.');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to request deletion');
     }
   };
 
-  const inputClass = "w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-sm";
-  const labelClass = "block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1";
+  // ── Render ─────────────────────────────────────────────────────
+
+  const NOTIF_ROWS: { key: keyof typeof notifs; label: string; desc: string; tag: string }[] = [
+    { key: 'emailTracks', label: 'Track approvals',    desc: 'Email when your tracks are reviewed',  tag: 'Email' },
+    { key: 'emailGifts',  label: 'Gift alerts',        desc: 'Email when fans send you gifts',        tag: 'Email' },
+    { key: 'pushLive',    label: 'Live & clash events', desc: 'Push when a clash or stream starts',   tag: 'Push'  },
+    { key: 'pushMessages',label: 'New messages',       desc: 'Push when fans message you',            tag: 'Push'  },
+  ];
 
   return (
-    <div className="max-w-4xl mx-auto pb-20">
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="p-2.5 bg-gray-900 rounded-xl shadow-lg">
-            <SettingsIcon className="h-5 w-5 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Account Settings</h1>
-        </div>
-        <p className="text-gray-500 text-sm ml-14">Manage your security and notification preferences</p>
+    <div className="max-w-2xl mx-auto pb-16 space-y-4">
+
+      {/* Page header */}
+      <div className="mb-6">
+        <h1 className="text-white font-bold text-xl tracking-tight">Settings</h1>
+        <p className="text-zinc-500 text-sm mt-1">Manage your account security, payouts, and preferences</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Left Col: Navigation / Info */}
-        <div className="md:col-span-1 space-y-6">
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Shield className="h-4 w-4 text-green-600" />
-              Security Score
-            </h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 font-medium">Password Status</span>
-                <span className="text-xs text-green-600 font-bold bg-green-50 px-2.5 py-1 rounded-full">Secure</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 font-medium">Two-Factor Auth</span>
-                <span className="text-xs text-amber-600 font-bold bg-amber-50 px-2.5 py-1 rounded-full">Disabled</span>
-              </div>
-              <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-green-500 w-[65%]" />
-              </div>
-              <p className="text-[10px] text-gray-400">Your account security is good. Enable 2FA for maximum protection.</p>
+      {/* ── Password ─────────────────────────────────────────────── */}
+      <Section title="Password">
+        <form onSubmit={handlePasswordChange} className="space-y-4">
+          <Field label="Current Password">
+            <div className="relative">
+              <input
+                type={showPw.current ? 'text' : 'password'}
+                className={inputCls}
+                value={pw.current}
+                onChange={e => setPw(p => ({ ...p, current: e.target.value }))}
+                autoComplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw(p => ({ ...p, current: !p.current }))}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+              >
+                {showPw.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
+          </Field>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="New Password">
+              <div className="relative">
+                <input
+                  type={showPw.newPass ? 'text' : 'password'}
+                  className={inputCls}
+                  value={pw.newPass}
+                  onChange={e => setPw(p => ({ ...p, newPass: e.target.value }))}
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(p => ({ ...p, newPass: !p.newPass }))}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                >
+                  {showPw.newPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </Field>
+            <Field label="Confirm New Password">
+              <input
+                type="password"
+                className={inputCls}
+                value={pw.confirm}
+                onChange={e => setPw(p => ({ ...p, confirm: e.target.value }))}
+                autoComplete="new-password"
+                required
+              />
+            </Field>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 text-white shadow-xl shadow-gray-200">
-            <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
-              <Smartphone className="h-4 w-4 text-green-400" />
-              Artist Studio App
-            </h3>
-            <p className="text-xs text-gray-400 mb-4 leading-relaxed">Download the mobile app to go live and manage your fans on the go.</p>
-            <button className="w-full py-2 bg-white text-gray-900 rounded-xl text-xs font-bold hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
-              Get Artist App
-              <ChevronRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Right Col: Forms */}
-        <div className="md:col-span-2 space-y-8">
-          {/* Change Password */}
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm"
-          >
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Lock className="h-5 w-5 text-gray-400" />
+          <div className="pt-1">
+            <SaveBtn loading={savingPw}>
+              <Lock className="h-4 w-4" />
               Update Password
-            </h2>
-            
-            <form onSubmit={handlePasswordChange} className="space-y-4">
-              <div>
-                <label className={labelClass}>Current Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
-                  <input
-                    type={showCurrentPassword ? "text" : "password"}
-                    className={inputClass}
-                    value={passwordData.currentPassword}
-                    onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
-                    required
-                  />
-                  <button 
-                    type="button" 
-                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute right-3.5 top-3 text-gray-400 hover:text-gray-600"
-                  >
-                    {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
+            </SaveBtn>
+          </div>
+        </form>
+      </Section>
 
+      {/* ── Payout Settings ──────────────────────────────────────── */}
+      <Section title="Payout Settings">
+        <form onSubmit={handlePayoutSave} className="space-y-5">
+          <div>
+            <label className={labelCls}>Payment Method</label>
+            <div className="flex gap-2">
+              {(['bank_transfer', 'paypal'] as const).map(m => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setPayout(p => ({ ...p, method: m }))}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold border rounded transition-colors ${
+                    payout.method === m
+                      ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400'
+                      : 'bg-zinc-800 border-white/[0.08] text-zinc-400 hover:border-white/20'
+                  }`}
+                >
+                  {m === 'paypal' ? <Mail className="h-3.5 w-3.5" /> : <CreditCard className="h-3.5 w-3.5" />}
+                  {m === 'paypal' ? 'PayPal' : 'Bank Transfer'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {payout.method === 'paypal' ? (
+            <Field label="PayPal Email">
+              <input
+                type="email"
+                className={inputCls}
+                placeholder="your@paypal.com"
+                value={payout.paypalEmail}
+                onChange={e => setPayout(p => ({ ...p, paypalEmail: e.target.value }))}
+                required
+              />
+            </Field>
+          ) : (
+            <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}>New Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
-                    <input
-                      type={showNewPassword ? "text" : "password"}
-                      className={inputClass}
-                      value={passwordData.newPassword}
-                      onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
-                      required
-                    />
-                    <button 
-                      type="button" 
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3.5 top-3 text-gray-400 hover:text-gray-600"
-                    >
-                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className={labelClass}>Confirm New Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
-                    <input
-                      type="password"
-                      className={inputClass}
-                      value={passwordData.confirmPassword}
-                      onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
-                      required
-                    />
-                  </div>
-                </div>
+                <Field label="Bank Name">
+                  <input className={inputCls} placeholder="e.g. NCB Jamaica" value={payout.bankAccount.bankName}
+                    onChange={e => setPayout(p => ({ ...p, bankAccount: { ...p.bankAccount, bankName: e.target.value } }))} required />
+                </Field>
+                <Field label="Account Holder Name">
+                  <input className={inputCls} value={payout.bankAccount.accountHolder}
+                    onChange={e => setPayout(p => ({ ...p, bankAccount: { ...p.bankAccount, accountHolder: e.target.value } }))} required />
+                </Field>
               </div>
-
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={isChangingPassword}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-all disabled:opacity-50"
-                >
-                  {isChangingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
-                  Update Password
-                </button>
-              </div>
-            </form>
-          </motion.div>
-
-          {/* Payout Settings */}
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm"
-          >
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-gray-400" />
-              Payout Settings
-            </h2>
-            
-            <form onSubmit={handlePayoutSubmit} className="space-y-6">
-              <div>
-                <label className={labelClass}>Payment Method</label>
-                <div className="flex gap-4">
-                  {(['bank_transfer', 'paypal'] as const).map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setPayoutData({...payoutData, method: m})}
-                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all text-xs font-bold ${
-                        payoutData.method === m
-                          ? 'bg-gray-900 border-gray-900 text-white shadow-md'
-                          : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-                      }`}
-                    >
-                      {m === 'paypal' ? <Mail className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
-                      {m === 'paypal' ? 'PayPal' : 'Bank Transfer'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {payoutData.method === 'paypal' ? (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <label className={labelClass}>PayPal Email</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
-                    <input
-                      type="email"
-                      className={inputClass}
-                      placeholder="paypal@example.com"
-                      value={payoutData.paypalEmail}
-                      onChange={(e) => setPayoutData({...payoutData, paypalEmail: e.target.value})}
-                      required
-                    />
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className={labelClass}>Bank Name</label>
-                      <input
-                        type="text"
-                        className={inputClass.replace('pl-10', 'px-4')}
-                        value={payoutData.bankAccount.bankName}
-                        onChange={(e) => setPayoutData({...payoutData, bankAccount: {...payoutData.bankAccount, bankName: e.target.value}})}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Account Holder</label>
-                      <input
-                        type="text"
-                        className={inputClass.replace('pl-10', 'px-4')}
-                        value={payoutData.bankAccount.accountHolder}
-                        onChange={(e) => setPayoutData({...payoutData, bankAccount: {...payoutData.bankAccount, accountHolder: e.target.value}})}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className={labelClass}>Account Number</label>
-                      <input
-                        type="text"
-                        className={inputClass.replace('pl-10', 'px-4')}
-                        value={payoutData.bankAccount.accountNumber}
-                        onChange={(e) => setPayoutData({...payoutData, bankAccount: {...payoutData.bankAccount, accountNumber: e.target.value}})}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Routing Number</label>
-                      <input
-                        type="text"
-                        className={inputClass.replace('pl-10', 'px-4')}
-                        value={payoutData.bankAccount.routingNumber}
-                        onChange={(e) => setPayoutData({...payoutData, bankAccount: {...payoutData.bankAccount, routingNumber: e.target.value}})}
-                        required
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={isUpdatingPayout}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all disabled:opacity-50 shadow-lg shadow-green-100"
-                >
-                  {isUpdatingPayout ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                  Save Payout Info
-                </button>
-              </div>
-            </form>
-          </motion.div>
-
-          {/* Notifications */}
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm"
-          >
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Bell className="h-5 w-5 text-gray-400" />
-              Notification Settings
-            </h2>
-
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-                <div className="flex gap-4">
-                  <div className="p-2 bg-white rounded-xl shadow-sm">
-                    <Mail className="h-5 w-5 text-blue-500" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-900">Email Notifications</h4>
-                    <p className="text-xs text-gray-500">Weekly summaries and track approvals</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-gray-400">Tracks</span>
-                    <input 
-                      type="checkbox" 
-                      checked={notifSettings.emailTracks} 
-                      onChange={(e) => setNotifSettings({...notifSettings, emailTracks: e.target.checked})}
-                      className="w-4 h-4 rounded-md border-gray-300 text-green-600"
-                    />
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-gray-400">Gifts</span>
-                    <input 
-                      type="checkbox" 
-                      checked={notifSettings.emailGifts} 
-                      onChange={(e) => setNotifSettings({...notifSettings, emailGifts: e.target.checked})}
-                      className="w-4 h-4 rounded-md border-gray-300 text-green-600"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-                <div className="flex gap-4">
-                  <div className="p-2 bg-white rounded-xl shadow-sm">
-                    <Smartphone className="h-5 w-5 text-purple-500" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-900">Push Notifications</h4>
-                    <p className="text-xs text-gray-500">Live stream events and chat mentions</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-gray-400">Live</span>
-                    <input 
-                      type="checkbox" 
-                      checked={notifSettings.pushLive} 
-                      onChange={(e) => setNotifSettings({...notifSettings, pushLive: e.target.checked})}
-                      className="w-4 h-4 rounded-md border-gray-300 text-green-600"
-                    />
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-gray-400">Chat</span>
-                    <input 
-                      type="checkbox" 
-                      checked={notifSettings.pushMessages} 
-                      onChange={(e) => setNotifSettings({...notifSettings, pushMessages: e.target.checked})}
-                      className="w-4 h-4 rounded-md border-gray-300 text-green-600"
-                    />
-                  </label>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field label="Account Number">
+                  <input className={inputCls} value={payout.bankAccount.accountNumber}
+                    onChange={e => setPayout(p => ({ ...p, bankAccount: { ...p.bankAccount, accountNumber: e.target.value } }))} required />
+                </Field>
+                <Field label="Routing / Sort Code">
+                  <input className={inputCls} value={payout.bankAccount.routingNumber}
+                    onChange={e => setPayout(p => ({ ...p, bankAccount: { ...p.bankAccount, routingNumber: e.target.value } }))} required />
+                </Field>
               </div>
             </div>
-          </motion.div>
+          )}
 
-          {/* Danger Zone */}
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-red-50 border border-red-100 rounded-2xl p-8"
-          >
-            <h2 className="text-lg font-bold text-red-900 mb-2 flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              Danger Zone
-            </h2>
-            <p className="text-sm text-red-600 mb-6 font-medium">Permanently delete your artist account and all your music content.</p>
-            <button
-              onClick={() => {
-                if (window.confirm("Are you absolutely sure? This cannot be undone and all your music will be removed.")) {
-                  toast.error("Account deletion requested. Please check your email to confirm.");
-                }
-              }}
-              className="flex items-center gap-2 px-6 py-2.5 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200"
-            >
-              <Trash2 className="h-4 w-4" />
-              Delete Artist Account
-            </button>
-          </motion.div>
+          <SaveBtn loading={savingPayout} variant="emerald">
+            <Wallet className="h-4 w-4" />
+            Save Payout Info
+          </SaveBtn>
+        </form>
+      </Section>
+
+      {/* ── Notifications ─────────────────────────────────────────── */}
+      <Section title="Notifications">
+        <form onSubmit={handleNotifSave}>
+          <div className="space-y-0 divide-y divide-white/[0.05]">
+            {NOTIF_ROWS.map(row => (
+              <div key={row.key} className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-600">{row.tag}</span>
+                    <span className="text-sm text-zinc-200">{row.label}</span>
+                  </div>
+                  <p className="text-xs text-zinc-600 mt-0.5">{row.desc}</p>
+                </div>
+                <Toggle
+                  checked={notifs[row.key]}
+                  onChange={v => setNotifs(n => ({ ...n, [row.key]: v }))}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="pt-5 mt-1 border-t border-white/[0.05]">
+            <SaveBtn loading={savingNotifs}>
+              <Bell className="h-4 w-4" />
+              Save Preferences
+            </SaveBtn>
+          </div>
+        </form>
+      </Section>
+
+      {/* ── Danger Zone ───────────────────────────────────────────── */}
+      <div className="bg-zinc-900 border border-red-500/20 rounded-lg p-6">
+        <div className="flex items-start gap-3 mb-5">
+          <AlertTriangle className="h-4 w-4 text-red-400 flex-none mt-0.5" />
+          <div>
+            <h2 className="text-sm font-semibold text-white">Danger Zone</h2>
+            <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
+              Permanently delete your artist account and all your uploaded content. This action cannot be undone.
+            </p>
+          </div>
         </div>
+        <button
+          onClick={handleDeleteAccount}
+          className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 text-red-400 rounded text-sm font-semibold hover:bg-red-500/20 transition-colors"
+        >
+          <Trash2 className="h-4 w-4" />
+          Delete Artist Account
+        </button>
       </div>
+
     </div>
   );
 }

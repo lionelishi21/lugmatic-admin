@@ -368,7 +368,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
           <div className="px-5 py-4 flex items-center justify-between border-b border-white/5">
             {isSidebarOpen ? (
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center bg-white/5">
+                <div className="w-9 h-9 rounded overflow-hidden flex items-center justify-center bg-white/5">
                   <img src={lugmaticIcon} alt="Lugmatic" className="h-9 w-9 object-cover" />
                 </div>
                 <div>
@@ -379,13 +379,13 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                 </div>
               </div>
             ) : (
-              <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center mx-auto bg-white/5">
+              <div className="w-9 h-9 rounded overflow-hidden flex items-center justify-center mx-auto bg-white/5">
                 <img src={lugmaticIcon} alt="Lugmatic" className="h-9 w-9 object-cover" />
               </div>
             )}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all text-zinc-400 hover:text-white ml-auto"
+              className="p-1.5 rounded bg-white/5 hover:bg-white/10 transition-all text-zinc-400 hover:text-white ml-auto"
             >
               {isSidebarOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
@@ -407,14 +407,14 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                     <>
                       <button
                         onClick={() => toggleExpand(item.path)}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-150 group ${
+                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded transition-all duration-150 group ${
                           isActive(item.path)
                             ? 'bg-emerald-500/10 text-emerald-400'
                             : 'hover:bg-white/5 text-zinc-400 hover:text-white'
                           }`}
                       >
                         <div className="flex items-center">
-                          <span className={`flex-shrink-0 mr-3 p-1.5 rounded-lg transition-all duration-150 ${
+                          <span className={`flex-shrink-0 mr-3 p-1.5 rounded transition-all duration-150 ${
                             isActive(item.path)
                               ? 'bg-emerald-500/20 text-emerald-400'
                               : 'text-zinc-500 group-hover:text-zinc-300'
@@ -479,14 +479,14 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                   ) : (
                     <Link
                       to={item.path}
-                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-150 group ${
+                  className={`flex items-center justify-between px-3 py-2.5 rounded transition-all duration-150 group ${
                     isActive(item.path)
                       ? 'bg-emerald-500/10 text-emerald-400'
                       : 'hover:bg-white/5 text-zinc-400 hover:text-white'
                   }`}
                     >
                       <div className="flex items-center">
-                        <span className={`flex-shrink-0 mr-3 p-1.5 rounded-lg transition-all duration-150 ${
+                        <span className={`flex-shrink-0 mr-3 p-1.5 rounded transition-all duration-150 ${
                           isActive(item.path)
                             ? 'bg-emerald-500/20 text-emerald-400'
                             : 'text-zinc-500 group-hover:text-zinc-300'
@@ -513,7 +513,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
           <div className="border-t border-white/5 p-3">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center px-3 py-2.5 rounded-xl text-zinc-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-150 group"
+              className="w-full flex items-center px-3 py-2.5 rounded text-zinc-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-150 group"
             >
               <LogOut className="h-4.5 w-4.5 mr-3 text-zinc-600 group-hover:text-red-400 transition-colors flex-shrink-0" />
               {isSidebarOpen && <span className="text-sm font-medium">Logout</span>}
@@ -526,7 +526,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       {isMobile && !isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(true)}
-          className="fixed top-4 left-4 z-20 p-3 rounded-xl bg-black/80 backdrop-blur-xl shadow-2xl border border-white/5 hover:bg-black/90 transition-all duration-200"
+          className="fixed top-4 left-4 z-20 p-3 rounded bg-black/80 backdrop-blur-xl shadow-2xl border border-white/5 hover:bg-black/90 transition-all duration-200"
         >
           <Menu size={20} className="text-white" />
         </button>
