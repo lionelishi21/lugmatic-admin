@@ -484,7 +484,7 @@ export default function Live() {
       setIsSettingsOpen(false);
       setSummary(null);
       setLiveSince(Date.now());
-      toast.success('System Live. Broadast active.');
+      toast.success('Broadcast active.');
     } catch (error: unknown) {
       const errMsg = error instanceof Error ? error.message : 'Uplink synchronization failed';
       setPhase('error');
@@ -621,7 +621,7 @@ export default function Live() {
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-black text-[10px] uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all border border-zinc-200 dark:border-white/10"
               >
                 <Share2 className="h-4 w-4" />
-                Signal Sync
+                Share Link
               </button>
 
               <AnimatePresence>
@@ -635,13 +635,13 @@ export default function Live() {
                       className={`${card} absolute top-full right-0 mt-3 w-56 shadow-2xl z-40 overflow-hidden border-emerald-500/20`}
                     >
                       <div className="px-5 py-3 border-b border-zinc-100 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
-                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic">Global Protocol</p>
+                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic">Share Options</p>
                       </div>
                       <div className="p-2 space-y-1">
                         {[
-                          { id: 'twitter', label: 'X Array', icon: 'X', color: 'bg-zinc-950' },
-                          { id: 'facebook', label: 'Meta Net', icon: 'M', color: 'bg-blue-600' },
-                          { id: 'whatsapp', label: 'Secure P2P', icon: 'S', color: 'bg-emerald-600' }
+                          { id: 'twitter', label: 'X (Twitter)', icon: 'X', color: 'bg-zinc-950' },
+                          { id: 'facebook', label: 'Facebook', icon: 'F', color: 'bg-blue-600' },
+                          { id: 'whatsapp', label: 'WhatsApp', icon: 'W', color: 'bg-emerald-600' }
                         ].map((plat) => (
                           <button
                             key={plat.id}
@@ -663,7 +663,7 @@ export default function Live() {
                           <div className="w-6 h-6 bg-emerald-500/10 rounded-lg flex items-center justify-center">
                             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                           </div>
-                          {copied ? 'Copied' : 'Extract URL'}
+                          {copied ? 'Copied' : 'Copy URL'}
                         </button>
                       </div>
                     </motion.div>
@@ -696,7 +696,7 @@ export default function Live() {
           <div className="flex items-center gap-8 flex-wrap relative z-10">
             <div className="flex items-center gap-3">
                <div className="w-3 h-3 bg-rose-500 rounded-full animate-pulse shadow-[0_0_12px_rgba(244,63,94,0.8)]" />
-               <span className="font-black text-base italic tracking-tighter uppercase">Signal Active</span>
+               <span className="font-black text-base italic tracking-tighter uppercase">Broadcast Active</span>
             </div>
             
             <div className="h-8 w-px bg-white/10 hidden sm:block" />
@@ -713,16 +713,16 @@ export default function Live() {
                 <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Viewers</span>
                 <span className="flex items-center gap-2 text-xs font-bold tracking-widest text-white">
                   <Users className="h-3.5 w-3.5 text-emerald-500" />
-                  {viewerCount} SYNCED
+                  {viewerCount} VIEWERS
                 </span>
               </div>
               <div className="flex flex-col">
-                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Uplink</span>
+                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Connection</span>
                 <span className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase">
                   {liveKitConnected ? (
-                    <><Wifi className="h-3.5 w-3.5 text-emerald-500" /> Secure</>
+                    <><Wifi className="h-3.5 w-3.5 text-emerald-500" /> Stable</>
                   ) : (
-                    <><WifiOff className="h-3.5 w-3.5 text-amber-500 animate-pulse" /> Lossy</>
+                    <><WifiOff className="h-3.5 w-3.5 text-amber-500 animate-pulse" /> Reconnecting</>
                   )}
                 </span>
               </div>
@@ -754,7 +754,7 @@ export default function Live() {
             {/* Challenger Score */}
             <div className="flex items-center gap-6 flex-1 justify-end">
               <div className="text-right">
-                <p className="text-[9px] uppercase tracking-widest font-black text-purple-400 italic mb-1">Friendly Unit</p>
+                <p className="text-[9px] uppercase tracking-widest font-black text-purple-400 italic mb-1">Your Score</p>
                 <p className="text-4xl font-black italic tabular-nums tracking-tighter text-white">{clashScores.challenger}</p>
               </div>
               <div className="w-16 h-16 rounded-full border-2 border-purple-500/30 overflow-hidden shadow-2xl bg-zinc-900">
@@ -769,8 +769,8 @@ export default function Live() {
                     <Swords className="h-5 w-5 text-white" />
                  </div>
                  <div className="flex flex-col">
-                    <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest italic animate-pulse">Engaging Target</span>
-                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{activeClash.realmLabel || 'Standard Sector'}</span>
+                    <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest italic animate-pulse">Live Clash</span>
+                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{activeClash.realmLabel || 'General Sector'}</span>
                  </div>
               </div>
               <div className="flex flex-col items-center">
@@ -797,7 +797,7 @@ export default function Live() {
                  <img src={activeClash.opponent?.image || 'https://via.placeholder.com/150'} className="w-full h-full object-cover opacity-80" alt="Opponent" />
               </div>
               <div className="text-left">
-                <p className="text-[9px] uppercase tracking-widest font-black text-rose-400 italic mb-1">Hostile Signal</p>
+                <p className="text-[9px] uppercase tracking-widest font-black text-rose-400 italic mb-1">Opponent Score</p>
                 <p className="text-4xl font-black italic tabular-nums tracking-tighter text-white">{clashScores.opponent}</p>
               </div>
             </div>
@@ -810,7 +810,7 @@ export default function Live() {
                   <div className={`w-2 h-2 rounded-full ${clashTurn.currentTurn === streamData?.host?._id ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-600'}`} />
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Current Phase:</span>
                   <span className={`text-[10px] font-black uppercase tracking-widest ${clashTurn.currentTurn === streamData?.host?._id ? 'text-emerald-500' : 'text-zinc-300'}`}>
-                    {clashTurn.currentTurn === streamData?.host?._id ? 'Your Initiative' : 'Opponent Deployment'}
+                    {clashTurn.currentTurn === streamData?.host?._id ? 'Your Turn' : 'Opponent Turn'}
                   </span>
                </div>
                <div className="h-4 w-px bg-white/10" />
@@ -830,7 +830,7 @@ export default function Live() {
              <Loader2 className="animate-spin h-5 w-5 text-emerald-500" />
           </div>
           <div className="flex flex-col">
-             <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500 mb-0.5 italic">Sequence Status</span>
+             <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500 mb-0.5 italic">Status</span>
              <span className="font-black text-xs uppercase tracking-widest">{PHASE_LABELS[phase]}</span>
           </div>
         </div>
@@ -847,7 +847,7 @@ export default function Live() {
              <AlertCircle className="h-6 w-6" />
           </div>
           <div className="flex-1">
-            <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-1 italic">Synchronization Failed</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-1 italic">Connection Error</p>
             <p className="text-sm font-bold text-zinc-900 dark:text-white">{errorMsg}</p>
             <button
               onClick={() => { setPhase('idle'); setErrorMsg(''); }}
@@ -882,9 +882,9 @@ export default function Live() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { label: 'Duration', value: formatDuration(summary.duration), color: 'bg-emerald-500/5 text-emerald-500 border-emerald-500/10' },
-              { label: 'Total Syncs', value: summary.totalViewers, color: 'bg-indigo-500/5 text-indigo-500 border-indigo-500/10' },
-              { label: 'Peak Signal', value: summary.peakViewers, color: 'bg-purple-500/5 text-purple-500 border-purple-500/10' },
-              { label: 'Fiscal Yield', value: summary.totalGiftsReceived, color: 'bg-amber-500/5 text-amber-500 border-amber-500/10' },
+              { label: 'Total Viewers', value: summary.totalViewers, color: 'bg-indigo-500/5 text-indigo-500 border-indigo-500/10' },
+              { label: 'Peak Viewers', value: summary.peakViewers, color: 'bg-purple-500/5 text-purple-500 border-purple-500/10' },
+              { label: 'Revenue', value: summary.totalGiftsReceived, color: 'bg-amber-500/5 text-amber-500 border-amber-500/10' },
             ].map(({ label, value, color }) => (
               <div key={label} className={`${color} rounded-2xl p-6 text-center border shadow-inner`}>
                 <p className="text-3xl font-black italic tracking-tighter tabular-nums mb-1">{value}</p>
@@ -1121,7 +1121,7 @@ export default function Live() {
           <div className={`${card} p-8`}>
             <div className="flex items-start justify-between gap-6 mb-8">
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Broadcast Meta</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Broadcast Info</p>
                 <h2 className="text-xl font-black text-white uppercase italic tracking-tight truncate">
                   {streamData?.title || streamSettings.title || 'Untitled Stream'}
                 </h2>
@@ -1132,7 +1132,7 @@ export default function Live() {
               {(isLive || phase === 'ending') && (
                 <span className="flex-shrink-0 flex items-center gap-2 text-[10px] font-black text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 rounded-xl uppercase tracking-widest italic shadow-lg shadow-emerald-500/5">
                   <Wifi className="h-3.5 w-3.5" />
-                  {liveKitConnected ? 'SECURE_UPLINK' : 'SYNC_LOSS_RETRY'}
+                  LIVE_UPLINK
                 </span>
               )}
             </div>
@@ -1174,7 +1174,7 @@ export default function Live() {
           <div className="px-6 py-4 border-b border-white/[0.06] bg-zinc-950/20 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-3">
               <MessageSquare className="h-4 w-4 text-emerald-500" />
-              <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] italic">Telemetry Stream</h3>
+              <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] italic">Live Chat</h3>
             </div>
             {isLive && (
               <span className="flex items-center gap-2 text-[8px] font-black text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-md uppercase tracking-widest">
@@ -1272,33 +1272,33 @@ export default function Live() {
             <div className="px-8 py-8 space-y-6">
               <div>
                 <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic">
-                  Signal Designation <span className="text-emerald-500">*</span>
+                  Stream Title <span className="text-emerald-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="title"
                   value={streamSettings.title}
                   onChange={handleSettingsChange}
-                  placeholder={artistName ? `${artistName} Live` : 'e.g. Protocol Alpha'}
+                  placeholder={artistName ? `${artistName} Live` : 'e.g. My New Performance'}
                   className="w-full bg-zinc-950 border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium placeholder:text-zinc-700"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic">Data Manifest</label>
+                <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic">Description</label>
                 <textarea
                   name="description"
                   value={streamSettings.description}
                   onChange={handleSettingsChange}
                   rows={3}
-                  placeholder="Operational notes for viewers..."
+                  placeholder="Tell your fans what this stream is about..."
                   className="w-full bg-zinc-950 border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium resize-none placeholder:text-zinc-700"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic">Deployment Sector</label>
+                <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic">Stream Category</label>
                 <select
                   name="category"
                   value={streamSettings.category}
@@ -1322,7 +1322,7 @@ export default function Live() {
                 onClick={() => { setIsSettingsOpen(false); if (!isLive) stopPreview(); }}
                 className="px-6 py-3 rounded-xl bg-white/5 text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all"
               >
-                Abort
+                Cancel
               </button>
               <button
                 onClick={handleStartStream}

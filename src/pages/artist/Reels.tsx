@@ -10,9 +10,10 @@ import { Room, RoomEvent, VideoPresets, ConnectionState, RemoteParticipant, Remo
 import toast from 'react-hot-toast';
 import { liveStreamService, LiveStream } from '../../services/liveStreamService';
 import { giftService } from '../../services/giftService';
-import { socketService } from '../../services/socketService';
+import socketService from '../../services/socketService';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import apiService from '../../services/api';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -325,5 +326,3 @@ export default function Reels() {
     </div>
   );
 }
-
-import apiService from '../../services/api';
