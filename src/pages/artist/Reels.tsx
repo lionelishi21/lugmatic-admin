@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Room, RoomEvent, VideoPresets, ConnectionState, RemoteParticipant, RemoteTrackPublication, RemoteTrack } from 'livekit-client';
 import toast from 'react-hot-toast';
-import { liveStreamService, LiveStream } from '../../services/liveStreamService';
+import liveStreamService, { LiveStream } from '../../services/liveStreamService';
 import { giftService } from '../../services/giftService';
 import socketService from '../../services/socketService';
 import { useSelector } from 'react-redux';
