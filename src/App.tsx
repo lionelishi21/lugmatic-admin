@@ -44,6 +44,7 @@ import MySongs from './pages/artist/MySongs';
 import SongAnalytics from './pages/artist/SongAnalytics';
 import SupportHistory from './pages/artist/SupportHistory';
 import Onboarding from './pages/artist/Onboarding';
+import Reels from './pages/artist/Reels';
 import OnboardingGuard from './components/OnboardingGuard';
 
 // Import new admin pages
@@ -110,6 +111,7 @@ function App() {
                       <Route path="profile" element={<UserProfile />} />
                       <Route path="settings" element={<Settings />} />
                       <Route path="support" element={<Support />} />
+                      <Route path="reels" element={<Reels />} />
                       <Route path="support/history" element={<SupportHistory />} />
                       <Route path="billboard" element={<Billboard />} />
                       <Route path="songs" element={<MySongs />} />

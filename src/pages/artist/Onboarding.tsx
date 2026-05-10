@@ -70,7 +70,7 @@ function StepProfile({ data, onChange, errors }: any) {
          </div>
          <div>
             <h2 className="text-lg font-black text-white uppercase italic tracking-tight leading-none">Artist Profile</h2>
-            <p className="text-zinc-500 text-xs mt-1 font-medium italic">Establish your identity within the network.</p>
+            <p className="text-zinc-500 text-xs mt-1 font-medium italic">Set up your artist profile.</p>
          </div>
       </div>
 
@@ -98,8 +98,8 @@ function StepProfile({ data, onChange, errors }: any) {
         </Field>
       </div>
 
-      <Field label="Operational Bio" required error={errors.bio}
-        hint="Minimum 50 characters. Document your sonic journey and influences.">
+      <Field label="Artist Bio" required error={errors.bio}
+        hint="Minimum 50 characters. Share your story and musical journey.">
         <textarea
           value={data.bio || ''}
           onChange={e => onChange('bio', e.target.value)}
@@ -110,7 +110,7 @@ function StepProfile({ data, onChange, errors }: any) {
         <div className="text-right text-[9px] font-black text-zinc-700 uppercase tracking-widest mt-1">{(data.bio || '').length} / 2000</div>
       </Field>
 
-      <Field label="Genre Sectoring" required error={errors.genres} hint="Select primary audio classifications (minimum 1)">
+      <Field label="Genres" required error={errors.genres} hint="Select your primary music categories (minimum 1)">
         <div className="flex flex-wrap gap-2.5 mt-2 p-4 bg-zinc-950 rounded-2xl border border-white/[0.04] shadow-inner">
           {GENRES.map(g => {
             const selected = (data.genres || []).includes(g);
@@ -136,7 +136,7 @@ function StepProfile({ data, onChange, errors }: any) {
       </Field>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Field label="Base Operations (Country)" required error={errors.country}>
+        <Field label="Country" required error={errors.country}>
           <input
             value={data.location?.country || ''}
             onChange={e => onChange('location', { ...data.location, country: e.target.value })}
@@ -144,7 +144,7 @@ function StepProfile({ data, onChange, errors }: any) {
             className={inputClass}
           />
         </Field>
-        <Field label="Hub (City)">
+        <Field label="City">
           <input
             value={data.location?.city || ''}
             onChange={e => onChange('location', { ...data.location, city: e.target.value })}
@@ -155,10 +155,10 @@ function StepProfile({ data, onChange, errors }: any) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Field label="Direct Frequency (Phone)">
+        <Field label="Phone">
           <input value={data.contactPhone || ''} onChange={e => onChange('contactPhone', e.target.value)} placeholder="+1 876 000 0000" className={inputClass} />
         </Field>
-        <Field label="Transmission Email">
+        <Field label="Email">
           <input type="email" value={data.contactEmail || ''} onChange={e => onChange('contactEmail', e.target.value)} placeholder="BOOKING@EXAMPLE.COM" className={inputClass} />
         </Field>
       </div>
@@ -184,7 +184,7 @@ function StepLegal({ data, onChange, errors, onFileUpload, uploading }: any) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Field label="Legal Core Identity (Full Name)" required error={errors.legalName}
+        <Field label="Legal Name" required error={errors.legalName}
           hint="As it appears on your government identification">
           <input value={data.legalName || ''} onChange={e => onChange('legalName', e.target.value)} placeholder="GIVEN NAMES + SURNAME" className={inputClass} />
         </Field>
@@ -196,7 +196,7 @@ function StepLegal({ data, onChange, errors, onFileUpload, uploading }: any) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Field label="Nationality / Sector Citizenship" required error={errors.nationality}>
+        <Field label="Nationality" required error={errors.nationality}>
           <input value={data.nationality || ''} onChange={e => onChange('nationality', e.target.value)} placeholder="E.G. JAMAICAN" className={inputClass} />
         </Field>
         <Field label="PRO Affiliation" hint="Performing Rights Organisation registered">
@@ -208,7 +208,7 @@ function StepLegal({ data, onChange, errors, onFileUpload, uploading }: any) {
       </div>
 
       {data.proAffiliation && data.proAffiliation !== 'None' && (
-        <Field label="IPI / CAE Signature Number" hint="Unique composer/publisher identifier">
+        <Field label="IPI / CAE Number" hint="Unique composer/publisher identifier">
           <input value={data.ipiNumber || ''} onChange={e => onChange('ipiNumber', e.target.value)} placeholder="E.G. 00123456789" className={inputClass} />
         </Field>
       )}
@@ -216,17 +216,17 @@ function StepLegal({ data, onChange, errors, onFileUpload, uploading }: any) {
       <div className="pt-4 space-y-5">
         <div className="flex items-center gap-3">
            <ShieldCheck className="h-4 w-4 text-emerald-500" />
-           <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] italic">Government Credentials</h3>
+           <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] italic">Government ID</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Field label="Credential Type" required error={errors.idType}>
+          <Field label="ID Type" required error={errors.idType}>
             <select value={data.idType || ''} onChange={e => onChange('idType', e.target.value)} className={inputClass + " appearance-none cursor-pointer"}>
               <option value="">SELECT ID TYPE</option>
               {ID_TYPES.map(t => <option key={t.value} value={t.value}>{t.label.toUpperCase()}</option>)}
             </select>
           </Field>
-          <Field label="Credential Identifier" required error={errors.idNumber} hint="Number as printed on document">
+          <Field label="ID Number" required error={errors.idNumber} hint="Number as printed on document">
             <input value={data.idNumber || ''} onChange={e => onChange('idNumber', e.target.value)} placeholder="E.G. A12345678" className={inputClass} />
           </Field>
         </div>
@@ -284,14 +284,14 @@ function StepAgreement({ data, onChange, errors }: any) {
             <Pen className="h-5 w-5 text-emerald-500" />
          </div>
          <div>
-            <h2 className="text-lg font-black text-white uppercase italic tracking-tight leading-none">Fiscal Agreement</h2>
-            <p className="text-zinc-500 text-xs mt-1 font-medium italic">Execute the standard revenue distribution protocol.</p>
+            <h2 className="text-lg font-black text-white uppercase italic tracking-tight leading-none">Agreement</h2>
+            <p className="text-zinc-500 text-xs mt-1 font-medium italic">Please review the platform agreement.</p>
          </div>
       </div>
 
       {/* Revenue split summary */}
       <div className="bg-zinc-950 border border-white/[0.06] rounded-2xl p-6 space-y-6 shadow-inner">
-        <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] italic">Standard Revenue Split Matrix</h3>
+        <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] italic">Revenue Split</h3>
         <div className="space-y-6">
           {[
             { party: 'ARTIST ENTITY', pct: ARTIST_SPLIT, color: 'bg-emerald-500' },
@@ -314,7 +314,7 @@ function StepAgreement({ data, onChange, errors }: any) {
           ))}
         </div>
         <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest leading-relaxed">
-          THIS SPLIT APPLIES TO GLOBAL STREAMING REVENUE AND DIGITAL GIFT TRANSFERS. TRACK-SPECIFIC COLLABORATOR LEDGERS ARE CONFIGURED DURING INDIVIDUAL ASSET UPLOAD.
+          THIS SPLIT APPLIES TO GLOBAL STREAMING REVENUE AND DIGITAL GIFT TRANSFERS. TRACK-SPECIFIC SPLITS ARE CONFIGURED DURING INDIVIDUAL ASSET UPLOAD.
         </p>
       </div>
 
@@ -329,13 +329,13 @@ function StepAgreement({ data, onChange, errors }: any) {
         <p><strong className="text-zinc-300 font-black uppercase">6. Live Streaming.</strong> You accept that live streams are subject to real-time content moderation. Violations may result in stream termination and suspension of live privileges.</p>
         <p><strong className="text-zinc-300 font-black uppercase">7. Payouts.</strong> Earnings are paid out monthly provided your balance meets the minimum threshold. Payout method and banking details are configured in your account settings.</p>
         <p><strong className="text-zinc-300 font-black uppercase">8. Termination.</strong> Lugmatic reserves the right to suspend or terminate accounts that violate these terms, with prior notice where possible.</p>
-        <p className="text-zinc-700 font-bold uppercase italic mt-4">By executing this digital signature, you acknowledge full compliance with Lugmatic's core operational protocols and privacy standards.</p>
+        <p className="text-zinc-700 font-bold uppercase italic mt-4">By signing below, you agree to Lugmatic's platform terms and privacy standards.</p>
       </div>
 
       {/* Digital signature */}
       <div className="space-y-6">
-        <Field label="Authorized Digital Execution (Full Name)" required error={errors.platformAgreementSignature}
-          hint="Type your full legal name as it appears on your verified credential">
+        <Field label="Digital Signature (Full Name)" required error={errors.platformAgreementSignature}
+          hint="Type your full legal name as it appears on your ID">
           <input
             value={data.platformAgreementSignature || ''}
             onChange={e => onChange('platformAgreementSignature', e.target.value)}
@@ -358,7 +358,7 @@ function StepAgreement({ data, onChange, errors }: any) {
             <CheckCircle2 className="absolute inset-0 h-5 w-5 pointer-events-none hidden peer-checked:block text-black" />
           </div>
           <span className="text-zinc-500 text-[11px] font-medium leading-relaxed group-hover:text-zinc-300 transition-colors">
-            I HAVE READ AND FULLY CONCUR WITH THE LUGMATIC ARTIST PLATFORM AGREEMENT. I CONFIRM THAT THE SUBMITTED TELEMETRY IS ACCURATE AND I AM AUTHORIZED TO EXECUTE THIS PROTOCOL.
+            I HAVE READ AND AGREE TO THE LUGMATIC ARTIST PLATFORM AGREEMENT. I CONFIRM THAT THE INFORMATION PROVIDED IS ACCURATE.
           </span>
         </label>
         {errors.platformAgreementSigned && <p className="text-rose-500 text-[10px] font-black uppercase tracking-widest italic px-2">{errors.platformAgreementSigned}</p>}
@@ -373,15 +373,15 @@ function StepReview({ data }: any) {
   const sections = [
     { label: 'STAGE NAME',      value: data.name?.toUpperCase() },
     { label: 'ARTIST TYPE',     value: data.artistType?.toUpperCase() },
-    { label: 'GENRE SECTORS',   value: (data.genres || []).join(', ').toUpperCase() || '—' },
+    { label: 'GENRES',          value: (data.genres || []).join(', ').toUpperCase() || '—' },
     { label: 'BASE COUNTRY',    value: data.location?.country?.toUpperCase() },
     { label: 'LEGAL IDENTITY',  value: data.legalName?.toUpperCase() },
     { label: 'NATIONALITY',     value: data.nationality?.toUpperCase() },
-    { label: 'ID LOGIC',        value: ID_TYPES.find(t => t.value === data.idType)?.label.toUpperCase() || data.idType?.toUpperCase() },
+    { label: 'ID TYPE',         value: ID_TYPES.find(t => t.value === data.idType)?.label.toUpperCase() || data.idType?.toUpperCase() },
     { label: 'ID IDENTIFIER',   value: data.idNumber },
-    { label: 'CREDENTIAL FILE', value: data.idDocumentUrl ? '✓ SYNCHRONIZED' : '✗ MISSING' },
+    { label: 'ID DOCUMENT',     value: data.idDocumentUrl ? '✓ UPLOADED' : '✗ MISSING' },
     { label: 'PRO ENTITY',      value: data.proAffiliation?.toUpperCase() || 'NONE' },
-    { label: 'FISCAL EXECUTION',value: data.platformAgreementSigned ? `✓ SIGNED: "${data.platformAgreementSignature}"` : '✗ UNSIGNED' },
+    { label: 'AGREEMENT',       value: data.platformAgreementSigned ? `✓ SIGNED: "${data.platformAgreementSignature}"` : '✗ UNSIGNED' },
   ];
 
   return (
@@ -391,8 +391,8 @@ function StepReview({ data }: any) {
             <LayoutGrid className="h-5 w-5 text-emerald-500" />
          </div>
          <div>
-            <h2 className="text-lg font-black text-white uppercase italic tracking-tight leading-none">Manifest Review</h2>
-            <p className="text-zinc-500 text-xs mt-1 font-medium italic">Validate all data parameters before final transmission.</p>
+            <h2 className="text-lg font-black text-white uppercase italic tracking-tight leading-none">Review</h2>
+            <p className="text-zinc-500 text-xs mt-1 font-medium italic">Review your details before submitting.</p>
          </div>
       </div>
 
@@ -410,9 +410,9 @@ function StepReview({ data }: any) {
       <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6 flex gap-5 shadow-xl shadow-amber-500/5">
         <AlertCircle className="w-6 h-6 text-amber-500 flex-none mt-1 shadow-sm" />
         <div className="space-y-2">
-          <p className="text-[11px] font-black text-amber-500 uppercase tracking-widest italic">Verification Cycle Information</p>
+          <p className="text-[11px] font-black text-amber-500 uppercase tracking-widest italic">Verification Process</p>
           <p className="text-[10px] text-zinc-500 font-medium leading-relaxed uppercase tracking-tight">
-             UPON SUBMISSION, THE INTELLIGENCE CORE WILL VERIFY YOUR CREDENTIALS. THIS PROCESS TYPICALLY REQUIRES <strong className="text-zinc-300">48–72 OPERATIONAL HOURS</strong>. YOU WILL RETAIN PLATFORM ACCESS BUT ASSET UPLOAD AND LIVE TRANSMISSION WILL BE RESTRICTED UNTIL APPROVAL.
+             YOUR APPLICATION WILL BE REVIEWED WITHIN <strong className="text-zinc-300">48–72 HOURS</strong>. YOU CAN ACCESS THE PLATFORM, BUT UPLOADS AND GOING LIVE WILL BE RESTRICTED UNTIL APPROVED.
           </p>
         </div>
       </div>
@@ -429,9 +429,9 @@ function PendingScreen() {
         <Clock className="w-10 h-10 text-amber-500" />
       </div>
       <div>
-        <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Transmission Pending</h2>
+        <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Application Pending</h2>
         <p className="text-zinc-500 max-w-sm mx-auto text-[11px] mt-2 font-medium uppercase tracking-tight leading-relaxed">
-          YOUR APPLICATION HAS BEEN INGESTED AND IS CURRENTLY UNDER REVIEW BY THE NETWORK ADMINS. STATUS NOTIFICATION WILL BE RELAYED VIA EMAIL.
+          YOUR APPLICATION IS CURRENTLY UNDER REVIEW BY THE ADMINS. STATUS NOTIFICATION WILL BE SENT VIA EMAIL.
         </p>
       </div>
       <div className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-zinc-950 border border-amber-500/20 text-amber-500 text-[10px] font-black uppercase tracking-widest italic shadow-inner">
@@ -459,7 +459,7 @@ function RejectedScreen({ reason, onResubmit }: { reason: string; onResubmit: ()
         onClick={onResubmit} 
         className="flex items-center gap-3 mx-auto px-10 py-4 bg-white text-zinc-950 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
       >
-        <RefreshCw className="w-4 h-4" /> Update & Resubmit Protocol
+        <RefreshCw className="w-4 h-4" /> Update & Resubmit
       </button>
     </div>
   );
@@ -708,7 +708,7 @@ export default function Onboarding() {
                   className="flex items-center gap-3 px-10 h-12 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-50 transition-all shadow-xl shadow-emerald-600/20"
                 >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                  {submitting ? 'TRANSMITTING...' : 'Execute Submission'}
+                  {submitting ? 'SUBMITTING...' : 'Submit Application'}
                 </button>
               )}
             </div>
@@ -716,7 +716,7 @@ export default function Onboarding() {
         </div>
 
         <p className="text-center text-zinc-700 text-[9px] font-black uppercase tracking-[0.2em] mt-8 italic opacity-40">
-          ALL SUBMITTED TELEMETRY IS ENCRYPTED AND RESTRICTED TO AUTHORIZED NETWORK OPERATORS.
+          YOUR DATA IS ENCRYPTED AND SECURE.
         </p>
       </div>
     </div>

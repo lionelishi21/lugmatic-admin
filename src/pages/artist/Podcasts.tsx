@@ -136,10 +136,10 @@ export default function Podcasts() {
   }, [podcasts, tab, search]);
 
   const tabs = [
-    { id: 'all', label: 'All Content', count: podcasts.length },
-    { id: 'published', label: 'Transmitting', count: totals.published },
-    { id: 'drafts', label: 'Encrypted (Drafts)', count: podcasts.length - totals.published },
-    { id: 'analytics', label: 'Pulse Analytics', count: null },
+    { id: 'all', label: 'All Episodes', count: podcasts.length },
+    { id: 'published', label: 'Published', count: totals.published },
+    { id: 'drafts', label: 'Drafts', count: podcasts.length - totals.published },
+    { id: 'analytics', label: 'Insights', count: null },
   ] as const;
 
   const inputClass = "w-full bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-white/[0.08] rounded-xl px-4 py-3 text-zinc-900 dark:text-white text-sm placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all";
@@ -155,12 +155,12 @@ export default function Podcasts() {
             <Mic className="h-7 w-7 text-white" />
           </div>
           <div>
-             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Audio Broadcasting</p>
+             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Podcast Studio</p>
              <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase italic">
-               Podcast Command
+               Podcasts
              </h1>
              <p className="text-sm text-zinc-500 mt-0.5">
-               Manage your broadcast frequencies and listener engagement telemetry.
+               Manage your episodes and listener engagement analytics.
              </p>
           </div>
         </div>
@@ -171,17 +171,17 @@ export default function Podcasts() {
           whileTap={{ scale: 0.98 }}
         >
           <Plus className="h-4 w-4" />
-          Initialize Broadcast
+          Create Episode
         </motion.button>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: Headphones, label: 'Total Broadasts', value: podcasts.length, color: 'emerald' },
-          { icon: Play, label: 'Transmitting', value: totals.published, color: 'blue' },
-          { icon: TrendingUp, label: 'Engagement Index', value: totals.listeners.toLocaleString(), color: 'purple' },
-          { icon: Eye, label: 'Total Approval', value: totals.likes.toLocaleString(), color: 'rose' },
+          { icon: Headphones, label: 'Total Episodes', value: podcasts.length, color: 'emerald' },
+          { icon: Play, label: 'Published', value: totals.published, color: 'blue' },
+          { icon: TrendingUp, label: 'Total Listeners', value: totals.listeners.toLocaleString(), color: 'purple' },
+          { icon: Eye, label: 'Total Likes', value: totals.likes.toLocaleString(), color: 'rose' },
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} className={`${card} p-5 group relative overflow-hidden`}>
              <div className="absolute top-0 right-0 w-20 h-20 bg-zinc-50 dark:bg-white/[0.01] rounded-bl-full -mr-10 -mt-10" />
@@ -232,7 +232,7 @@ export default function Podcasts() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
               <input
                 type="text"
-                placeholder="SEARCH BROADCASTS..."
+                placeholder="SEARCH EPISODES..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 className="pl-11 pr-4 h-10 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/[0.06] rounded-xl text-[10px] font-black uppercase tracking-widest focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 outline-none w-full sm:w-64 transition-all text-zinc-900 dark:text-white placeholder:text-zinc-500 shadow-sm"
@@ -256,10 +256,10 @@ export default function Podcasts() {
                   <Headphones className="h-10 w-10 text-zinc-400 group-hover:scale-110 transition-transform" />
                 </div>
                 <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">
-                  {search ? 'Zero Match Frequency' : 'No Active Transmissions'}
+                  {search ? 'No results' : 'No Active Episodes'}
                 </h3>
                 <p className="text-xs text-zinc-500 mt-2 mb-6 max-w-xs mx-auto leading-relaxed font-medium">
-                  {search ? `Your search parameters yielded zero results in the current sector.` : 'Initialize your first broadcast to start engaging your audience.'}
+                  {search ? `Your search parameters yielded zero results.` : 'Create your first episode to start engaging your audience.'}
                 </p>
                 {!search && (
                   <motion.button
@@ -267,7 +267,7 @@ export default function Podcasts() {
                     className="h-10 flex items-center gap-3 px-6 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20"
                     whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                   >
-                    <Plus className="h-4 w-4" /> Start Broadcast
+                    <Plus className="h-4 w-4" /> Create Episode
                   </motion.button>
                 )}
               </div>
@@ -292,7 +292,7 @@ export default function Podcasts() {
                             ? 'bg-emerald-500 text-white border-emerald-400/20'
                             : 'bg-zinc-900 text-white border-zinc-700'
                         }`}>
-                          {p.isPublished ? 'Live Status: Transmitting' : 'Operational Draft'}
+                          {p.isPublished ? 'Published' : 'Draft'}
                         </span>
                       </div>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
@@ -447,7 +447,7 @@ export default function Podcasts() {
                   </div>
                   <div>
                     <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-tight italic">
-                      {editing ? 'Modify Transmission' : 'Initialize New Signal'}
+                      {editing ? 'Edit Episode' : 'Create New Episode'}
                     </h2>
                     <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mt-0.5">Parameters Required for deployment</p>
                   </div>
@@ -530,7 +530,7 @@ export default function Podcasts() {
                   onClick={() => { setOpen(false); resetForm(); }}
                   className="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-all"
                 >
-                  Abort Mission
+                  Cancel
                 </button>
                 <motion.button
                   onClick={handleSubmit}
@@ -542,7 +542,7 @@ export default function Podcasts() {
                   {uploading ? (
                     <><Loader2 className="h-4 w-4 animate-spin" /> Processing...</>
                   ) : (
-                    <><Upload className="h-4 w-4" /> {editing ? 'Deploy Update' : 'Initialize Deployment'}</>
+                    <><Upload className="h-4 w-4" /> {editing ? 'Save Changes' : 'Publish Episode'}</>
                   )}
                 </motion.button>
               </div>
@@ -553,9 +553,9 @@ export default function Podcasts() {
 
       <ConfirmDialog
         isOpen={!!podcastToDelete}
-        title="Terminate Broadcast"
-        message="Are you certain you want to permanently erase this signal? This operation is irreversible."
-        confirmLabel="Execute Deletion"
+        title="Delete Episode"
+        message="Are you certain you want to permanently delete this episode? This operation is irreversible."
+        confirmLabel="Delete"
         onConfirm={confirmDelete}
         onCancel={() => setPodcastToDelete(null)}
       />

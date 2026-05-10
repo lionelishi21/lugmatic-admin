@@ -12,7 +12,7 @@ export default function Breadcrumb() {
     <nav className="flex items-center gap-3 mb-10 overflow-x-auto no-scrollbar py-2">
       <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/5 rounded text-[10px] font-black text-emerald-500 uppercase tracking-widest italic shadow-lg">
          <Shield size={10} className="animate-pulse" />
-         NODE_PATH
+         PATH
       </div>
       
       <Link 

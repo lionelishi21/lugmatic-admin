@@ -131,12 +131,12 @@ export default function ArtistDashboard() {
                 <Shield className="h-10 w-10 text-white" />
              </div>
              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Studio Matrix v1.4</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Artist Dashboard</p>
                 <h1 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic leading-none">
                   Welcome, {user?.name ?? 'Artist'}
                 </h1>
                 <p className="text-sm text-zinc-500 mt-3 max-w-sm font-medium leading-relaxed">
-                  Operational status: <span className="text-emerald-500 font-black italic">Active</span>. Real-time telemetry monitoring enabled for tactical distribution.
+                  Welcome to your studio. Manage your music and earnings here.
                 </p>
              </div>
           </div>

@@ -131,6 +131,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     { path: '/artist/upload', label: 'Upload Music', icon: <Upload className="h-5 w-5" /> },
     { path: '/artist/live', label: 'Go Live', icon: <Radio className="h-5 w-5" /> },
     { path: '/artist/clashes', label: 'Live Clash', icon: <Swords className="h-5 w-5" /> },
+    { path: '/artist/reels', label: 'Live Discovery', icon: <Film className="h-5 w-5" /> },
     { path: '/artist/podcasts', label: 'Podcasts', icon: <Podcast className="h-5 w-5" /> },
     { path: '/artist/comments', label: 'Comments', icon: <MessageCircle className="h-5 w-5" />, badge: '8' },
     { path: '/artist/notifications', label: 'Notifications', icon: <Bell className="h-5 w-5" />, badge: '3' },
@@ -198,7 +199,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                    <h1 className="text-sm font-black text-white tracking-[0.2em] uppercase italic leading-none">
                      Lugmatic
                    </h1>
-                   <p className="text-[9px] font-black text-emerald-500/80 uppercase tracking-[0.3em] italic mt-1.5">Studio HUD</p>
+              <p className="text-[8px] font-black text-zinc-700 uppercase tracking-[0.2em] italic mt-1.5">Management Suite</p>
                 </div>
               </div>
             ) : (
@@ -213,7 +214,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
             <div>
               {isSidebarOpen && (
                 <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] italic mb-4 ml-2">
-                  {userRole === 'admin' ? 'Command Protocol' : (userRole === 'contributor' ? 'Sync Hub' : 'Signal Control')}
+                  {userRole === 'admin' ? 'Admin Menu' : (userRole === 'contributor' ? 'Contributor Menu' : 'Studio Menu')}
                 </p>
               )}
               <ul className="space-y-1.5">
@@ -317,7 +318,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
               </div>
               {isSidebarOpen && (
                 <span className="ml-4 text-[10px] font-black uppercase tracking-[0.2em] italic">
-                  {theme === 'dark' ? 'SOLAR_SYNC' : 'LUNAR_GRID'}
+                  {theme === 'dark' ? 'DARK MODE' : 'LIGHT MODE'}
                 </span>
               )}
             </button>
@@ -329,7 +330,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                 <LogOut size={14} />
               </div>
               {isSidebarOpen && (
-                <span className="ml-4 text-[10px] font-black uppercase tracking-[0.2em] italic">TERMINATE_SESSION</span>
+                <span className="ml-4 text-[10px] font-black uppercase tracking-[0.2em] italic">LOGOUT</span>
               )}
             </button>
           </div>

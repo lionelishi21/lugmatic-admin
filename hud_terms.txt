@@ -1,0 +1,356 @@
+src/types/index.tsx:export interface GiftAuditLog {
+src/components/ui/ConfirmDialog.tsx:    cancelLabel = 'ABORT_PROTOCOL',
+src/components/ui/Preloader.tsx:               System Health: Nominal // Latency: Low
+src/components/Layout.tsx:                  {userRole === 'admin' ? 'Command Protocol' : (userRole === 'contributor' ? 'Sync Hub' : 'Signal Control')}
+src/components/Layout.tsx:                  {theme === 'dark' ? 'SOLAR_SYNC' : 'LUNAR_GRID'}
+src/components/Layout.tsx:                <span className="ml-4 text-[10px] font-black uppercase tracking-[0.2em] italic">TERMINATE_SESSION</span>
+src/components/Layout.tsx:              <p className="text-[8px] font-black text-zinc-700 uppercase tracking-[0.4em] italic">System Integrity: Nominal</p>
+src/pages/admin/ArtistManagement.tsx:                    <Eye className="h-4 w-4" /> View Registry
+src/pages/admin/ArtistManagement.tsx:                    <Trash2 className="h-4 w-4" /> Terminate Artist
+src/pages/admin/ArtistManagement.tsx:                placeholder="SEARCH ARTIST REGISTRY..."
+src/pages/admin/ArtistManagement.tsx:                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 italic">Registry Status</th>
+src/pages/admin/ArtistManagement.tsx:                      <h3 className="text-sm font-black text-white uppercase italic tracking-widest">Registry Empty</h3>
+src/pages/admin/ArtistManagement.tsx:                      <p className="text-[11px] text-zinc-600 mt-2 uppercase font-bold tracking-wider">NO DATA MATCHES THE CURRENT PROTOCOLS</p>
+src/pages/admin/ArtistManagement.tsx:              <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic mb-3">Terminate Registry?</h2>
+src/pages/admin/Reports.tsx:      frequency: 'Monthly', metrics: ['Total Revenue', 'ARPU', 'Churn Rate', 'MRR'],
+src/pages/admin/Reports.tsx:      frequency: 'Weekly', metrics: ['DAU/MAU', 'Retention', 'Signups', 'Sessions'],
+src/pages/admin/Reports.tsx:      frequency: 'Daily', metrics: ['Streams', 'Saves', 'Shares', 'Skip Rate'],
+src/pages/admin/Reports.tsx:      frequency: 'Real-time', metrics: ['Uptime', 'Latency', 'Error Rate', 'Bandwidth'],
+src/pages/admin/Reports.tsx:      frequency: 'On-demand', metrics: ['CSV', 'PDF', 'Excel', 'JSON'],
+src/pages/admin/Reports.tsx:      frequency: 'Custom', metrics: ['Filters', 'Date Range', 'Segments', 'Metrics'],
+src/pages/admin/Reports.tsx:    { id: 1, name: 'Weekly Revenue Summary', frequency: 'Every Monday', nextRun: 'Feb 17, 2026', format: 'PDF', recipients: 3, active: true },
+src/pages/admin/Reports.tsx:    { id: 2, name: 'Monthly User Report', frequency: '1st of each month', nextRun: 'Mar 1, 2026', format: 'Excel', recipients: 5, active: true },
+src/pages/admin/Reports.tsx:    { id: 3, name: 'Daily Content Metrics', frequency: 'Every day at 8am', nextRun: 'Feb 12, 2026', format: 'CSV', recipients: 2, active: false },
+src/pages/admin/Reports.tsx:                      <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">{cat.frequency}</span>
+src/pages/admin/Reports.tsx:                          <RefreshCw className="w-2.5 h-2.5" /> {sr.frequency}
+src/pages/admin/FinancialManagement.tsx:      title: 'Audit Reports',
+src/pages/admin/FinancialManagement.tsx:        { name: 'Annual Audit Report', value: 'In Progress', type: 'warning' },
+src/pages/admin/LiveStreamManagement.tsx:  Signal,
+src/pages/admin/LiveStreamManagement.tsx:        <p className="text-white/40 text-sm">Waiting for video signal...</p>
+src/pages/admin/SystemSettings.tsx:    { id: 'digest_frequency', name: 'Digest Frequency', description: 'How often to send activity digest emails', type: 'select', value: 'daily', category: 'notifications', required: false, icon: Clock, options: [{ label: 'Real-time', value: 'realtime' }, { label: 'Hourly', value: 'hourly' }, { label: 'Daily', value: 'daily' }, { label: 'Weekly', value: 'weekly' }] },
+src/pages/admin/SystemSettings.tsx:    { id: 'general', name: 'Platform Protocol', icon: Settings, description: 'Core system variables' },
+src/pages/admin/SystemSettings.tsx:    { id: 'notifications', name: 'Alert Grid', icon: Bell, description: 'Signal propagation' },
+src/pages/admin/SystemSettings.tsx:    { id: 'performance', name: 'Processing Core', icon: Monitor, description: 'Latency & throughput' },
+src/pages/admin/SystemSettings.tsx:    { name: 'Database Grid', status: 'Online', ok: true, latency: '12ms' },
+src/pages/admin/SystemSettings.tsx:    { name: 'API Services', status: 'Stable', ok: true, latency: '45ms' },
+src/pages/admin/SystemSettings.tsx:    { name: 'S3 Storage Matrix', status: 'Available', ok: true, latency: '23ms' },
+src/pages/admin/SystemSettings.tsx:    { name: 'CDN Nodes', status: 'Active', ok: true, latency: '8ms' },
+src/pages/admin/SystemSettings.tsx:    { name: 'Redis Cache', status: 'Optimal', ok: true, latency: '2ms' },
+src/pages/admin/SystemSettings.tsx:    { name: 'Signal Hub', status: 'Synchronized', ok: true, latency: '89ms' },
+src/pages/admin/SystemSettings.tsx:    { type: 'warning', message: 'Ingestion rate exceeding nominal thresholds', time: '2 hours ago' },
+src/pages/admin/SystemSettings.tsx:    { type: 'info', message: 'Encryption protocols updated to v4.2', time: '1 day ago' },
+src/pages/admin/SystemSettings.tsx:             Command Protocol
+src/pages/admin/SystemSettings.tsx:                PROTOCOL_SYNCED
+src/pages/admin/SystemSettings.tsx:          { label: 'System Integrity', value: 'NOMINAL', icon: CheckCircle, color: 'emerald', pulse: true },
+src/pages/admin/SystemSettings.tsx:          { label: 'Active Signal Nodes', value: '1,234', icon: Users, color: 'blue' },
+src/pages/admin/SystemSettings.tsx:            <p className={labelClass}>Emergency Protocol</p>
+src/pages/admin/SystemSettings.tsx:                    <h2 className="text-xl font-black text-white uppercase italic tracking-tighter">{activeCategory?.name} Protocol</h2>
+src/pages/admin/SystemSettings.tsx:                                {setting.value ? 'PROTOCOL_ENABLED' : 'PROTOCOL_DISABLED'}
+src/pages/admin/SystemSettings.tsx:                      <span className="text-[9px] font-black text-zinc-700 tabular-nums italic">{item.latency}</span>
+src/pages/admin/SystemSettings.tsx:                    <p className={labelClass}>Transmission Log</p>
+src/pages/admin/UserManagement.tsx:             User Registry
+src/pages/admin/UserManagement.tsx:             Auditing global credentials and authority vectors.
+src/pages/admin/UserManagement.tsx:                <th className="px-6 py-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Transmission Status</th>
+src/pages/admin/UserManagement.tsx:                          title="Reset Credentials"
+src/pages/admin/UserManagement.tsx:                                  <Ban size={14} /> SUSPEND_SIGNAL
+src/pages/admin/UserManagement.tsx:             Showing {users.length} of {totalUsers} Registry Entries
+src/pages/admin/UserManagement.tsx:                    <p className={labelClass}>Operational Protocol</p>
+src/pages/admin/UserManagement.tsx:                    <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className={inputClass} placeholder="EMAIL_SIGNAL" required />
+src/pages/admin/UserManagement.tsx:                        <option value="user">USER_SIGNAL</option>
+src/pages/admin/UserManagement.tsx:                    INIT_PROTOCOL
+src/pages/admin/UserManagement.tsx:              <h3 className="text-xl font-black text-white uppercase italic tracking-tighter mb-2">Credential Reset</h3>
+src/pages/admin/UserManagement.tsx:              <p className="text-[11px] text-zinc-500 mb-8 uppercase font-bold tracking-widest italic">Requesting emergency password override for identity signal.</p>
+src/pages/admin/AlbumManagement.tsx:           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Sonic Repository Protocol</p>
+src/pages/admin/AlbumManagement.tsx:             Manage and categorize full-length sonic deployments across the network.
+src/pages/admin/AlbumManagement.tsx:          { label: 'Total Deployments', value: albums.length, icon: Disc, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+src/pages/admin/AlbumManagement.tsx:          { label: 'Signal Units', value: totalTracks, icon: Music, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+src/pages/admin/AlbumManagement.tsx:                placeholder="SEARCH REGISTRY..."
+src/pages/admin/AlbumManagement.tsx:                    <th className="px-6 py-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Frequency</th>
+src/pages/admin/AlbumManagement.tsx:                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-1 italic">Deployment Protocol</p>
+src/pages/admin/AlbumManagement.tsx:                  <label className={labelClass}>Deployment Cover Artwork</label>
+src/pages/admin/AlbumManagement.tsx:                    <label className={labelClass}>Deployment Designation <span className="text-emerald-500">*</span></label>
+src/pages/admin/AlbumManagement.tsx:                      <label className={labelClass}>Frequency</label>
+src/pages/admin/AlbumManagement.tsx:                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (selectedAlbum ? 'SYNC REPOSITORY' : 'INITIALIZE DEPLOYMENT')}
+src/pages/admin/AlbumManagement.tsx:        message="Are you sure you want to purge this album from the network? Signal units will remain but become unassigned nodes."
+src/pages/admin/Analytics.tsx:      label: 'Active Signal Nodes',
+src/pages/admin/Analytics.tsx:      label: 'Revenue Protocol',
+src/pages/admin/Analytics.tsx:      label: 'Avg Session Latency',
+src/pages/admin/Analytics.tsx:           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Intelligence Grid Protocol</p>
+src/pages/admin/Analytics.tsx:            Export Protocol
+src/pages/admin/Analytics.tsx:               <p className={labelClass}>Transmission Trends</p>
+src/pages/admin/Analytics.tsx:               <p className={labelClass}>Signal Distribution</p>
+src/pages/admin/Analytics.tsx:               <p className={labelClass}>Transmission Leaders</p>
+src/pages/admin/Analytics.tsx:              Full Registry <ChevronRight className="h-3.5 w-3.5" />
+src/pages/admin/Analytics.tsx:                { label: 'Export Dataset', desc: 'CSV, PDF Protocol', icon: <Download className="h-4 w-4" />, color: 'emerald' },
+src/pages/admin/ContentModeration.tsx:           Review and sanitize pending transmissions across the grid.
+src/pages/admin/ContentModeration.tsx:          <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest italic">INTEGRITY CHECK COMPLETE. NO PENDING UNITS IN THIS FREQUENCY.</p>
+src/pages/admin/ContentModeration.tsx:                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500 mb-1 italic">Rejection Protocol</p>
+src/pages/admin/AddArtist.tsx:                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Ecosystem Registry</p>
+src/pages/admin/AddArtist.tsx:             <p className="text-[11px] text-zinc-600 font-bold mt-1 uppercase tracking-widest">v2.4.0 Registry</p>
+src/pages/admin/AddArtist.tsx:                <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Core Credentials</h2>
+src/pages/admin/AddArtist.tsx:                  <label className={labelClass}>Primary Frequency (Genre)</label>
+src/pages/admin/AddArtist.tsx:                Abort Protocol
+src/pages/admin/PlaylistManagement.tsx:           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Content Curation Protocol</p>
+src/pages/admin/PlaylistManagement.tsx:          { label: 'Signal Units', value: totalSongs, icon: Music, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+src/pages/admin/PlaylistManagement.tsx:              placeholder="SEARCH REGISTRY..."
+src/pages/admin/PlaylistManagement.tsx:                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-1 italic">Protocol Initialization</p>
+src/pages/admin/PlaylistManagement.tsx:                      <label className={labelClass}>Signal Selection</label>
+src/pages/admin/PlaylistManagement.tsx:                        placeholder="SEARCH SIGNALS..."
+src/pages/admin/PlaylistManagement.tsx:                        <div className="py-12 text-center text-zinc-700 italic text-[10px] font-black uppercase">NO SIGNALS AVAILABLE</div>
+src/pages/admin/SongManagement.tsx:           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Signal Node Registry</p>
+src/pages/admin/SongManagement.tsx:             Audit and synchronize individual sonic transmissions across the grid.
+src/pages/admin/SongManagement.tsx:          Initialize New Signal
+src/pages/admin/SongManagement.tsx:            placeholder="SEARCH SONIC REGISTRY..."
+src/pages/admin/SongManagement.tsx:            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">NO SIGNAL NODES MATCH CURRENT FREQUENCY SCAN</p>
+src/pages/admin/SongManagement.tsx:                  <th className="px-6 py-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Frequency</th>
+src/pages/admin/SongManagement.tsx:                            title="Approve Signal"
+src/pages/admin/SongManagement.tsx:                          title="Audit Node"
+src/pages/admin/SongManagement.tsx:        title="Purge Signal Node"
+src/pages/admin/SongManagement.tsx:        message="Are you sure you want to purge this transmission from the grid? This protocol is irreversible."
+src/pages/admin/ArtistDetails.tsx:          Abort Protocol
+src/pages/admin/ArtistDetails.tsx:          RECORD NOT FOUND IN REGISTRY
+src/pages/admin/ArtistDetails.tsx:          Return to Registry
+src/pages/admin/ArtistDetails.tsx:                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Artist Profile Registry</p>
+src/pages/admin/ArtistDetails.tsx:                    <label className={labelClass}>Registry Status</label>
+src/pages/admin/ArtistDetails.tsx:                PROTOCOL ERROR: {albumsError}
+src/pages/admin/ArtistDetails.tsx:                 <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Signal Transmission (Songs)</h2>
+src/pages/admin/ArtistDetails.tsx:                SIGNAL ERROR: {songsError}
+src/pages/admin/ArtistDetails.tsx:                <p className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">No active signals detected.</p>
+src/pages/admin/ArtistDetails.tsx:                        {song.album ? `DEP: ${song.album}` : 'PROTOCOL: SINGLE'}
+src/pages/admin/AdminDashboard.tsx:              Full Registry
+src/pages/admin/Billboard.tsx:                            Boost Signal
+src/pages/Landing.tsx:                <p className="text-zinc-500 text-lg leading-relaxed flex-1">Perform live, interact with fans, and receive gifts in real-time with zero latency.</p>
+src/pages/artist/Settings.tsx:        <h2 className="text-[10px] font-black text-white uppercase tracking-[0.2em] italic">{title} Sector</h2>
+src/pages/artist/Settings.tsx:            <p className="text-sm text-zinc-500 mt-1 font-medium italic">Manage account security, distribution payouts, and network protocols.</p>
+src/pages/artist/Settings.tsx:            <label className={labelCls}>Primary Transfer Protocol</label>
+src/pages/artist/Settings.tsx:                  placeholder="IDENTITY@SECTOR.COM"
+src/pages/artist/Settings.tsx:      {/* ── Notification Protocols ── */}
+src/pages/artist/Settings.tsx:      <Section title="Network Alert Protocols" icon={Bell}>
+src/pages/artist/Settings.tsx:                        <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest italic">{row.tag} PROTOCOL</span>
+src/pages/artist/Settings.tsx:              Commit Protocol Changes
+src/pages/artist/Settings.tsx:              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-500 mb-2 italic">Terminal Purge Protocol</p>
+src/pages/artist/SongEdit.tsx:  if (loading) return <Preloader isVisible text="SYNCING TRANSMISSION DATA..." />;
+src/pages/artist/SongEdit.tsx:            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Edit Transmission v2.4</p>
+src/pages/artist/SongEdit.tsx:      {/* ── Rejection Signal Alert ── */}
+src/pages/artist/SongEdit.tsx:            <h3 className="text-xl font-black text-white uppercase italic mb-4">Transmission Purged / Action Required</h3>
+src/pages/artist/SongEdit.tsx:              <p className="text-sm text-zinc-300 font-medium italic leading-relaxed">"{song.rejectionReason || 'No specific metadata failure provided. Perform full asset audit.'}"</p>
+src/pages/artist/SongEdit.tsx:            {/* Track Metadata Sector */}
+src/pages/artist/SongEdit.tsx:                 <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Sonic Metadata Sector</h3>
+src/pages/artist/SongEdit.tsx:                  <label className={labelClass}>Transmission Identity (Track Title)</label>
+src/pages/artist/SongEdit.tsx:                  <label className={labelClass}>Deployment Date</label>
+src/pages/artist/SongEdit.tsx:                  <label className={labelClass}>Transmission Pulse (Duration/Sec)</label>
+src/pages/artist/SongEdit.tsx:            {/* Asset Configuration Sector */}
+src/pages/artist/SongEdit.tsx:            {/* Collaboration & Split Sheet Sector */}
+src/pages/artist/SongEdit.tsx:                                placeholder="EMAIL@SECTOR.COM"
+src/pages/artist/SongEdit.tsx:                            <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest ml-1 block mb-2 italic">Sector Role</label>
+src/pages/artist/SongEdit.tsx:                       <p className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em] italic">Active Contributor Ledger</p>
+src/pages/artist/SongEdit.tsx:                        <p className="text-[10px] text-zinc-600 font-black uppercase tracking-widest italic">Zero external signals detected.</p>
+src/pages/artist/SongEdit.tsx:                          <p className="text-[10px] text-rose-500 font-black uppercase tracking-widest italic">Signal Imbalance Detected</p>
+src/pages/artist/Podcasts.tsx:               Manage your broadcast frequencies and listener engagement telemetry.
+src/pages/artist/Podcasts.tsx:                  {search ? 'Zero Match Frequency' : 'No Active Transmissions'}
+src/pages/artist/Podcasts.tsx:                  {search ? `Your search parameters yielded zero results in the current sector.` : 'Initialize your first broadcast to start engaging your audience.'}
+src/pages/artist/Podcasts.tsx:                    <BarChart3 className="h-4 w-4 text-emerald-500" /> Podcast Telemetry
+src/pages/artist/Podcasts.tsx:                      {['Broadcast Component', 'Telemetry (Listeners)', 'Approval (Likes)', 'Duration', 'Transmission Status'].map(h => (
+src/pages/artist/Podcasts.tsx:                      {editing ? 'Modify Transmission' : 'Initialize New Signal'}
+src/pages/artist/Podcasts.tsx:                    <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mt-0.5">Parameters Required for deployment</p>
+src/pages/artist/Podcasts.tsx:                  <label className={labelClass}>Transmission Metadata (Description)</label>
+src/pages/artist/Podcasts.tsx:                    placeholder="Short summary of this signal..."
+src/pages/artist/Podcasts.tsx:                       placeholder="https://storage.hub/signal_path.mp3"
+src/pages/artist/Podcasts.tsx:                    <label className={labelClass}>Genre / Sector</label>
+src/pages/artist/Podcasts.tsx:                      <option value="">Select Sector</option>
+src/pages/artist/Podcasts.tsx:                    <><Upload className="h-4 w-4" /> {editing ? 'Deploy Update' : 'Initialize Deployment'}</>
+src/pages/artist/Podcasts.tsx:        title="Terminate Broadcast"
+src/pages/artist/Podcasts.tsx:        message="Are you certain you want to permanently erase this signal? This operation is irreversible."
+src/pages/artist/Gifts.tsx:              Historical log of community support and digital asset transmissions.
+src/pages/artist/Gifts.tsx:      {/* gratuity Telemetry */}
+src/pages/artist/Gifts.tsx:          { label: 'Total Transmissions', value: stats.totalGifts, icon: <GiftIcon className="h-6 w-6" />, color: 'emerald', trend: 'Global' },
+src/pages/artist/Gifts.tsx:      {/* Contribution History Ledger */}
+src/pages/artist/Gifts.tsx:                  <h2 className="text-lg font-black uppercase tracking-tight text-zinc-900 dark:text-white italic">Received Transmissions</h2>
+src/pages/artist/Gifts.tsx:              placeholder="SEARCH TRANSMISSIONS..."
+src/pages/artist/Gifts.tsx:              <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Zero Signal Strength</h3>
+src/pages/artist/Gifts.tsx:                No digital assets identified in this sector. Perform live or release transmissions to trigger gratuity cycles.
+src/pages/artist/ArtistDashboard.tsx:                  Operational status: <span className="text-emerald-500 font-black italic">Active</span>. Real-time telemetry monitoring enabled for tactical distribution.
+src/pages/artist/ArtistDashboard.tsx:      {/* ── Telemetry Grid ── */}
+src/pages/artist/UserProfile.tsx:                        <label className={labelClass}>Transmission Name (Stage Name)</label>
+src/pages/artist/UserProfile.tsx:                        <label className={labelClass}>Creative Sector</label>
+src/pages/artist/UserProfile.tsx:                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white italic">Signal Relays</span>
+src/pages/artist/UserProfile.tsx:                        { name: 'socialLinks.spotify', label: 'Spotify Frequency', icon: Music, placeholder: 'spotify.com/artist/...' },
+src/pages/artist/UserProfile.tsx:                        <label className={labelClass}>Direct Frequency (Phone)</label>
+src/pages/artist/UserProfile.tsx:                        <label className={labelClass}>Sector (Country)</label>
+src/pages/artist/UserProfile.tsx:                          { key: 'preferences.allowGifts', label: 'Signal Gratuity', desc: 'Enable digital gifting during live streams', icon: Sparkles },
+src/pages/artist/UserProfile.tsx:                          { key: 'preferences.allowMessages', label: 'Direct Transmissions', desc: 'Allow fans to message you directly', icon: Mail },
+src/pages/artist/UserProfile.tsx:                          <label className={labelClass}>Default Payout Protocol</label>
+src/pages/artist/UserProfile.tsx:                        <label className={labelClass}>Credential Identifier (ID #)</label>
+src/pages/artist/UserProfile.tsx:                         <p className="text-[11px] font-black text-blue-500 uppercase tracking-widest italic">Verification Protocol</p>
+src/pages/artist/Support.tsx:    { q: "Transmission Latency", a: "Go to the Live section, set your title, and click Go Live. Make sure your browser has camera permissions." }
+src/pages/artist/Support.tsx:            <p className="text-xs text-zinc-500 mb-5 font-medium leading-relaxed">Master the platform mechanics. Learn to scale your fanbase and optimize your transmission revenue.</p>
+src/pages/artist/Support.tsx:                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white">Relay Transmission</span>
+src/pages/artist/Support.tsx:                  <label className={labelClass}>Sector / Category</label>
+src/pages/artist/Support.tsx:                  <label className={labelClass}>Signal Subject</label>
+src/pages/artist/Support.tsx:                <label className={labelClass}>Signal Content</label>
+src/pages/artist/Support.tsx:                  Latency: ~24hr Response Cycle
+src/pages/artist/Search.tsx:  { id: '2', type: 'track', title: 'Golden Hour', artist: 'Solar Keys', plays: '1.8M', genre: 'R&B' },
+src/pages/artist/Search.tsx:    { key: 'podcasts', label: 'Spoken Signals', icon: <BookOpen className="h-3.5 w-3.5" />, count: MOCK_RESULTS.podcasts.length },
+src/pages/artist/Search.tsx:               Find audio signals, entities, and broadcasts across the global node.
+src/pages/artist/Search.tsx:            placeholder="SCAN FOR ENTITIES, AUDIO, OR SIGNALS..."
+src/pages/artist/Search.tsx:                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Protocol Sorting</p>
+src/pages/artist/Search.tsx:                 <TrendingUp className="h-4 w-4 text-emerald-500" /> Hot Sectors
+src/pages/artist/Search.tsx:                        <BookOpen className="h-4 w-4 text-emerald-500" /> Broadcast Signals
+src/pages/artist/Search.tsx:                          Expand Signals <ChevronRight className="h-4 w-4" />
+src/pages/artist/Search.tsx:                            <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1.5">Entity: {pod.host} • {pod.episodes} Signals • {pod.listeners} Pulse Index</p>
+src/pages/artist/Search.tsx:              <p className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight italic mb-2">Zero Signal Identity</p>
+src/pages/artist/Search.tsx:              <p className="text-xs text-zinc-500 max-w-xs font-medium leading-relaxed">System parameters for "{query}" returned zero matches in current node sectors.</p>
+src/pages/artist/Earnings.tsx:      {/* ── Operational Ledger ── */}
+src/pages/artist/Earnings.tsx:             <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Operational Ledger</h2>
+src/pages/artist/Earnings.tsx:                Telemetry for streams, gifts, and subscriptions will emerge here upon deployment.
+src/pages/artist/Comments.tsx:                    title="Approve Signal"
+src/pages/artist/Comments.tsx:                    title="Reject Signal"
+src/pages/artist/Comments.tsx:            {expanded ? 'Signal Collapsed' : `Unfold ${comment.replies.length} ${comment.replies.length === 1 ? 'Response' : 'Responses'}`}
+src/pages/artist/Comments.tsx:            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Signal Intelligence v1.0</p>
+src/pages/artist/Comments.tsx:      {/* ── engagement Telemetry ── */}
+src/pages/artist/Comments.tsx:          { label: 'Signal Stream', value: stats.total, color: 'indigo', icon: <MessageCircle className="h-6 w-6" /> },
+src/pages/artist/Comments.tsx:             <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-500 italic">Signal Filters</p>
+src/pages/artist/Comments.tsx:              { label: 'Archive Registry', count: stats.total - stats.approved - stats.pending, icon: <Target className="h-3.5 w-3.5" /> }
+src/pages/artist/Comments.tsx:                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mt-6 italic animate-pulse">Syncing Signal Stream...</p>
+src/pages/artist/Comments.tsx:                <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Signal Loss</h3>
+src/pages/artist/Comments.tsx:                  The frequency is quiet. listener interactions will materialize here.
+src/pages/artist/Comments.tsx:                     <span className="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">Draft Transmission</span>
+src/pages/artist/Comments.tsx:                {/* Quoted Signal HUD */}
+src/pages/artist/Comments.tsx:                     <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 mb-3 not-italic">Intercepted Signal:</p>
+src/pages/artist/Comments.tsx:                      Transmission Payload
+src/pages/artist/Clashes.tsx:            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Combat Registry v1.2</p>
+src/pages/artist/Clashes.tsx:            <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">Battle History <span className="text-zinc-600">/</span> Ledger</h1>
+src/pages/artist/Clashes.tsx:            <p className="text-sm text-zinc-500 mt-1 font-medium italic">Review lyrical war performance and historical combat telemetry.</p>
+src/pages/artist/Clashes.tsx:              You haven't participated in any Lyrical Wars yet. Deploy to a live sector to build your history.
+src/pages/artist/Clashes.tsx:                        Deployment Cycle
+src/pages/artist/Clashes.tsx:                        <span>Protocol Concluded</span>
+src/pages/artist/Clashes.tsx:                              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Signal Broadcast</p>
+src/pages/artist/Promotions.tsx:               Deploy amplification protocols to boost discovery and billboard ranking.
+src/pages/artist/Promotions.tsx:               <span className="px-2.5 py-1 rounded-md bg-emerald-500 text-white text-[9px] font-black uppercase tracking-widest shadow-lg">BETA PROTOCOL</span>
+src/pages/artist/Promotions.tsx:              <span className="text-emerald-500">Audio Signal</span>
+src/pages/artist/Promotions.tsx:            <h3 className="text-[10px] font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Campaign Deployment Registry</h3>
+src/pages/artist/Promotions.tsx:                  placeholder="FILTER DEPLOYMENTS..."
+src/pages/artist/Promotions.tsx:            <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">Zero Active Deployments</h4>
+src/pages/artist/Promotions.tsx:              System is currently at baseline discovery levels. Initialize a campaign to activate growth protocols.
+src/pages/artist/Promotions.tsx:                {/* Info Registry */}
+src/pages/artist/Promotions.tsx:      {/* ── Deployment Wizard Modal ── */}
+src/pages/artist/Notifications.tsx:      {/* ── Branded Signal Header ── */}
+src/pages/artist/Notifications.tsx:            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Signal Intelligence v2.0</p>
+src/pages/artist/Notifications.tsx:              Signal Center
+src/pages/artist/Notifications.tsx:               <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-500 italic">Signal Layers</p>
+src/pages/artist/Notifications.tsx:                      <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Transmission Config</h2>
+src/pages/artist/Notifications.tsx:                          <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mt-1.5 opacity-60">Receive tactical frequency alerts.</p>
+src/pages/artist/Notifications.tsx:                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mt-6 italic animate-pulse">Syncing Signal Stream...</p>
+src/pages/artist/Notifications.tsx:                      Your signal stream is currently quiet. inbound events will materialize here.
+src/pages/artist/MySongs.tsx:    pending:  { label: 'Pending Signal',  cls: 'bg-amber-500/5 text-amber-500 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]'   },
+src/pages/artist/MySongs.tsx:    rejected: { label: 'Rejected Signal', cls: 'bg-rose-500/5 text-rose-500 border-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.1)]'     },
+src/pages/artist/MySongs.tsx:          Initialize New Transmission
+src/pages/artist/MySongs.tsx:                  Adjust your search parameters or initialize a new transmission cycle.
+src/pages/artist/MySongs.tsx:                                {(track.playCount ?? 0).toLocaleString()} <span className="text-zinc-600 ml-1">Transmissions</span>
+src/pages/artist/MySongs.tsx:                      title="Terminate Record"
+src/pages/artist/MySongs.tsx:        title="Terminate Record Sequence"
+src/pages/artist/MySongs.tsx:        message="This action is irreversible. The record will be permanently purged from the sonic archive across all distribution sectors."
+src/pages/artist/Upload.tsx:        toast.error('Uplink failed: could not load genres.');
+src/pages/artist/Upload.tsx:          toast.error('Registry sync failed: could not load artists.');
+src/pages/artist/Upload.tsx:      toast.error('Invalid signal: audio file required.');
+src/pages/artist/Upload.tsx:      toast.error('Invalid signal: image file required.');
+src/pages/artist/Upload.tsx:      toast.error(error.response?.data?.message || 'Signal invitation failed.');
+src/pages/artist/Upload.tsx:        toast.error('Target registry artist required.');
+src/pages/artist/Upload.tsx:            <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 italic mb-2">Protocol Error</p>
+src/pages/artist/Upload.tsx:            <p className="text-sm font-bold text-white mb-4 italic leading-relaxed">Artist registry profile required for tactical deployment.</p>
+src/pages/artist/Upload.tsx:      toast.error('Sector (genre) selection required.');
+src/pages/artist/Upload.tsx:      toast.error('Split protocol agreement required.');
+src/pages/artist/Upload.tsx:      toast.loading('Initializing Asset Uplink...', { id: 'upload' });
+src/pages/artist/Upload.tsx:      toast.loading('Finalizing Deployment Registry...', { id: 'upload' });
+src/pages/artist/Upload.tsx:      toast.success('Tactical Track Deployment Successful!', { id: 'upload' });
+src/pages/artist/Upload.tsx:      toast.error(error.message || 'Uplink failed during deployment.', { id: 'upload' });
+src/pages/artist/Upload.tsx:            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest italic mb-1.5">Registry Audit</p>
+src/pages/artist/Upload.tsx:              Transmissions undergo tactical review. Ensure high-fidelity assets for priority deployment.
+src/pages/artist/Upload.tsx:                  <p className="text-[10px] font-black text-zinc-500 dark:text-zinc-500 uppercase tracking-[0.2em] italic group-hover:text-white transition-colors">Sync Visual Signal</p>
+src/pages/artist/Upload.tsx:                  <p className="text-[10px] font-black text-zinc-500 dark:text-zinc-500 uppercase tracking-[0.2em] italic group-hover:text-white transition-colors">Sync Audio Signal</p>
+src/pages/artist/Upload.tsx:                  placeholder="EXTERNAL SIGNAL URL (YOUTUBE/VIMEO)..."
+src/pages/artist/Upload.tsx:                      <option value="">{loadingArtists ? 'SYNCING ARTIST REGISTRY...' : 'SELECT TARGET RECIPIENT ARTIST'}</option>
+src/pages/artist/Upload.tsx:                  <label className={labelClass}>Deployment Date <span className="text-emerald-500">*</span></label>
+src/pages/artist/Upload.tsx:                <label className={labelClass}>Primary Sector (Genre) <span className="text-emerald-500">*</span></label>
+src/pages/artist/Upload.tsx:                        <option value="">{loadingGenres ? 'SYNCING SECTOR DATA...' : 'SELECT SECTOR (GENRE)'}</option>
+src/pages/artist/Upload.tsx:                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-500 mb-1.5 italic">Financial Ledger</p>
+src/pages/artist/Upload.tsx:                    <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2 block italic">Signal Identity / Email</label>
+src/pages/artist/Upload.tsx:                             <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Signal Detection</p>
+src/pages/artist/Upload.tsx:                    <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2 block italic">Sector Role</label>
+src/pages/artist/Upload.tsx:                  I AGREE TO THE SPLIT SHEET PROTOCOL. I CONFIRM THE LEGAL AUTHORITY TO BROADCAST THIS CONTENT AND ATTEST TO THE ACCURACY OF ALL CONTRIBUTOR ALLOCATIONS AS DEFINED IN THE FINANCIAL LEDGER.
+src/pages/artist/Upload.tsx:                      <span>Uplink In Progress...</span>
+src/pages/artist/Upload.tsx:                      <span>Execute Tactical Deployment</span>
+src/pages/artist/Onboarding.tsx:      <Field label="Genre Sectoring" required error={errors.genres} hint="Select primary audio classifications (minimum 1)">
+src/pages/artist/Onboarding.tsx:        <Field label="Direct Frequency (Phone)">
+src/pages/artist/Onboarding.tsx:        <Field label="Transmission Email">
+src/pages/artist/Onboarding.tsx:        <Field label="Nationality / Sector Citizenship" required error={errors.nationality}>
+src/pages/artist/Onboarding.tsx:           <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] italic">Government Credentials</h3>
+src/pages/artist/Onboarding.tsx:          <Field label="Credential Type" required error={errors.idType}>
+src/pages/artist/Onboarding.tsx:          <Field label="Credential Identifier" required error={errors.idNumber} hint="Number as printed on document">
+src/pages/artist/Onboarding.tsx:                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest italic">Credential Uploaded</p>
+src/pages/artist/Onboarding.tsx:                <p className="text-[10px] font-black text-zinc-300 uppercase tracking-widest italic">Upload Government Credential</p>
+src/pages/artist/Onboarding.tsx:            <p className="text-zinc-500 text-xs mt-1 font-medium italic">Execute the standard revenue distribution protocol.</p>
+src/pages/artist/Onboarding.tsx:          THIS SPLIT APPLIES TO GLOBAL STREAMING REVENUE AND DIGITAL GIFT TRANSFERS. TRACK-SPECIFIC COLLABORATOR LEDGERS ARE CONFIGURED DURING INDIVIDUAL ASSET UPLOAD.
+src/pages/artist/Onboarding.tsx:        <p><strong className="text-zinc-300 font-black uppercase">8. Termination.</strong> Lugmatic reserves the right to suspend or terminate accounts that violate these terms, with prior notice where possible.</p>
+src/pages/artist/Onboarding.tsx:        <p className="text-zinc-700 font-bold uppercase italic mt-4">By executing this digital signature, you acknowledge full compliance with Lugmatic's core operational protocols and privacy standards.</p>
+src/pages/artist/Onboarding.tsx:        <Field label="Authorized Digital Execution (Full Name)" required error={errors.platformAgreementSignature}
+src/pages/artist/Onboarding.tsx:          hint="Type your full legal name as it appears on your verified credential">
+src/pages/artist/Onboarding.tsx:            I HAVE READ AND FULLY CONCUR WITH THE LUGMATIC ARTIST PLATFORM AGREEMENT. I CONFIRM THAT THE SUBMITTED TELEMETRY IS ACCURATE AND I AM AUTHORIZED TO EXECUTE THIS PROTOCOL.
+src/pages/artist/Onboarding.tsx:    { label: 'GENRE SECTORS',   value: (data.genres || []).join(', ').toUpperCase() || '—' },
+src/pages/artist/Onboarding.tsx:    { label: 'CREDENTIAL FILE', value: data.idDocumentUrl ? '✓ SYNCHRONIZED' : '✗ MISSING' },
+src/pages/artist/Onboarding.tsx:    { label: 'FISCAL EXECUTION',value: data.platformAgreementSigned ? `✓ SIGNED: "${data.platformAgreementSignature}"` : '✗ UNSIGNED' },
+src/pages/artist/Onboarding.tsx:            <h2 className="text-lg font-black text-white uppercase italic tracking-tight leading-none">Manifest Review</h2>
+src/pages/artist/Onboarding.tsx:            <p className="text-zinc-500 text-xs mt-1 font-medium italic">Validate all data parameters before final transmission.</p>
+src/pages/artist/Onboarding.tsx:             UPON SUBMISSION, THE INTELLIGENCE CORE WILL VERIFY YOUR CREDENTIALS. THIS PROCESS TYPICALLY REQUIRES <strong className="text-zinc-300">48–72 OPERATIONAL HOURS</strong>. YOU WILL RETAIN PLATFORM ACCESS BUT ASSET UPLOAD AND LIVE TRANSMISSION WILL BE RESTRICTED UNTIL APPROVAL.
+src/pages/artist/Onboarding.tsx:        <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Transmission Pending</h2>
+src/pages/artist/Onboarding.tsx:        <RefreshCw className="w-4 h-4" /> Update & Resubmit Protocol
+src/pages/artist/Onboarding.tsx:          ALL SUBMITTED TELEMETRY IS ENCRYPTED AND RESTRICTED TO AUTHORIZED NETWORK OPERATORS.
+src/pages/artist/SupportHistory.tsx:            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Uplink Log</p>
+src/pages/artist/SupportHistory.tsx:            <p className="text-sm text-zinc-500 mt-0.5">Track the status of your reported issues and protocol inquiries.</p>
+src/pages/artist/SupportHistory.tsx:              <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest font-black opacity-60">Any support requests you submit will emerge in this registry.</p>
+src/pages/artist/SongAnalytics.tsx:      y: { formatter: (val) => `${val} transmissions` }
+src/pages/artist/SongAnalytics.tsx:              {song?.name} <span className="text-zinc-600">/</span> Telemetry
+src/pages/artist/SongAnalytics.tsx:      {/* Primary Telemetry */}
+src/pages/artist/SongAnalytics.tsx:          title="Total Transmissions" 
+src/pages/artist/SongAnalytics.tsx:                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Daily ingestion cycles for this sector</p>
+src/pages/artist/SongAnalytics.tsx:                series={[{ name: 'Transmissions', data: analytics.dailyStats.map(d => d.plays) }]} 
+src/pages/artist/Live.tsx:      socketService.onStreamEnded(() => toast('Broadcast terminated'));
+src/pages/artist/Live.tsx:        toast.success('Clash started! Deployment active!', { icon: '🔥' });
+src/pages/artist/Live.tsx:          toast.success('Victory! Deployment Successful!', { icon: <Trophy className="h-5 w-5 text-emerald-500" />, duration: 5000 });
+src/pages/artist/Live.tsx:          toast('Stalemate Protocol Active.', { icon: '🤝' });
+src/pages/artist/Live.tsx:      toast.error('Live chat offline — check uplink status.', { duration: 8000 });
+src/pages/artist/Live.tsx:      const errMsg = error instanceof Error ? error.message : 'Uplink synchronization failed';
+src/pages/artist/Live.tsx:      toast.success('Broadcast terminated.');
+src/pages/artist/Live.tsx:    toast.success('Signal link extracted');
+src/pages/artist/Live.tsx:                Signal Sync
+src/pages/artist/Live.tsx:                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic">Global Protocol</p>
+src/pages/artist/Live.tsx:               <span className="font-black text-base italic tracking-tighter uppercase">Signal Active</span>
+src/pages/artist/Live.tsx:                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Uplink</span>
+src/pages/artist/Live.tsx:                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{activeClash.realmLabel || 'Standard Sector'}</span>
+src/pages/artist/Live.tsx:                <p className="text-[9px] uppercase tracking-widest font-black text-rose-400 italic mb-1">Hostile Signal</p>
+src/pages/artist/Live.tsx:                    {clashTurn.currentTurn === streamData?.host?._id ? 'Your Initiative' : 'Opponent Deployment'}
+src/pages/artist/Live.tsx:              { label: 'Peak Signal', value: summary.peakViewers, color: 'bg-purple-500/5 text-purple-500 border-purple-500/10' },
+src/pages/artist/Live.tsx:                  {liveKitConnected ? 'SECURE_UPLINK' : 'SYNC_LOSS_RETRY'}
+src/pages/artist/Live.tsx:              <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] italic">Telemetry Stream</h3>
+src/pages/artist/Live.tsx:                  {artistName ? `Initialize: ${artistName}` : 'Uplink Setup'}
+src/pages/artist/Live.tsx:                  Signal Designation <span className="text-emerald-500">*</span>
+src/pages/artist/Live.tsx:                  placeholder={artistName ? `${artistName} Live` : 'e.g. Protocol Alpha'}
+src/pages/artist/Live.tsx:                <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic">Data Manifest</label>
+src/pages/artist/Live.tsx:                <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 italic">Deployment Sector</label>
+src/pages/artist/Live.tsx:                  <option value="performance">LIVE_EXECUTION</option>
+src/pages/artist/Live.tsx:                {isBusy ? PHASE_LABELS[phase] : 'Engage Signal'}
+src/services/giftService.ts:  // Get gift audit log
+src/services/giftService.ts:  getGiftAuditLog: async (id: string) => {
+src/services/giftService.ts:    return apiService.get(`/gifts/${id}/audit-log`);
+src/services/giftService.ts:  // Get all gift audit logs
+src/services/giftService.ts:  getAllGiftAuditLogs: async () => {
+src/services/giftService.ts:    return apiService.get('/gifts/audit-logs');
+src/services/giftService.ts:  // Restore gift from audit log
+src/services/giftService.ts:  restoreGiftFromAudit: async (id: string, auditId: string) => {
+src/services/giftService.ts:    return apiService.post(`/gifts/${id}/restore-from-audit/${auditId}`);
+src/services/giftService.ts:    frequency: 'daily' | 'weekly' | 'monthly';
+src/services/giftService.ts:    frequency: 'daily' | 'weekly' | 'monthly';
+src/services/giftService.ts:    frequency: 'daily' | 'weekly' | 'monthly';
+src/store/slices/authSlice.ts:interface LoginCredentials {
+src/store/slices/authSlice.ts:  async (credentials: LoginCredentials, { rejectWithValue }) => {
+src/store/slices/authSlice.ts:      const response = await apiService.post('/auth/login', credentials);

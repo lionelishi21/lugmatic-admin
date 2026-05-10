@@ -99,7 +99,7 @@ export default function SongAnalytics() {
     tooltip: {
       theme: 'dark',
       x: { format: 'dd MMM' },
-      y: { formatter: (val) => `${val} transmissions` }
+      y: { formatter: (val) => `${val} streams` }
     }
   };
 
@@ -194,15 +194,15 @@ export default function SongAnalytics() {
             <ChevronLeft size={24} className="group-hover/back:-translate-x-1 transition-transform" />
           </button>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Sonic Intelligence Cycle</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Performance Insights</p>
             <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic flex items-center gap-3">
-              {song?.name} <span className="text-zinc-600">/</span> Telemetry
+              {song?.name} <span className="text-zinc-600">/</span> Analytics
             </h1>
-            <p className="text-sm text-zinc-500 mt-1 font-medium">Track performance metrics over the last {days} distribution days.</p>
+            <p className="text-sm text-zinc-500 mt-1 font-medium">Track performance metrics over the last {days} days.</p>
           </div>
         </div>
 
-        {/* Tactical Filters */}
+        {/* Time Range Filters */}
         <div className="flex items-center gap-3 relative z-10">
           <div className="bg-zinc-950 border border-white/[0.04] rounded-2xl p-1.5 flex items-center gap-1.5 shadow-inner">
             {[7, 30, 90].map(d => (
@@ -222,21 +222,21 @@ export default function SongAnalytics() {
         </div>
       </div>
 
-      {/* Primary Telemetry */}
+      {/* Core Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard 
-          title="Total Transmissions" 
+          title="Total Streams" 
           value={analytics?.totalPlays.toLocaleString() || '0'} 
           icon={Activity} 
         />
         <StatCard 
-          title="Recent Ingestion" 
+          title="Recent Streams" 
           value={analytics?.dailyStats.reduce((sum, d) => sum + d.plays, 0).toLocaleString() || '0'} 
           icon={TrendingUp} 
           trend={12.5}
         />
         <StatCard 
-          title="Terminal Access" 
+          title="Total Devices" 
           value={analytics?.deviceStats.length || '0'} 
           icon={Smartphone} 
         />
@@ -251,8 +251,8 @@ export default function SongAnalytics() {
                   <Layers className="h-5 w-5 text-emerald-500" />
                </div>
                <div>
-                  <h2 className="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">Streaming Trajectory</h2>
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Daily ingestion cycles for this sector</p>
+                  <h2 className="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">Stream Growth</h2>
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Daily streams for this track</p>
                </div>
             </div>
             <div className="flex items-center gap-3 bg-zinc-950 px-4 py-2 rounded-xl border border-white/[0.02] shadow-inner">
@@ -264,7 +264,7 @@ export default function SongAnalytics() {
             {analytics?.dailyStats.length ? (
               <Chart 
                 options={lineChartOptions} 
-                series={[{ name: 'Transmissions', data: analytics.dailyStats.map(d => d.plays) }]} 
+                series={[{ name: 'Streams', data: analytics.dailyStats.map(d => d.plays) }]} 
                 type="area" 
                 height="100%" 
                 width="100%"
@@ -272,7 +272,7 @@ export default function SongAnalytics() {
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-zinc-700 bg-zinc-950/20 rounded-2xl border border-dashed border-white/[0.04]">
                 <Activity size={64} className="mb-4 opacity-10" />
-                <p className="text-[11px] font-black uppercase tracking-widest">No spectral data detected in this period</p>
+                <p className="text-[11px] font-black uppercase tracking-widest">No streaming data detected in this period</p>
               </div>
             )}
           </div>
@@ -285,8 +285,8 @@ export default function SongAnalytics() {
                 <Smartphone className="h-5 w-5 text-emerald-500" />
              </div>
              <div>
-                <h2 className="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">Access Matrix</h2>
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Fan terminal identification</p>
+                <h2 className="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">Audience Devices</h2>
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Device breakdown</p>
              </div>
           </div>
           
@@ -316,7 +316,7 @@ export default function SongAnalytics() {
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-zinc-700 w-full bg-zinc-950/20 rounded-2xl border border-dashed border-white/[0.04]">
                 <Target size={64} className="mb-4 opacity-10" />
-                <p className="text-[11px] font-black uppercase tracking-widest text-center px-6">Terminal identification unsuccessful</p>
+                <p className="text-[11px] font-black uppercase tracking-widest text-center px-6">Device identification unsuccessful</p>
               </div>
             )}
           </div>

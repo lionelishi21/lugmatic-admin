@@ -101,7 +101,7 @@ export default function Upload() {
         setGenres(fetchedGenres.filter(g => g.isActive));
       } catch (error) {
         console.error('Failed to fetch genres:', error);
-        toast.error('Uplink failed: could not load genres.');
+        toast.error('Failed to load genres.');
       } finally {
         setLoadingGenres(false);
       }
@@ -116,7 +116,7 @@ export default function Upload() {
           setArtistsList(artists);
         } catch (error) {
           console.error('Failed to fetch artists:', error);
-          toast.error('Registry sync failed: could not load artists.');
+          toast.error('Failed to load artists.');
         } finally {
           setLoadingArtists(false);
         }
@@ -131,7 +131,7 @@ export default function Upload() {
 
   const processAudioFile = (file: File) => {
     if (!file.type.startsWith('audio/')) {
-      toast.error('Invalid signal: audio file required.');
+      toast.error('Invalid file: audio required.');
       return;
     }
     setAudioFile(file);
@@ -144,7 +144,7 @@ export default function Upload() {
 
   const processCoverFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
-      toast.error('Invalid signal: image file required.');
+      toast.error('Invalid file: image required.');
       return;
     }
     setCoverImage(file);
@@ -222,7 +222,7 @@ export default function Upload() {
   const inviteContributor = async (index: number) => {
     const email = contributors[index].name;
     if (!email || !email.includes('@')) {
-      toast.error('Provide valid tactical email address.');
+      toast.error('Provide a valid email address.');
       return;
     }
 
@@ -230,11 +230,11 @@ export default function Upload() {
       setIsSearching(true);
       const { userService } = await import('../../services/userService');
       await userService.sendContributorInvitation(email);
-      toast.success(`Broadast invitation sent to ${email}`);
+      toast.success(`Invitation sent to ${email}`);
       setSearchResults([]);
       setActiveSearchIndex(null);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Signal invitation failed.');
+      toast.error(error.response?.data?.message || 'Invitation failed.');
     } finally {
       setIsSearching(false);
     }
@@ -263,7 +263,7 @@ export default function Upload() {
     if (isAdmin) {
       artistId = selectedArtistId || null;
       if (!artistId) {
-        toast.error('Target registry artist required.');
+        toast.error('Please select an artist.');
         return;
       }
     } else {
@@ -272,13 +272,13 @@ export default function Upload() {
       if (!artistId) {
         toast.error(
           <div className="bg-zinc-950 p-6 border border-rose-500/20 rounded-2xl shadow-2xl">
-            <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 italic mb-2">Protocol Error</p>
-            <p className="text-sm font-bold text-white mb-4 italic leading-relaxed">Artist registry profile required for tactical deployment.</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 italic mb-2">Action Required</p>
+            <p className="text-sm font-bold text-white mb-4 italic leading-relaxed">Artist profile required for upload.</p>
             <button 
               onClick={() => navigate('/artist/profile')}
               className="w-full h-12 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20 italic"
             >
-              Initialize Profile
+              Complete Profile
             </button>
           </div>,
           { duration: 6000, icon: null }
@@ -288,22 +288,22 @@ export default function Upload() {
     }
 
     if (audioDuration <= 0) {
-      toast.error('Could not verify audio sequence length.');
+      toast.error('Could not verify audio length.');
       return;
     }
 
     if (!audioFile || !coverImage) {
-      toast.error('Missing core assets (audio/visual).');
+      toast.error('Missing audio or cover image.');
       return;
     }
 
     if (!form.genre) {
-      toast.error('Sector (genre) selection required.');
+      toast.error('Genre selection required.');
       return;
     }
 
     if (!termsAccepted) {
-      toast.error('Split protocol agreement required.');
+      toast.error('Split agreement required.');
       return;
     }
 
@@ -315,14 +315,14 @@ export default function Upload() {
 
     setIsUploading(true);
     try {
-      toast.loading('Initializing Asset Uplink...', { id: 'upload' });
+      toast.loading('Starting upload...', { id: 'upload' });
       
       const audioRes = await songService.getPresignedUrl('song-audio', audioFile.name, audioFile.type);
-      toast.loading('Syncing Audio Array...', { id: 'upload' });
+      toast.loading('Uploading audio...', { id: 'upload' });
       await songService.uploadToS3(audioRes.uploadUrl, audioFile, audioFile.type);
 
       const coverRes = await songService.getPresignedUrl('cover-art', coverImage.name, coverImage.type);
-      toast.loading('Syncing Visual Array...', { id: 'upload' });
+      toast.loading('Uploading cover image...', { id: 'upload' });
       await songService.uploadToS3(coverRes.uploadUrl, coverImage, coverImage.type);
 
       let videoFileKey = '';
@@ -333,7 +333,7 @@ export default function Upload() {
         videoFileKey = videoRes.key;
       }
 
-      toast.loading('Finalizing Deployment Registry...', { id: 'upload' });
+      toast.loading('Finalizing track...', { id: 'upload' });
        const songData: CreateSongData = {
         name: form.title,
         artist: String(artistId),
@@ -355,7 +355,7 @@ export default function Upload() {
       };
 
       await songService.createSong(songData);
-      toast.success('Tactical Track Deployment Successful!', { id: 'upload' });
+      toast.success('Track uploaded successfully!', { id: 'upload' });
 
       setForm({
         title: '',
@@ -375,7 +375,7 @@ export default function Upload() {
       if (videoInputRef.current) videoInputRef.current.value = '';
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error(error.message || 'Uplink failed during deployment.', { id: 'upload' });
+      toast.error(error.message || 'Upload failed.', { id: 'upload' });
     } finally {
       setIsUploading(false);
     }
@@ -404,9 +404,9 @@ export default function Upload() {
              <ShieldCheck className="h-5 w-5 text-emerald-500" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest italic mb-1.5">Registry Audit</p>
+            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest italic mb-1.5">Track Review</p>
             <p className="text-[10px] text-zinc-600 font-black uppercase tracking-widest leading-relaxed italic">
-              Transmissions undergo tactical review. Ensure high-fidelity assets for priority deployment.
+              Submissions undergo review. Ensure high-quality assets for faster approval.
             </p>
           </div>
         </div>
@@ -423,7 +423,7 @@ export default function Upload() {
                 <div className="w-8 h-8 bg-zinc-950 rounded-lg flex items-center justify-center border border-white/[0.04]">
                     <ImageIcon className="h-4 w-4 text-emerald-500" />
                 </div>
-                <h3 className="text-[10px] font-black text-white uppercase tracking-widest italic">Visual Array</h3>
+                <h3 className="text-[10px] font-black text-white uppercase tracking-widest italic">Cover Art</h3>
             </div>
             <div
               className={`relative rounded-2xl border-2 border-dashed transition-all duration-500 cursor-pointer overflow-hidden group shadow-inner
@@ -462,7 +462,7 @@ export default function Upload() {
                   <div className="w-20 h-20 bg-zinc-950 rounded-3xl flex items-center justify-center mb-6 border border-white/[0.04] group-hover:scale-110 transition-transform duration-500 shadow-2xl">
                     <ImageIcon className="h-9 w-9 text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                   </div>
-                  <p className="text-[10px] font-black text-zinc-500 dark:text-zinc-500 uppercase tracking-[0.2em] italic group-hover:text-white transition-colors">Sync Visual Signal</p>
+                  <p className="text-[10px] font-black text-zinc-500 dark:text-zinc-500 uppercase tracking-[0.2em] italic group-hover:text-white transition-colors">Upload Cover Image</p>
                   <p className="text-[9px] text-zinc-700 mt-3 font-black uppercase tracking-widest opacity-60">1:1 JPG/PNG · 5MB LIMIT</p>
                 </div>
               )}
@@ -509,7 +509,7 @@ export default function Upload() {
                        <span className="text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-lg uppercase tracking-widest border border-emerald-500/20 italic">
                           {audioDuration > 0
                             ? `${Math.floor(audioDuration / 60)}:${String(audioDuration % 60).padStart(2, '0')}`
-                            : 'SYNCING...'
+                            : 'LOADING...'
                           }
                        </span>
                        <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest italic">
@@ -535,7 +535,7 @@ export default function Upload() {
                   <div className="w-16 h-16 bg-zinc-950 rounded-3xl flex items-center justify-center mb-6 border border-white/[0.04] group-hover:rotate-12 transition-transform duration-500 shadow-2xl">
                     <Music className="h-8 w-8 text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                   </div>
-                  <p className="text-[10px] font-black text-zinc-500 dark:text-zinc-500 uppercase tracking-[0.2em] italic group-hover:text-white transition-colors">Sync Audio Signal</p>
+                  <p className="text-[10px] font-black text-zinc-500 dark:text-zinc-500 uppercase tracking-[0.2em] italic group-hover:text-white transition-colors">Upload Audio File</p>
                   <p className="text-[9px] text-zinc-700 mt-3 font-black uppercase tracking-widest opacity-60">MP3/WAV/FLAC · 50MB LIMIT</p>
                 </div>
               )}
@@ -556,7 +556,7 @@ export default function Upload() {
                 <div className="w-8 h-8 bg-zinc-950 rounded-lg flex items-center justify-center border border-white/[0.04]">
                     <Film className="h-4 w-4 text-emerald-500" />
                 </div>
-                <h3 className="text-[10px] font-black text-white uppercase tracking-widest italic">Visual Feed</h3>
+                <h3 className="text-[10px] font-black text-white uppercase tracking-widest italic">Video File</h3>
             </div>
             <div className="space-y-6">
               <div 
@@ -572,7 +572,7 @@ export default function Upload() {
                     const file = e.target.files?.[0];
                     if (file) {
                       if (file.size > 100 * 1024 * 1024) {
-                        toast.error('Tactical breach: video exceeds 100MB limit.');
+                        toast.error('Video exceeds 100MB limit.');
                         return;
                       }
                       setVideoFile(file);
@@ -600,7 +600,7 @@ export default function Upload() {
                     <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/[0.04] shadow-2xl">
                        <UploadIcon className="w-6 h-6 text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                     </div>
-                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic group-hover:text-white transition-colors">Sync MP4/MOV Source</span>
+                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic group-hover:text-white transition-colors">Upload MP4/MOV Source</span>
                   </div>
                 )}
               </div>
@@ -614,7 +614,7 @@ export default function Upload() {
                   name="videoUrl"
                   value={form.videoUrl}
                   onChange={handleFormChange}
-                  placeholder="EXTERNAL SIGNAL URL (YOUTUBE/VIMEO)..."
+                  placeholder="EXTERNAL VIDEO URL (YOUTUBE/VIMEO)..."
                   className={inputClass + ' pl-14'}
                 />
               </div>
@@ -652,7 +652,7 @@ export default function Upload() {
                       required
                       disabled={loadingArtists}
                     >
-                      <option value="">{loadingArtists ? 'SYNCING ARTIST REGISTRY...' : 'SELECT TARGET RECIPIENT ARTIST'}</option>
+                      <option value="">{loadingArtists ? 'LOADING ARTISTS...' : 'SELECT ARTIST'}</option>
                       {artistsList.map(artist => (
                         <option key={artist._id} value={artist._id}>
                           {(artist.name || artist.fullName || artist.email).toUpperCase()}
@@ -682,7 +682,7 @@ export default function Upload() {
                 </div>
                 
                 <div className="space-y-3">
-                  <label className={labelClass}>Deployment Date <span className="text-emerald-500">*</span></label>
+                  <label className={labelClass}>Release Date <span className="text-emerald-500">*</span></label>
                   <div className="relative group">
                     <input
                         type="date"
@@ -708,7 +708,7 @@ export default function Upload() {
                         required
                         disabled={loadingGenres}
                     >
-                        <option value="">{loadingGenres ? 'SYNCING SECTOR DATA...' : 'SELECT SECTOR (GENRE)'}</option>
+                        <option value="">{loadingGenres ? 'LOADING GENRES...' : 'SELECT GENRE'}</option>
                         {genres.map(genre => (
                         <option key={genre._id} value={genre._id}>{genre.name.toUpperCase()}</option>
                         ))}
@@ -718,7 +718,7 @@ export default function Upload() {
               </div>
 
               <div className="space-y-3">
-                <label className={labelClass}>Lyric Matrix <span className="text-zinc-700 italic">(OPTIONAL)</span></label>
+                <label className={labelClass}>Lyrics <span className="text-zinc-700 italic">(OPTIONAL)</span></label>
                 <textarea
                   name="lyrics"
                   value={form.lyrics}
@@ -741,7 +741,7 @@ export default function Upload() {
                     <Layers className="h-6 w-6 text-purple-500 relative z-10" />
                 </div>
                 <div>
-                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-500 mb-1.5 italic">Financial Ledger</p>
+                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-500 mb-1.5 italic">Financials</p>
                    <h2 className="text-xl font-black text-white uppercase tracking-widest italic">Revenue Split</h2>
                 </div>
               </div>
@@ -751,7 +751,7 @@ export default function Upload() {
                 className="h-14 px-8 bg-white text-zinc-950 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:scale-105 transition-all shadow-2xl italic flex items-center gap-3"
               >
                 <Plus className="h-4 w-4" />
-                Add Entity
+                Add Contributor
               </button>
             </div>
             
@@ -764,7 +764,7 @@ export default function Upload() {
                   className="grid grid-cols-1 md:grid-cols-12 gap-6 p-8 bg-zinc-950/40 rounded-3xl border border-white/[0.02] relative group/row hover:border-emerald-500/20 transition-all shadow-inner"
                 >
                   <div className="md:col-span-6 relative space-y-2">
-                    <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2 block italic">Signal Identity / Email</label>
+                    <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2 block italic">Contributor Name / Email</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
                          <Search className="h-4 w-4 text-zinc-800" />
@@ -773,7 +773,7 @@ export default function Upload() {
                         type="text"
                         value={contributor.name}
                         onChange={(e) => handleContributorSearch(index, e.target.value)}
-                        placeholder="SEARCH NETWORK..."
+                        placeholder="SEARCH USERS..."
                         className={inputClass + ` pl-14 ${contributor.userId ? 'border-emerald-500/40 bg-emerald-500/5 text-emerald-400' : ''}`}
                         required
                       />
@@ -790,7 +790,7 @@ export default function Upload() {
                           className={`${card} absolute z-50 w-full mt-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden border-emerald-500/20 bg-zinc-900/95 backdrop-blur-xl`}
                         >
                           <div className="px-6 py-4 border-b border-white/[0.04] bg-zinc-950/50">
-                             <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Signal Detection</p>
+                             <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Search Results</p>
                           </div>
                           <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
                             {searchResults.map((result) => (
@@ -891,7 +891,7 @@ export default function Upload() {
                   />
                 </div>
                 <span className="text-[10px] font-black text-zinc-600 group-hover:text-zinc-400 transition-colors leading-relaxed uppercase tracking-[0.2em] italic">
-                  I AGREE TO THE SPLIT SHEET PROTOCOL. I CONFIRM THE LEGAL AUTHORITY TO BROADCAST THIS CONTENT AND ATTEST TO THE ACCURACY OF ALL CONTRIBUTOR ALLOCATIONS AS DEFINED IN THE FINANCIAL LEDGER.
+                  I AGREE TO THE SPLIT SHEET. I CONFIRM I HAVE THE LEGAL AUTHORITY TO UPLOAD THIS CONTENT AND ATTEST TO THE ACCURACY OF ALL CONTRIBUTOR ALLOCATIONS.
                 </span>
               </label>
 
@@ -907,12 +907,12 @@ export default function Upload() {
                   {isUploading ? (
                     <>
                       <Loader2 className="animate-spin h-6 w-6" />
-                      <span>Uplink In Progress...</span>
+                      <span>Uploading...</span>
                     </>
                   ) : (
                     <>
                       <UploadIcon className="h-6 w-6" />
-                      <span>Execute Tactical Deployment</span>
+                      <span>Upload Track</span>
                       <ChevronRight className="h-5 w-5 group-hover/submit:translate-x-2 transition-transform duration-500" />
                     </>
                   )}

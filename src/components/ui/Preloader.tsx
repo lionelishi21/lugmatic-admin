@@ -11,7 +11,7 @@ interface PreloaderProps {
 
 const Preloader: React.FC<PreloaderProps> = ({
   isVisible,
-  text = 'SYNCHRONIZING...',
+  text = 'LOADING...',
   fullScreen = true,
   backgroundColor = 'rgba(0, 0, 0, 0.8)',
   spinnerColor = '#10b981' // emerald-500
@@ -43,7 +43,7 @@ const Preloader: React.FC<PreloaderProps> = ({
             delay: 0.1
           }}
         >
-          {/* HUD Tactical Loader */}
+          {/* Loader */}
           <div className="relative h-20 w-20 mb-6 flex items-center justify-center">
             {/* Outer Hexagon/Ring Decoration */}
             <motion.div 
@@ -99,7 +99,7 @@ const Preloader: React.FC<PreloaderProps> = ({
                {text}
              </motion.p>
              <p className="text-[8px] font-black text-zinc-700 uppercase tracking-widest italic">
-               System Health: Nominal // Latency: Low
+               Loading your experience...
              </p>
           </div>
           

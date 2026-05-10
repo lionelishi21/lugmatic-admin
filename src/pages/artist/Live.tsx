@@ -93,6 +93,12 @@ const PHASE_LABELS: Record<StreamPhase, string> = {
   error: 'Error',
 };
 
+function formatDuration(totalSeconds: number) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function Live() {
@@ -491,8 +497,15 @@ export default function Live() {
     if (!streamData?._id) return;
     setPhase('ending');
     try {
-      const result = await endStreamApi(streamData._id);
-      setSummary(result);
+      let result;
+      try {
+        result = await endStreamApi(streamData._id);
+        setSummary(result);
+      } catch (apiErr) {
+        console.error('End stream API error:', apiErr);
+        // Even if API fails (e.g. 401), we should still clean up local state
+        toast.error('Failed to sync final stream data. Closing connection.');
+      }
 
       roomRef.current?.disconnect();
       roomRef.current = null;
@@ -501,18 +514,21 @@ export default function Live() {
       socketService.leaveStream(streamData._id);
       socketService.disconnect();
 
-      setPhase('idle');
+      if (!summary && !result) {
+        setPhase('idle');
+      }
+      
       setMessages([]);
       setViewerCount(0);
       setGiftCount(0);
       setLiveSince(null);
       setElapsedTime('0:00');
       setLiveKitConnected(false);
-      toast.success('Broadcast terminated.');
+      toast.success('Broadcast ended.');
     } catch (error: unknown) {
       const errMsg = error instanceof Error ? error.message : 'Deactivation failed';
       toast.error(errMsg);
-      setPhase('live');
+      setPhase('idle');
     }
   };
 

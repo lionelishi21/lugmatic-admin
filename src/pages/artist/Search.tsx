@@ -136,10 +136,10 @@ export default function Search() {
   };
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode; count: number }[] = [
-    { key: 'all', label: 'Global Intel', icon: <Globe className="h-3.5 w-3.5" />, count: MOCK_RESULTS.tracks.length + MOCK_RESULTS.artists.length + MOCK_RESULTS.podcasts.length },
-    { key: 'tracks', label: 'Audio Tracks', icon: <Music2 className="h-3.5 w-3.5" />, count: MOCK_RESULTS.tracks.length },
-    { key: 'artists', label: 'Vocal Entities', icon: <Mic2 className="h-3.5 w-3.5" />, count: MOCK_RESULTS.artists.length },
-    { key: 'podcasts', label: 'Spoken Signals', icon: <BookOpen className="h-3.5 w-3.5" />, count: MOCK_RESULTS.podcasts.length },
+    { key: 'all', label: 'All Results', icon: <Globe className="h-3.5 w-3.5" />, count: MOCK_RESULTS.tracks.length + MOCK_RESULTS.artists.length + MOCK_RESULTS.podcasts.length },
+    { key: 'tracks', label: 'Tracks', icon: <Music2 className="h-3.5 w-3.5" />, count: MOCK_RESULTS.tracks.length },
+    { key: 'artists', label: 'Artists', icon: <Mic2 className="h-3.5 w-3.5" />, count: MOCK_RESULTS.artists.length },
+    { key: 'podcasts', label: 'Podcasts', icon: <BookOpen className="h-3.5 w-3.5" />, count: MOCK_RESULTS.podcasts.length },
   ];
 
   const showTracks = tab === 'all' || tab === 'tracks';
@@ -157,12 +157,12 @@ export default function Search() {
             <Globe className="h-7 w-7 text-white" />
           </div>
           <div>
-             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Intelligence Network</p>
+             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Discovery Network</p>
              <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase italic">
                Search & Discovery
              </h1>
              <p className="text-sm text-zinc-500 mt-0.5">
-               Find audio signals, entities, and broadcasts across the global node.
+               Find tracks, artists, and podcasts across the platform.
              </p>
           </div>
         </div>
@@ -185,7 +185,7 @@ export default function Search() {
             onFocus={() => setShowSuggestions(true)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
             onKeyDown={e => { if (e.key === 'Enter' && query.trim()) commitSearch(query); }}
-            placeholder="SCAN FOR ENTITIES, AUDIO, OR SIGNALS..."
+            placeholder="SEARCH TRACKS, ARTISTS, OR PODCASTS..."
             className="flex-1 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 text-[11px] font-black uppercase tracking-widest focus:outline-none"
           />
           {query && (
@@ -202,7 +202,7 @@ export default function Search() {
                 : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-white/10 text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
             }`}>
             <SlidersHorizontal className="h-3.5 w-3.5" />
-            Parameters
+            Filters
             {activeFilterCount > 0 && (
               <span className="bg-white text-emerald-500 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-black shadow-sm">
                 {activeFilterCount}
@@ -233,8 +233,8 @@ export default function Search() {
               {recentSearches.length > 0 && (
                 <div className={`${suggestions.length > 0 ? 'border-t border-zinc-100 dark:border-white/5' : ''} p-3`}>
                   <div className="flex items-center justify-between px-4 py-2 mb-2">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic">Mission History</span>
-                    <button onMouseDown={clearRecent} className="text-[9px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest">Wipe Data</button>
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic">Search History</span>
+                    <button onMouseDown={clearRecent} className="text-[9px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest">Clear All</button>
                   </div>
                   {recentSearches.slice(0, 5).map((s, i) => (
                     <div key={i} className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-white/[0.02] rounded-xl group transition-all">
@@ -261,7 +261,7 @@ export default function Search() {
             <div className={`${card} p-6 shadow-xl`}>
               <div className="flex flex-wrap gap-8 items-start">
                 <div className="space-y-3">
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Protocol Sorting</p>
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Sorting</p>
                   <div className="flex gap-2">
                     {(['relevance', 'popular', 'newest'] as SortBy[]).map(s => (
                       <button key={s} onClick={() => setSortBy(s)}
@@ -290,7 +290,7 @@ export default function Search() {
                   <div className="ml-auto self-end pb-1">
                     <button onClick={() => { setSelectedGenre(''); setSortBy('relevance'); }}
                       className="text-[10px] font-black text-rose-500 hover:text-rose-400 transition-all flex items-center gap-2 uppercase tracking-widest">
-                      <X className="h-3.5 w-3.5" /> Reset Parameters
+                      <X className="h-3.5 w-3.5" /> Reset Filters
                     </button>
                   </div>
                 )}
@@ -346,7 +346,7 @@ export default function Search() {
           <div className={`${card} p-6`}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest flex items-center gap-3 italic">
-                <Flame className="h-4 w-4 text-rose-500" /> Live Trending Matrix
+                <Flame className="h-4 w-4 text-rose-500" /> Trending Tracks
               </h2>
               <button className="text-[10px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest flex items-center gap-1 transition-all">
                 Full Feed <ChevronRight className="h-4 w-4" />
@@ -476,12 +476,12 @@ export default function Search() {
                   <div className={`${card} overflow-hidden shadow-xl`}>
                     <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
                       <h3 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest flex items-center gap-3 italic">
-                        <Mic2 className="h-4 w-4 text-emerald-500" /> Active Entities
+                        <Mic2 className="h-4 w-4 text-emerald-500" /> Artists
                       </h3>
                       {tab === 'all' && (
                         <button onClick={() => setTab('artists')}
                           className="text-[10px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest flex items-center gap-1 transition-all">
-                          Expand Entities <ChevronRight className="h-4 w-4" />
+                          View All Artists <ChevronRight className="h-4 w-4" />
                         </button>
                       )}
                     </div>
@@ -505,7 +505,7 @@ export default function Search() {
                             <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1.5">{artist.followers} Units • {artist.songs} Components • {artist.genre}</p>
                           </div>
                           <button className="h-9 px-6 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg">
-                            Track Entity
+                            View Profile
                           </button>
                         </div>
                       ))}
@@ -518,12 +518,12 @@ export default function Search() {
                   <div className={`${card} overflow-hidden shadow-xl`}>
                     <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
                       <h3 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest flex items-center gap-3 italic">
-                        <BookOpen className="h-4 w-4 text-emerald-500" /> Broadcast Signals
+                        <BookOpen className="h-4 w-4 text-emerald-500" /> Podcasts
                       </h3>
                       {tab === 'all' && (
                         <button onClick={() => setTab('podcasts')}
                           className="text-[10px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest flex items-center gap-1 transition-all">
-                          Expand Signals <ChevronRight className="h-4 w-4" />
+                          View All Podcasts <ChevronRight className="h-4 w-4" />
                         </button>
                       )}
                     </div>

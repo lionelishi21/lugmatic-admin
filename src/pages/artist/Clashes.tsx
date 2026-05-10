@@ -52,7 +52,7 @@ const statusBadge = (status: string) => {
     case 'active':
       return (
         <span className="text-[9px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-lg bg-emerald-500 text-white shadow-xl shadow-emerald-500/20 animate-pulse italic">
-          LIVE WAR CYCLE
+          LIVE CLASH
         </span>
       );
     case 'ended':
@@ -145,9 +145,9 @@ export default function Clashes() {
             <Swords className="w-7 h-7 text-emerald-500 relative z-10" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Combat Registry v1.2</p>
-            <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">Battle History <span className="text-zinc-600">/</span> Ledger</h1>
-            <p className="text-sm text-zinc-500 mt-1 font-medium italic">Review lyrical war performance and historical combat telemetry.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Clash History v1.2</p>
+            <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">Battle History <span className="text-zinc-600">/</span> Archive</h1>
+            <p className="text-sm text-zinc-500 mt-1 font-medium italic">Review your lyrical performance and clash history.</p>
           </div>
         </div>
       </div>
@@ -186,9 +186,9 @@ export default function Clashes() {
             <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-white/[0.04] group shadow-2xl">
               <Swords className="h-10 w-10 text-zinc-800 group-hover:scale-110 group-hover:text-emerald-500 transition-all duration-500" />
             </div>
-            <h4 className="text-xl font-black text-white uppercase tracking-tight italic">Zero Combat Records Detected</h4>
+            <h4 className="text-xl font-black text-white uppercase tracking-tight italic">No Clash Records</h4>
             <p className="text-sm text-zinc-500 mt-3 max-w-sm mx-auto leading-relaxed font-medium italic opacity-60">
-              You haven't participated in any Lyrical Wars yet. Deploy to a live sector to build your history.
+              You haven't participated in any clashes yet. Join a live clash to build your history.
             </p>
           </div>
         ) : (
@@ -212,7 +212,7 @@ export default function Clashes() {
                     </div>
                     <div className="flex flex-col">
                       <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] italic mb-1">
-                        Deployment Cycle
+                        Clash Date
                       </p>
                       <h4 className="text-sm font-black text-white uppercase italic tracking-widest">
                         {format(new Date(clash.createdAt), 'MMM dd, yyyy')}
@@ -222,7 +222,7 @@ export default function Clashes() {
                   {statusBadge(clash.status)}
                 </div>
 
-                {/* Tactical Scoreboard HUD */}
+                {/* Scoreboard HUD */}
                 <div className="flex flex-col md:flex-row items-center justify-between gap-12 max-w-4xl mx-auto">
                   {/* Challenger Entity HUD */}
                   <div className="flex flex-col items-center text-center flex-1 space-y-6">
@@ -297,7 +297,7 @@ export default function Clashes() {
                         <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20 shadow-inner">
                           <Zap className="h-5 w-5 text-emerald-500 animate-pulse" />
                         </div>
-                        <span className="text-emerald-500">Live Combat Active</span>
+                        <span className="text-emerald-500">Live Clash Active</span>
                       </>
                     )}
                   </div>
@@ -328,13 +328,13 @@ export default function Clashes() {
                             className={`${card} absolute bottom-full right-0 mb-4 w-64 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-40 overflow-hidden border-emerald-500/20 bg-zinc-900/95 backdrop-blur-xl`}
                           >
                             <div className="px-6 py-4 border-b border-white/[0.04] bg-zinc-950/50">
-                              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Signal Broadcast</p>
+                              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Share Clash</p>
                             </div>
                             <div className="p-2 space-y-1">
                               {[
-                                { id: 'twitter', label: 'X / Twitter', icon: 'X', color: 'bg-zinc-950' },
-                                { id: 'facebook', label: 'Meta Pulse', icon: 'M', color: 'bg-indigo-600' },
-                                { id: 'whatsapp', label: 'Secure Link', icon: 'S', color: 'bg-emerald-600' }
+                                { id: 'twitter', label: 'Twitter', icon: 'X', color: 'bg-zinc-950' },
+                                { id: 'facebook', label: 'Facebook', icon: 'M', color: 'bg-indigo-600' },
+                                { id: 'whatsapp', label: 'WhatsApp', icon: 'S', color: 'bg-emerald-600' }
                               ].map((plat) => (
                                 <button
                                   key={plat.id}
@@ -356,7 +356,7 @@ export default function Clashes() {
                                 <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center border border-emerald-500/20">
                                   {copiedId === clash._id ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
                                 </div>
-                                {copiedId === clash._id ? 'COPIED' : 'EXTRACT LINK'}
+                                {copiedId === clash._id ? 'COPIED' : 'COPY LINK'}
                               </button>
                             </div>
                           </motion.div>

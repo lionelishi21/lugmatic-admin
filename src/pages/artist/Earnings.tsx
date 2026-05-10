@@ -138,12 +138,12 @@ export default function Earnings() {
             <DollarSign className="h-8 w-8 text-white" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Artist Earnings</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Earnings</p>
             <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">
               Financial Overview
             </h1>
             <p className="text-sm text-zinc-500 mt-1 font-medium">
-              Transparent tracking and payout history for your music revenue.
+              Track your revenue from streams, gifts, and subscriptions.
             </p>
           </div>
         </div>
@@ -174,7 +174,7 @@ export default function Earnings() {
         </div>
       </div>
 
-      {/* ── Yield Grid ── */}
+      {/* ── Revenue Stats ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {STATS.map((s, i) => (
           <motion.div
@@ -204,7 +204,7 @@ export default function Earnings() {
         ))}
       </div>
 
-      {/* ── Operational Ledger ── */}
+      {/* ── Transaction History ── */}
       <div className={`${card} overflow-hidden`}>
         {/* Filter bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between px-8 py-6 border-b border-white/[0.06] bg-zinc-950/40 gap-4">
@@ -212,7 +212,7 @@ export default function Earnings() {
              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                 <History className="h-4 w-4 text-emerald-500" />
              </div>
-             <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Operational Ledger</h2>
+             <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">History Archive</h2>
           </div>
           <div className="flex bg-zinc-950 rounded-xl p-1 gap-1 border border-white/[0.04]">
             {(['all', 'pending', 'paid'] as const).map(s => (
@@ -234,20 +234,21 @@ export default function Earnings() {
         {/* Rows */}
         <AnimatePresence mode="wait">
           {isLoading ? (
-            <div className="flex items-center justify-center py-32 bg-zinc-950/20">
+            <div className="flex flex-col items-center justify-center py-32 bg-zinc-950/20">
               <div className="relative">
                  <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin shadow-2xl shadow-emerald-500/20" />
                  <Activity className="absolute inset-0 m-auto h-5 w-5 text-emerald-500 animate-pulse" />
               </div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mt-6 italic animate-pulse">Syncing Transactions...</p>
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-32 text-center px-10 bg-zinc-950/20">
               <div className="w-20 h-20 bg-zinc-950 rounded-3xl flex items-center justify-center mb-6 border border-white/5 shadow-inner">
                 <DollarSign className="h-10 w-10 text-zinc-600" />
               </div>
-              <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Zero Fiscal Records</h4>
+              <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">No Transaction Records</h4>
               <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest font-black opacity-60 max-w-xs leading-relaxed">
-                Telemetry for streams, gifts, and subscriptions will emerge here upon deployment.
+                Earnings from streams, gifts, and subscriptions will appear here.
               </p>
             </div>
           ) : (

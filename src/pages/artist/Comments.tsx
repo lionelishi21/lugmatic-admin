@@ -96,11 +96,11 @@ const CommentItem = ({ comment, onModerate, onReplyOpen, expanded, onToggleExpan
                 className="h-10 px-5 bg-zinc-950 border border-white/[0.04] text-zinc-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:text-emerald-500 hover:border-emerald-500/20 transition-all flex items-center gap-2.5 group/btn"
               >
                 <ReplyIcon className="h-3.5 w-3.5 group-hover:-translate-x-0.5 transition-transform" />
-                Dispatch Reply
+                Reply
               </button>
               <div className="flex items-center gap-2.5 px-5 h-10 bg-zinc-950/50 border border-white/[0.02] rounded-xl text-[10px] font-black text-zinc-500 uppercase tracking-widest">
                 <Zap className="h-3.5 w-3.5 text-emerald-500 animate-pulse" />
-                {comment.likes} High-Fives
+                {comment.likes} Likes
               </div>
             </div>
 
@@ -110,14 +110,14 @@ const CommentItem = ({ comment, onModerate, onReplyOpen, expanded, onToggleExpan
                   <button
                     onClick={() => onModerate(comment._id, 'approve')}
                     className="w-10 h-10 flex items-center justify-center text-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10 rounded-xl border border-emerald-500/10 transition-all shadow-lg"
-                    title="Approve Signal"
+                    title="Approve Comment"
                   >
                     <CheckCircle2 className="h-4.5 w-4.5" />
                   </button>
                   <button
                     onClick={() => onModerate(comment._id, 'reject')}
                     className="w-10 h-10 flex items-center justify-center text-rose-500 bg-rose-500/5 hover:bg-rose-500/10 rounded-xl border border-rose-500/10 transition-all shadow-lg"
-                    title="Reject Signal"
+                    title="Reject Comment"
                   >
                     <XCircle className="h-4.5 w-4.5" />
                   </button>
@@ -126,7 +126,7 @@ const CommentItem = ({ comment, onModerate, onReplyOpen, expanded, onToggleExpan
               <button
                 onClick={() => onModerate(comment._id, 'delete')}
                 className="w-10 h-10 flex items-center justify-center text-zinc-600 bg-zinc-950 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl border border-white/[0.04] hover:border-rose-500/20 transition-all"
-                title="Purge Entry"
+                title="Delete Comment"
               >
                 <Trash2 className="h-4.5 w-4.5" />
               </button>
@@ -143,7 +143,7 @@ const CommentItem = ({ comment, onModerate, onReplyOpen, expanded, onToggleExpan
             className="flex items-center gap-2.5 text-[10px] font-black text-zinc-500 hover:text-emerald-500 uppercase tracking-widest transition-colors italic"
           >
             {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            {expanded ? 'Signal Collapsed' : `Unfold ${comment.replies.length} ${comment.replies.length === 1 ? 'Response' : 'Responses'}`}
+            {expanded ? 'Collapse' : `View ${comment.replies.length} ${comment.replies.length === 1 ? 'Reply' : 'Replies'}`}
           </button>
 
           <AnimatePresence>
@@ -162,7 +162,7 @@ const CommentItem = ({ comment, onModerate, onReplyOpen, expanded, onToggleExpan
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">
-                          {typeof reply.user === 'string' ? 'Station Listener' : `${reply.user.firstName} ${reply.user.lastName}`}
+                          {typeof reply.user === 'string' ? 'Listener' : `${reply.user.firstName} ${reply.user.lastName}`}
                         </span>
                         <span className="text-[9px] text-zinc-500 font-black uppercase tracking-[0.1em] italic">
                            {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}
@@ -272,12 +272,12 @@ const Comments: React.FC = () => {
             <MessageSquare className="h-8 w-8 text-white" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Signal Intelligence v1.0</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Engagement Hub</p>
             <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">
-              Sonic Feedback
+              Comments
             </h1>
             <p className="text-sm text-zinc-500 mt-1 font-medium">
-              Tactical moderation and listener engagement hub.
+              Manage listener feedback and community engagement.
             </p>
           </div>
         </div>
@@ -286,10 +286,10 @@ const Comments: React.FC = () => {
       {/* ── engagement Telemetry ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {[
-          { label: 'Signal Stream', value: stats.total, color: 'indigo', icon: <MessageCircle className="h-6 w-6" /> },
-          { label: 'Priority Pulse', value: stats.pending, color: 'amber', icon: <AlertCircle className="h-6 w-6" /> },
-          { label: 'Cleared Feed', value: stats.approved, color: 'emerald', icon: <CheckCircle2 className="h-6 w-6" /> },
-          { label: 'Global Impact', value: stats.likes, color: 'rose', icon: <TrendingUp className="h-6 w-6" /> },
+          { label: 'Total Comments', value: stats.total, color: 'indigo', icon: <MessageCircle className="h-6 w-6" /> },
+          { label: 'Pending', value: stats.pending, color: 'amber', icon: <AlertCircle className="h-6 w-6" /> },
+          { label: 'Approved', value: stats.approved, color: 'emerald', icon: <CheckCircle2 className="h-6 w-6" /> },
+          { label: 'Total Likes', value: stats.likes, color: 'rose', icon: <TrendingUp className="h-6 w-6" /> },
         ].map((stat, idx) => (
           <motion.div 
             key={idx}
@@ -316,10 +316,10 @@ const Comments: React.FC = () => {
           </div>
           <div className={`${card} p-2 flex flex-col gap-1.5 bg-zinc-950/20 shadow-inner`}>
             {[
-              { label: 'Full Spectrum', count: stats.total, icon: <Activity className="h-3.5 w-3.5" /> },
-              { label: 'Pending Review', count: stats.pending, icon: <AlertCircle className="h-3.5 w-3.5" /> },
-              { label: 'Approved Feed', count: stats.approved, icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
-              { label: 'Archive Registry', count: stats.total - stats.approved - stats.pending, icon: <Target className="h-3.5 w-3.5" /> }
+              { label: 'All Comments', count: stats.total, icon: <Activity className="h-3.5 w-3.5" /> },
+              { label: 'Pending', count: stats.pending, icon: <AlertCircle className="h-3.5 w-3.5" /> },
+              { label: 'Approved', count: stats.approved, icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
+              { label: 'Rejected', count: stats.total - stats.approved - stats.pending, icon: <Target className="h-3.5 w-3.5" /> }
             ].map((item, idx) => (
               <button
                 key={idx}
@@ -355,16 +355,16 @@ const Comments: React.FC = () => {
                    <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin shadow-2xl shadow-emerald-500/20" />
                    <Activity className="absolute inset-0 m-auto h-5 w-5 text-emerald-500 animate-pulse" />
                 </div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mt-6 italic animate-pulse">Syncing Signal Stream...</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mt-6 italic animate-pulse">Syncing Comments...</p>
               </div>
             ) : filteredComments.length === 0 ? (
               <div className={`${card} py-32 text-center bg-zinc-950/20 shadow-inner`}>
                 <div className="w-20 h-20 bg-zinc-950 rounded-3xl mx-auto mb-8 flex items-center justify-center border border-white/[0.04] shadow-2xl group cursor-default">
                   <MessageSquare className="h-10 w-10 text-zinc-700 group-hover:text-emerald-500 transition-colors" />
                 </div>
-                <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Signal Loss</h3>
+                <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">No Comments</h3>
                 <p className="text-[11px] text-zinc-500 font-black uppercase tracking-[0.15em] mt-3 max-w-xs mx-auto leading-relaxed opacity-60">
-                  The frequency is quiet. listener interactions will materialize here.
+                  No interactions found. Listener comments will appear here.
                 </p>
               </div>
             ) : (

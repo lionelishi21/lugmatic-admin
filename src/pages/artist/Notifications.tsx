@@ -119,9 +119,9 @@ const Notifications: React.FC = () => {
     try {
       const promise = notificationService.markAllAsRead();
       toast.promise(promise, {
-        loading: 'Syncing inbox...',
-        success: 'Inbox cleared!',
-        error: 'Failed to clear inbox'
+        loading: 'Clearing notifications...',
+        success: 'Notifications cleared!',
+        error: 'Failed to clear notifications'
       });
       await promise;
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
@@ -185,12 +185,12 @@ const Notifications: React.FC = () => {
             <Bell className="h-8 w-8 text-white" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Signal Intelligence v2.0</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Activity Center</p>
             <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">
-              Signal Center
+              Notifications
             </h1>
             <p className="text-sm text-zinc-500 mt-1 font-medium">
-              Tactical activity stream monitoring and ecosystem alerts.
+              Real-time updates and community activity.
             </p>
           </div>
         </div>
@@ -225,7 +225,7 @@ const Notifications: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-3 px-2">
                <LayoutGrid className="h-4 w-4 text-emerald-500" />
-               <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-500 italic">Inbound Focus</p>
+               <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-500 italic">Filter Status</p>
             </div>
             <div className={`${card} p-2 flex flex-col gap-1.5 bg-zinc-950/20 shadow-inner`}>
               {(['all', 'unread', 'read'] as NotificationTab[]).map(tab => (
@@ -258,7 +258,7 @@ const Notifications: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-3 px-2">
                <Filter className="h-4 w-4 text-emerald-500" />
-               <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-500 italic">Signal Layers</p>
+               <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-500 italic">Categories</p>
             </div>
             <div className={`${card} p-2 flex flex-col gap-1.5 bg-zinc-950/20 shadow-inner`}>
               {(['all', 'gift', 'comment', 'follow', 'system', 'earnings', 'podcast'] as NotificationCategory[]).map(cat => {
@@ -304,7 +304,7 @@ const Notifications: React.FC = () => {
                       <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20 shadow-inner">
                          <Shield className="h-5 w-5 text-emerald-500" />
                       </div>
-                      <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Transmission Config</h2>
+                      <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">Notification Settings</h2>
                    </div>
                 </div>
 
@@ -318,7 +318,7 @@ const Notifications: React.FC = () => {
                         </div>
                         <div>
                           <p className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">{key.replace(/([A-Z])/g, ' $1')}</p>
-                          <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mt-1.5 opacity-60">Receive tactical frequency alerts.</p>
+                          <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mt-1.5 opacity-60">Manage your notification alerts.</p>
                         </div>
                       </div>
                       <button
@@ -344,16 +344,16 @@ const Notifications: React.FC = () => {
                        <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin shadow-2xl shadow-emerald-500/20" />
                        <Activity className="absolute inset-0 m-auto h-5 w-5 text-emerald-500 animate-pulse" />
                     </div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mt-6 italic animate-pulse">Syncing Signal Stream...</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mt-6 italic animate-pulse">Syncing Notifications...</p>
                   </div>
                 ) : filteredNotifications.length === 0 ? (
                   <div className={`${card} flex flex-col items-center justify-center py-32 text-center px-10 bg-zinc-950/20 shadow-inner`}>
                     <div className="w-20 h-20 bg-zinc-950 rounded-3xl flex items-center justify-center mb-8 border border-white/[0.04] shadow-2xl group cursor-default">
                       <Inbox className="h-10 w-10 text-zinc-700 group-hover:text-emerald-500 transition-colors" />
                     </div>
-                    <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Clear Horizon</h3>
+                    <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">All Caught Up</h3>
                     <p className="text-[11px] text-zinc-500 font-black uppercase tracking-[0.15em] mt-3 max-w-xs mx-auto leading-relaxed opacity-60">
-                      Your signal stream is currently quiet. inbound events will materialize here.
+                      Your notification feed is currently quiet. New events will appear here.
                     </p>
                   </div>
                 ) : (
