@@ -160,7 +160,12 @@ const authSlice = createSlice({
       .addCase(initializeAuth.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = action.payload.isAuthenticated;
-        state.user = action.payload.user as any;
+        const user = action.payload.user as any;
+        // Normalize role at state level
+        if (user) {
+          user.role = (user.role || '').toLowerCase().trim();
+        }
+        state.user = user;
         if (action.payload.isAuthenticated) {
           state.lastLogin = Date.now();
         }
@@ -180,7 +185,12 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
-        state.user = action.payload as any;
+        const user = action.payload as any;
+        // Normalize role at state level
+        if (user) {
+          user.role = (user.role || '').toLowerCase().trim();
+        }
+        state.user = user;
         state.lastLogin = Date.now();
         state.error = null;
       })

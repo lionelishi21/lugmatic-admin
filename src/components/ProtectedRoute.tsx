@@ -16,7 +16,12 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
   const token = getAccessToken();
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user, isLoading } = useSelector((state: RootState) => state.auth);
+
+  // Wait for auth initialization
+  if (isLoading) {
+    return null; // Or a loading spinner
+  }
 
   // No token = not logged in
   if (!token) {
@@ -32,6 +37,13 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
     window.location.href = 'https://lugmaticmusic.com';
     return null;
   }
+
+  // If a specific role is required, check the user's role
+  const targetRole = requiredRole?.toLowerCase().trim();
+
+  console.log(`[AuthDebug] Current Path: ${window.location.pathname}`);
+  console.log(`[AuthDebug] User Role: ${normalizedUserRole}`);
+  console.log(`[AuthDebug] Target Role: ${targetRole}`);
 
   if (requiredRole && user && normalizedUserRole !== targetRole) {
     // If user is super admin, they can access admin pages
