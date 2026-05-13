@@ -74,7 +74,8 @@ export default function Upload() {
       try {
         setLoadingGenres(true);
         const fetchedGenres = await genreService.getAllGenres();
-        setGenres(fetchedGenres.filter(g => g.isActive));
+        const genresArray = Array.isArray(fetchedGenres) ? fetchedGenres : ((fetchedGenres as any)?.data || []);
+        setGenres(genresArray.filter((g: any) => g.isActive));
       } catch (error) {
         console.error('Failed to fetch genres:', error);
         toast.error('Failed to load genres.');
@@ -89,7 +90,8 @@ export default function Upload() {
         try {
           setLoadingArtists(true);
           const artists = await artistService.getAllArtists();
-          setArtistsList(artists);
+          const artistsArray = Array.isArray(artists) ? artists : ((artists as any)?.data || []);
+          setArtistsList(artistsArray);
         } catch (error) {
           console.error('Failed to fetch artists:', error);
           toast.error('Failed to load artists.');
@@ -242,7 +244,8 @@ export default function Upload() {
         return;
       }
     } else {
-      artistId = (user.artistId as string | null);
+      const rawArtistId = user.artistId;
+      artistId = typeof rawArtistId === 'object' && rawArtistId !== null ? (rawArtistId as any)._id : (rawArtistId as string | null);
       if (!artistId) {
         toast.error('Artist profile required to upload.');
         return;
