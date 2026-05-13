@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { X, Search, Swords, Loader2, Users } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Search, Swords, Loader2, Users, RefreshCw } from 'lucide-react';
 import { getActiveStreams, type LiveStream } from '../../services/liveStreamService';
 import clashService from '../../services/clashService';
 import toast from 'react-hot-toast';
@@ -25,7 +26,6 @@ export default function ChallengeModal({ isOpen, onClose, currentStreamId }: Cha
     setLoading(true);
     try {
       const res = await getActiveStreams();
-      // Filter out own stream
       const otherStreams = (res.data as LiveStream[]).filter(s => s._id !== currentStreamId);
       setStreams(otherStreams);
     } catch (error) {
@@ -52,81 +52,96 @@ export default function ChallengeModal({ isOpen, onClose, currentStreamId }: Cha
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[80vh]">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        exit={{ opacity: 0 }} 
+        className="absolute inset-0 bg-black/80 backdrop-blur-md" 
+        onClick={onClose} 
+      />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+        animate={{ opacity: 1, scale: 1, y: 0 }} 
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="relative w-full max-w-lg bg-zinc-950 border border-white/10 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Swords className="h-4 w-4 text-purple-600" />
+        <div className="flex items-center justify-between px-10 py-8 border-b border-white/5 bg-zinc-950/40 shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-purple-500/10 border border-purple-500/20 rounded-2xl flex items-center justify-center">
+              <Swords className="h-6 w-6 text-purple-500" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-gray-900">Challenge an Artist</h3>
-              <p className="text-xs text-gray-500">Select a live artist to start a Lyrical War</p>
+              <h3 className="text-xl font-bold text-white uppercase tracking-tight">Challenge Artist</h3>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Select a live artist to clash</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+            className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-zinc-400 hover:text-white transition-all"
           >
-            <X className="h-4 w-4" />
+            <X size={20} />
           </button>
         </div>
 
         {/* List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div className="flex-1 overflow-y-auto p-8 space-y-4 no-scrollbar">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-12 space-y-3">
-              <Loader2 className="h-8 w-8 text-purple-600 animate-spin" />
-              <p className="text-sm text-gray-500">Searching for live artists...</p>
+            <div className="flex flex-col items-center justify-center py-20 gap-6">
+              <Loader2 className="h-10 w-10 text-purple-500 animate-spin" />
+              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest animate-pulse">Scanning live signals...</p>
             </div>
           ) : streams.length === 0 ? (
-            <div className="text-center py-12 space-y-4">
-              <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                <Search className="h-8 w-8 text-gray-300" />
+            <div className="text-center py-20 space-y-8">
+              <div className="bg-white/5 w-24 h-24 rounded-[2.5rem] flex items-center justify-center mx-auto border border-white/5">
+                <Search className="h-10 w-10 text-zinc-800" />
               </div>
-              <div className="space-y-1">
-                <p className="text-sm font-semibold text-gray-900">No other artists are live</p>
-                <p className="text-xs text-gray-500 max-w-[240px] mx-auto">
-                  Try again later or share your stream to invite friends!
+              <div className="space-y-2">
+                <p className="text-lg font-bold text-white uppercase tracking-tight">No artists live</p>
+                <p className="text-sm text-zinc-500 max-w-[240px] mx-auto leading-relaxed">
+                  Wait for other artists to join or share your stream to invite them.
                 </p>
               </div>
               <button 
                 onClick={fetchLiveStreams}
-                className="text-sm font-medium text-purple-600 hover:text-purple-700"
+                className="text-[10px] font-bold text-purple-500 uppercase tracking-widest hover:text-purple-400 flex items-center justify-center gap-2 mx-auto"
               >
-                Refresh List
+                <RefreshCw size={14} /> Refresh Radar
               </button>
             </div>
           ) : (
             streams.map((stream) => (
-              <div key={stream._id} className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-purple-200 transition-all group">
-                <img 
-                  src={stream.host?.image || '/default-artist.jpg'} 
-                  alt={stream.host?.name}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
-                />
+              <div key={stream._id} className="flex items-center gap-5 p-5 rounded-[2rem] bg-zinc-900 border border-white/5 hover:border-purple-500/30 transition-all group">
+                <div className="relative">
+                  <img 
+                    src={stream.host?.image || '/default-artist.jpg'} 
+                    alt={stream.host?.name}
+                    className="w-16 h-16 rounded-2xl object-cover border border-white/10 shadow-xl"
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-zinc-900 rounded-full animate-pulse" />
+                </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-bold text-gray-900 truncate">{stream.host?.name}</h4>
-                  <div className="flex items-center gap-3 mt-0.5">
-                    <p className="text-[11px] text-gray-500 truncate flex-1">{stream.title}</p>
-                    <span className="flex items-center gap-1 text-[11px] font-medium text-gray-400 bg-white px-2 py-0.5 rounded-full border border-gray-100">
-                      <Users className="h-2.5 w-2.5" />
-                      {stream.currentViewers}
+                  <h4 className="text-base font-bold text-white group-hover:text-purple-400 transition-colors truncate">@{stream.host?.name}</h4>
+                  <div className="flex items-center gap-4 mt-1.5">
+                    <p className="text-xs text-zinc-500 font-medium truncate flex-1">{stream.title}</p>
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 bg-white/5 px-2.5 py-1 rounded-full border border-white/5 tabular-nums">
+                      <Users className="h-3 w-3" />
+                      {stream.currentViewers.toLocaleString()}
                     </span>
                   </div>
                 </div>
                 <button
                   onClick={() => handleChallenge(stream.host?._id)}
                   disabled={!!invitingId}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-200 disabled:opacity-50 transition-all"
+                  className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-xl shadow-purple-900/20 disabled:opacity-50 transition-all"
                 >
                   {invitingId === stream.host?._id ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <Swords className="h-3.5 w-3.5" />
+                    <Swords className="h-4 w-4" />
                   )}
-                  Challenge
+                  Clash
                 </button>
               </div>
             ))
@@ -134,12 +149,12 @@ export default function ChallengeModal({ isOpen, onClose, currentStreamId }: Cha
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
-            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">
-              Lugmatic Lyrical Wars • 5 Minute Rounds
+        <div className="px-10 py-6 bg-zinc-950/60 border-t border-white/5 text-center shrink-0">
+            <p className="text-[10px] text-zinc-600 uppercase tracking-[0.3em] font-bold">
+              Lyrical War • High Stakes
             </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
