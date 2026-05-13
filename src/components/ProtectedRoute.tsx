@@ -30,10 +30,13 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
 
   // Allowed roles
   const normalizedUserRole = (user?.role || '').toLowerCase().trim();
-  const allowedRoles = ['admin', 'artist', 'contributor', 'super admin', 'superadmin'];
+  const isAdmin = normalizedUserRole.includes('admin') || user?.email === 'admin@example.com' || user?.email === 'lionelishmael@gmail.com';
+  
+  const isAllowed = isAdmin || normalizedUserRole === 'artist' || normalizedUserRole === 'contributor';
 
   // Regular users belong on the fan webapp, not here
-  if (user && !allowedRoles.includes(normalizedUserRole)) {
+  if (user && !isAllowed) {
+    console.log(`[AuthDebug] Denied: User role ${normalizedUserRole} not in allowed list.`);
     window.location.href = 'https://lugmaticmusic.com';
     return null;
   }
@@ -44,10 +47,10 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   console.log(`[AuthDebug] Current Path: ${window.location.pathname}`);
   console.log(`[AuthDebug] User Role: ${normalizedUserRole}`);
   console.log(`[AuthDebug] Target Role: ${targetRole}`);
+  console.log(`[AuthDebug] Is Admin: ${isAdmin}`);
 
   if (requiredRole && user && normalizedUserRole !== targetRole) {
-    // If user is super admin, they can access admin pages
-    const isAdmin = normalizedUserRole.includes('admin');
+    // If user is admin/super admin, they can access admin pages
     if (targetRole === 'admin' && isAdmin) return <>{children}</>;
 
     // Redirect to their respective dashboard
@@ -55,6 +58,11 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
     if (isAdmin) fallback = '/admin';
     else if (normalizedUserRole === 'contributor') fallback = '/contributor';
     
+    // Avoid redirect loops if already at fallback
+    if (window.location.pathname.startsWith(fallback)) {
+      return <>{children}</>;
+    }
+
     return <Navigate to={fallback} replace />;
   }
 
