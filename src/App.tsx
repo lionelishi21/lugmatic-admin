@@ -59,7 +59,6 @@ import SystemSettings from './pages/admin/SystemSettings';
 import Promotions from './pages/admin/Promotions';
 import Reports from './pages/admin/Reports';
 import PlaylistManagement from './pages/admin/PlaylistManagement';
-import HomePageManagement from './pages/admin/HomePageManagement';
 import ClashManagement from './pages/admin/ClashManagement';
 import Landing from './pages/Landing';
 import Clashes from './pages/artist/Clashes';
@@ -159,7 +158,6 @@ function App() {
                         <Route path="system-settings" element={<SystemSettings />} />
                         <Route path="promotions" element={<Promotions />} />
                         <Route path="reports" element={<Reports />} />
-                        <Route path="home-page-management" element={<HomePageManagement />} />
                         <Route path="clash-management" element={<ClashManagement />} />
                         <Route path="billboard" element={<Billboard />} />
                         <Route path="artist-approvals" element={<ArtistApprovals />} />

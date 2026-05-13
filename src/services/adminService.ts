@@ -56,12 +56,17 @@ export const adminService = {
     return apiService.patch<ApiResponse<void>>(`/admin/users/${userId}/verify-email`);
   },
 
-  toggleUserStatus: async (id: string, isActive: boolean) => {
-    return apiService.put<User>(`/admin/users/${id}/status`, { isActive });
+  updateUserStatus: async (userId: string, status: string) => {
+    const isActive = status === 'active';
+    return apiService.put<User>(`/admin/users/${userId}`, { isActive, status });
   },
 
-  resetPassword: async (userId: string) => {
-    return apiService.post<ApiResponse<{ temporaryPassword: string }>>(`/admin/users/${userId}/reset-password`);
+  updateUserRole: async (userId: string, role: string) => {
+    return apiService.put<User>(`/admin/users/${userId}`, { role });
+  },
+
+  resetUserPassword: async (userId: string) => {
+    return apiService.post<{ temporaryPassword: string }>(`/admin/users/${userId}/reset-password`);
   },
 
   // Artist management

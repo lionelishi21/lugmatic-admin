@@ -158,7 +158,7 @@ export default function UserManagement() {
     setIsResetting(true);
     try {
       const response = await adminService.resetUserPassword(targetUser._id);
-      setTempPassword(response.data.tempPassword || 'Password reset link sent');
+      setTempPassword(response.data.data.temporaryPassword || 'Password reset link sent');
     } catch (error: any) {
       toast.error(error.message || 'Failed to reset password');
     } finally {

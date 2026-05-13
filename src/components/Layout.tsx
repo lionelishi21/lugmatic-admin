@@ -83,7 +83,6 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
 
   const adminNavItems: NavItemType[] = [
     { path: '/admin', label: 'Dashboard', icon: <BarChart2 className="h-5 w-5" /> },
-    { path: '/admin/home-page-management', label: 'Home Management', icon: <LayoutGrid className="h-5 w-5" /> },
     { path: '/admin/approvals', label: 'Song Approvals', icon: <Shield className="h-5 w-5" /> },
     { path: '/admin/artist-approvals', label: 'Artist Approvals', icon: <UserCheck className="h-5 w-5" /> },
     {

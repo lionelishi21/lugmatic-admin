@@ -70,6 +70,7 @@ export interface User {
   paymentMethods?: PaymentMethod[];
   isEmailVerified: boolean;
   isActive: boolean;
+  status: 'active' | 'inactive' | 'suspended';
   role: UserRole;
   profilePicture?: string;
   preferences: UserPreferences;
