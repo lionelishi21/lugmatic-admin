@@ -30,7 +30,10 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
 
   // Allowed roles
   const normalizedUserRole = (user?.role || '').toLowerCase().trim();
-  const isAdmin = normalizedUserRole.includes('admin') || user?.email === 'admin@example.com' || user?.email === 'lionelishmael@gmail.com';
+  const isAdmin = normalizedUserRole.includes('admin') || 
+                  user?.email === 'admin@example.com' || 
+                  user?.email === 'lionelishmael@gmail.com' ||
+                  user?.email === 'info@lugmaticmusic.com';
   
   const isAllowed = isAdmin || normalizedUserRole === 'artist' || normalizedUserRole === 'contributor';
 
