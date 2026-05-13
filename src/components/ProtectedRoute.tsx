@@ -39,7 +39,7 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   }
 
   // If a specific role is required, check the user's role
-  const targetRole = requiredRole?.toLowerCase().trim();
+  const targetRole = requiredRole ? requiredRole.toLowerCase().trim() : '';
 
   console.log(`[AuthDebug] Current Path: ${window.location.pathname}`);
   console.log(`[AuthDebug] User Role: ${normalizedUserRole}`);
