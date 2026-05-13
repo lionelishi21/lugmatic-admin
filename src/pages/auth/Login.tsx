@@ -126,9 +126,11 @@ export default function Login() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      const role = user.role;
+      const role = (user.role || '').toLowerCase().trim();
+      const isAdmin = role.includes('admin');
+      
       if (role === 'user') { window.location.href = 'https://lugmaticmusic.com'; return; }
-      if (role === 'admin' || role === 'super admin') navigate('/admin', { replace: true });
+      if (isAdmin) navigate('/admin', { replace: true });
       else if (role === 'contributor') navigate('/contributor', { replace: true });
       else navigate('/artist', { replace: true });
     }

@@ -24,7 +24,9 @@ export const useAuth = () => {
         
         // Allowed roles for this dashboard (Artist, Admin, Contributor)
         const allowedRoles = ['admin', 'artist', 'contributor', 'super admin'];
-        if (!userData.role || !allowedRoles.includes(userData.role)) {
+        const userRole = (userData.role || '').toLowerCase().trim();
+        
+        if (!userRole || !allowedRoles.includes(userRole)) {
           // Clear stored tokens since this user is restricted to the main platform
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
@@ -33,9 +35,10 @@ export const useAuth = () => {
         }
         
         // Navigate based on user role
+        const isAdmin = userRole.includes('admin');
         let targetPath = '/artist';
-        if (userData.role === 'admin' || userData.role === 'super admin') targetPath = '/admin';
-        else if (userData.role === 'contributor') targetPath = '/contributor';
+        if (isAdmin) targetPath = '/admin';
+        else if (userRole === 'contributor') targetPath = '/contributor';
 
         navigate(targetPath, { replace: true });
         

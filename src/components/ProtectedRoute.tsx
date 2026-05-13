@@ -24,23 +24,24 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   }
 
   // Allowed roles
-  const allowedRoles = ['admin', 'artist', 'contributor', 'super admin'];
+  const normalizedUserRole = (user?.role || '').toLowerCase().trim();
+  const allowedRoles = ['admin', 'artist', 'contributor', 'super admin', 'superadmin'];
 
   // Regular users belong on the fan webapp, not here
-  if (user && !allowedRoles.includes(user.role || '')) {
+  if (user && !allowedRoles.includes(normalizedUserRole)) {
     window.location.href = 'https://lugmaticmusic.com';
     return null;
   }
 
-  // If a specific role is required, check the user's role
-  if (requiredRole && user && user.role !== requiredRole) {
+  if (requiredRole && user && normalizedUserRole !== targetRole) {
     // If user is super admin, they can access admin pages
-    if (requiredRole === 'admin' && user.role === 'super admin') return <>{children}</>;
+    const isAdmin = normalizedUserRole.includes('admin');
+    if (targetRole === 'admin' && isAdmin) return <>{children}</>;
 
     // Redirect to their respective dashboard
     let fallback = '/artist';
-    if (user.role === 'admin' || user.role === 'super admin') fallback = '/admin';
-    else if (user.role === 'contributor') fallback = '/contributor';
+    if (isAdmin) fallback = '/admin';
+    else if (normalizedUserRole === 'contributor') fallback = '/contributor';
     
     return <Navigate to={fallback} replace />;
   }
