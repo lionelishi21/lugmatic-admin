@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  ArrowLeft, User, Mail, FileText, Camera, 
+  Globe, Facebook, Twitter, Instagram, Plus, 
+  X, CheckCircle2, ChevronRight, UserPlus, 
+  ShieldCheck, MapPin, Music
+} from 'lucide-react';
 import Preloader from '../../components/ui/Preloader';
 import useCreateArtist from '../../hooks/artist/useCreateArtist';
+import toast from 'react-hot-toast';
 
 interface ArtistFormData {
   firstName: string;
@@ -25,7 +32,6 @@ const ArtistCreate: React.FC = () => {
   const navigate = useNavigate();
   const { isSubmitting, createArtist } = useCreateArtist();
 
-  // Form state
   const [formData, setFormData] = useState<ArtistFormData>({
     firstName: '',
     lastName: '',
@@ -47,51 +53,38 @@ const ArtistCreate: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Jamaican music genres
   const jamaicaGenres = [
-    "Mento", "Ska", "Rocksteady", "Reggae", "Dub", "Dancehall", "Ragga", "Reggaeton", 
-    "Jungle/DnB", "Gospel Reggae", "Lover's Rock", "Dub Poetry", "Jamaican Jazz", 
-    "Reggae Fusion", "Afrobeat & Dancehall Fusion"
+    "Reggae", "Dancehall", "Ska", "Rocksteady", "Dub", "Mento", 
+    "Ragga", "Reggaeton", "Gospel Reggae", "Lover's Rock", 
+    "Dub Poetry", "Jamaican Jazz", "Reggae Fusion"
   ];
   
-  // Handle text input changes
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     
-    // Handle nested socialLinks fields
     if (name.startsWith('socialLinks.')) {
       const socialLinkField = name.split('.')[1];
       setFormData(prev => ({
         ...prev,
-        socialLinks: {
-          ...prev.socialLinks,
-          [socialLinkField]: value
-        }
+        socialLinks: { ...prev.socialLinks, [socialLinkField]: value }
       }));
     } else {
-      // Handle top-level fields
       setFormData(prev => {
-        // Update stage name when first or last name changes
         if (name === 'firstName' || name === 'lastName') {
           const firstName = name === 'firstName' ? value : prev.firstName;
           const lastName = name === 'lastName' ? value : prev.lastName;
-          if (firstName || lastName) {
-            return { 
-              ...prev, 
-              [name]: value,
-              name: `${firstName} ${lastName}`.trim() 
-            };
-          }
+          return { 
+            ...prev, 
+            [name]: value,
+            name: `${firstName} ${lastName}`.trim() 
+          };
         }
-        
-        // Default case for other fields
         return { ...prev, [name]: value };
       });
     }
     
-    // Clear any errors for this field
     if (formErrors[name]) {
       setFormErrors(prev => {
         const newErrors = { ...prev };
@@ -101,22 +94,16 @@ const ArtistCreate: React.FC = () => {
     }
   };
 
-  // Handle image upload
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setFormData(prev => ({ ...prev, image: file }));
-      
-      // Create preview URL
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
+      reader.onloadend = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  // Handle genre management
   const addGenre = () => {
     if (genreInput.trim() && !formData.genres.includes(genreInput.trim())) {
       setFormData(prev => ({
@@ -134,444 +121,266 @@ const ArtistCreate: React.FC = () => {
     }));
   };
 
-  // Add a predefined genre
-  const addPredefinedGenre = (genre: string) => {
-    if (!formData.genres.includes(genre)) {
-      setFormData(prev => ({
-        ...prev,
-        genres: [...prev.genres, genre]
-      }));
-    }
-  };
-
-  // Validate form data
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
-    
-    if (!formData.firstName || formData.firstName.trim() === '') {
-      errors.firstName = 'First name is required';
-    }
-    
-    if (!formData.lastName || formData.lastName.trim() === '') {
-      errors.lastName = 'Last name is required';
-    }
-    
-    if (!formData.name || formData.name.trim() === '') {
-      errors.name = 'Artist name is required';
-    }
-    
-    if (!formData.email || formData.email.trim() === '') {
-      errors.email = 'Email is required';
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      errors.email = 'Please enter a valid email address';
-    }
-    
-    if (!formData.gender) {
-      errors.gender = 'Gender is required';
-    }
-    
-    if (formData.genres.length === 0) {
-      errors.genres = 'At least one genre is required';
-    }
-    
-    // URL validation for social links if provided
-    const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/;
-    
-    Object.entries(formData.socialLinks).forEach(([key, value]) => {
-      if (value && !urlPattern.test(value)) {
-        errors[`socialLinks.${key}`] = 'Please enter a valid URL';
-      }
-    });
+    if (!formData.firstName) errors.firstName = 'First name required';
+    if (!formData.lastName) errors.lastName = 'Last name required';
+    if (!formData.email) errors.email = 'Email required';
+    if (!formData.gender) errors.gender = 'Gender required';
+    if (formData.genres.length === 0) errors.genres = 'Select at least one genre';
     
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (validateForm()) {
+      const loadingId = toast.loading('Synchronizing artist profile...');
       try {
-        console.log('Submitting form data:', formData); // Debug log
         await createArtist(formData);
+        toast.success('Artist registered', { id: loadingId });
         navigate('/admin/artist-management');
       } catch (err) {
-        // Error is already handled by the hook
-        console.error('Failed to create artist:', err);
+        toast.error('Registration failed', { id: loadingId });
       }
-    } else {
-      console.log('Form validation failed. Current errors:', formErrors);
-      console.log('Current form data:', formData);
     }
   };
 
-  // Cancel creating and go back
-  const handleCancel = () => {
-    navigate('/admin/artists');
-  };
-
-  // Show loading state
-  if (isSubmitting) {
-    return <Preloader isVisible={true} text="Creating artist profile..." />;
-  }
+  if (isSubmitting) return <Preloader isVisible={true} text="Registering artist profile..." />;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Page Header */}
-      <motion.div 
-        className="mb-6"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h1 className="text-3xl font-bold text-gray-800">Create Artist Profile</h1>
-        <p className="text-gray-600 mt-1">Set up your artist presence on the platform</p>
-      </motion.div>
+    <div className="space-y-10">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <button
+            onClick={() => navigate('/admin/artist-management')}
+            className="flex items-center gap-2 text-zinc-500 hover:text-white mb-6 transition-colors group"
+          >
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+            <span className="text-xs font-bold uppercase tracking-widest">Back to Directory</span>
+          </button>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+            <UserPlus className="text-emerald-500" size={32} />
+            Register New Artist
+          </h1>
+          <p className="text-zinc-500">Configure public identity and network presence for a new talent.</p>
+        </div>
+      </div>
 
-      {/* Create Form */}
-      <motion.div 
-        className="bg-white p-6 rounded-lg shadow-md"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              {/* First Name Field */}
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstName">
-                  First Name <span className="text-red-500">*</span>
-                </label>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        {/* Left: Identity Hub */}
+        <div className="lg:col-span-1 space-y-6">
+          <div className="premium-card space-y-8">
+            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+              <Camera size={14} /> Profile Index
+            </h3>
+            
+            <div className="flex flex-col items-center">
+              <div className="relative group">
+                <div className="w-32 h-32 rounded-[2.5rem] bg-zinc-900 border border-white/5 overflow-hidden flex items-center justify-center transition-all group-hover:border-emerald-500/20">
+                  {imagePreview ? (
+                    <img src={imagePreview} className="w-full h-full object-cover opacity-80" />
+                  ) : (
+                    <User size={40} className="text-zinc-700" />
+                  )}
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera size={24} className="text-white" />
+                  </div>
+                </div>
                 <input
-                  id="firstName"
-                  name="firstName"
-                  type="text"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${
-                    formErrors.firstName ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900`}
-                  placeholder="Enter first name"
+                  type="file" accept="image/*"
+                  onChange={handleImageChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
-                {formErrors.firstName && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.firstName}</p>
-                )}
               </div>
+              <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-4">Avatar Payload</p>
+            </div>
 
-              {/* Last Name Field */}
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="lastName">
-                  Last Name <span className="text-red-500">*</span>
-                </label>
+            <div className="space-y-4 pt-6 border-t border-white/5">
+              <h4 className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Public Details</h4>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Stage Name</label>
                 <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${
-                    formErrors.lastName ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900`}
-                  placeholder="Enter last name"
-                />
-                {formErrors.lastName && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.lastName}</p>
-                )}
-              </div>
-
-              {/* Stage/Artist Name Field */}
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-                  Artist/Stage Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
+                  type="text" name="name" required
+                  className="input-field"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${
-                    formErrors.name ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900`}
-                  placeholder="Enter artist name or stage name"
+                  placeholder="e.g. Chronixx"
                 />
-                {formErrors.name && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>
-                )}
               </div>
-
-              {/* Email Field */}
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                  Email <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${
-                    formErrors.email ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900`}
-                  placeholder="Enter email address"
-                />
-                {formErrors.email && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
-                )}
-              </div>
-
-              {/* Gender Field */}
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="gender">
-                  Gender <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="gender"
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${
-                    formErrors.gender ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900`}
-                >
-                  <option value="">Select Gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="non-binary">Non-binary</option>
-                  <option value="other">Other</option>
-                  <option value="prefer-not-to-say">Prefer not to say</option>
-                </select>
-                {formErrors.gender && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.gender}</p>
-                )}
-              </div>
-
-              {/* Bio Field */}
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="bio">
-                  Biography
-                </label>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Biography</label>
                 <textarea
-                  id="bio"
-                  name="bio"
+                  name="bio" rows={4}
+                  className="input-field h-auto resize-none"
                   value={formData.bio}
                   onChange={handleInputChange}
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900"
-                  placeholder="Tell us about yourself as an artist"
+                  placeholder="Artist's history and mission..."
                 />
               </div>
+            </div>
+          </div>
 
-              {/* Profile Image Field */}
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image">
-                  Profile Image
-                </label>
-                <div className="flex items-center space-x-4">
-                  {imagePreview && (
-                    <div className="w-24 h-24 rounded-full overflow-hidden border border-gray-300">
-                      <img 
-                        src={imagePreview} 
-                        alt="Profile preview" 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
+          <div className="premium-card border-emerald-500/10">
+            <div className="flex items-center gap-3 text-emerald-500 mb-4">
+              <ShieldCheck size={18} />
+              <h4 className="text-xs font-bold uppercase tracking-widest">Integrity Check</h4>
+            </div>
+            <ul className="space-y-3">
+              {[
+                { label: 'Identity Verified', ok: !!formData.firstName && !!formData.lastName },
+                { label: 'Signal Endpoint', ok: !!formData.email },
+                { label: 'Genre Mapping', ok: formData.genres.length > 0 },
+              ].map((check, i) => (
+                <li key={i} className="flex items-center justify-between">
+                  <span className="text-[11px] text-zinc-400">{check.label}</span>
+                  <div className={`w-2 h-2 rounded-full ${check.ok ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-zinc-800'}`} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Right: Personal & Genre Details */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="premium-card space-y-8">
+            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-4">
+              <User size={14} /> Profile Parameters
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">First Name</label>
+                <input
+                  type="text" name="firstName" required
+                  className="input-field"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Last Name</label>
+                <input
+                  type="text" name="lastName" required
+                  className="input-field"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Email Endpoint</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" size={16} />
                   <input
-                    id="image"
-                    name="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                    type="email" name="email" required
+                    className="input-field pl-12"
+                    value={formData.email}
+                    onChange={handleInputChange}
                   />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Gender Identification</label>
+                <div className="relative">
+                  <select
+                    name="gender" required
+                    className="input-field appearance-none"
+                    value={formData.gender}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select Protocol...</option>
+                    <option value="male">MALE</option>
+                    <option value="female">FEMALE</option>
+                    <option value="non-binary">NON-BINARY</option>
+                    <option value="prefer-not-to-say">UNDISCLOSED</option>
+                  </select>
+                  <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 rotate-90 pointer-events-none" size={16} />
                 </div>
               </div>
             </div>
 
-            <div>                                                                                                                                                                                                                                                 
-              {/* Genres Field */}
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Genres <span className="text-red-500">*</span>
-                </label>
+            <div className="space-y-4 pt-8 border-t border-white/5">
+              <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                <Music size={14} /> Genre Mapping
+              </h3>
+              
+              <div className="flex gap-4">
+                <input
+                  type="text" value={genreInput}
+                  onChange={(e) => setGenreInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addGenre())}
+                  className="input-field flex-1"
+                  placeholder="Add custom genre..."
+                />
+                <button type="button" onClick={addGenre} className="btn-secondary !px-6">Add</button>
+              </div>
 
-                <div className="flex">
-                  <input
-                    type="text"
-                    value={genreInput}
-                    onChange={(e) => setGenreInput(e.target.value)}
-                    className="flex-grow px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900"
-                    placeholder="Add a music genre"
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addGenre())}
-                  />
-                  <button
-                    type="button"
-                    onClick={addGenre}
-                    className="px-4 py-2 bg-green-600 text-white rounded-r-lg hover:bg-green-700"
-                  >
-                    Add
-                  </button>
-                </div>
-
-                {formErrors.genres && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.genres}</p>
-                )}
-
-                {/* Jamaican Genre Quick Selectors */}
-                <div className="mt-3">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Popular Jamaican Genres:</p>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {jamaicaGenres.map((genre, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => addPredefinedGenre(genre)}
-                        className={`px-2 py-1 text-xs rounded-full border ${
-                          formData.genres.includes(genre)
-                            ? 'bg-green-600 text-white border-green-600'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50'
-                        }`}
-                      >
-                        {genre}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {formData.genres.map((genre, index) => (
-                    <span 
-                      key={index} 
-                      className="px-3 py-1 bg-green-100 text-green-800 rounded-full flex items-center"
+              <div className="space-y-3">
+                <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Platform Presets:</p>
+                <div className="flex flex-wrap gap-2">
+                  {jamaicaGenres.map((genre) => (
+                    <button
+                      key={genre} type="button"
+                      onClick={() => !formData.genres.includes(genre) && setFormData(prev => ({ ...prev, genres: [...prev.genres, genre] }))}
+                      className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all ${
+                        formData.genres.includes(genre)
+                          ? 'bg-emerald-500 text-black border-emerald-500'
+                          : 'bg-white/5 text-zinc-500 border-white/5 hover:border-emerald-500/20'
+                      }`}
                     >
                       {genre}
-                      <button 
-                        type="button" 
-                        onClick={() => removeGenre(genre)}
-                        className="ml-2 text-green-600 hover:text-red-500 focus:outline-none"
-                      >
-                        &times;
-                      </button>
-                    </span>
+                    </button>
                   ))}
                 </div>
               </div>
 
-              {/* Social Links Section */}
-              <div className="mb-6">
-                <h3 className="text-gray-700 font-bold mb-2">Social Links</h3>
-                
-                {/* Website */}
-                <div className="mb-3">
-                  <label className="block text-gray-700 text-sm mb-1" htmlFor="website">
-                    Website
-                  </label>
-                  <input
-                    id="website"
-                    name="socialLinks.website"
-                    type="url"
-                    value={formData.socialLinks.website}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border ${
-                      formErrors['socialLinks.website'] ? 'border-red-500' : 'border-gray-300'
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
-                    placeholder="https://yourwebsite.com"
-                  />
-                  {formErrors['socialLinks.website'] && (
-                    <p className="text-red-500 text-xs mt-1">{formErrors['socialLinks.website']}</p>
-                  )}
-                </div>
-                
-                {/* Facebook */}
-                <div className="mb-3">
-                  <label className="block text-gray-700 text-sm mb-1" htmlFor="facebook">
-                    Facebook
-                  </label>
-                  <input
-                    id="facebook"
-                    name="socialLinks.facebook"
-                    type="url"
-                    value={formData.socialLinks.facebook}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border ${
-                      formErrors['socialLinks.facebook'] ? 'border-red-500' : 'border-gray-300'
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
-                    placeholder="https://facebook.com/yourpage"
-                  />
-                  {formErrors['socialLinks.facebook'] && (
-                    <p className="text-red-500 text-xs mt-1">{formErrors['socialLinks.facebook']}</p>
-                  )}
-                </div>
-                
-                {/* Twitter */}
-                <div className="mb-3">
-                  <label className="block text-gray-700 text-sm mb-1" htmlFor="twitter">
-                    Twitter
-                  </label>
-                  <input
-                    id="twitter"
-                    name="socialLinks.twitter"
-                    type="url"
-                    value={formData.socialLinks.twitter}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border ${
-                      formErrors['socialLinks.twitter'] ? 'border-red-500' : 'border-gray-300'
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
-                    placeholder="https://twitter.com/yourhandle"
-                  />
-                  {formErrors['socialLinks.twitter'] && (
-                    <p className="text-red-500 text-xs mt-1">{formErrors['socialLinks.twitter']}</p>
-                  )}
-                </div>
-                
-                {/* Instagram */}
-                <div className="mb-3">
-                  <label className="block text-gray-700 text-sm mb-1" htmlFor="instagram">
-                    Instagram
-                  </label>
-                  <input
-                    id="instagram"
-                    name="socialLinks.instagram"
-                    type="url"
-                    value={formData.socialLinks.instagram}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border ${
-                      formErrors['socialLinks.instagram'] ? 'border-red-500' : 'border-gray-300'
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
-                    placeholder="https://instagram.com/yourprofile"
-                  />
-                  {formErrors['socialLinks.instagram'] && (
-                    <p className="text-red-500 text-xs mt-1">{formErrors['socialLinks.instagram']}</p>
-                  )}
-                </div>
+              <div className="flex flex-wrap gap-2 pt-4">
+                {formData.genres.map((genre) => (
+                  <span key={genre} className="px-3 py-1.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                    {genre}
+                    <button type="button" onClick={() => removeGenre(genre)} className="hover:text-rose-500 transition-colors"><X size={12} /></button>
+                  </span>
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* Form Actions */}
-          <div className="flex justify-end space-x-3 mt-6">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
-              disabled={isSubmitting}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Creating...' : 'Create Artist Profile'}
-            </button>
+            <div className="space-y-4 pt-8 border-t border-white/5">
+              <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                <Globe size={14} /> Social Signals
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  { name: 'socialLinks.website', icon: Globe, label: 'Website' },
+                  { name: 'socialLinks.facebook', icon: Facebook, label: 'Facebook' },
+                  { name: 'socialLinks.twitter', icon: Twitter, label: 'Twitter' },
+                  { name: 'socialLinks.instagram', icon: Instagram, label: 'Instagram' },
+                ].map(link => (
+                  <div key={link.name} className="relative">
+                    <link.icon className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" size={16} />
+                    <input
+                      type="url" name={link.name}
+                      placeholder={link.label}
+                      className="input-field pl-12"
+                      value={(formData.socialLinks as any)[link.name.split('.')[1]]}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-4 pt-8 border-t border-white/5">
+              <button type="button" onClick={() => navigate('/admin/artist-management')} className="btn-secondary !px-10">Abort</button>
+              <button type="submit" disabled={isSubmitting} className="btn-primary !px-12 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />}
+                Register Profile
+              </button>
+            </div>
           </div>
-        </form>
-      </motion.div>
+        </div>
+      </form>
     </div>
   );
 };
