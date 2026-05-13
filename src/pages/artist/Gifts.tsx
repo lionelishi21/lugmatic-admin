@@ -17,14 +17,16 @@ import {
   History,
   Target,
   Activity,
-  Award
+  Award,
+  Layers,
+  Database,
+  Shield,
+  Activity as ActivityIcon,
+  Globe,
+  ArrowRight
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import apiService, { getFullImageUrl } from '../../services/api';
-
-// ── Shared primitives ─────────────────────────────────────────────
-const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
-const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1.5 italic';
 
 interface GiftStats {
   totalGifts: number;
@@ -114,196 +116,180 @@ export default function Gifts() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto pb-16 space-y-8 animate-in fade-in duration-700">
-      
-      {/* ── Branded Gratuity Header ── */}
-      <div className={`${card} p-8 flex flex-col md:flex-row md:items-center justify-between gap-8 relative overflow-hidden group`}>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/[0.02] rounded-bl-full pointer-events-none" />
-        <div className="flex items-center gap-6 relative z-10">
-          <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-500">
-            <Sparkles className="h-8 w-8 text-white" />
+    <div className="space-y-10 pb-24">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Digital Gifts</h1>
+            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Live Updates</span>
+            </div>
           </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Contribution Stream v1.2</p>
-            <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">
-              Digital Gratuity
-            </h1>
-            <p className="text-sm text-zinc-500 mt-1 font-medium">
-              Historical log of community support and digital asset transmissions.
-            </p>
-          </div>
+          <p className="text-zinc-500 font-medium">Track community support and digital gifts received from your fans.</p>
         </div>
-
-        {/* Tactical Filters */}
-        <div className="flex items-center gap-3 relative z-10">
-          <div className="bg-zinc-950 border border-white/[0.04] rounded-2xl p-1.5 flex items-center gap-1.5 shadow-inner">
-            {['all', 'month', 'week'].map((p) => (
-              <button
-                key={p}
-                onClick={() => setTimeFilter(p)}
-                className={`px-8 py-3 text-[10px] font-black uppercase tracking-widest transition-all rounded-xl italic ${
-                  timeFilter === p
-                    ? 'bg-white text-zinc-900 shadow-2xl'
-                    : 'text-zinc-500 hover:text-white hover:bg-white/[0.03]'
-                }`}
-              >
-                {p} Spectrum
-              </button>
-            ))}
-          </div>
+        
+        <div className="flex items-center gap-2 bg-zinc-950/40 p-1 rounded-2xl border border-white/5 shadow-xl backdrop-blur-3xl">
+          {['all', 'month', 'week'].map((p) => (
+            <button
+              key={p}
+              onClick={() => setTimeFilter(p)}
+              className={`px-6 py-2.5 text-xs font-semibold capitalize transition-all rounded-xl ${
+                timeFilter === p
+                  ? 'bg-white text-black shadow-lg'
+                  : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              {p === 'all' ? 'All Time' : `This ${p.charAt(0).toUpperCase() + p.slice(1)}`}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* gratuity Telemetry */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Total Transmissions', value: stats.totalGifts, icon: <GiftIcon className="h-6 w-6" />, color: 'emerald', trend: 'Global' },
-          { label: 'Accumulated Value', value: `$${stats.totalValue.toLocaleString()}`, icon: <DollarSign className="h-6 w-6" />, color: 'blue', trend: 'Gross' },
-          { label: 'Monthly Volume', value: stats.monthlyGifts, icon: <Calendar className="h-6 w-6" />, color: 'purple', trend: '30D' },
-          { label: 'Cycle Earnings', value: `$${stats.monthlyValue.toLocaleString()}`, icon: <TrendingUp className="h-6 w-6" />, color: 'rose', trend: 'Active' },
+          { label: 'Total Gifts', value: stats.totalGifts.toLocaleString(), icon: GiftIcon, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
+          { label: 'Accumulated Value', value: `$${stats.totalValue.toLocaleString()}`, icon: DollarSign, color: 'text-blue-500', bg: 'bg-blue-500/5' },
+          { label: 'Monthly Gifts', value: stats.monthlyGifts.toLocaleString(), icon: Calendar, color: 'text-purple-500', bg: 'bg-purple-500/5' },
+          { label: 'Monthly Value', value: `$${stats.monthlyValue.toLocaleString()}`, icon: TrendingUp, color: 'text-rose-500', bg: 'bg-rose-500/5' },
         ].map((stat, idx) => (
           <motion.div
             key={idx}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className={`${card} p-6 hover:border-emerald-500/20 transition-all shadow-sm group cursor-default relative overflow-hidden`}
+            transition={{ delay: idx * 0.05 }}
+            className="premium-card group hover:border-emerald-500/20 transition-all cursor-default relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/[0.01] rounded-bl-full pointer-events-none" />
-            <div className="flex items-center justify-between mb-5">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-950 border border-white/[0.04] shadow-inner text-emerald-500 group-hover:scale-110 transition-transform">
-                {stat.icon}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.01] rounded-bl-full pointer-events-none" />
+            <div className="flex items-center justify-between mb-8">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${stat.bg} border border-white/5 shadow-inner group-hover:scale-110 transition-transform duration-500`}>
+                <stat.icon size={20} className={stat.color} />
               </div>
-              <span className="text-[9px] font-black uppercase tracking-[0.15em] px-3 py-1.5 rounded-lg bg-zinc-950 text-zinc-500 border border-white/[0.02] shadow-inner italic">
-                {stat.trend}
-              </span>
             </div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-2 italic">{stat.label}</p>
-            <p className="text-3xl font-black text-zinc-900 dark:text-white tracking-tighter tabular-nums italic group-hover:text-emerald-500 transition-colors">{stat.value}</p>
+            <p className="text-zinc-500 text-xs font-semibold mb-1.5">{stat.label}</p>
+            <p className="text-3xl font-bold text-white tracking-tight tabular-nums leading-none group-hover:text-emerald-400 transition-colors">{stat.value}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* Contribution History Ledger */}
-      <div className={`${card} overflow-hidden shadow-2xl`}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between px-8 py-7 border-b border-white/[0.06] bg-zinc-950/40 gap-6">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center border border-white/[0.04] shadow-inner">
-               <History className="h-5 w-5 text-emerald-500" />
+      {/* Gifts Ledger */}
+      <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
+        <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 bg-zinc-950/20">
+          <div className="flex items-center gap-6">
+            <div className="w-12 h-12 bg-zinc-900 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+               <History className="text-emerald-500" size={20} />
             </div>
-            <div className="flex flex-col">
-               <span className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.2em] italic">Mission Log</span>
-               <div className="flex items-center gap-3">
-                  <h2 className="text-lg font-black uppercase tracking-tight text-zinc-900 dark:text-white italic">Received Transmissions</h2>
-                  <span className="px-3 py-0.5 rounded-lg bg-zinc-900 text-[10px] font-black text-emerald-500 border border-white/[0.04] shadow-inner">
-                    {filteredGifts.length} UNITS
+            <div>
+               <h3 className="text-lg font-bold text-white">Gift History</h3>
+               <div className="flex items-center gap-2 mt-1">
+                  <p className="text-xs text-zinc-500 font-medium">Detailed log of gifts received</p>
+                  <div className="w-1 h-1 rounded-full bg-zinc-800" />
+                  <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/5 px-2 py-0.5 rounded">
+                    {filteredGifts.length} Records
                   </span>
                </div>
             </div>
           </div>
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 group-focus-within:text-emerald-500 transition-colors" />
+          
+          <div className="relative group w-full md:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-emerald-500 transition-colors" />
             <input
               type="text"
-              placeholder="SEARCH TRANSMISSIONS..."
+              placeholder="Search by sender or gift..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-6 h-12 bg-zinc-950 border border-white/[0.08] rounded-xl text-[10px] font-black uppercase tracking-widest focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 outline-none w-full md:w-80 transition-all text-zinc-900 dark:text-white placeholder:text-zinc-600 shadow-inner italic"
+              className="w-full pl-12 pr-6 h-12 bg-[#0a0a0a] border border-white/5 rounded-xl text-sm font-medium text-white focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-700"
             />
           </div>
         </div>
 
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-32 bg-zinc-950/10">
-              <div className="relative">
-                 <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin shadow-2xl shadow-emerald-500/20" />
-                 <Activity className="absolute inset-0 m-auto h-5 w-5 text-emerald-500 animate-pulse" />
+        <div className="overflow-x-auto">
+          <AnimatePresence mode="wait">
+            {isLoading ? (
+              <div className="py-40 flex flex-col items-center justify-center">
+                <div className="w-12 h-12 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin shadow-2xl" />
+                <p className="text-xs font-semibold text-zinc-600 mt-6 animate-pulse tracking-wide">Syncing records...</p>
               </div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mt-6 italic animate-pulse">Syncing Asset Stream...</p>
-            </div>
-          ) : filteredGifts.length === 0 ? (
-            <div className="py-32 text-center bg-zinc-950/20 shadow-inner">
-              <div className="w-20 h-20 bg-zinc-950 rounded-3xl mx-auto mb-8 flex items-center justify-center border border-white/[0.04] shadow-2xl group cursor-default">
-                <GiftIcon className="h-10 w-10 text-zinc-700 group-hover:text-emerald-500 transition-colors" />
+            ) : filteredGifts.length === 0 ? (
+              <div className="py-32 text-center">
+                <div className="w-20 h-20 bg-zinc-950 rounded-3xl mx-auto mb-6 flex items-center justify-center border border-white/5 shadow-inner">
+                   <GiftIcon size={32} className="text-zinc-800" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">No gifts found</h3>
+                <p className="text-sm text-zinc-500 max-w-xs mx-auto leading-relaxed">
+                  Your gift history will appear here once you receive support from your fans.
+                </p>
               </div>
-              <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Zero Signal Strength</h3>
-              <p className="text-[11px] text-zinc-500 font-black uppercase tracking-[0.15em] mt-3 max-w-xs mx-auto leading-relaxed opacity-60">
-                No digital assets identified in this sector. Perform live or release transmissions to trigger gratuity cycles.
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
-              {filteredGifts.map((gift, idx) => (
-                <motion.div
-                  key={gift.id}
-                  initial={{ opacity: 0, x: -15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.03 }}
-                  className="group flex items-center gap-8 px-8 py-7 hover:bg-white/[0.02] transition-all cursor-pointer relative overflow-hidden"
-                >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/[0.01] rounded-bl-full pointer-events-none" />
-                  
-                  {/* Gift Image HUD */}
-                  <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center flex-shrink-0 border border-white/[0.04] group-hover:border-emerald-500/30 transition-all shadow-2xl relative z-10 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <img src={gift.gift_image} alt={gift.name} className="w-12 h-12 object-contain group-hover:scale-110 transition-transform relative z-10" />
-                  </div>
-
-                  {/* Info HUD */}
-                  <div className="flex-1 min-w-0 relative z-10">
-                    <div className="flex items-center gap-5 flex-wrap mb-2.5">
-                      <span className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight italic group-hover:text-emerald-500 transition-colors">{gift.name}</span>
-                      <div className="flex items-center gap-3">
-                         <div className="w-1 h-1 rounded-full bg-zinc-700 shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
-                         <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl bg-emerald-500 text-white shadow-xl shadow-emerald-500/20 italic">
-                           +${(gift.value / 100).toFixed(2)}
-                         </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic flex items-center gap-2">
-                        Source: <span className="text-zinc-200 bg-zinc-950 px-2 py-0.5 rounded border border-white/[0.04] shadow-inner">{gift.sender_name}</span>
-                      </p>
-                      {gift.stream_title && (
-                        <>
-                          <div className="w-1 h-1 rounded-full bg-zinc-800" />
-                          <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-tighter text-rose-500 bg-rose-500/5 px-3 py-1 rounded-xl border border-rose-500/10 italic shadow-sm">
-                            <Target className="h-3 w-3" />
-                            {gift.stream_title}
-                          </span>
-                        </>
-                      )}
-                      {gift.song_title && (
-                        <>
-                          <div className="w-1 h-1 rounded-full bg-zinc-800" />
-                          <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-tighter text-indigo-400 bg-indigo-500/5 px-3 py-1 rounded-xl border border-indigo-500/10 italic shadow-sm">
-                            <Award className="h-3 w-3" />
-                            {gift.song_title}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Time & Action HUD */}
-                  <div className="flex items-center gap-10 flex-shrink-0 relative z-10">
-                    <div className="hidden lg:block text-right">
-                      <div className="flex items-center justify-end gap-2.5 text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] italic">
-                        <Clock className="h-4 w-4 text-emerald-500/50" />
-                        {formatDistanceToNow(new Date(gift.created_at), { addSuffix: true })}
-                      </div>
-                    </div>
-                    <div className="w-12 h-12 rounded-xl bg-zinc-950 flex items-center justify-center text-zinc-600 group-hover:text-emerald-500 border border-white/[0.04] group-hover:border-emerald-500/30 transition-all shadow-xl group-hover:shadow-emerald-500/5">
-                       <ArrowUpRight className="h-6 w-6" />
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </AnimatePresence>
+            ) : (
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-zinc-950/40">
+                  <tr className="border-b border-white/5">
+                    <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">Gift</th>
+                    <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">Sender</th>
+                    <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">Source</th>
+                    <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">Value</th>
+                    <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider text-right">Received</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {filteredGifts.map((gift, idx) => (
+                    <motion.tr
+                      key={gift.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.02 }}
+                      className="group hover:bg-white/[0.01] transition-all cursor-pointer"
+                    >
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                           <div className="w-12 h-12 bg-[#0a0a0a] rounded-xl flex items-center justify-center border border-white/5 group-hover:border-emerald-500/20 transition-all shadow-inner relative overflow-hidden">
+                              <img src={gift.gift_image} alt={gift.name} className="w-8 h-8 object-contain group-hover:scale-110 transition-transform relative z-10" />
+                           </div>
+                           <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors leading-none">{gift.name}</p>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <span className="text-xs font-semibold text-zinc-300">{gift.sender_name}</span>
+                      </td>
+                      <td className="px-8 py-6">
+                         {gift.stream_title ? (
+                           <div className="flex items-center gap-2">
+                              <Radio size={14} className="text-rose-500/70" />
+                              <span className="text-xs font-semibold text-zinc-500 truncate max-w-[150px]">{gift.stream_title}</span>
+                           </div>
+                         ) : gift.song_title ? (
+                           <div className="flex items-center gap-2">
+                              <Music2 size={14} className="text-indigo-500/70" />
+                              <span className="text-xs font-semibold text-zinc-500 truncate max-w-[150px]">{gift.song_title}</span>
+                           </div>
+                         ) : (
+                           <span className="text-xs font-semibold text-zinc-700 italic">Direct</span>
+                         )}
+                      </td>
+                      <td className="px-8 py-6">
+                         <span className="text-base font-bold text-emerald-500 tracking-tight">+${(gift.value / 100).toFixed(2)}</span>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                         <div className="flex items-center justify-end gap-2 text-zinc-600 text-xs font-medium">
+                            <Clock size={12} className="text-zinc-800" />
+                            {formatDistanceToNow(new Date(gift.created_at), { addSuffix: true })}
+                         </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </AnimatePresence>
+        </div>
+        <div className="p-6 bg-[#0a0a0a] border-t border-white/5 text-center">
+            <button className="text-xs font-bold text-zinc-600 hover:text-white transition-all uppercase tracking-widest">Load More History</button>
+        </div>
       </div>
     </div>
   );
 }
+
+const Radio = ({ size, className }: { size: number, className: string }) => <Activity size={size} className={className} />;

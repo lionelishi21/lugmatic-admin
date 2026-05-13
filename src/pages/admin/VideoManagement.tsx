@@ -11,7 +11,10 @@ import {
   CheckCircle2, Music, Eye, Video as VideoIcon, 
   XCircle, Upload, Check, Radio, Signal, Clock, 
   MoreVertical, ChevronRight, Share2, Zap, 
-  Settings, Monitor, BarChart3, HardDrive, RefreshCw
+  Settings, Monitor, BarChart3, HardDrive, RefreshCw,
+  Globe, Target, Cpu, ArrowUpRight, Layers, Database,
+  Save, Info, Waves, Wifi, LayoutGrid, List, ChevronDown,
+  Lock, Unlock, Shield, Camera, Mic, Volume2
 } from 'lucide-react';
 import Preloader from '../../components/ui/Preloader';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
@@ -64,7 +67,6 @@ const VideoManagement: React.FC = () => {
             setVideos(vData);
             setArtists(aData);
             setSongs(sData);
-            // Handle the case where rData.data might be the array
             setRecordedStreams(Array.isArray(rData) ? rData : (rData as any).data || []);
         } catch (err: any) {
             toast.error('Failed to synchronize media library');
@@ -79,12 +81,12 @@ const VideoManagement: React.FC = () => {
 
     const filteredVideos = (activeTab === 'uploaded' ? videos : []).filter(v =>
         v.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        v.artist.name.toLowerCase().includes(searchTerm.toLowerCase())
+        v.artist?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const filteredRecorded = (activeTab === 'recorded' ? recordedStreams : []).filter(s =>
         s.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.host.name.toLowerCase().includes(searchTerm.toLowerCase())
+        s.host?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const filteredSongs = songs.filter(s => {
@@ -140,7 +142,7 @@ const VideoManagement: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setUploading(true);
-        const loadingId = toast.loading('Processing transmission...');
+        const loadingId = toast.loading('Processing cinematic transmission...');
 
         try {
             let finalVideoUrl = formData.videoUrl;
@@ -153,7 +155,7 @@ const VideoManagement: React.FC = () => {
                 });
                 finalVideoUrl = presign.publicUrl;
             } else if (!selectedVideo && !videoFile && !formData.videoUrl) {
-                toast.error('Source media required', { id: loadingId });
+                toast.error('Source media payload required', { id: loadingId });
                 setUploading(false);
                 return;
             }
@@ -174,10 +176,10 @@ const VideoManagement: React.FC = () => {
 
             if (selectedVideo) {
                 await videoService.updateVideo(selectedVideo._id, videoPayload);
-                toast.success('Media updated', { id: loadingId });
+                toast.success('Cinematic metadata updated', { id: loadingId });
             } else {
                 await videoService.createVideo(videoPayload);
-                toast.success('Media deployed to feed', { id: loadingId });
+                toast.success('Cinematic artifact deployed to feed', { id: loadingId });
             }
             setIsFormOpen(false);
             fetchInitialData();
@@ -193,7 +195,7 @@ const VideoManagement: React.FC = () => {
         setLoading(true);
         try {
             await videoService.deleteVideo(videoToDelete);
-            toast.success('Media purged');
+            toast.success('Media artifact purged');
             setVideoToDelete(null);
             setIsDialogOpen(false);
             fetchInitialData();
@@ -204,185 +206,236 @@ const VideoManagement: React.FC = () => {
         }
     };
 
+    if (loading && videos.length === 0) return <Preloader isVisible text="Accessing cinematic repository..." />;
+
     return (
-        <div className="space-y-10">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-12 pb-24">
+            {/* Cinematic Identity Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
-                        <Film className="text-emerald-500" size={32} />
-                        Reels & Video
-                    </h1>
-                    <p className="text-zinc-500">Manage cinematic assets and promote recorded streams to the global feed.</p>
+                    <div className="flex items-center gap-3 mb-2">
+                        <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">Media Command</h1>
+                        <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
+                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest italic">Grid: Active</span>
+                        </div>
+                    </div>
+                    <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Managing cinematic assets, global reels, and promoted stream archives.</p>
                 </div>
                 <button
                     onClick={() => handleOpenForm()}
-                    className="btn-primary flex items-center gap-2 !px-8 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10 italic"
                 >
                     <Plus size={18} />
-                    Upload Video
+                    Deploy Asset
                 </button>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Intelligence Telemetry */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {[
-                    { label: 'Cinematic Repository', value: videos.length, icon: Film, color: 'text-blue-500', bg: 'bg-blue-500/5' },
-                    { label: 'Global Reach', value: videos.reduce((acc, v) => acc + (v.views || 0), 0).toLocaleString(), icon: Eye, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
-                    { label: 'Active Signals', value: videos.filter(v => v.isActive).length, icon: Zap, color: 'text-amber-500', bg: 'bg-amber-500/5' },
-                    { label: 'Linked Assets', value: videos.filter(v => v.song).length, icon: Music, color: 'text-purple-500', bg: 'bg-purple-500/5' },
+                    { label: 'Artifact Density', value: videos.length, icon: Film, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                    { label: 'Global Reach', value: videos.reduce((acc, v) => acc + (v.views || 0), 0).toLocaleString(), icon: Globe, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                    { label: 'Active Signals', value: videos.filter(v => v.isActive).length, icon: Zap, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+                    { label: 'Linked Matrices', value: videos.filter(v => v.song).length, icon: Music, color: 'text-purple-500', bg: 'bg-purple-500/10' },
                 ].map((s, i) => (
-                    <div key={i} className="premium-card">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-6 ${s.bg}`}>
-                            <s.icon size={20} className={s.color} />
+                    <motion.div 
+                        key={i}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="premium-card group border-white/5 hover:border-emerald-500/20 transition-all cursor-default relative overflow-hidden"
+                    >
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.02] rounded-bl-full pointer-events-none" />
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 ${s.bg} border border-white/5 shadow-inner relative overflow-hidden group-hover:scale-110 transition-transform duration-500`}>
+                            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <s.icon size={24} className={s.color} />
                         </div>
-                        <p className="text-zinc-500 text-xs font-medium mb-1">{s.label}</p>
-                        <p className="text-2xl font-bold text-white tracking-tight">{s.value}</p>
-                    </div>
+                        <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em] mb-2 italic">{s.label}</p>
+                        <p className="text-3xl font-bold text-white tracking-tighter italic tabular-nums">{s.value}</p>
+                    </motion.div>
                 ))}
             </div>
 
-            {/* Tabs & Search */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="bg-[#0a0a0a] border border-white/5 rounded-3xl p-1 flex items-center gap-1">
+            {/* Operation matrix HUD */}
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+                <div className="flex bg-zinc-950/40 border border-white/5 rounded-2xl p-1.5 gap-1.5 shadow-inner">
                     <button
                         onClick={() => setActiveTab('uploaded')}
-                        className={`px-6 py-2 rounded-2xl text-xs font-semibold transition-all ${activeTab === 'uploaded' ? 'bg-white/10 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+                        className={`px-8 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all duration-300 ${activeTab === 'uploaded' ? 'bg-white/10 text-white shadow-xl border border-white/5' : 'text-zinc-600 hover:text-zinc-300'}`}
                     >
-                        Uploaded Videos
+                        CINEMATIC_REPOSITORY
                     </button>
                     <button
                         onClick={() => setActiveTab('recorded')}
-                        className={`px-6 py-2 rounded-2xl text-xs font-semibold transition-all ${activeTab === 'recorded' ? 'bg-white/10 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+                        className={`px-8 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all duration-300 ${activeTab === 'recorded' ? 'bg-white/10 text-white shadow-xl border border-white/5' : 'text-zinc-600 hover:text-zinc-300'}`}
                     >
-                        Stream Recordings (VOD)
+                        STREAM_ARCHIVE (VOD)
                     </button>
                 </div>
-                <div className="relative w-full md:max-w-xs">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+                <div className="relative w-full lg:max-w-md group">
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
                     <input
                         type="text"
-                        placeholder="Search media repository..."
-                        className="input-field pl-11"
+                        placeholder="SCAN MEDIA REGISTRY..."
+                        className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800 italic"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
             </div>
 
-            {/* Main Content */}
-            <div className="premium-card !p-0 overflow-hidden">
+            {/* Registry Matrix */}
+            <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl bg-[#0a0a0a]">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="border-b border-white/5">
-                                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Asset</th>
-                                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Origin / Host</th>
-                                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Association</th>
-                                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Integrity</th>
-                                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider text-right">Actions</th>
+                            <tr className="border-b border-white/5 bg-zinc-950/50">
+                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Cinematic Artifact</th>
+                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Primary Entity</th>
+                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Matrix Link</th>
+                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Induction Status</th>
+                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic text-right">Action Protocol</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {activeTab === 'uploaded' ? (
-                                filteredVideos.map((video) => (
-                                    <tr key={video._id} className="hover:bg-white/[0.02] transition-colors group">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-20 aspect-video rounded-xl overflow-hidden bg-zinc-900 border border-white/5 relative group-hover:border-emerald-500/20 transition-all">
+                                filteredVideos.map((video, i) => (
+                                    <motion.tr 
+                                        key={video._id}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: i * 0.02 }}
+                                        className="hover:bg-emerald-500/[0.01] transition-all group"
+                                    >
+                                        <td className="px-10 py-6">
+                                            <div className="flex items-center gap-6">
+                                                <div className="w-24 aspect-video rounded-2xl overflow-hidden bg-zinc-950 border border-white/5 relative group-hover:border-emerald-500/30 transition-all shadow-inner group-hover:scale-110 transition-all duration-500">
                                                     <img
                                                         src={video.thumbnailUrl || (video.song?.coverArt ? getFullImageUrl(video.song.coverArt) : '')}
                                                         alt={video.title}
-                                                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                                                        className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
                                                     />
-                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <Play className="text-white fill-white" size={16} />
+                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20">
+                                                        <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
+                                                            <Play className="text-white fill-white" size={16} />
+                                                        </div>
                                                     </div>
+                                                    <div className="absolute inset-0 bg-black/20" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors line-clamp-1">{video.title}</p>
-                                                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-0.5">{video.pushedToFeed ? '🔥 Featured' : 'Registry'}</p>
+                                                    <p className="text-sm font-bold text-white uppercase tracking-tight italic group-hover:text-emerald-400 transition-colors leading-none mb-2 line-clamp-1">{video.title}</p>
+                                                    <div className="flex items-center gap-2">
+                                                       <span className={`text-[8px] font-black uppercase tracking-widest italic px-2 py-0.5 rounded ${video.pushedToFeed ? 'bg-amber-500/10 text-amber-500 border border-amber-500/10' : 'bg-zinc-950 text-zinc-600 border border-white/5'}`}>
+                                                          {video.pushedToFeed ? 'FEATURED_ARTIFACT' : 'REGISTRY_NODE'}
+                                                       </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-xs font-medium text-zinc-400">{video.artist?.name}</span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {video.song ? (
-                                                <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center gap-2 w-fit">
-                                                    <Music size={12} /> {video.song.name}
-                                                </span>
-                                            ) : (
-                                                <span className="text-[10px] font-bold text-zinc-700 uppercase italic">Unlinked</span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${video.isActive ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'}`}>
-                                                {video.isActive ? 'Active' : 'Offline'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => handleOpenForm(video)} className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/5 transition-all"><Edit size={18} /></button>
-                                                <button onClick={() => { setVideoToDelete(video._id); setIsDialogOpen(true); }} className="p-2 rounded-lg text-zinc-500 hover:text-rose-500 hover:bg-rose-500/5 transition-all"><Trash2 size={18} /></button>
+                                        <td className="px-10 py-6">
+                                            <div className="flex items-center gap-3">
+                                               <User size={14} className="text-zinc-700" />
+                                               <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest italic">{video.artist?.name.toUpperCase()}</span>
                                             </div>
                                         </td>
-                                    </tr>
+                                        <td className="px-10 py-6">
+                                            {video.song ? (
+                                                <div className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-blue-500/5 text-blue-500/70 border border-blue-500/10 flex items-center gap-2.5 w-fit shadow-inner">
+                                                    <Music size={14} /> {video.song.name.toUpperCase()}
+                                                </div>
+                                            ) : (
+                                                <span className="text-[9px] font-black text-zinc-800 uppercase italic tracking-widest opacity-40">UNLINKED_ARTIFACT</span>
+                                            )}
+                                        </td>
+                                        <td className="px-10 py-6">
+                                            <div className="flex items-center gap-3">
+                                               <div className={`w-1.5 h-1.5 rounded-full ${video.isActive ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-rose-500 shadow-[0_0_8px_#f43f5e]'}`} />
+                                               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">{video.isActive ? 'DEPLOYED' : 'OFFLINE'}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-10 py-6 text-right">
+                                            <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                                                <button onClick={() => handleOpenForm(video)} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-white hover:bg-emerald-500/20 transition-all shadow-inner" title="Reconfigure Asset"><Edit size={20} /></button>
+                                                <button onClick={() => { setVideoToDelete(video._id); setIsDialogOpen(true); }} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all shadow-inner" title="Purge Asset"><Trash2 size={20} /></button>
+                                            </div>
+                                        </td>
+                                    </motion.tr>
                                 ))
                             ) : (
-                                filteredRecorded.map((stream) => (
-                                    <tr key={stream._id} className="hover:bg-white/[0.02] transition-colors group">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-20 aspect-video rounded-xl overflow-hidden bg-zinc-900 border border-white/5 relative group-hover:border-emerald-500/20 transition-all">
+                                filteredRecorded.map((stream, i) => (
+                                    <motion.tr 
+                                        key={stream._id}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: i * 0.02 }}
+                                        className="hover:bg-emerald-500/[0.01] transition-all group"
+                                    >
+                                        <td className="px-10 py-6">
+                                            <div className="flex items-center gap-6">
+                                                <div className="w-24 aspect-video rounded-2xl overflow-hidden bg-zinc-950 border border-white/5 relative group-hover:border-emerald-500/30 transition-all shadow-inner group-hover:scale-110 transition-all duration-500">
                                                     <img
                                                         src={getFullImageUrl(stream.coverImage)}
                                                         alt={stream.title}
-                                                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                                                        className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
                                                     />
-                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <Play className="text-white fill-white" size={16} />
+                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20">
+                                                        <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
+                                                            <Play className="text-white fill-white" size={16} />
+                                                        </div>
                                                     </div>
+                                                    <div className="absolute inset-0 bg-black/20" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors line-clamp-1">{stream.title}</p>
-                                                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-0.5">Stream Archive</p>
+                                                    <p className="text-sm font-bold text-white uppercase tracking-tight italic group-hover:text-emerald-400 transition-colors leading-none mb-2 line-clamp-1">{stream.title}</p>
+                                                    <span className="text-[8px] font-black text-zinc-600 border border-white/5 bg-zinc-950 px-2 py-0.5 rounded uppercase tracking-widest italic">STREAM_ARCHIVE (VOD)</span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-xs font-medium text-zinc-400">{stream.host.name}</span>
+                                        <td className="px-10 py-6">
+                                            <div className="flex items-center gap-3">
+                                               <User size={14} className="text-zinc-700" />
+                                               <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest italic">{stream.host?.name.toUpperCase()}</span>
+                                            </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-zinc-500/10 text-zinc-500 border border-white/5 flex items-center gap-2 w-fit">
-                                                <Radio size={12} /> LiveKit VOD
-                                            </span>
+                                        <td className="px-10 py-6">
+                                            <div className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-zinc-950 text-zinc-500 border border-white/5 flex items-center gap-2.5 w-fit shadow-inner">
+                                                <Radio size={14} /> LIVEKIT_UPLINK
+                                            </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-10 py-6">
                                             {stream.isRecorded && stream.recordingUrl ? (
-                                                <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Persisted</span>
+                                                <div className="flex items-center gap-3">
+                                                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+                                                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">PERSISTED</span>
+                                                </div>
                                             ) : (
-                                                <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">Syncing...</span>
+                                                <div className="flex items-center gap-3">
+                                                   <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse" />
+                                                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">SYNCING_METADATA</span>
+                                                </div>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-10 py-6 text-right">
                                             <button 
                                                 onClick={() => handleOpenForm(stream, true)}
                                                 disabled={!stream.recordingUrl}
-                                                className="px-4 py-2 bg-emerald-500 text-black text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-emerald-400 transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)] disabled:opacity-50 disabled:grayscale"
+                                                className="h-12 px-6 bg-white text-black text-[9px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10 disabled:opacity-30 disabled:grayscale italic"
                                             >
                                                 Promote to Reels
                                             </button>
                                         </td>
-                                    </tr>
+                                    </motion.tr>
                                 ))
                             )}
                             {(activeTab === 'uploaded' ? filteredVideos : filteredRecorded).length === 0 && (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-24 text-center">
-                                        <VideoIcon className="h-12 w-12 text-zinc-800 mx-auto mb-4" />
-                                        <p className="text-zinc-500 font-medium">No media assets detected in this frequency.</p>
+                                    <td colSpan={5} className="px-10 py-40 text-center">
+                                        <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl group cursor-default">
+                                          <VideoIcon size={36} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />
+                                        </div>
+                                        <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3 italic">Scan Result: NULL_MEDIA</h3>
+                                        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto opacity-60 italic">No cinematic assets detected in this frequency spectrum.</p>
                                     </td>
                                 </tr>
                             )}
@@ -391,190 +444,199 @@ const VideoManagement: React.FC = () => {
                 </div>
             </div>
 
-            {/* Video Modal Form */}
+            {/* Video Modal Console */}
             <AnimatePresence>
                 {isFormOpen && (
-                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={() => !uploading && setIsFormOpen(false)}>
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl" onClick={() => !uploading && setIsFormOpen(false)}>
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="premium-card w-full max-w-2xl relative z-70 shadow-2xl overflow-hidden"
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="premium-card w-full max-w-2xl shadow-[0_30px_100px_rgba(0,0,0,1)] border-emerald-500/10 p-12 bg-[#0a0a0a]"
                             onClick={e => e.stopPropagation()}
                         >
-                            <div className="p-8">
-                                <div className="flex items-center justify-between mb-8">
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-white">{selectedVideo ? 'Edit Cinematic Asset' : 'Deploy New Asset'}</h2>
-                                        <p className="text-xs text-zinc-500 mt-1">Configure media parameters for the global feed.</p>
-                                    </div>
-                                    <button
-                                        disabled={uploading}
-                                        onClick={() => setIsFormOpen(false)}
-                                        className="p-2 hover:bg-white/5 rounded-full transition-colors disabled:opacity-50"
-                                    >
-                                        <XCircle className="text-zinc-500" size={24} />
-                                    </button>
+                            <div className="flex justify-between items-center mb-10 border-b border-white/5 pb-10">
+                                <div className="flex items-center gap-5">
+                                   <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                                      {selectedVideo ? <Edit className="text-emerald-500" size={28} /> : <Upload className="text-emerald-500" size={28} />}
+                                   </div>
+                                   <div>
+                                      <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic leading-none mb-1.5">{selectedVideo ? 'Modify Metadata' : 'Payload Induction'}</h3>
+                                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Cinematic Configuration Matrix</p>
+                                   </div>
                                 </div>
+                                <button disabled={uploading} onClick={() => setIsFormOpen(false)} className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-white/5 text-zinc-500 transition-all border border-white/5 shadow-inner disabled:opacity-50"><X size={24} /></button>
+                            </div>
 
-                                <form onSubmit={handleSubmit} className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Asset Title</label>
-                                            <input
-                                                required className="input-field"
-                                                placeholder="e.g. Midnight City (VOD Archive)"
-                                                value={formData.title}
-                                                onChange={e => setFormData({ ...formData, title: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Identity / Artist</label>
-                                            <div className="relative">
-                                                <select
-                                                    required className="input-field appearance-none"
-                                                    value={formData.artistId}
-                                                    onChange={e => setFormData({ ...formData, artistId: e.target.value, songId: '' })}
-                                                >
-                                                    <option value="">Select Primary Identity</option>
-                                                    {artists.map(a => (
-                                                        <option key={a._id} value={a._id}>{a.name}</option>
-                                                    ))}
-                                                </select>
-                                                <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 rotate-90 pointer-events-none" size={16} />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Description</label>
-                                        <textarea
-                                            disabled={uploading} className="input-field h-24 resize-none"
-                                            placeholder="Enter cinematic description..."
-                                            value={formData.description}
-                                            onChange={e => setFormData({ ...formData, description: e.target.value })}
+                            <form onSubmit={handleSubmit} className="space-y-10">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Asset Identifier <span className="text-emerald-500">*</span></label>
+                                        <input
+                                            required className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800 italic"
+                                            placeholder="e.g. SONIC_REVELATION_VOD"
+                                            value={formData.title}
+                                            onChange={e => setFormData({ ...formData, title: e.target.value })}
                                         />
                                     </div>
-
-                                    {/* Media Source Section */}
-                                    {!formData.videoUrl && (
-                                        <div className="space-y-4">
-                                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Payload Source</label>
-                                            <div
-                                                onClick={() => !uploading && videoInputRef.current?.click()}
-                                                className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer ${videoFile ? 'border-emerald-500 bg-emerald-500/5' : 'border-white/5 hover:border-emerald-500/20 bg-zinc-950'} ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Entity Association</label>
+                                        <div className="relative group/sel">
+                                            <select
+                                                required className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                                                value={formData.artistId}
+                                                onChange={e => setFormData({ ...formData, artistId: e.target.value, songId: '' })}
                                             >
-                                                <input
-                                                    type="file" ref={videoInputRef} className="hidden"
-                                                    accept="video/*" onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                                                />
-                                                {videoFile ? (
-                                                    <div className="flex items-center gap-4">
-                                                        <VideoIcon className="text-emerald-500" size={32} />
-                                                        <div className="text-left">
-                                                            <p className="text-sm font-bold text-white">{videoFile.name}</p>
-                                                            <p className="text-xs text-zinc-500 font-mono">{(videoFile.size / (1024 * 1024)).toFixed(2)} MB</p>
-                                                        </div>
-                                                        {videoProgress === 100 && <CheckCircle2 className="text-emerald-500" size={20} />}
+                                                <option value="">SELECT_ENTITY</option>
+                                                {artists.map(a => (
+                                                    <option key={a._id} value={a._id}>{a.name.toUpperCase()}</option>
+                                                ))}
+                                            </select>
+                                            <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-emerald-500" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Registry Logbook (Description)</label>
+                                    <textarea
+                                        disabled={uploading} className="w-full p-8 bg-zinc-950 border border-white/5 rounded-3xl text-zinc-300 text-[11px] font-bold tracking-[0.1em] focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner resize-none h-32 leading-relaxed placeholder:text-zinc-800"
+                                        placeholder="Provide semantic context metadata for this cinematic artifact..."
+                                        value={formData.description}
+                                        onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                    />
+                                </div>
+
+                                {/* Media Source Payload */}
+                                {!formData.videoUrl && (
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Payload Source Induction</label>
+                                        <div
+                                            onClick={() => !uploading && videoInputRef.current?.click()}
+                                            className={`border-2 border-dashed rounded-[2.5rem] p-12 flex flex-col items-center justify-center transition-all cursor-pointer relative overflow-hidden ${videoFile ? 'border-emerald-500 bg-emerald-500/5 shadow-[0_0_30px_rgba(16,185,129,0.1)]' : 'border-white/5 hover:border-emerald-500/20 bg-zinc-950 shadow-inner'} ${uploading ? 'opacity-50 cursor-not-allowed' : ''} group/up`}
+                                        >
+                                            <input
+                                                type="file" ref={videoInputRef} className="hidden"
+                                                accept="video/*" onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                                            />
+                                            {videoFile ? (
+                                                <div className="flex items-center gap-6 relative z-10">
+                                                    <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20">
+                                                       <VideoIcon className="text-emerald-500" size={32} />
                                                     </div>
-                                                ) : (
-                                                    <div className="flex flex-col items-center">
-                                                        <Upload className="text-zinc-700 mb-3" size={32} />
-                                                        <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Select Video File</p>
-                                                        <p className="text-[10px] text-zinc-600 mt-2 font-mono">MP4, WEBM, MOV up to 500MB</p>
+                                                    <div className="text-left">
+                                                        <p className="text-sm font-bold text-white uppercase tracking-tight italic">{videoFile.name}</p>
+                                                        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-1 italic">{(videoFile.size / (1024 * 1024)).toFixed(2)} MB • READY_FOR_SYNC</p>
                                                     </div>
-                                                )}
-                                            </div>
-                                            {videoProgress > 0 && videoProgress < 100 && (
-                                                <div className="w-full bg-white/5 rounded-full h-1 overflow-hidden">
-                                                    <motion.div initial={{ width: 0 }} animate={{ width: `${videoProgress}%` }} className="bg-emerald-500 h-full shadow-[0_0_10px_#10b981]" />
+                                                    {videoProgress === 100 && <CheckCircle2 className="text-emerald-500 ml-4" size={24} />}
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col items-center relative z-10">
+                                                    <div className="w-20 h-20 bg-zinc-900 rounded-[2rem] flex items-center justify-center mb-6 border border-white/5 shadow-2xl group-hover/up:scale-110 transition-transform duration-700">
+                                                       <Upload className="text-zinc-700 group-hover/up:text-emerald-500 transition-colors" size={32} />
+                                                    </div>
+                                                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] italic">Induct Video Payload</p>
+                                                    <p className="text-[9px] text-zinc-700 mt-3 font-bold uppercase tracking-widest italic opacity-60">MP4, WEBM, MOV • MAX_TRANS_500MB</p>
                                                 </div>
                                             )}
                                         </div>
-                                    )}
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Asset Link (Optional)</label>
-                                            <div className="relative">
-                                                <select
-                                                    disabled={uploading} className="input-field appearance-none"
-                                                    value={formData.songId}
-                                                    onChange={e => setFormData({ ...formData, songId: e.target.value })}
-                                                >
-                                                    <option value="">No Registry Link</option>
-                                                    {filteredSongs.map(s => (
-                                                        <option key={s._id} value={s._id}>{s.name}</option>
-                                                    ))}
-                                                </select>
-                                                <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 rotate-90 pointer-events-none" size={16} />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Visual Index</label>
-                                            <div
-                                                onClick={() => !uploading && thumbInputRef.current?.click()}
-                                                className={`h-[50px] border rounded-2xl flex items-center px-4 cursor-pointer transition-all ${thumbnailFile ? 'border-emerald-500 bg-emerald-500/5' : 'border-white/5 bg-zinc-950 hover:border-emerald-500/20'} ${uploading ? 'opacity-50' : ''}`}
-                                            >
-                                                <input
-                                                    type="file" ref={thumbInputRef} className="hidden"
-                                                    accept="image/*" onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
-                                                />
-                                                <div className="flex items-center gap-3 truncate">
-                                                    {thumbnailFile ? (
-                                                        <>
-                                                            <Check className="text-emerald-500 shrink-0" size={14} />
-                                                            <span className="text-[11px] font-bold text-white truncate uppercase tracking-widest">{thumbnailFile.name}</span>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Upload size={14} className="text-zinc-600 shrink-0" />
-                                                            <span className="text-[11px] font-bold text-zinc-500 truncate uppercase tracking-widest">Select Image</span>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                                        <div className="flex items-center gap-4">
-                                            <button 
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, pushedToFeed: !formData.pushedToFeed })}
-                                                className={`relative w-12 h-6 rounded-full transition-all duration-300 ${formData.pushedToFeed ? 'bg-emerald-500' : 'bg-zinc-800'}`}
-                                            >
-                                                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300 ${formData.pushedToFeed ? 'left-7 shadow-[0_0_10px_white]' : 'left-1'}`} />
-                                            </button>
-                                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Promote to Home Feed</span>
-                                        </div>
-                                        
-                                        {uploading && (
-                                            <div className="flex items-center gap-2 text-emerald-500">
-                                                <RefreshCw className="h-4 w-4 animate-spin" />
-                                                <span className="text-[10px] font-bold uppercase tracking-widest">Syncing Media...</span>
+                                        {videoProgress > 0 && videoProgress < 100 && (
+                                            <div className="px-1">
+                                               <div className="w-full bg-zinc-950 border border-white/5 rounded-full h-2 overflow-hidden shadow-inner">
+                                                  <motion.div initial={{ width: 0 }} animate={{ width: `${videoProgress}%` }} className="bg-emerald-500 h-full shadow-[0_0_15px_#10b981]" />
+                                               </div>
+                                               <p className="text-[8px] font-black text-emerald-500/60 uppercase tracking-widest italic mt-2 text-right">Inducting Payload Matrix: {videoProgress}%</p>
                                             </div>
                                         )}
                                     </div>
+                                )}
 
-                                    <div className="flex gap-4 pt-4">
-                                        <button
-                                            type="button" disabled={uploading}
-                                            onClick={() => setIsFormOpen(false)}
-                                            className="flex-1 btn-secondary !py-4"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="submit"
-                                            disabled={uploading || (!selectedVideo && !videoFile && !formData.videoUrl)}
-                                            className="flex-1 btn-primary !py-4"
-                                        >
-                                            {uploading ? 'Processing Media...' : (selectedVideo ? 'Update Metadata' : 'Deploy to Feed')}
-                                        </button>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Registry Artifact Link</label>
+                                        <div className="relative group/sel">
+                                            <select
+                                                disabled={uploading} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                                                value={formData.songId}
+                                                onChange={e => setFormData({ ...formData, songId: e.target.value })}
+                                            >
+                                                <option value="">NO_ARTIFACT_LINK</option>
+                                                {filteredSongs.map(s => (
+                                                    <option key={s._id} value={s._id}>{s.name.toUpperCase()}</option>
+                                                ))}
+                                            </select>
+                                            <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-emerald-500" />
+                                        </div>
                                     </div>
-                                </form>
-                            </div>
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Visual Identity Index</label>
+                                        <div
+                                            onClick={() => !uploading && thumbInputRef.current?.click()}
+                                            className={`h-16 px-8 border rounded-2xl flex items-center justify-between cursor-pointer transition-all ${thumbnailFile ? 'border-emerald-500/30 bg-emerald-500/5 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'border-white/5 bg-zinc-950 hover:border-emerald-500/20 shadow-inner'} ${uploading ? 'opacity-50' : ''} group/th`}
+                                        >
+                                            <input
+                                                type="file" ref={thumbInputRef} className="hidden"
+                                                accept="image/*" onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                                            />
+                                            <div className="flex items-center gap-4 truncate">
+                                                {thumbnailFile ? (
+                                                    <>
+                                                        <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20">
+                                                           <Check className="text-emerald-500" size={18} />
+                                                        </div>
+                                                        <span className="text-[10px] font-bold text-white truncate uppercase tracking-widest italic">{thumbnailFile.name}</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Upload size={18} className="text-zinc-700 group-hover/th:text-emerald-500 transition-colors" />
+                                                        <span className="text-[10px] font-bold text-zinc-600 truncate uppercase tracking-widest italic">Induct Visual Node</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <ImageIcon size={18} className="text-zinc-800 group-hover/th:text-zinc-600 transition-colors" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-10 border-t border-white/5">
+                                    <div className="flex items-center gap-6">
+                                        <button 
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, pushedToFeed: !formData.pushedToFeed })}
+                                            className={`relative w-14 h-7 rounded-full transition-all duration-500 ${formData.pushedToFeed ? 'bg-emerald-500' : 'bg-zinc-800 border border-white/5'}`}
+                                        >
+                                            <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all duration-500 ${formData.pushedToFeed ? 'left-8 shadow-[0_0_15px_white]' : 'left-1'}`} />
+                                        </button>
+                                        <div>
+                                           <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] italic block">Promote to Reels</span>
+                                           <span className="text-[8px] font-bold text-zinc-700 uppercase tracking-widest italic block mt-1">Direct deployment to global feed matrix</span>
+                                        </div>
+                                    </div>
+                                    
+                                    {uploading && (
+                                        <div className="flex items-center gap-3 text-emerald-500">
+                                            <RefreshCw className="h-5 w-5 animate-spin" />
+                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] italic">Inducting Payload...</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex gap-6 pt-6">
+                                    <button
+                                        type="button" disabled={uploading}
+                                        onClick={() => setIsFormOpen(false)}
+                                        className="flex-1 h-16 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] border border-white/5 hover:bg-white/5 transition-all italic"
+                                    >
+                                        Abort Protocol
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={uploading || (!selectedVideo && !videoFile && !formData.videoUrl)}
+                                        className="flex-1 h-16 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] shadow-2xl hover:bg-emerald-400 transition-all flex items-center justify-center gap-4 group italic"
+                                    >
+                                        {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={20} className="group-hover:translate-y-1 transition-transform" />}
+                                        {selectedVideo ? 'Commit Sync' : 'Initialize Induction'}
+                                    </button>
+                                </div>
+                            </form>
                         </motion.div>
                     </div>
                 )}
@@ -584,10 +646,10 @@ const VideoManagement: React.FC = () => {
                 isOpen={isDialogOpen}
                 onCancel={() => setIsDialogOpen(false)}
                 onConfirm={handleDelete}
-                title="Purge Cinematic Asset?"
-                message="Are you sure you want to delete this video? This protocol cannot be undone."
-                confirmLabel="Purge Media"
-                cancelLabel="Abort"
+                title="Terminate Cinematic Artifact?"
+                message="Confirm the permanent purge of this cinematic asset from the feed and registry matrix. Irreversible protocol."
+                confirmLabel="Execute Purge"
+                cancelLabel="Abort Protocol"
             />
         </div>
     );

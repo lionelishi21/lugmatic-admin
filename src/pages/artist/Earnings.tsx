@@ -6,7 +6,16 @@ import {
   Gift, Clock, CheckCircle2,
   Shield,
   Activity,
-  History
+  History,
+  Wallet,
+  Zap,
+  ArrowRight,
+  TrendingDown,
+  Activity as ActivityIcon,
+  Layers,
+  ChevronRight,
+  FileText,
+  Search
 } from 'lucide-react';
 import { format, endOfMonth, subMonths } from 'date-fns';
 import financeService from '../../services/financeService';
@@ -27,10 +36,6 @@ interface EarningsData {
   status: 'pending' | 'paid';
   payout_date?: string;
 }
-
-// ── Shared primitives ─────────────────────────────────────────────
-const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
-const labelClass = 'block text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1.5 italic';
 
 export default function Earnings() {
   const [stats, setStats] = useState<EarningsStats>({
@@ -90,139 +95,149 @@ export default function Earnings() {
 
   const STATS = [
     {
-      label: 'Monthly Revenue',
+      label: 'Monthly Yield',
       value: `$${stats.monthlyEarnings.toLocaleString()}`,
       icon: TrendingUp,
-      iconCls: 'text-emerald-400',
-      iconBg:  'bg-emerald-500/10',
+      color: 'text-emerald-500',
+      bg: 'bg-emerald-500/5',
       trend: '+15.3%',
       trendUp: true,
+      tag: 'Growth'
     },
     {
-      label: 'Streaming',
+      label: 'Stream Revenue',
       value: `$${stats.streamEarnings.toLocaleString()}`,
-      icon: BarChart2,
-      iconCls: 'text-indigo-400',
-      iconBg:  'bg-indigo-500/10',
-      trend: 'Revenue',
+      icon: ActivityIcon,
+      color: 'text-indigo-500',
+      bg: 'bg-indigo-500/5',
+      trend: 'Standard',
       trendUp: false,
+      tag: 'Revenue'
     },
     {
-      label: 'Gifts Received',
+      label: 'Gift Assets',
       value: `$${stats.giftEarnings.toLocaleString()}`,
       icon: Gift,
-      iconCls: 'text-rose-400',
-      iconBg:  'bg-rose-500/10',
+      color: 'text-rose-500',
+      bg: 'bg-rose-500/5',
       trend: 'Direct',
       trendUp: false,
+      tag: 'Support'
     },
     {
       label: 'Payout Target',
       value: format(endOfMonth(selectedMonth), 'MMM d, yyyy'),
-      icon: Calendar,
-      iconCls: 'text-amber-400',
-      iconBg:  'bg-amber-500/10',
-      trend: 'Scheduled',
+      icon: Shield,
+      color: 'text-amber-500',
+      bg: 'bg-amber-500/5',
+      trend: 'Secure',
       trendUp: false,
+      tag: 'Scheduled'
     },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto pb-16 space-y-8 animate-in fade-in duration-700">
-
-      {/* ── Branded Fiscal Header ── */}
-      <div className={`${card} p-8 flex flex-col md:flex-row md:items-center justify-between gap-8 relative overflow-hidden group`}>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/[0.02] rounded-bl-full pointer-events-none" />
-        <div className="flex items-center gap-6 relative z-10">
-          <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-500">
-            <DollarSign className="h-8 w-8 text-white" />
+    <div className="space-y-10 pb-24">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Financial Overview</h1>
+            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Updates Active</span>
+            </div>
           </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 italic">Earnings</p>
-            <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight uppercase italic">
-              Financial Overview
-            </h1>
-            <p className="text-sm text-zinc-500 mt-1 font-medium">
-              Track your revenue from streams, gifts, and subscriptions.
-            </p>
-          </div>
+          <p className="text-zinc-500 font-medium">Detailed tracking of your revenue streams and global earnings history.</p>
         </div>
-
-        <div className="flex items-center gap-4 relative z-10">
-          <div className="relative">
-            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
+        
+        <div className="flex items-center gap-4">
+          <div className="relative group">
+            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 pointer-events-none" />
             <select
               value={selectedMonth.toISOString()}
               onChange={e => setSelectedMonth(new Date(e.target.value))}
-              className="pl-11 pr-10 py-3 bg-zinc-950 border border-white/[0.06] rounded-xl text-zinc-300 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-emerald-500 appearance-none cursor-pointer transition-all hover:bg-zinc-900"
+              className="pl-11 pr-10 h-12 bg-zinc-950 border border-white/5 rounded-xl text-zinc-400 text-xs font-semibold focus:outline-none focus:border-emerald-500/30 appearance-none cursor-pointer transition-all hover:bg-zinc-900 shadow-xl"
             >
               {Array.from({ length: 12 }, (_, i) => subMonths(new Date(), i)).map(d => (
                 <option key={d.toISOString()} value={d.toISOString()}>
-                  {format(d, 'MMMM yyyy').toUpperCase()}
+                  {format(d, 'MMMM yyyy')}
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400 pointer-events-none" />
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 pointer-events-none" />
           </div>
           <button
             onClick={downloadReport}
-            className="flex items-center gap-3 px-6 h-12 bg-white text-zinc-900 text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-xl shadow-zinc-950/20"
+            className="flex items-center gap-3 px-8 h-12 bg-white text-black text-xs font-bold rounded-xl hover:scale-105 transition-all shadow-xl border border-white/10"
           >
             <Download className="h-4 w-4" />
-            Export History
+            Export CSV
           </button>
         </div>
       </div>
 
-      {/* ── Revenue Stats ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {STATS.map((s, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.07 }}
-            className={`${card} p-6 hover:border-emerald-500/20 transition-all group cursor-default shadow-sm hover:shadow-2xl hover:shadow-emerald-500/5`}
+            transition={{ delay: i * 0.05 }}
+            className="premium-card group hover:border-emerald-500/20 transition-all cursor-default relative overflow-hidden"
           >
-            <div className="flex items-center justify-between mb-6">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${s.iconBg} border border-white/[0.04] shadow-inner`}>
-                <s.icon className={`h-6 w-6 ${s.iconCls}`} />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.01] rounded-bl-full pointer-events-none" />
+            <div className="flex items-center justify-between mb-8">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${s.bg} border border-white/5 shadow-inner group-hover:scale-110 transition-transform duration-500`}>
+                <s.icon size={20} className={s.color} />
               </div>
-              {s.trendUp ? (
-                <span className="flex items-center gap-1.5 text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-md uppercase tracking-widest italic">
-                  <ArrowUpRight className="h-3.5 w-3.5" />{s.trend}
-                </span>
-              ) : (
-                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic bg-zinc-950 border border-white/[0.04] px-2.5 py-1 rounded-md">
-                  {s.trend}
-                </span>
-              )}
+              <div className="flex flex-col items-end">
+                {s.trendUp ? (
+                  <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/5 px-2 py-0.5 rounded border border-emerald-500/10 flex items-center gap-1 mb-1">
+                    <TrendingUp size={10} /> {s.trend}
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold text-zinc-500 bg-black/40 border border-white/5 px-2 py-0.5 rounded mb-1">
+                    {s.trend}
+                  </span>
+                )}
+              </div>
             </div>
-            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-zinc-500 mb-2 italic">{s.label}</p>
-            <p className="text-2xl font-black text-zinc-900 dark:text-white italic tracking-tighter tabular-nums group-hover:text-emerald-500 transition-colors">{s.value}</p>
+            <p className="text-zinc-500 text-xs font-semibold mb-1.5">{s.label}</p>
+            <p className="text-3xl font-bold text-white tracking-tight tabular-nums leading-none group-hover:text-emerald-400 transition-colors">{s.value}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* ── Transaction History ── */}
-      <div className={`${card} overflow-hidden`}>
-        {/* Filter bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-8 py-6 border-b border-white/[0.06] bg-zinc-950/40 gap-4">
-          <div className="flex items-center gap-4">
-             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                <History className="h-4 w-4 text-emerald-500" />
-             </div>
-             <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">History Archive</h2>
+      {/* Transaction History */}
+      <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
+        <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 bg-zinc-950/20">
+          <div className="flex items-center gap-6">
+            <div className="w-12 h-12 bg-zinc-900 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+               <History className="text-emerald-500" size={20} />
+            </div>
+            <div>
+               <h3 className="text-lg font-bold text-white">Earnings Archive</h3>
+               <div className="flex items-center gap-2 mt-1">
+                  <p className="text-xs text-zinc-500 font-medium">Verified historical transaction records</p>
+                  <div className="w-1 h-1 rounded-full bg-zinc-800" />
+                  <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/5 px-2 py-0.5 rounded border border-emerald-500/10">
+                    Synced
+                  </span>
+               </div>
+            </div>
           </div>
-          <div className="flex bg-zinc-950 rounded-xl p-1 gap-1 border border-white/[0.04]">
+          
+          <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1 shadow-inner backdrop-blur-3xl">
             {(['all', 'pending', 'paid'] as const).map(s => (
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
-                className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all italic ${
+                className={`px-6 py-2.5 rounded-xl text-xs font-semibold capitalize transition-all ${
                   statusFilter === s
-                    ? 'bg-zinc-800 text-white shadow-xl'
-                    : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
+                    ? 'bg-white/10 text-white shadow-lg border border-white/5'
+                    : 'text-zinc-600 hover:text-zinc-300'
                 }`}
               >
                 {s}
@@ -231,89 +246,97 @@ export default function Earnings() {
           </div>
         </div>
 
-        {/* Rows */}
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-32 bg-zinc-950/20">
-              <div className="relative">
-                 <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin shadow-2xl shadow-emerald-500/20" />
-                 <Activity className="absolute inset-0 m-auto h-5 w-5 text-emerald-500 animate-pulse" />
+        <div className="overflow-x-auto">
+          <AnimatePresence mode="wait">
+            {isLoading ? (
+              <div className="py-40 flex flex-col items-center justify-center">
+                <div className="w-12 h-12 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin shadow-2xl" />
+                <p className="text-xs font-semibold text-zinc-600 mt-6 animate-pulse tracking-wide">Syncing earnings...</p>
               </div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mt-6 italic animate-pulse">Syncing Transactions...</p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-32 text-center px-10 bg-zinc-950/20">
-              <div className="w-20 h-20 bg-zinc-950 rounded-3xl flex items-center justify-center mb-6 border border-white/5 shadow-inner">
-                <DollarSign className="h-10 w-10 text-zinc-600" />
+            ) : filtered.length === 0 ? (
+              <div className="py-32 text-center">
+                <div className="w-20 h-20 bg-zinc-950 rounded-3xl mx-auto mb-6 flex items-center justify-center border border-white/5 shadow-inner">
+                   <DollarSign size={32} className="text-zinc-800" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">No transaction records</h3>
+                <p className="text-sm text-zinc-500 max-w-xs mx-auto leading-relaxed">
+                  Your earnings history will appear here once you start generating revenue.
+                </p>
               </div>
-              <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">No Transaction Records</h4>
-              <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest font-black opacity-60 max-w-xs leading-relaxed">
-                Earnings from streams, gifts, and subscriptions will appear here.
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y divide-zinc-100 dark:divide-white/[0.04] bg-zinc-950/10">
-              {filtered.map((e, i) => (
-                <motion.div
-                  key={e.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                  className="flex items-center justify-between px-8 py-6 hover:bg-emerald-500/[0.02] transition-colors group"
-                >
-                  <div className="flex items-center gap-6 min-w-0">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 border border-white/[0.04] shadow-inner transition-transform group-hover:scale-105 ${
-                      e.source === 'subscription'
-                        ? 'bg-indigo-500/5 text-indigo-500'
-                        : 'bg-emerald-500/5 text-emerald-500'
-                    }`}>
-                      {e.source === 'subscription'
-                        ? <Music className="h-6 w-6" />
-                        : <Gift className="h-6 w-6" />}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm font-black text-zinc-800 dark:text-zinc-100 uppercase italic tracking-tight truncate">
-                          {e.source_name}
-                        </span>
-                        <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500 bg-zinc-900 border border-white/[0.04] px-2 py-0.5 rounded-md">
-                          {e.source}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-4 mt-2">
-                        <span className="text-[9px] text-zinc-500 font-black uppercase tracking-widest flex items-center gap-1.5">
-                          <Clock className="h-3.5 w-3.5" />
-                          {format(new Date(e.created_at), 'MMM d, yyyy')}
+            ) : (
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-zinc-950/40">
+                  <tr className="border-b border-white/5">
+                    <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">Source</th>
+                    <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">Type</th>
+                    <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">Amount</th>
+                    <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">Status</th>
+                    <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider text-right">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {filtered.map((e, i) => (
+                    <motion.tr
+                      key={e.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.02 }}
+                      className="group hover:bg-white/[0.01] transition-all cursor-pointer"
+                    >
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border border-white/5 shadow-inner transition-transform group-hover:scale-105 ${
+                              e.source === 'subscription'
+                                ? 'bg-indigo-500/5 text-indigo-500'
+                                : 'bg-emerald-500/5 text-emerald-500'
+                            }`}>
+                              {e.source === 'subscription'
+                                ? <Music size={20} />
+                                : <Gift size={20} />}
+                           </div>
+                           <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors leading-none">{e.source_name}</p>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <span className="text-xs font-semibold text-zinc-500 capitalize">{e.source}</span>
+                      </td>
+                      <td className="px-8 py-6">
+                         <p className="text-base font-bold text-white tracking-tight">
+                            ${e.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                         </p>
+                      </td>
+                      <td className="px-8 py-6">
+                        <span className={`inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${
+                          e.status === 'paid'
+                            ? 'bg-emerald-500/5 text-emerald-500 border-emerald-500/20'
+                            : 'bg-amber-500/5 text-amber-500 border-amber-500/20'
+                        }`}>
+                          {e.status}
                         </span>
                         {e.payout_date && (
-                          <span className="text-[9px] text-emerald-500 font-black uppercase tracking-widest flex items-center gap-1.5 bg-emerald-500/10 px-2 py-0.5 rounded">
-                            <CheckCircle2 className="h-3.5 w-3.5" />
-                            SETTLED {format(new Date(e.payout_date), 'MMM d')}
-                          </span>
+                          <div className="flex items-center gap-1.5 mt-1.5 opacity-60">
+                             <CheckCircle2 size={10} className="text-emerald-500" />
+                             <span className="text-[10px] font-semibold text-zinc-600">Settled: {format(new Date(e.payout_date), 'MMM d')}</span>
+                          </div>
                         )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <p className="text-lg font-black text-zinc-900 dark:text-white italic tracking-tighter tabular-nums group-hover:text-emerald-500 transition-colors">
-                      ${e.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </p>
-                    <span className={`text-[9px] font-black uppercase tracking-widest mt-1.5 inline-block px-2 py-0.5 rounded border ${
-                      e.status === 'paid'
-                        ? 'bg-emerald-500/5 text-emerald-500 border-emerald-500/20'
-                        : 'bg-amber-500/5 text-amber-500 border-amber-500/20'
-                    }`}>
-                      {e.status}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </AnimatePresence>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                         <div className="flex items-center justify-end gap-2 text-zinc-600 text-xs font-medium">
+                            <Clock size={12} className="text-zinc-800" />
+                            {format(new Date(e.created_at), 'MMM d, yyyy')}
+                         </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </AnimatePresence>
+        </div>
+        <div className="p-6 bg-[#0a0a0a] border-t border-white/5 text-center">
+            <button className="text-xs font-bold text-zinc-600 hover:text-white transition-all uppercase tracking-widest">Load More Earnings</button>
+        </div>
       </div>
-
     </div>
   );
 }

@@ -2,13 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Search as SearchIcon, X, Music2, Mic2, BookOpen, TrendingUp,
   Clock, Play, Users, Heart, Star, ChevronRight, Loader2,
-  SlidersHorizontal, Hash, Flame, Sparkles, LayoutGrid, Globe, Zap, History
+  SlidersHorizontal, Hash, Flame, Sparkles, LayoutGrid, Globe, Zap, History,
+  Filter
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { searchService } from '../../services/searchService';
 import genreService, { Genre } from '../../services/genreService';
-
-const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group';
 
 type Tab = 'all' | 'tracks' | 'artists' | 'podcasts';
 type SortBy = 'relevance' | 'popular' | 'newest';
@@ -63,7 +62,7 @@ function getColor(seed: string) {
 
 function Avatar({ name, size = 'md', rounded = 'xl' }: { name: string; size?: 'sm' | 'md'; rounded?: string }) {
   const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-  const sz = size === 'sm' ? 'w-9 h-9 text-xs' : 'w-11 h-11 text-sm';
+  const sz = size === 'sm' ? 'w-10 h-10 text-xs' : 'w-12 h-12 text-sm';
   return (
     <div className={`flex-shrink-0 rounded-${rounded} bg-gradient-to-br ${getColor(name)} flex items-center justify-center font-bold text-white shadow-lg ${sz}`}>
       {initials}
@@ -136,10 +135,10 @@ export default function Search() {
   };
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode; count: number }[] = [
-    { key: 'all', label: 'All Results', icon: <Globe className="h-3.5 w-3.5" />, count: MOCK_RESULTS.tracks.length + MOCK_RESULTS.artists.length + MOCK_RESULTS.podcasts.length },
-    { key: 'tracks', label: 'Tracks', icon: <Music2 className="h-3.5 w-3.5" />, count: MOCK_RESULTS.tracks.length },
-    { key: 'artists', label: 'Artists', icon: <Mic2 className="h-3.5 w-3.5" />, count: MOCK_RESULTS.artists.length },
-    { key: 'podcasts', label: 'Podcasts', icon: <BookOpen className="h-3.5 w-3.5" />, count: MOCK_RESULTS.podcasts.length },
+    { key: 'all', label: 'Top Results', icon: <Globe size={16} />, count: MOCK_RESULTS.tracks.length + MOCK_RESULTS.artists.length + MOCK_RESULTS.podcasts.length },
+    { key: 'tracks', label: 'Tracks', icon: <Music2 size={16} />, count: MOCK_RESULTS.tracks.length },
+    { key: 'artists', label: 'Artists', icon: <Mic2 size={16} />, count: MOCK_RESULTS.artists.length },
+    { key: 'podcasts', label: 'Podcasts', icon: <BookOpen size={16} />, count: MOCK_RESULTS.podcasts.length },
   ];
 
   const showTracks = tab === 'all' || tab === 'tracks';
@@ -148,426 +147,283 @@ export default function Search() {
   const activeFilterCount = (selectedGenre ? 1 : 0) + (sortBy !== 'relevance' ? 1 : 0);
 
   return (
-    <div className="max-w-5xl mx-auto pb-16 space-y-6">
-
-      {/* ── Header Card ── */}
-      <div className={`${card} p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6`}>
-        <div className="flex items-center gap-5">
-          <div className="w-14 h-14 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
-            <Globe className="h-7 w-7 text-white" />
+    <div className="max-w-7xl mx-auto pb-24 space-y-10">
+      
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none uppercase">Search</h1>
+            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Active</span>
+            </div>
           </div>
-          <div>
-             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1 italic">Discovery Network</p>
-             <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight uppercase italic">
-               Search & Discovery
-             </h1>
-             <p className="text-sm text-zinc-500 mt-0.5">
-               Find tracks, artists, and podcasts across the platform.
-             </p>
-          </div>
+          <p className="text-zinc-500 font-medium">Discover new tracks, artists, and podcasts across the platform.</p>
         </div>
       </div>
 
-      {/* ── Search Bar HUD ── */}
-      <div className="relative group">
-        <div className={`flex items-center gap-4 bg-white dark:bg-zinc-900 shadow-xl border transition-all duration-300 px-6 py-4 rounded-2xl ${
-          showSuggestions && (suggestions.length > 0 || recentSearches.length > 0)
-            ? 'border-emerald-500 ring-4 ring-emerald-500/10 rounded-b-none'
-            : 'border-zinc-200 dark:border-white/[0.06] focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/10'
-        }`}>
-          {isSearching
-            ? <Loader2 className="h-5 w-5 text-emerald-500 animate-spin flex-shrink-0" />
-            : <SearchIcon className="h-5 w-5 text-zinc-400 flex-shrink-0 group-focus-within:text-emerald-500 transition-colors" />}
-          <input
-            type="text"
-            value={query}
-            onChange={e => { setQuery(e.target.value); setShowSuggestions(true); }}
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-            onKeyDown={e => { if (e.key === 'Enter' && query.trim()) commitSearch(query); }}
-            placeholder="SEARCH TRACKS, ARTISTS, OR PODCASTS..."
-            className="flex-1 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-500 text-[11px] font-black uppercase tracking-widest focus:outline-none"
-          />
-          {query && (
-            <button onClick={() => { setQuery(''); setHasResults(false); setSuggestions([]); }}
-              className="p-1 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-all">
-              <X className="h-4 w-4" />
-            </button>
-          )}
-          <div className="h-6 w-px bg-zinc-200 dark:bg-white/10 mx-1" />
-          <button onClick={() => setShowFilters(v => !v)}
-            className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-              showFilters || activeFilterCount > 0
-                ? 'bg-emerald-500 text-white border-emerald-400/20 shadow-lg shadow-emerald-500/20'
-                : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-white/10 text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
-            }`}>
-            <SlidersHorizontal className="h-3.5 w-3.5" />
-            Filters
-            {activeFilterCount > 0 && (
-              <span className="bg-white text-emerald-500 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-black shadow-sm">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
+      {/* Search Input Bar */}
+      <div className="relative z-20">
+        <div className={`premium-card !p-0 overflow-hidden border-white/5 shadow-2xl transition-all duration-300 ${showSuggestions && (suggestions.length > 0 || recentSearches.length > 0) ? 'rounded-b-none border-emerald-500/30 ring-4 ring-emerald-500/5' : ''}`}>
+           <div className="flex items-center h-20 px-8 gap-6">
+              {isSearching ? <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" /> : <SearchIcon className="w-6 h-6 text-zinc-600" />}
+              <input
+                type="text"
+                value={query}
+                onChange={e => { setQuery(e.target.value); setShowSuggestions(true); }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                onKeyDown={e => { if (e.key === 'Enter' && query.trim()) commitSearch(query); }}
+                placeholder="Find music, people, or podcasts..."
+                className="flex-1 bg-transparent text-white placeholder:text-zinc-700 text-base font-medium focus:outline-none"
+              />
+              {query && (
+                <button onClick={() => { setQuery(''); setHasResults(false); setSuggestions([]); }} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 text-zinc-500 transition-all">
+                  <X size={18} />
+                </button>
+              )}
+              <div className="w-px h-8 bg-white/5" />
+              <button onClick={() => setShowFilters(!showFilters)} className={`h-12 px-6 rounded-2xl text-[10px] font-bold uppercase tracking-widest flex items-center gap-3 transition-all ${showFilters || activeFilterCount > 0 ? 'bg-white text-black shadow-xl' : 'bg-zinc-950 text-zinc-500 border border-white/5 hover:text-white'}`}>
+                <SlidersHorizontal size={14} />
+                Filters
+                {activeFilterCount > 0 && <span className="w-4 h-4 rounded-full bg-emerald-500 text-black flex items-center justify-center text-[9px] font-bold">{activeFilterCount}</span>}
+              </button>
+           </div>
         </div>
 
-        {/* Suggestions dropdown */}
+        {/* Suggestions */}
         <AnimatePresence>
           {showSuggestions && (suggestions.length > 0 || recentSearches.length > 0) && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-              className="absolute top-full left-0 right-0 bg-white dark:bg-zinc-900 border border-emerald-500 border-t-0 rounded-b-2xl shadow-2xl z-50 overflow-hidden"
-            >
-              {suggestions.length > 0 && (
-                <div className="p-3">
-                  {suggestions.map((s, i) => (
-                    <button key={i} onMouseDown={() => commitSearch(s)}
-                      className="w-full flex items-center gap-4 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-emerald-500 hover:bg-emerald-500/5 rounded-xl transition-all text-left">
-                      <SearchIcon className="h-4 w-4 text-zinc-400 flex-shrink-0" />
-                      <span className="flex-1 truncate">{s}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-              {recentSearches.length > 0 && (
-                <div className={`${suggestions.length > 0 ? 'border-t border-zinc-100 dark:border-white/5' : ''} p-3`}>
-                  <div className="flex items-center justify-between px-4 py-2 mb-2">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic">Search History</span>
-                    <button onMouseDown={clearRecent} className="text-[9px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest">Clear All</button>
-                  </div>
-                  {recentSearches.slice(0, 5).map((s, i) => (
-                    <div key={i} className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-white/[0.02] rounded-xl group transition-all">
-                      <Clock className="h-3.5 w-3.5 text-zinc-400 flex-shrink-0" />
-                      <button onMouseDown={() => commitSearch(s)} className="flex-1 text-[10px] font-black text-zinc-700 dark:text-zinc-300 text-left truncate uppercase tracking-widest">{s}</button>
-                      <button onMouseDown={() => removeRecent(s)}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-zinc-400 hover:text-rose-500 transition-all">
-                        <X className="h-3.5 w-3.5" />
-                      </button>
+            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="absolute top-full left-0 right-0 premium-card !p-0 rounded-t-none border-t-0 border-white/5 shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden">
+               {suggestions.length > 0 && (
+                 <div className="p-4">
+                   {suggestions.map((s, i) => (
+                     <button key={i} onMouseDown={() => commitSearch(s)} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl hover:bg-white/5 transition-all text-left">
+                       <SearchIcon size={16} className="text-zinc-600" />
+                       <span className="text-sm font-bold text-white truncate">{s}</span>
+                     </button>
+                   ))}
+                 </div>
+               )}
+               {recentSearches.length > 0 && (
+                 <div className={`${suggestions.length > 0 ? 'border-t border-white/5' : ''} p-4 bg-zinc-950/20`}>
+                    <div className="flex items-center justify-between px-5 py-3 mb-1">
+                       <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Recent Searches</p>
+                       <button onMouseDown={clearRecent} className="text-[9px] font-bold text-emerald-500 hover:text-emerald-400 uppercase tracking-widest">Clear All</button>
                     </div>
-                  ))}
-                </div>
-              )}
+                    {recentSearches.slice(0, 5).map((s, i) => (
+                      <div key={i} className="group flex items-center gap-4 px-5 py-3.5 rounded-2xl hover:bg-white/5 transition-all">
+                        <History size={16} className="text-zinc-700" />
+                        <button onMouseDown={() => commitSearch(s)} className="flex-1 text-sm font-bold text-zinc-400 text-left truncate">{s}</button>
+                        <button onMouseDown={() => removeRecent(s)} className="opacity-0 group-hover:opacity-100 p-1 text-zinc-600 hover:text-rose-500 transition-all"><X size={14} /></button>
+                      </div>
+                    ))}
+                 </div>
+               )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Filters panel */}
+      {/* Filter Options */}
       <AnimatePresence>
         {showFilters && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-            <div className={`${card} p-6 shadow-xl`}>
-              <div className="flex flex-wrap gap-8 items-start">
-                <div className="space-y-3">
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Sorting</p>
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="premium-card border-white/5 shadow-2xl p-8 space-y-8">
+             <div className="flex flex-wrap gap-12">
+                <div className="space-y-4">
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Sort By</p>
                   <div className="flex gap-2">
                     {(['relevance', 'popular', 'newest'] as SortBy[]).map(s => (
-                      <button key={s} onClick={() => setSortBy(s)}
-                        className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                          sortBy === s ? 'bg-emerald-500 text-white border-emerald-400/20 shadow-lg shadow-emerald-500/10' : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-white/10 text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
-                        }`}>{s}</button>
+                      <button key={s} onClick={() => setSortBy(s)} className={`h-11 px-6 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${sortBy === s ? 'bg-white text-black shadow-lg' : 'bg-zinc-950 text-zinc-500 border border-white/5 hover:text-white'}`}>{s}</button>
                     ))}
                   </div>
                 </div>
-                <div className="space-y-3 flex-1 min-w-[280px]">
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Genre Filtering</p>
+                <div className="flex-1 space-y-4 min-w-[300px]">
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Genres</p>
                   <div className="flex flex-wrap gap-2">
-                    <button onClick={() => setSelectedGenre('')}
-                      className={`px-5 py-2 rounded-xl text-[10px] font-black transition-all border uppercase tracking-widest ${
-                        !selectedGenre ? 'bg-emerald-500 text-white border-emerald-400/20 shadow-lg shadow-emerald-500/10' : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-white/10 text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
-                      }`}>Global</button>
-                    {genres.slice(0, 10).map(g => (
-                      <button key={g._id} onClick={() => setSelectedGenre(g._id === selectedGenre ? '' : g._id)}
-                        className={`px-5 py-2 rounded-xl text-[10px] font-black transition-all border uppercase tracking-widest ${
-                          selectedGenre === g._id ? 'bg-emerald-500 text-white border-emerald-400/20 shadow-lg shadow-emerald-500/10' : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-white/10 text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
-                        }`}>{g.name}</button>
+                    <button onClick={() => setSelectedGenre('')} className={`h-11 px-6 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${!selectedGenre ? 'bg-emerald-500 text-black shadow-lg' : 'bg-zinc-950 text-zinc-500 border border-white/5 hover:text-white'}`}>All Genres</button>
+                    {genres.slice(0, 8).map(g => (
+                      <button key={g._id} onClick={() => setSelectedGenre(g._id === selectedGenre ? '' : g._id)} className={`h-11 px-6 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${selectedGenre === g._id ? 'bg-emerald-500 text-black shadow-lg' : 'bg-zinc-950 text-zinc-500 border border-white/5 hover:text-white'}`}>{g.name}</button>
                     ))}
                   </div>
                 </div>
-                {activeFilterCount > 0 && (
-                  <div className="ml-auto self-end pb-1">
-                    <button onClick={() => { setSelectedGenre(''); setSortBy('relevance'); }}
-                      className="text-[10px] font-black text-rose-500 hover:text-rose-400 transition-all flex items-center gap-2 uppercase tracking-widest">
-                      <X className="h-3.5 w-3.5" /> Reset Filters
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+             </div>
+             {activeFilterCount > 0 && (
+                <div className="pt-6 border-t border-white/5 flex justify-end">
+                   <button onClick={() => { setSelectedGenre(''); setSortBy('relevance'); }} className="flex items-center gap-2 text-[10px] font-bold text-rose-500 uppercase tracking-widest hover:text-rose-400 transition-all"><X size={14} /> Reset Filters</button>
+                </div>
+             )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* No query — discovery state */}
-      {!query.trim() && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             {/* Recent Searches */}
-             {recentSearches.length > 0 && (
-               <div className={`${card} p-6`}>
-                 <div className="flex items-center justify-between mb-5">
-                   <h2 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest flex items-center gap-3 italic">
-                     <History className="h-4 w-4 text-emerald-500" /> Recent Inquiries
-                   </h2>
-                   <button onClick={clearRecent} className="text-[9px] font-black text-zinc-400 hover:text-rose-500 uppercase tracking-widest transition-colors">Wipe All</button>
-                 </div>
-                 <div className="flex flex-wrap gap-2.5">
-                   {recentSearches.map((s, i) => (
-                     <div key={i} className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/5 rounded-xl pl-4 pr-2 py-2 group hover:border-emerald-500/30 transition-all cursor-pointer shadow-sm">
-                       <button onClick={() => commitSearch(s)} className="text-[10px] font-black text-zinc-700 dark:text-zinc-300 uppercase tracking-widest">{s}</button>
-                       <button onClick={() => removeRecent(s)}
-                         className="p-1 text-zinc-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
-                         <X className="h-3.5 w-3.5" />
-                       </button>
-                     </div>
+      {!query.trim() ? (
+        /* Discovery Home */
+        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {recentSearches.length > 0 && (
+                <div className="premium-card p-8 border-white/5 shadow-xl">
+                   <h2 className="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-3 mb-6"><History size={16} className="text-zinc-600" /> Previous Searches</h2>
+                   <div className="flex flex-wrap gap-3">
+                     {recentSearches.map((s, i) => (
+                       <button key={i} onClick={() => commitSearch(s)} className="px-5 py-2.5 bg-zinc-950 border border-white/5 rounded-2xl text-xs font-bold text-zinc-400 hover:text-white transition-all">{s}</button>
+                     ))}
+                   </div>
+                </div>
+              )}
+              <div className="premium-card p-8 border-white/5 shadow-xl">
+                 <h2 className="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-3 mb-6"><TrendingUp size={16} className="text-emerald-500" /> Popular Categories</h2>
+                 <div className="flex flex-wrap gap-3">
+                   {TRENDING_TERMS.map((term, i) => (
+                     <button key={i} onClick={() => commitSearch(term)} className="px-5 py-2.5 bg-zinc-950 border border-white/5 rounded-2xl text-xs font-bold text-zinc-400 hover:text-emerald-500 transition-all flex items-center gap-2">
+                       <Hash size={12} className="text-zinc-600" /> {term}
+                     </button>
                    ))}
                  </div>
-               </div>
-             )}
+              </div>
+           </div>
 
-             {/* Trending Terms */}
-             <div className={`${card} p-6`}>
-               <h2 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest flex items-center gap-3 mb-5 italic">
-                 <TrendingUp className="h-4 w-4 text-emerald-500" /> Hot Sectors
-               </h2>
-               <div className="flex flex-wrap gap-2.5">
-                 {TRENDING_TERMS.map((term, i) => (
-                   <button key={i} onClick={() => commitSearch(term)}
-                     className="flex items-center gap-2 px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800 hover:bg-emerald-500/10 border border-zinc-200 dark:border-white/5 hover:border-emerald-500/30 text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-sm">
-                     <Hash className="h-3.5 w-3.5" />{term}
-                   </button>
-                 ))}
-               </div>
-             </div>
-          </div>
-
-          <div className={`${card} p-6`}>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest flex items-center gap-3 italic">
-                <Flame className="h-4 w-4 text-rose-500" /> Trending Tracks
-              </h2>
-              <button className="text-[10px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest flex items-center gap-1 transition-all">
-                Full Feed <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {MOCK_TRENDING.map((item, idx) => (
-                <div key={item.id}
-                  onClick={() => commitSearch(item.type === 'artist' ? (item as any).name : (item as any).title)}
-                  className="flex items-center gap-4 p-4 bg-zinc-50 dark:bg-white/[0.01] hover:bg-emerald-500/[0.02] border border-zinc-100 dark:border-white/[0.03] hover:border-emerald-500/20 rounded-2xl cursor-pointer transition-all duration-300 group shadow-sm"
-                >
-                  {item.type === 'track' && <Avatar name={(item as any).title} size="sm" rounded="lg" />}
-                  {item.type === 'artist' && <Avatar name={(item as any).name} size="sm" />}
-                  {item.type === 'podcast' && (
-                    <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
-                      <BookOpen className="h-4 w-4 text-white" />
+           <div className="premium-card p-10 border-white/5 shadow-2xl">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-lg font-bold text-white uppercase tracking-tight flex items-center gap-3"><Flame size={20} className="text-rose-500" /> Trending Now</h2>
+                <button className="text-[10px] font-bold text-emerald-500 hover:text-emerald-400 uppercase tracking-widest flex items-center gap-2">View Full Chart <ChevronRight size={14} /></button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {MOCK_TRENDING.map(item => (
+                  <div key={item.id} onClick={() => commitSearch(item.type === 'artist' ? (item as any).name : (item as any).title)} className="p-5 bg-zinc-950/40 rounded-[2rem] border border-white/5 hover:border-white/10 transition-all cursor-pointer group flex items-center gap-5">
+                    {item.type === 'track' && <Avatar name={(item as any).title} size="sm" rounded="2xl" />}
+                    {item.type === 'artist' && <Avatar name={(item as any).name} size="sm" rounded="full" />}
+                    {item.type === 'podcast' && <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500"><BookOpen size={18} /></div>}
+                    <div className="flex-1 min-w-0">
+                       <p className="text-sm font-bold text-white truncate">{item.type === 'artist' ? (item as any).name : (item as any).title}</p>
+                       <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mt-1">
+                        {item.type === 'track' && `${(item as any).artist} • ${(item as any).plays} plays`}
+                        {item.type === 'artist' && `${(item as any).followers} followers`}
+                        {item.type === 'podcast' && `${(item as any).host}`}
+                       </p>
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-black text-zinc-900 dark:text-white truncate uppercase tracking-tight italic">
-                      {item.type === 'artist' ? (item as any).name : (item as any).title}
-                    </p>
-                    <p className="text-[9px] text-zinc-500 font-bold truncate uppercase tracking-widest mt-1">
-                      {item.type === 'track' && `${(item as any).artist} • ${(item as any).plays} plays`}
-                      {item.type === 'artist' && `${(item as any).followers} followers • ${(item as any).genre}`}
-                      {item.type === 'podcast' && `${(item as any).host} • ${(item as any).episodes} eps`}
-                    </p>
                   </div>
-                  {item.type === 'track' && (
-                    <div className="opacity-0 group-hover:opacity-100 w-8 h-8 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 transition-all duration-300">
-                      <Play className="h-4 w-4 text-white fill-current ml-0.5" />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+                ))}
+              </div>
+           </div>
         </div>
-      )}
-
-      {/* Results */}
-      {query.trim() && (
-        <div className="space-y-6 animate-in fade-in duration-300">
-          {/* Result Tabs HUD */}
-          <div className={`${card} px-6 py-4`}>
-            <div className="flex items-center gap-2 flex-wrap">
-              {tabs.map(t => (
-                <button key={t.key} onClick={() => setTab(t.key)}
-                  className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                    tab === t.key
-                      ? 'bg-emerald-500 text-white border border-emerald-400/20 shadow-lg shadow-emerald-500/20'
-                      : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-white/[0.02]'
-                  }`}>
-                  {t.icon}{t.label}
-                  {hasResults && (
-                    <span className={`px-1.5 py-0.5 rounded-md text-[9px] ${
-                      tab === t.key ? 'bg-white text-emerald-500 shadow-sm' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'
-                    }`}>{t.count}</span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {isSearching && (
-            <div className="flex items-center justify-center py-24">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20">
-                  <Loader2 className="h-6 w-6 text-emerald-500 animate-spin" />
-                </div>
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Synchronizing Query: "{query}"</p>
-              </div>
-            </div>
-          )}
-
-          {!isSearching && hasResults && (
-            <AnimatePresence mode="wait">
-              <motion.div key={tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }} className="space-y-6">
-
-                {/* Tracks Result Block */}
-                {showTracks && (
-                  <div className={`${card} overflow-hidden shadow-xl`}>
-                    <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
-                      <h3 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest flex items-center gap-3 italic">
-                        <Music2 className="h-4 w-4 text-emerald-500" /> Primary Audio Syncs
-                      </h3>
-                      {tab === 'all' && (
-                        <button onClick={() => setTab('tracks')}
-                          className="text-[10px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest flex items-center gap-1 transition-all">
-                          Expand Sync <ChevronRight className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                    <div className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
-                      {(tab === 'all' ? MOCK_RESULTS.tracks.slice(0, 4) : MOCK_RESULTS.tracks).map((track, i) => (
-                        <div key={track.id}
-                          className="flex items-center gap-5 px-6 py-4 hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-all group cursor-pointer"
-                        >
-                          <span className="w-6 text-[10px] font-black text-zinc-400 text-center flex-shrink-0 italic">{(i + 1).toString().padStart(2, '0')}</span>
-                          <Avatar name={track.title} size="sm" rounded="lg" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-tight italic truncate">{track.title}</p>
-                            <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1">{track.artist} • {track.genre}</p>
-                          </div>
-                          <div className="hidden sm:flex flex-col items-end pr-6">
-                             <span className="text-[11px] font-black text-zinc-900 dark:text-white tabular-nums tracking-tighter">{track.plays}</span>
-                             <span className="text-[8px] text-zinc-500 font-black uppercase tracking-widest italic">Syncs</span>
-                          </div>
-                          <span className="text-[10px] font-black text-zinc-400 uppercase tracking-tighter tabular-nums w-10 text-right">{track.duration}</span>
-                          <div className="flex items-center gap-2 pl-4">
-                            <button className="p-2 text-zinc-400 hover:text-rose-500 transition-all">
-                              <Heart className="h-4 w-4" />
-                            </button>
-                            <div className="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
-                              <Play className="h-4 w-4 text-white fill-current ml-0.5" />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Artists Result Block */}
-                {showArtists && (
-                  <div className={`${card} overflow-hidden shadow-xl`}>
-                    <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
-                      <h3 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest flex items-center gap-3 italic">
-                        <Mic2 className="h-4 w-4 text-emerald-500" /> Artists
-                      </h3>
-                      {tab === 'all' && (
-                        <button onClick={() => setTab('artists')}
-                          className="text-[10px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest flex items-center gap-1 transition-all">
-                          View All Artists <ChevronRight className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                    <div className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
-                      {(tab === 'all' ? MOCK_RESULTS.artists.slice(0, 3) : MOCK_RESULTS.artists).map(artist => (
-                        <div key={artist.id}
-                          className="flex items-center gap-6 px-6 py-5 hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-all group cursor-pointer"
-                        >
-                          <Avatar name={artist.name} size="md" />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3">
-                              <p className="text-[12px] font-black text-zinc-900 dark:text-white uppercase tracking-tight italic">{artist.name}</p>
-                              {artist.verified && (
-                                <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm shadow-emerald-500/20">
-                                  <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 12 12">
-                                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                  </svg>
-                                </div>
-                              )}
-                            </div>
-                            <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1.5">{artist.followers} Units • {artist.songs} Components • {artist.genre}</p>
-                          </div>
-                          <button className="h-9 px-6 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg">
-                            View Profile
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Podcasts Result Block */}
-                {showPodcasts && (
-                  <div className={`${card} overflow-hidden shadow-xl`}>
-                    <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-zinc-50/30 dark:bg-white/[0.01]">
-                      <h3 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest flex items-center gap-3 italic">
-                        <BookOpen className="h-4 w-4 text-emerald-500" /> Podcasts
-                      </h3>
-                      {tab === 'all' && (
-                        <button onClick={() => setTab('podcasts')}
-                          className="text-[10px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest flex items-center gap-1 transition-all">
-                          View All Podcasts <ChevronRight className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                    <div className="divide-y divide-zinc-100 dark:divide-white/[0.04]">
-                      {MOCK_RESULTS.podcasts.map(pod => (
-                        <div key={pod.id}
-                          className="flex items-center gap-6 px-6 py-5 hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-all group cursor-pointer"
-                        >
-                          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
-                            <BookOpen className="h-6 w-6 text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-tight italic truncate">{pod.title}</p>
-                            <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1.5">Entity: {pod.host} • {pod.episodes} Signals • {pod.listeners} Pulse Index</p>
-                          </div>
-                          <button className="h-9 px-6 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-[10px] font-black uppercase tracking-widest rounded-xl hover:text-emerald-500 border border-transparent hover:border-emerald-500/20 transition-all">
-                             Subscribe Sync
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          )}
-
-          {!isSearching && !hasResults && (
-            <div className={`${card} py-24 flex flex-col items-center justify-center text-center px-6 border-dashed border-zinc-200 dark:border-white/10 shadow-inner`}>
-              <div className="w-20 h-20 bg-zinc-50 dark:bg-zinc-800 rounded-3xl flex items-center justify-center mb-6 border border-zinc-100 dark:border-white/5">
-                <SearchIcon className="h-10 w-10 text-zinc-400" />
-              </div>
-              <p className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight italic mb-2">Zero Signal Identity</p>
-              <p className="text-xs text-zinc-500 max-w-xs font-medium leading-relaxed">System parameters for "{query}" returned zero matches in current node sectors.</p>
-              <div className="flex flex-wrap justify-center gap-3 mt-8">
-                {TRENDING_TERMS.slice(0, 4).map((t, i) => (
-                  <button key={i} onClick={() => commitSearch(t)}
-                    className="px-5 py-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 text-zinc-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:text-emerald-500 hover:border-emerald-500/30 transition-all">
-                    {t}
+      ) : (
+        /* Results View */
+        <div className="space-y-10 animate-in fade-in duration-300">
+           <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-xl">
+              <div className="flex items-center gap-2 p-4 bg-zinc-950/40 overflow-x-auto custom-scrollbar no-scrollbar">
+                {tabs.map(t => (
+                  <button key={t.key} onClick={() => setTab(t.key)} className={`h-12 px-6 rounded-2xl text-[10px] font-bold uppercase tracking-widest flex items-center gap-3 transition-all shrink-0 ${tab === t.key ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-white'}`}>
+                    {t.icon} {t.label}
+                    {hasResults && <span className={`px-2 py-0.5 rounded-lg text-[9px] font-bold ${tab === t.key ? 'bg-black text-white' : 'bg-zinc-900 text-zinc-600'}`}>{t.count}</span>}
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+           </div>
+
+           {isSearching ? (
+             <div className="flex flex-col items-center justify-center py-32 gap-6">
+                <Loader2 size={40} className="text-emerald-500 animate-spin" />
+                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Searching for "{query}"</p>
+             </div>
+           ) : hasResults ? (
+             <AnimatePresence mode="wait">
+                <motion.div key={tab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-10">
+                   
+                   {/* Tracks */}
+                   {showTracks && (
+                     <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
+                        <div className="px-10 py-6 border-b border-white/5 bg-zinc-950/20 flex items-center justify-between">
+                           <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3"><Music2 size={18} className="text-emerald-500" /> Tracks</h3>
+                           {tab === 'all' && <button onClick={() => setTab('tracks')} className="text-[10px] font-bold text-zinc-500 hover:text-white uppercase tracking-widest transition-all">See All Results</button>}
+                        </div>
+                        <div className="divide-y divide-white/5">
+                           {(tab === 'all' ? MOCK_RESULTS.tracks.slice(0, 4) : MOCK_RESULTS.tracks).map((track, i) => (
+                             <div key={track.id} className="flex items-center gap-6 px-10 py-5 hover:bg-white/[0.02] transition-all group cursor-pointer">
+                                <span className="w-6 text-[10px] font-bold text-zinc-700 text-center">{i + 1}</span>
+                                <Avatar name={track.title} size="sm" rounded="2xl" />
+                                <div className="flex-1 min-w-0">
+                                   <p className="text-sm font-bold text-white truncate">{track.title}</p>
+                                   <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mt-1">{track.artist} • {track.genre}</p>
+                                </div>
+                                <div className="hidden sm:flex flex-col items-end px-6">
+                                   <p className="text-sm font-bold text-white tabular-nums">{track.plays}</p>
+                                   <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Plays</p>
+                                </div>
+                                <p className="text-[10px] font-bold text-zinc-500 tabular-nums w-12 text-right">{track.duration}</p>
+                                <div className="flex items-center gap-3 pl-4">
+                                   <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-950 border border-white/5 text-zinc-600 hover:text-rose-500 transition-all"><Heart size={16} /></button>
+                                   <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-black shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform"><Play size={18} className="fill-current" /></div>
+                                </div>
+                             </div>
+                           ))}
+                        </div>
+                     </div>
+                   )}
+
+                   {/* Artists */}
+                   {showArtists && (
+                     <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
+                        <div className="px-10 py-6 border-b border-white/5 bg-zinc-950/20 flex items-center justify-between">
+                           <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3"><Mic2 size={18} className="text-emerald-500" /> Artists</h3>
+                           {tab === 'all' && <button onClick={() => setTab('artists')} className="text-[10px] font-bold text-zinc-500 hover:text-white uppercase tracking-widest transition-all">See All Artists</button>}
+                        </div>
+                        <div className="divide-y divide-white/5">
+                           {(tab === 'all' ? MOCK_RESULTS.artists.slice(0, 3) : MOCK_RESULTS.artists).map(artist => (
+                             <div key={artist.id} className="flex items-center gap-8 px-10 py-6 hover:bg-white/[0.02] transition-all group cursor-pointer">
+                                <Avatar name={artist.name} size="md" rounded="full" />
+                                <div className="flex-1 min-w-0">
+                                   <div className="flex items-center gap-3">
+                                      <p className="text-base font-bold text-white">{artist.name}</p>
+                                      {artist.verified && <div className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-black"><Check size={10} strokeWidth={4} /></div>}
+                                   </div>
+                                   <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mt-2">{artist.followers} Followers • {artist.songs} Tracks • {artist.genre}</p>
+                                </div>
+                                <button className="h-12 px-8 bg-zinc-900 border border-white/5 text-white rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all">Profile</button>
+                             </div>
+                           ))}
+                        </div>
+                     </div>
+                   )}
+
+                   {/* Podcasts */}
+                   {showPodcasts && (
+                     <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
+                        <div className="px-10 py-6 border-b border-white/5 bg-zinc-950/20 flex items-center justify-between">
+                           <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3"><BookOpen size={18} className="text-emerald-500" /> Podcasts</h3>
+                           {tab === 'all' && <button onClick={() => setTab('podcasts')} className="text-[10px] font-bold text-zinc-500 hover:text-white uppercase tracking-widest transition-all">See All Results</button>}
+                        </div>
+                        <div className="divide-y divide-white/5">
+                           {MOCK_RESULTS.podcasts.map(pod => (
+                             <div key={pod.id} className="flex items-center gap-8 px-10 py-6 hover:bg-white/[0.02] transition-all group cursor-pointer">
+                                <div className="w-14 h-14 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-xl"><BookOpen size={24} /></div>
+                                <div className="flex-1 min-w-0">
+                                   <p className="text-base font-bold text-white">{pod.title}</p>
+                                   <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mt-2">Host: {pod.host} • {pod.episodes} Episodes • {pod.listeners} Weekly Listeners</p>
+                                </div>
+                                <button className="h-12 px-8 bg-zinc-950 border border-white/5 text-zinc-500 rounded-2xl text-xs font-bold uppercase tracking-widest hover:text-white hover:border-white/20 transition-all">Subscribe</button>
+                             </div>
+                           ))}
+                        </div>
+                     </div>
+                   )}
+                </motion.div>
+             </AnimatePresence>
+           ) : (
+             <div className="premium-card py-32 text-center border-dashed border-white/5 bg-zinc-950/20 rounded-[3rem]">
+                <div className="w-24 h-24 bg-zinc-900 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-white/5">
+                   <SearchIcon size={40} className="text-zinc-800" />
+                </div>
+                <h4 className="text-xl font-bold text-white uppercase tracking-tight">No results found</h4>
+                <p className="text-sm text-zinc-500 mt-3 max-w-sm mx-auto font-medium">We couldn't find anything matching "{query}". Try checking your spelling or using different keywords.</p>
+                <div className="flex flex-wrap justify-center gap-3 mt-10">
+                   {TRENDING_TERMS.slice(0, 4).map(t => (
+                     <button key={t} onClick={() => commitSearch(t)} className="px-6 py-3 bg-zinc-950 border border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-emerald-500 transition-all">{t}</button>
+                   ))}
+                </div>
+             </div>
+           )}
         </div>
       )}
     </div>

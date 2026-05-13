@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 
 interface PreloaderProps {
   isVisible: boolean;
@@ -11,16 +12,16 @@ interface PreloaderProps {
 
 const Preloader: React.FC<PreloaderProps> = ({
   isVisible,
-  text = 'LOADING...',
+  text = 'Loading',
   fullScreen = true,
-  backgroundColor = 'rgba(0, 0, 0, 0.8)',
-  spinnerColor = '#10b981' // emerald-500
+  backgroundColor = 'rgba(0, 0, 0, 0.85)',
+  spinnerColor = '#10b981'
 }) => {
   if (!isVisible) return null;
   
   const containerClasses = fullScreen 
-    ? "fixed inset-0 flex items-center justify-center z-[200] backdrop-blur-md" 
-    : "absolute inset-0 flex items-center justify-center z-10 backdrop-blur-sm";
+    ? "fixed inset-0 flex items-center justify-center z-[200] backdrop-blur-xl" 
+    : "absolute inset-0 flex items-center justify-center z-10 backdrop-blur-md";
 
   return (
     <AnimatePresence>
@@ -30,98 +31,50 @@ const Preloader: React.FC<PreloaderProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.4 }}
       >
         <motion.div 
           className="flex flex-col items-center"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ 
-            type: "spring",
-            stiffness: 300,
-            damping: 25,
-            delay: 0.1
-          }}
+          transition={{ duration: 0.5 }}
         >
-          {/* Loader */}
-          <div className="relative h-20 w-20 mb-6 flex items-center justify-center">
-            {/* Outer Hexagon/Ring Decoration */}
+          <div className="relative h-24 w-24 mb-8 flex items-center justify-center">
             <motion.div 
-              className="absolute inset-0 border border-emerald-500/20 rounded-xl rotate-45"
-              animate={{ rotate: 405 }}
-              transition={{ duration: 8, ease: "linear", repeat: Infinity }}
+              className="absolute inset-0 rounded-full border-[3px] border-white/5"
             />
-            
-            {/* Spinning Main Ring */}
             <motion.div 
-              className="absolute inset-0 rounded-full border-2 border-transparent"
-              style={{ 
-                borderTopColor: spinnerColor,
-                borderRightColor: `${spinnerColor}40`
-              }}
+              className="absolute inset-0 rounded-full border-[3px] border-transparent"
+              style={{ borderTopColor: spinnerColor }}
               animate={{ rotate: 360 }}
-              transition={{ 
-                duration: 1, 
-                ease: "linear", 
-                repeat: Infinity 
-              }}
+              transition={{ duration: 1, ease: "linear", repeat: Infinity }}
             />
-            
-            {/* Inner HUD Bit */}
-            <div className="w-10 h-10 border border-white/5 bg-zinc-950 rounded flex items-center justify-center">
-               <motion.div
-                 className="w-4 h-4 rounded-sm"
-                 style={{ backgroundColor: spinnerColor }}
-                 animate={{ 
-                   scale: [0.8, 1.2, 0.8],
-                   opacity: [0.4, 1, 0.4]
-                 }}
-                 transition={{
-                   duration: 1.5,
-                   ease: "easeInOut",
-                   repeat: Infinity,
-                 }}
-               />
+            <div className="w-12 h-12 bg-zinc-950 rounded-2xl border border-white/10 flex items-center justify-center shadow-2xl">
+               <Loader2 className="animate-spin text-emerald-500" size={24} />
             </div>
-
-            {/* Corner Markers */}
-            <div className="absolute -top-1 -left-1 w-2 h-2 border-t border-l border-emerald-500" />
-            <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b border-r border-emerald-500" />
           </div>
           
-          <div className="flex flex-col items-center text-center">
+          <div className="flex flex-col items-center gap-2">
              <motion.p 
-               className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] italic mb-2"
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ delay: 0.3 }}
+               className="text-sm font-bold text-white uppercase tracking-[0.2em]"
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               transition={{ delay: 0.2 }}
              >
                {text}
              </motion.p>
-             <p className="text-[8px] font-black text-zinc-700 uppercase tracking-widest italic">
-               Loading your experience...
+             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest opacity-60">
+               Please wait a moment
              </p>
           </div>
-          
-          {/* Data Pulse Indicators */}
-          <div className="flex space-x-1.5 mt-6">
-            {[0, 1, 2, 3, 4].map((dot) => (
+
+          <div className="flex gap-2 mt-8">
+            {[0, 1, 2].map((i) => (
               <motion.div
-                key={dot}
-                className="w-1 h-1 rounded-full bg-emerald-500/20"
-                animate={{ 
-                  backgroundColor: [
-                    "rgba(16, 185, 129, 0.2)",
-                    "rgba(16, 185, 129, 0.8)",
-                    "rgba(16, 185, 129, 0.2)"
-                  ]
-                }}
-                transition={{
-                  duration: 0.8,
-                  ease: "easeInOut",
-                  repeat: Infinity,
-                  delay: dot * 0.1,
-                }}
+                key={i}
+                className="w-1.5 h-1.5 rounded-full bg-emerald-500"
+                animate={{ opacity: [0.2, 1, 0.2] }}
+                transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
               />
             ))}
           </div>
