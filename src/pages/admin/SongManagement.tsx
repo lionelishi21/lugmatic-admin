@@ -7,94 +7,56 @@ import albumService, { Album } from '../../services/albumService';
 import artistService, { Artist } from '../../services/artistService';
 import genreService, { Genre } from '../../services/genreService';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import { Plus, Music2, Search, Trash2, Eye, CheckCircle } from 'lucide-react';
+import { 
+  Plus, Music2, Search, Trash2, Eye, CheckCircle2, 
+  Disc, User, Clock, BarChart3, MoreVertical, ShieldCheck,
+  AlertCircle, ChevronRight, Filter
+} from 'lucide-react';
 import { adminService } from '../../services/adminService';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SongManagement: React.FC = () => {
   const navigate = useNavigate();
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [songToDelete, setSongToDelete] = useState<string | null>(null);
   const [artists, setArtists] = useState<Artist[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
 
-  // Fetch songs, artists, albums, and genres
   useEffect(() => {
-    fetchSongs();
-    fetchArtists();
-    fetchAlbums();
-    fetchGenres();
+    fetchData();
   }, []);
 
-  const fetchArtists = async () => {
-    try {
-      const data = await artistService.getAllArtists();
-      setArtists(data);
-    } catch (err: any) {
-      console.error('Failed to fetch artists:', err);
-    }
-  };
-
-  const fetchAlbums = async () => {
-    try {
-      const data = await albumService.getAllAlbums();
-      setAlbums(data);
-    } catch (err: any) {
-      console.error('Failed to fetch albums:', err);
-    }
-  };
-
-  const fetchGenres = async () => {
-    try {
-      const data = await genreService.getAllGenres();
-      setGenres(data);
-    } catch (err: any) {
-      console.error('Failed to fetch genres:', err);
-    }
-  };
-
-  const fetchSongs = async () => {
+  const fetchData = async () => {
     setLoading(true);
-    setError(null);
     try {
-      const data = await songService.getAllSongs();
-      setSongs(data);
+      const [songsData, artistsData, albumsData, genresData] = await Promise.all([
+        songService.getAllSongs(),
+        artistService.getAllArtists(),
+        albumService.getAllAlbums(),
+        genreService.getAllGenres()
+      ]);
+      setSongs(songsData);
+      setArtists(artistsData);
+      setAlbums(albumsData);
+      setGenres(genresData);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch songs';
-      setError(errorMessage);
-      toast.error(errorMessage);
+      toast.error('Failed to load catalog data');
     } finally {
       setLoading(false);
     }
   };
 
   const handleApprove = async (songId: string) => {
+    const loadingId = toast.loading('Approving track...');
     try {
-      toast.loading('Approving song...', { id: 'approve-song' });
       await adminService.moderateContent('songs', songId, 'approve');
-      toast.success('Song approved successfully', { id: 'approve-song' });
-      // Update local state instead of re-fetching everything
+      toast.success('Track approved', { id: loadingId });
       setSongs(prev => prev.map(s => s._id === songId ? { ...s, isApproved: true } : s));
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to approve song';
-      toast.error(errorMessage, { id: 'approve-song' });
-    }
-  };
-
-  const confirmDelete = async () => {
-    if (!songToDelete) return;
-    try {
-      await songService.deleteSong(songToDelete);
-      toast.success('Song deleted successfully');
-      fetchSongs();
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to delete song';
-      toast.error(errorMessage);
-    } finally {
-      setSongToDelete(null);
+      toast.error('Approval failed', { id: loadingId });
     }
   };
 
@@ -105,193 +67,155 @@ const SongManagement: React.FC = () => {
   };
 
   const filteredSongs = songs.filter((song) => {
-    const nameMatch = song.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const artistMatch = typeof song.artist === 'string'
-      ? song.artist.toLowerCase().includes(searchTerm.toLowerCase())
-      : (song.artist?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const albumMatch = song.album
-      ? (typeof song.album === 'string'
-        ? song.album.toLowerCase().includes(searchTerm.toLowerCase())
-        : (song.album?.name || '').toLowerCase().includes(searchTerm.toLowerCase()))
-      : false;
-    return nameMatch || artistMatch || albumMatch;
+    const q = searchTerm.toLowerCase();
+    const nameMatch = song.name.toLowerCase().includes(q);
+    const artistName = typeof song.artist === 'string' ? '' : (song.artist as any)?.name || '';
+    const albumName = typeof song.album === 'string' ? '' : (song.album as any)?.name || '';
+    return nameMatch || artistName.toLowerCase().includes(q) || albumName.toLowerCase().includes(q);
   });
 
-  const cardClass = "bg-zinc-900 border border-white/[0.06] rounded-lg p-6 shadow-2xl relative overflow-hidden group";
-  const labelClass = "text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1 italic";
-  const valueClass = "text-sm font-black text-white italic uppercase tracking-tight";
-  const inputClass = "w-full bg-zinc-950 border border-white/10 rounded px-4 py-3 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:border-emerald-500/50 transition-all font-bold italic uppercase tracking-tight";
-
-  if (loading && songs.length === 0) {
-    return <Preloader isVisible={true} text="Synchronizing frequencies..." />;
-  }
+  if (loading && songs.length === 0) return <Preloader isVisible={true} text="Auditing audio tracks..." />;
 
   return (
-    <div className="max-w-7xl mx-auto pb-24 space-y-8 px-6">
+    <div className="space-y-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Signal Node Registry</p>
-           <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">
-             Song Management
-           </h1>
-           <p className="text-xs text-zinc-500 mt-1 uppercase font-bold tracking-widest">
-             Audit and synchronize individual sonic transmissions across the grid.
-           </p>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Tracks</h1>
+          <p className="text-zinc-500">Audit and manage the global song repository.</p>
         </div>
-        <button
-          onClick={() => navigate('/admin/song-management/add')}
-          className="px-8 py-3 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded hover:bg-emerald-400 transition-all shadow-xl italic flex items-center gap-2"
+        <button 
+          onClick={() => navigate('/admin/song-management/add')} 
+          className="btn-primary flex items-center gap-2"
         >
-          <Plus className="w-4 h-4" />
-          Initialize New Signal
+          <Plus size={18} />
+          Add Track
         </button>
       </div>
 
-      {/* Search Bar */}
-      <div className={`${cardClass} py-4 px-6`}>
-        <div className="relative w-full max-w-2xl">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 w-4 h-4" />
+      {/* Toolbar */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="relative w-full md:max-w-xl">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
           <input
             type="text"
-            placeholder="SEARCH SONIC REGISTRY..."
+            placeholder="Search tracks, artists, or albums..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={`${inputClass} pl-11 py-2.5`}
+            className="input-field pl-11"
           />
+        </div>
+        <div className="flex items-center gap-4 text-xs font-semibold text-zinc-500">
+          <Filter size={14} />
+          <span>Showing {filteredSongs.length} results</span>
         </div>
       </div>
 
-      {error && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 p-4 rounded text-xs font-black uppercase tracking-widest italic mb-6">
-          SCAN ERROR: {error}
-        </div>
-      )}
-
-      {/* Table Content */}
-      <div className={`${cardClass} p-0 overflow-hidden`}>
-        {filteredSongs.length === 0 ? (
-          <div className="p-24 text-center">
-            <Music2 className="w-16 h-16 mx-auto mb-6 text-zinc-800" />
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">NO SIGNAL NODES MATCH CURRENT FREQUENCY SCAN</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-zinc-800/50 border-b border-white/[0.06]">
+      {/* Main Table */}
+      <div className="premium-card !p-0 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-white/5">
+                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Track</th>
+                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Artist & Album</th>
+                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Details</th>
+                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Stats</th>
+                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {filteredSongs.length === 0 ? (
                 <tr>
-                  <th className="px-6 py-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Unit ID</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Designation</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Origin</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Repository</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Frequency</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Cycle</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic text-center">Load</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic text-right">Actions</th>
+                  <td colSpan={5} className="px-6 py-24 text-center">
+                    <Music2 className="h-10 w-10 text-zinc-800 mx-auto mb-4" />
+                    <p className="text-zinc-500 font-medium">No tracks found matching your search.</p>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.04]">
-                {filteredSongs.map((song) => (
+              ) : (
+                filteredSongs.map((song) => (
                   <tr key={song._id} className="hover:bg-white/[0.02] transition-colors group">
-                    <td className="px-6 py-5">
-                      <div className="w-12 h-12 rounded bg-zinc-950 border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                        <img
-                          src={song.coverArtUrl || song.coverArt || '/assets/images/lugmaticIcon.png'}
-                          alt={song.name}
-                          className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-300"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/assets/images/lugmaticIcon.png';
-                          }}
-                        />
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-white/5 overflow-hidden flex items-center justify-center">
+                          <img
+                            src={song.coverArtUrl || song.coverArt || '/assets/images/lugmaticIcon.png'}
+                            alt={song.name}
+                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                            onError={(e) => { (e.target as HTMLImageElement).src = '/assets/images/lugmaticIcon.png'; }}
+                          />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">{song.name}</p>
+                          {!song.isApproved && (
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <div className="w-1 h-1 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse" />
+                              <span className="text-[10px] font-bold text-amber-500 uppercase">Pending Approval</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-5">
-                      <div>
-                        <div className="text-sm font-black text-white uppercase italic tracking-tight">{song.name}</div>
-                        {!song.isApproved && (
-                          <div className="flex items-center gap-1.5 mt-1">
-                            <span className="w-1 h-1 rounded-full bg-amber-500 animate-pulse"></span>
-                            <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic">PENDING APPROVAL</span>
-                          </div>
-                        )}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-medium text-zinc-400">{typeof song.artist === 'string' ? 'Unknown' : (song.artist as any)?.name}</span>
+                        <span className="text-[10px] text-zinc-600 font-medium">
+                          {song.album ? (typeof song.album === 'string' ? 'Single' : (song.album as any)?.name) : 'Single'}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-5">
-                      <div className="text-xs font-black text-zinc-500 uppercase italic">
-                        {typeof song.artist === 'object' && song.artist !== null
-                          ? (song.artist.name || 'UNKNOWN')
-                          : (artists.find(a => a._id === song.artist)?.name || (typeof song.artist === 'string' ? song.artist : 'UNKNOWN'))}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4 text-xs font-medium text-zinc-500">
+                        <span className="flex items-center gap-1.5"><Clock size={12} /> {formatDuration(song.duration)}</span>
+                        <span className="px-2 py-0.5 bg-white/5 border border-white/5 rounded text-[10px] font-bold uppercase tracking-wider">
+                          {typeof song.genre === 'string' ? 'Mix' : (song.genre as any)?.name || 'Mix'}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-5">
-                      <div className="text-xs font-black text-zinc-500 uppercase italic">
-                        {song.album
-                          ? (typeof song.album === 'object' && song.album !== null
-                            ? (song.album.name || 'N/A')
-                            : (albums.find(a => a._id === song.album)?.name || (typeof song.album === 'string' ? song.album : 'N/A')))
-                          : 'SINGLE'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className="px-2 py-0.5 bg-zinc-800 text-zinc-400 text-[9px] font-black uppercase tracking-widest rounded border border-white/5 italic">
-                        {typeof song.genre === 'object' && song.genre !== null
-                          ? (song.genre.name || '—')
-                          : (genres.find(g => g._id === (typeof song.genre === 'string' ? song.genre : ''))?.name || (typeof song.genre === 'string' ? song.genre : '—'))}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5 text-xs font-black text-zinc-500 uppercase italic tabular-nums">
-                      {formatDuration(song.duration)}
-                    </td>
-                    <td className="px-6 py-5 text-center">
-                      <span className="text-sm font-black text-emerald-500 italic tabular-nums">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-500">
+                        <BarChart3 size={14} />
                         {(song.playCount || 0).toLocaleString()}
-                      </span>
+                      </div>
                     </td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         {!song.isApproved && (
-                          <button
-                            type="button"
-                            onClick={() => handleApprove(song._id)}
-                            className="w-9 h-9 bg-emerald-500 text-black rounded border border-emerald-400/20 flex items-center justify-center hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20"
-                            title="Approve Signal"
-                          >
-                            <CheckCircle className="w-4 h-4" />
+                          <button onClick={() => handleApprove(song._id)} className="p-2 rounded-lg text-emerald-500 hover:bg-emerald-500/10 transition-all" title="Approve">
+                            <ShieldCheck size={18} />
                           </button>
                         )}
-                        <button
-                          type="button"
-                          onClick={() => navigate(`/admin/song-management/${song._id}`)}
-                          className="w-9 h-9 bg-zinc-800 text-white rounded border border-white/5 flex items-center justify-center hover:bg-emerald-500 hover:text-black transition-all"
-                          title="Audit Node"
-                        >
-                          <Eye className="w-4 h-4" />
+                        <button onClick={() => navigate(`/admin/song-management/${song._id}`)} className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/5 transition-all" title="View">
+                          <Eye size={18} />
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setSongToDelete(song._id)}
-                          className="w-9 h-9 bg-zinc-800 text-rose-500 rounded border border-white/5 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"
-                          title="Purge Node"
-                        >
-                          <Trash2 className="w-4 h-4" />
+                        <button onClick={() => setSongToDelete(song._id)} className="p-2 rounded-lg text-zinc-500 hover:text-rose-500 hover:bg-rose-500/5 transition-all" title="Delete">
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
+      {/* Confirmation */}
       <ConfirmDialog
         isOpen={!!songToDelete}
-        title="Purge Signal Node"
-        message="Are you sure you want to purge this transmission from the grid? This protocol is irreversible."
-        confirmLabel="PURGE_SEQUENCE"
-        cancelLabel="ABORT"
-        onConfirm={confirmDelete}
+        title="Delete Track?"
+        message="This will permanently remove the song from all albums and playlists. This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={async () => {
+          if (!songToDelete) return;
+          try {
+            await songService.deleteSong(songToDelete);
+            toast.success('Track removed');
+            fetchData();
+          } catch { toast.error('Failed to delete track'); }
+          finally { setSongToDelete(null); }
+        }}
         onCancel={() => setSongToDelete(null)}
       />
     </div>
@@ -299,4 +223,3 @@ const SongManagement: React.FC = () => {
 };
 
 export default SongManagement;
-

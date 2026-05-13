@@ -1,51 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
-  Box, 
-  Typography, 
-  Card, 
-  CardContent, 
-  Grid, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper, 
-  IconButton, 
-  Button, 
-  TextField, 
-  InputAdornment,
-  Chip,
-  Avatar,
-  Menu,
-  MenuItem,
-  CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Snackbar,
-  Alert,
-  Pagination
-} from '@mui/material';
-import { 
-  Search, 
-  MoreVertical, 
-  Edit, 
-  Trash2, 
-  Radio as PodcastIcon, 
-  PlayCircle,
-  FilterList,
-  CheckCircle,
-  XCircle,
-  Mic,
-  Calendar,
-  Eye
+  Search, MoreVertical, Edit, Trash2, Radio as PodcastIcon, 
+  PlayCircle, Filter, CheckCircle2, XCircle, Mic, 
+  Calendar, Eye, Plus, ChevronRight, BarChart3, Clock,
+  RefreshCw, ShieldCheck, AlertCircle, Play
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { Podcast } from '../../types';
+import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import Preloader from '../../components/ui/Preloader';
 
 const PodcastManagement: React.FC = () => {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
@@ -54,27 +20,15 @@ const PodcastManagement: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedPodcast, setSelectedPodcast] = useState<Podcast | null>(null);
+  const [podcastToDelete, setPodcastToDelete] = useState<string | null>(null);
+  const [podcastToModerate, setPodcastToModerate] = useState<{id: string, action: 'approve' | 'reject', title: string} | null>(null);
   
-  // Dialog state
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [moderateDialogOpen, setModerateDialogOpen] = useState(false);
-  const [moderateAction, setModerateAction] = useState<'approve' | 'reject'>('approve');
-  
-  // Stats
   const [stats, setStats] = useState({
     total: 0,
     published: 0,
     pending: 0,
     episodes: 0
-  });
-
-  // Snackbar state
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success' as 'success' | 'error'
   });
 
   const fetchPodcasts = async () => {
@@ -86,29 +40,28 @@ const PodcastManagement: React.FC = () => {
 
       const response = await adminService.getAllPodcasts(page, 10, filters);
       if (response && response.data) {
-        setPodcasts(response.data);
-        // Assuming pagination data is in response.pagination as per other endpoints
-        if ((response as any).pagination) {
-          setTotalPages((response as any).pagination.pages);
+        let list = response.data;
+        let pagination = (response as any).pagination;
+
+        if (response.data.data && Array.isArray(response.data.data)) {
+          list = response.data.data;
+          pagination = response.data.pagination;
+        }
+
+        setPodcasts(list);
+        if (pagination) {
+          setTotalPages(pagination.pages);
           setStats(prev => ({
-              ...prev,
-              total: (response as any).pagination.total
+            ...prev,
+            total: pagination.total,
+            published: list.filter((p: any) => p.isApproved).length,
+            pending: list.filter((p: any) => !p.isApproved).length,
+            episodes: list.reduce((sum: number, p: any) => sum + (p.episodes?.length || 0), 0)
           }));
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-           // Handle cases where response structure might vary
-           setPodcasts(response.data.data);
-           if (response.data.pagination) {
-              setTotalPages(response.data.pagination.pages);
-              setStats(prev => ({
-                  ...prev,
-                  total: response.data.pagination.total
-              }));
-           }
         }
       }
     } catch (err: any) {
-      console.error('Error fetching podcasts:', err);
-      showSnackbar('Failed to fetch podcasts', 'error');
+      toast.error('Failed to synchronize podcast data');
     } finally {
       setLoading(false);
     }
@@ -118,312 +71,228 @@ const PodcastManagement: React.FC = () => {
     fetchPodcasts();
   }, [page, statusFilter]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    fetchPodcasts();
-  };
-
-  const showSnackbar = (message: string, severity: 'success' | 'error' = 'success') => {
-    setSnackbar({ open: true, message, severity });
-  };
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>, podcast: Podcast) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedPodcast(podcast);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleDeleteClick = () => {
-    setDeleteDialogOpen(true);
-    handleMenuClose();
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!selectedPodcast) return;
+  const handleModerate = async () => {
+    if (!podcastToModerate) return;
+    const loadingId = toast.loading(`${podcastToModerate.action === 'approve' ? 'Approving' : 'Deactivating'} podcast...`);
     try {
-      // Assuming a delete endpoint exists or using moderateContent with 'delete'
-      await adminService.moderateContent('podcasts', selectedPodcast._id, 'delete');
-      showSnackbar('Podcast deleted successfully');
-      setPodcasts(prev => prev.filter(p => p._id !== selectedPodcast._id));
+      await adminService.moderateContent('podcasts', podcastToModerate.id, podcastToModerate.action);
+      toast.success(`Podcast ${podcastToModerate.action}d`, { id: loadingId });
+      fetchPodcasts();
     } catch (err) {
-      showSnackbar('Failed to delete podcast', 'error');
+      toast.error('Operation failed', { id: loadingId });
     } finally {
-      setDeleteDialogOpen(false);
+      setPodcastToModerate(null);
     }
   };
 
-  const handleModerateClick = (action: 'approve' | 'reject') => {
-    setModerateAction(action);
-    setModerateDialogOpen(true);
-    handleMenuClose();
-  };
-
-  const handleModerateConfirm = async () => {
-    if (!selectedPodcast) return;
+  const handleDelete = async () => {
+    if (!podcastToDelete) return;
+    const loadingId = toast.loading('Purging podcast...');
     try {
-      await adminService.moderateContent('podcasts', selectedPodcast._id, moderateAction);
-      showSnackbar(`Podcast ${moderateAction}d successfully`);
-      fetchPodcasts(); // Refresh list
+      await adminService.moderateContent('podcasts', podcastToDelete, 'delete');
+      toast.success('Podcast purged', { id: loadingId });
+      setPodcasts(prev => prev.filter(p => p._id !== podcastToDelete));
     } catch (err) {
-      showSnackbar(`Failed to ${moderateAction} podcast`, 'error');
+      toast.error('Purge failed', { id: loadingId });
     } finally {
-      setModerateDialogOpen(false);
+      setPodcastToDelete(null);
     }
   };
 
-  const getStatusChip = (podcast: Podcast) => {
-    if (!podcast.isApproved) return <Chip label="Pending" size="small" color="warning" icon={<Eye size={14} />} />;
-    if (!podcast.isActive) return <Chip label="Inactive" size="small" color="default" />;
-    return <Chip label="Live" size="small" color="success" icon={<PodcastIcon size={14} />} />;
-  };
+  if (loading && podcasts.length === 0) return <Preloader isVisible={true} text="Auditing audio broadcasts..." />;
 
   return (
-    <Box sx={{ p: 4, bgcolor: '#f8fafc', minHeight: '100vh' }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: '#1e293b' }}>
-            Podcast Management
-          </Typography>
-          <Typography variant="body2" color="slate.500">
-            Monitor and manage audio podcasts across the platform.
-          </Typography>
-        </Box>
-        <Button 
-          variant="contained" 
-          startIcon={<Mic size={18} />}
-          sx={{ 
-            bgcolor: '#10b981', 
-            '&:hover': { bgcolor: '#059669' },
-            borderRadius: '12px',
-            textTransform: 'none',
-            px: 3
-          }}
-        >
-          Add New Podcast
-        </Button>
-      </Box>
+    <div className="space-y-10">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+            <Mic className="text-purple-500" size={32} />
+            Podcasts
+          </h1>
+          <p className="text-zinc-500">Monitor and manage audio broadcasts across the platform.</p>
+        </div>
+        <button className="btn-primary flex items-center gap-2">
+          <Plus size={18} />
+          New Series
+        </button>
+      </div>
 
-      {/* Stats Section */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Total Podcasts', value: stats.total, icon: <PodcastIcon className="text-blue-500" /> },
-          { label: 'Published', value: stats.published, icon: <CheckCircle className="text-green-500" /> },
-          { label: 'Pending Approval', value: stats.pending, icon: <Eye className="text-amber-500" /> },
-          { label: 'Total Episodes', value: stats.episodes, icon: <Mic className="text-purple-500" /> }
-        ].map((stat, i) => (
-          <Grid item xs={12} sm={6} md={3} key={i}>
-            <Card sx={{ borderRadius: '24px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
-              <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box sx={{ p: 1.5, bgcolor: '#f8fafc', borderRadius: '16px' }}>{stat.icon}</Box>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 800 }}>{stat.value}</Typography>
-                  <Typography variant="caption" color="text.secondary">{stat.label}</Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+          { label: 'Total Series', value: stats.total, icon: PodcastIcon, color: 'text-blue-500', bg: 'bg-blue-500/5' },
+          { label: 'Published', value: stats.published, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
+          { label: 'Pending', value: stats.pending, icon: Eye, color: 'text-amber-500', bg: 'bg-amber-500/5' },
+          { label: 'Total Episodes', value: stats.episodes, icon: Mic, color: 'text-purple-500', bg: 'bg-purple-500/5' },
+        ].map(s => (
+          <div key={s.label} className="premium-card">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-6 ${s.bg}`}>
+              <s.icon size={20} className={s.color} />
+            </div>
+            <p className="text-zinc-500 text-xs font-medium mb-1">{s.label}</p>
+            <p className="text-2xl font-bold text-white tracking-tight">{s.value}</p>
+          </div>
         ))}
-      </Grid>
+      </div>
 
-      {/* Filters & Search */}
-      <Box sx={{ mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        <Box component="form" onSubmit={handleSearch} sx={{ flexGrow: 1, position: 'relative' }}>
-          <TextField
-            fullWidth
-            placeholder="Search podcasts..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search size={18} />
-                </InputAdornment>
-              ),
-              sx: { borderRadius: '16px', bgcolor: 'white' }
-            }}
-          />
-        </Box>
-        <TextField
-          select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          SelectProps={{ native: true }}
-          sx={{ minWidth: 150, '& .MuiOutlinedInput-root': { borderRadius: '16px', bgcolor: 'white' } }}
-        >
-          <option value="all">All Status</option>
-          <option value="approved">Live Only</option>
-          <option value="pending">Pending Only</option>
-          <option value="inactive">Inactive</option>
-        </TextField>
-      </Box>
-
-      {/* Table Section */}
-      <TableContainer component={Paper} sx={{ borderRadius: '24px', overflow: 'hidden', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}>
-        <Table>
-          <TableHead sx={{ bgcolor: '#f8fafc' }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 600 }}>Podcast Info</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Artist</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Episodes</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Joined</TableCell>
-              <TableCell align="right"></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
-                  <CircularProgress size={32} />
-                  <Typography variant="body2" sx={{ mt: 1 }}>Loading podcasts...</Typography>
-                </TableCell>
-              </TableRow>
-            ) : podcasts.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
-                  <Typography variant="body1" color="text.secondary">No podcasts found matching your criteria.</Typography>
-                </TableCell>
-              </TableRow>
-            ) : (
-              podcasts.map((podcast) => (
-                <TableRow key={podcast._id} hover>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Avatar 
-                        src={podcast.coverArt} 
-                        variant="rounded" 
-                        sx={{ width: 48, height: 48, borderRadius: '12px' }}
-                      >
-                        <PodcastIcon />
-                      </Avatar>
-                      <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{podcast.title}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {podcast.explicit ? 'Explicit' : 'Clean'}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {(podcast.artist as any)?.name || 'Unknown Artist'}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Chip label={podcast.category} size="small" variant="outlined" />
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <PlayCircle size={14} style={{ color: '#94a3b8' }} />
-                      <Typography variant="body2">{podcast.episodes?.length || 0}</Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>{getStatusChip(podcast)}</TableCell>
-                  <TableCell>
-                     <Typography variant="caption">
-                      {new Date(podcast.createdAt).toLocaleDateString()}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="right">
-                    <IconButton onClick={(e) => handleMenuOpen(e, podcast)}>
-                      <MoreVertical size={20} />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-        {totalPages > 1 && (
-          <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
-            <Pagination 
-              count={totalPages} 
-              page={page} 
-              onChange={(_, value) => setPage(value)} 
-              color="primary"
+      {/* Toolbar */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row gap-4 w-full md:max-w-3xl">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search by series title or artist..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && fetchPodcasts()}
+              className="input-field pl-11"
             />
-          </Box>
+          </div>
+          <div className="relative w-full md:w-64">
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="input-field pl-11 pr-10 appearance-none cursor-pointer"
+            >
+              <option value="all">All Status</option>
+              <option value="approved">Live Only</option>
+              <option value="pending">Pending Only</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" size={16} />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="premium-card !p-0 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-white/5">
+                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Series</th>
+                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Artist</th>
+                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Episodes</th>
+                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {loading && podcasts.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-24 text-center">
+                    <RefreshCw className="h-8 w-8 text-purple-500 animate-spin mx-auto mb-4" />
+                    <p className="text-zinc-500">Synchronizing broadcasts...</p>
+                  </td>
+                </tr>
+              ) : podcasts.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-24 text-center">
+                    <PodcastIcon className="h-10 w-10 text-zinc-800 mx-auto mb-4" />
+                    <p className="text-zinc-500">No podcasts detected in repository.</p>
+                  </td>
+                </tr>
+              ) : (
+                podcasts.map((podcast) => (
+                  <tr key={podcast._id} className="hover:bg-white/[0.02] transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-white/5 overflow-hidden flex items-center justify-center">
+                          <img src={podcast.coverArt} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-white group-hover:text-purple-400 transition-colors">{podcast.title}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[10px] font-bold text-zinc-600 uppercase">{podcast.category}</span>
+                            <span className="w-1 h-1 rounded-full bg-zinc-800" />
+                            <span className="text-[10px] font-bold text-zinc-600 uppercase">{podcast.explicit ? 'Explicit' : 'Clean'}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-medium text-zinc-400">{(podcast.artist as any)?.name || 'Unknown'}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 text-xs font-bold text-zinc-500">
+                        <PlayCircle size={14} className="text-purple-500" />
+                        {podcast.episodes?.length || 0}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {!podcast.isApproved ? (
+                        <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">Pending</span>
+                      ) : (
+                        <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Live</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {!podcast.isApproved ? (
+                          <button 
+                            onClick={() => setPodcastToModerate({id: podcast._id, action: 'approve', title: podcast.title})} 
+                            className="p-2 rounded-lg text-emerald-500 hover:bg-emerald-500/10 transition-all"
+                          >
+                            <ShieldCheck size={18} />
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => setPodcastToModerate({id: podcast._id, action: 'reject', title: podcast.title})} 
+                            className="p-2 rounded-lg text-amber-500 hover:bg-amber-500/10 transition-all"
+                          >
+                            <XCircle size={18} />
+                          </button>
+                        )}
+                        <button className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/5 transition-all"><Edit size={18} /></button>
+                        <button onClick={() => setPodcastToDelete(podcast._id)} className="p-2 rounded-lg text-zinc-500 hover:text-rose-500 hover:bg-rose-500/5 transition-all"><Trash2 size={18} /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-white/5 flex items-center justify-between">
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Page {page} of {totalPages}</span>
+            <div className="flex gap-2">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="btn-secondary !py-1 !px-3 disabled:opacity-30">Prev</button>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="btn-secondary !py-1 !px-3 disabled:opacity-30">Next</button>
+            </div>
+          </div>
         )}
-      </TableContainer>
+      </div>
 
-      {/* Menus & Dialogs */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-        PaperProps={{ sx: { borderRadius: '12px', minWidth: 150, boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' } }}
-      >
-        <MenuItem onClick={handleMenuClose}><Edit size={16} style={{ marginRight: 8 }} /> Edit Details</MenuItem>
-        
-        {selectedPodcast && !selectedPodcast.isApproved ? (
-          <MenuItem onClick={() => handleModerateClick('approve')} sx={{ color: 'success.main' }}>
-            <CheckCircle size={16} style={{ marginRight: 8 }} /> Approve
-          </MenuItem>
-        ) : (
-          <MenuItem onClick={() => handleModerateClick('reject')} sx={{ color: 'warning.main' }}>
-            <XCircle size={16} style={{ marginRight: 8 }} /> Deactivate
-          </MenuItem>
-        )}
-        
-        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>
-          <Trash2 size={16} style={{ marginRight: 8 }} /> Delete Permanent
-        </MenuItem>
-      </Menu>
+      {/* Confirmation Dialogs */}
+      <ConfirmDialog
+        isOpen={!!podcastToDelete}
+        title="Delete Series?"
+        message="This action will permanently remove the podcast and all associated episodes from the platform."
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setPodcastToDelete(null)}
+      />
 
-      {/* Delete confirmation */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} PaperProps={{ sx: { borderRadius: '24px' } }}>
-        <DialogTitle>Delete Podcast?</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete "{selectedPodcast?.title}"? This action cannot be undone and will remove all associated episodes.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)} sx={{ borderRadius: '12px' }}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color="error" variant="contained" sx={{ borderRadius: '12px' }}>Delete Podcast</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Moderate confirmation */}
-      <Dialog open={moderateDialogOpen} onClose={() => setModerateDialogOpen(false)} PaperProps={{ sx: { borderRadius: '24px' } }}>
-        <DialogTitle>{moderateAction === 'approve' ? 'Approve Podcast?' : 'Deactivate Podcast?'}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {moderateAction === 'approve' 
-              ? `Are you sure you want to approve "${selectedPodcast?.title}" and make it visible to all users?`
-              : `Are you sure you want to deactivate "${selectedPodcast?.title}"? It will no longer be visible on the platform.`}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setModerateDialogOpen(false)} sx={{ borderRadius: '12px' }}>Cancel</Button>
-          <Button 
-            onClick={handleModerateConfirm} 
-            color={moderateAction === 'approve' ? 'success' : 'warning'} 
-            variant="contained" 
-            sx={{ borderRadius: '12px' }}
-          >
-            Confirm {moderateAction === 'approve' ? 'Approval' : 'Deactivation'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={4000} 
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert severity={snackbar.severity} variant="filled" sx={{ borderRadius: '12px' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+      <ConfirmDialog
+        isOpen={!!podcastToModerate}
+        title={podcastToModerate?.action === 'approve' ? 'Approve Podcast?' : 'Deactivate Podcast?'}
+        message={podcastToModerate?.action === 'approve' 
+          ? `Make "${podcastToModerate.title}" live for all users?`
+          : `Hide "${podcastToModerate.title}" from the platform?`}
+        confirmLabel={podcastToModerate?.action === 'approve' ? 'Approve' : 'Deactivate'}
+        onConfirm={handleModerate}
+        onCancel={() => setPodcastToModerate(null)}
+      />
+    </div>
   );
 };
+
+const ChevronDown = ({ className, size }: { className?: string; size?: number }) => (
+  <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+);
 
 export default PodcastManagement;

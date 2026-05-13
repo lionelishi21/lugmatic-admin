@@ -1,34 +1,22 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Plus,
-  Edit,
-  Trash2,
-  Settings,
-  Gift,
-  DollarSign,
-  Star,
-  Package,
-  Search,
-  Sparkles,
-  Filter,
-  MoreHorizontal,
-  Power,
-  AlertTriangle,
+  Plus, Edit, Trash2, Settings, Gift, DollarSign, Star, Package,
+  Search, Sparkles, Filter, MoreHorizontal, Power, AlertTriangle,
+  X, ChevronDown, CheckCircle2, Zap, LayoutGrid, List
 } from 'lucide-react';
-import adminGiftService, {
-  GiftResponse,
-} from '../../services/adminGiftService';
+import adminGiftService, { GiftResponse } from '../../services/adminGiftService';
 import { getFullImageUrl } from '../../services/api';
 import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 import GiftDialog from '../../components/gift/GiftDialog';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
-const RARITY_COLORS: Record<string, string> = {
-  common: 'bg-gray-100 text-gray-700',
-  rare: 'bg-blue-50 text-blue-700',
-  epic: 'bg-purple-50 text-purple-700',
-  legendary: 'bg-amber-50 text-amber-700',
+const RARITY_CONFIG: Record<string, { color: string; bg: string; border: string }> = {
+  common: { color: 'text-zinc-400', bg: 'bg-zinc-500/5', border: 'border-white/5' },
+  rare: { color: 'text-blue-500', bg: 'bg-blue-500/5', border: 'border-blue-500/10' },
+  epic: { color: 'text-purple-500', bg: 'bg-purple-500/5', border: 'border-purple-500/10' },
+  legendary: { color: 'text-amber-500', bg: 'bg-amber-500/5', border: 'border-amber-500/10' },
 };
 
 const GiftManagement: React.FC = () => {
@@ -41,19 +29,11 @@ const GiftManagement: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [giftToDeactivate, setGiftToDeactivate] = useState<string | null>(null);
   const [giftToDelete, setGiftToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     loadGifts();
   }, []);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handler = () => setActiveMenu(null);
-    if (activeMenu) document.addEventListener('click', handler);
-    return () => document.removeEventListener('click', handler);
-  }, [activeMenu]);
 
   const loadGifts = async () => {
     try {
@@ -61,23 +41,13 @@ const GiftManagement: React.FC = () => {
       const data = await adminGiftService.getAllGifts();
       setGifts(Array.isArray(data) ? data : []);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to load gifts';
-      if (errorMessage.includes('Access token required') || errorMessage.includes('token') || error.response?.status === 401) {
-        toast.error('Authentication required. Please log in to continue.');
-        setTimeout(() => { navigate('/login', { replace: true }); }, 2000);
-      } else {
-        toast.error(`Failed to load gifts: ${errorMessage}`);
-      }
-      console.error('Error loading gifts:', error);
+      toast.error('Failed to load gifts');
     } finally {
       setLoading(false);
     }
   };
 
-  const categories = useMemo(
-    () => Array.from(new Set(gifts.map((g) => g.category))),
-    [gifts]
-  );
+  const categories = useMemo(() => Array.from(new Set(gifts.map((g) => g.category))), [gifts]);
 
   const filteredGifts = useMemo(() => {
     let list = gifts;
@@ -85,350 +55,205 @@ const GiftManagement: React.FC = () => {
     if (filterCategory !== 'all') list = list.filter((g) => g.category === filterCategory);
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      list = list.filter(
-        (g) =>
-          g.name.toLowerCase().includes(q) ||
-          g.description?.toLowerCase().includes(q) ||
-          g.category.toLowerCase().includes(q)
-      );
+      list = list.filter(g => g.name.toLowerCase().includes(q) || g.category.toLowerCase().includes(q));
     }
     return list;
   }, [gifts, tabValue, filterCategory, searchQuery]);
 
-  const handleOpenDialog = (gift?: GiftResponse) => {
-    setEditingGift(gift || null);
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setEditingGift(null);
-  };
-
-  const confirmDelete = async () => {
-    if (!giftToDeactivate) return;
-    try {
-      await adminGiftService.softDeleteGift(giftToDeactivate);
-      toast.success('Gift deactivated successfully');
-      loadGifts();
-    } catch (error) {
-      toast.error('Failed to update gift');
-      console.error('Error updating gift:', error);
-    } finally {
-      setGiftToDeactivate(null);
-    }
-  };
-
-  const confirmHardDelete = async () => {
-    if (!giftToDelete) return;
-    try {
-      await adminGiftService.hardDeleteGift(giftToDelete);
-      toast.success('Gift permanently deleted');
-      loadGifts();
-    } catch (error) {
-      toast.error('Failed to delete gift');
-    } finally {
-      setGiftToDelete(null);
-    }
-  };
+  const stats = useMemo(() => ({
+    total: gifts.length,
+    active: gifts.filter(g => g.isActive).length,
+    value: gifts.reduce((s, g) => s + g.value, 0),
+    coins: gifts.reduce((s, g) => s + g.coinCost, 0),
+  }), [gifts]);
 
   const handleToggleActive = async (giftId: string, isActive: boolean) => {
     try {
       await adminGiftService.updateGift(giftId, { isActive: !isActive });
-      toast.success(`Gift ${!isActive ? 'activated' : 'deactivated'} successfully`);
+      toast.success(`Gift ${!isActive ? 'activated' : 'deactivated'}`);
       loadGifts();
     } catch (error) {
-      toast.error('Failed to update gift status');
-      console.error('Error updating gift status:', error);
+      toast.error('Update failed');
     }
   };
 
-  const stats = useMemo(
-    () => ({
-      total: gifts.length,
-      active: gifts.filter((g) => g.isActive).length,
-      totalValue: gifts.reduce((s, g) => s + g.value, 0),
-      totalCoins: gifts.reduce((s, g) => s + g.coinCost, 0),
-    }),
-    [gifts]
-  );
-
-  if (loading) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-[400px] gap-3">
-        <div className="animate-spin rounded-full h-10 w-10 border-2 border-green-500 border-t-transparent" />
-        <p className="text-sm text-gray-400">Loading gifts...</p>
-      </div>
-    );
-  }
-
-  const tabs = [
-    { label: 'All Gifts', count: gifts.length },
-    { label: 'Active', count: stats.active },
-    { label: 'Categories', count: categories.length },
-    { label: 'Rules & Settings', count: null },
-  ];
-
   return (
-    <div className="p-6 max-w-[1400px] mx-auto space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gift Management</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Manage gifts, set values, and configure rules
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Digital Gifts</h1>
+          <p className="text-zinc-500">Manage virtual assets, set values, and configure rewards.</p>
         </div>
-        <button
-          onClick={() => handleOpenDialog()}
-          className="flex items-center gap-2 px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-sm font-medium transition-colors shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          Add Gift
+        <button onClick={() => setOpenDialog(true)} className="btn-primary flex items-center gap-2">
+          <Plus size={18} />
+          Create Gift
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Total Gifts', value: stats.total, icon: Gift, color: 'green' },
-          { label: 'Total Value', value: `$${stats.totalValue.toFixed(2)}`, icon: DollarSign, color: 'blue' },
-          { label: 'Active Gifts', value: stats.active, icon: Star, color: 'emerald' },
-          { label: 'Combined Cost', value: `${stats.totalCoins} coins`, icon: Package, color: 'amber' },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className={`w-9 h-9 rounded-xl bg-${stat.color}-50 flex items-center justify-center`}>
-                <stat.icon className={`w-4.5 h-4.5 text-${stat.color}-500`} />
-              </div>
+          { label: 'Total Assets', value: stats.total, icon: Gift, color: 'text-indigo-500', bg: 'bg-indigo-500/5' },
+          { label: 'Live Economy', value: stats.active, icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
+          { label: 'Economic Value', value: `$${stats.value.toFixed(0)}`, icon: DollarSign, color: 'text-blue-500', bg: 'bg-blue-500/5' },
+          { label: 'Coin Volume', value: stats.coins.toLocaleString(), icon: Package, color: 'text-amber-500', bg: 'bg-amber-500/5' },
+        ].map(s => (
+          <div key={s.label} className="premium-card">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-6 ${s.bg}`}>
+              <s.icon size={20} className={s.color} />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-            <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+            <p className="text-zinc-500 text-xs font-medium mb-1">{s.label}</p>
+            <p className="text-2xl font-bold text-white tracking-tight">{s.value}</p>
           </div>
         ))}
       </div>
 
-      {/* Tabs */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex border-b border-gray-100">
-          {tabs.map((tab, index) => (
-            <button
-              key={tab.label}
-              onClick={() => setTabValue(index)}
-              className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium transition-colors border-b-2 -mb-px ${tabValue === index
-                ? 'text-green-600 border-green-500'
-                : 'text-gray-500 border-transparent hover:text-gray-700'
-                }`}
-            >
-              {tab.label}
-              {tab.count !== null && (
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full ${tabValue === index
-                    ? 'bg-green-50 text-green-600'
-                    : 'bg-gray-100 text-gray-500'
-                    }`}
-                >
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+      {/* Toolbar */}
+      <div className="bg-[#0a0a0a] border border-white/5 rounded-3xl p-1 flex flex-wrap items-center gap-1 w-fit">
+        {['All Gifts', 'Active Only', 'Categories', 'Rules'].map((label, i) => (
+          <button
+            key={label}
+            onClick={() => setTabValue(i)}
+            className={`px-6 py-2 rounded-2xl text-xs font-semibold transition-all ${
+              tabValue === i ? 'bg-white/10 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'
+            }`}
+          >
+            {label}
+            {i < 3 && <span className="ml-2 opacity-50">{i === 2 ? categories.length : (i === 1 ? stats.active : stats.total)}</span>}
+          </button>
+        ))}
+      </div>
 
-        {/* Search & Filter Bar (for gift tabs) */}
-        {(tabValue === 0 || tabValue === 1) && (
-          <div className="p-4 border-b border-gray-50 flex flex-wrap items-center gap-3">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search gifts..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400"
-              />
-            </div>
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="pl-9 pr-8 py-2 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 appearance-none"
-              >
-                <option value="all">All categories</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <span className="text-xs text-gray-400">
-              {filteredGifts.length} result{filteredGifts.length !== 1 ? 's' : ''}
-            </span>
+      {(tabValue === 0 || tabValue === 1) && (
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="relative w-full md:max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search assets..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="input-field pl-11"
+            />
           </div>
-        )}
+          <div className="relative">
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="input-field pl-11 pr-10 appearance-none cursor-pointer"
+            >
+              <option value="all">All Categories</option>
+              {categories.map(cat => <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>)}
+            </select>
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" size={16} />
+          </div>
+        </div>
+      )}
 
-        {/* Tab Content */}
-        <div className="p-5">
-          {/* All Gifts / Active */}
+      {/* Main Content */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tabValue}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+        >
+          {/* Gifts Grid */}
           {(tabValue === 0 || tabValue === 1) && (
-            <>
-              {filteredGifts.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                  <Gift className="w-10 h-10 mb-3 opacity-40" />
-                  <p className="text-sm">No gifts found</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {filteredGifts.map((gift) => (
-                    <div
-                      key={gift._id}
-                      className="group bg-white border border-gray-100 rounded-2xl hover:shadow-md transition-all duration-200 overflow-hidden"
-                    >
-                      {/* Image */}
-                      <div className="relative h-36 bg-gray-50 flex items-center justify-center">
-                        {gift.image ? (
-                          <img
-                            src={getFullImageUrl(gift.image)}
-                            alt={gift.name}
-                            className="h-24 w-24 object-contain"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <Gift className="w-10 h-10 text-gray-300" />
-                        )}
-                        {/* Status badge */}
-                        <span
-                          className={`absolute top-3 left-3 px-2 py-0.5 rounded-lg text-[11px] font-medium ${gift.isActive
-                            ? 'bg-green-50 text-green-600'
-                            : 'bg-gray-100 text-gray-500'
-                            }`}
-                        >
-                          {gift.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                        {/* Rarity badge */}
-                        <span
-                          className={`absolute top-3 right-3 px-2 py-0.5 rounded-lg text-[11px] font-medium capitalize ${RARITY_COLORS[gift.rarity] || RARITY_COLORS.common
-                            }`}
-                        >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {filteredGifts.map((gift) => {
+                const rarity = RARITY_CONFIG[gift.rarity] || RARITY_CONFIG.common;
+                return (
+                  <div key={gift._id} className="premium-card group !p-0 overflow-hidden hover:border-emerald-500/20">
+                    <div className="relative h-48 bg-zinc-950 flex items-center justify-center p-8">
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] to-transparent opacity-60" />
+                      {gift.image ? (
+                        <img src={getFullImageUrl(gift.image)} alt={gift.name} className="h-full w-full object-contain relative z-10 group-hover:scale-110 transition-transform duration-500" />
+                      ) : (
+                        <Gift size={48} className="text-zinc-800" />
+                      )}
+                      
+                      <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
+                        <span className={`px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-widest border ${rarity.bg} ${rarity.color} ${rarity.border}`}>
                           {gift.rarity}
                         </span>
+                        {gift.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />}
                       </div>
 
-                      {/* Content */}
-                      <div className="p-4">
-                        <div className="flex items-start justify-between mb-1">
-                          <h3 className="text-sm font-semibold text-gray-900 truncate flex-1">
-                            {gift.name}
-                          </h3>
-                          <div className="relative ml-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveMenu(activeMenu === gift._id ? null : gift._id);
-                              }}
-                              className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <MoreHorizontal className="w-4 h-4" />
-                            </button>
-                            {activeMenu === gift._id && (
-                              <div className="absolute right-0 top-8 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20">
-                                <button
-                                  onClick={() => { handleOpenDialog(gift); setActiveMenu(null); }}
-                                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                >
-                                  <Edit className="w-3.5 h-3.5" /> Edit
-                                </button>
-                                <button
-                                  onClick={() => { handleToggleActive(gift._id, gift.isActive); setActiveMenu(null); }}
-                                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                >
-                                  <Power className="w-3.5 h-3.5" />
-                                  {gift.isActive ? 'Deactivate' : 'Activate'}
-                                </button>
-                                <div className="border-t border-gray-100 my-1" />
-                                <button
-                                  onClick={() => { setGiftToDelete(gift._id); setActiveMenu(null); }}
-                                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" /> Delete
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        {gift.description && (
-                          <p className="text-xs text-gray-500 line-clamp-2 mb-3">
-                            {gift.description}
-                          </p>
+                      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                        <button onClick={() => setActiveMenu(activeMenu === gift._id ? null : gift._id)} className="p-2 rounded-xl bg-black/40 backdrop-blur-md text-white border border-white/10">
+                          <MoreHorizontal size={18} />
+                        </button>
+                      </div>
+                      
+                      <AnimatePresence>
+                        {activeMenu === gift._id && (
+                          <motion.div 
+                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                            className="absolute top-16 right-4 w-44 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl z-30 p-2"
+                          >
+                            <button onClick={() => { handleOpenDialog(gift); setActiveMenu(null); }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/5"><Edit size={16} /> Edit Asset</button>
+                            <button onClick={() => { handleToggleActive(gift._id, gift.isActive); setActiveMenu(null); }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/5"><Power size={16} /> {gift.isActive ? 'Deactivate' : 'Activate'}</button>
+                            <button onClick={() => { setGiftToDelete(gift._id); setActiveMenu(null); }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-rose-500 hover:bg-rose-500/5"><Trash2 size={16} /> Delete</button>
+                          </motion.div>
                         )}
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="px-2 py-0.5 bg-green-50 text-green-700 text-[11px] font-medium rounded-md capitalize">
-                            {gift.category}
-                          </span>
-                          <span className="px-2 py-0.5 bg-gray-50 text-gray-600 text-[11px] font-medium rounded-md capitalize">
-                            {gift.type}
-                          </span>
+                      </AnimatePresence>
+                    </div>
+
+                    <div className="p-6 space-y-4">
+                      <div>
+                        <h3 className="text-white font-bold tracking-tight mb-1">{gift.name}</h3>
+                        <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-widest">{gift.category}</p>
+                      </div>
+                      <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold text-zinc-600 uppercase">Value</span>
+                          <span className="text-sm font-bold text-white">${gift.value.toFixed(2)}</span>
                         </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold text-gray-900">
-                            ${gift.value.toFixed(2)}
-                          </span>
-                          <span className="text-gray-500">
-                            {gift.coinCost} coins
-                          </span>
+                        <div className="flex flex-col text-right">
+                          <span className="text-[10px] font-bold text-zinc-600 uppercase">Cost</span>
+                          <span className="text-sm font-bold text-emerald-500">{gift.coinCost} coins</span>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </>
+                  </div>
+                );
+              })}
+            </div>
           )}
 
-          {/* Categories */}
+          {/* Categories Table */}
           {tabValue === 2 && (
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="premium-card !p-0 overflow-hidden">
+              <table className="w-full text-left">
                 <thead>
-                  <tr className="text-left text-xs text-gray-500 uppercase tracking-wider">
-                    <th className="px-4 py-3 font-medium">Category</th>
-                    <th className="px-4 py-3 font-medium">Count</th>
-                    <th className="px-4 py-3 font-medium">Total Value</th>
-                    <th className="px-4 py-3 font-medium">Avg Coin Cost</th>
-                    <th className="px-4 py-3 font-medium">Active</th>
+                  <tr className="border-b border-white/5">
+                    <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase">Category</th>
+                    <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase">Inventory</th>
+                    <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase">Economic Value</th>
+                    <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase text-right">Live Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-white/5">
                   {categories.map((category) => {
-                    const catGifts = gifts.filter((g) => g.category === category);
+                    const catGifts = gifts.filter(g => g.category === category);
                     const totalValue = catGifts.reduce((s, g) => s + g.value, 0);
-                    const avgCoins = Math.round(
-                      catGifts.reduce((s, g) => s + g.coinCost, 0) / catGifts.length
-                    );
-                    const activeCount = catGifts.filter((g) => g.isActive).length;
+                    const activeCount = catGifts.filter(g => g.isActive).length;
                     return (
-                      <tr key={category} className="hover:bg-gray-50/50">
-                        <td className="px-4 py-3.5">
-                          <span className="text-sm font-medium text-gray-900 capitalize">
-                            {category}
-                          </span>
+                      <tr key={category} className="hover:bg-white/[0.02] transition-colors group">
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-bold text-white capitalize">{category}</span>
                         </td>
-                        <td className="px-4 py-3.5 text-sm text-gray-600">{catGifts.length}</td>
-                        <td className="px-4 py-3.5 text-sm text-gray-600">
-                          ${totalValue.toFixed(2)}
+                        <td className="px-6 py-4">
+                          <span className="text-xs font-medium text-zinc-400">{catGifts.length} unique assets</span>
                         </td>
-                        <td className="px-4 py-3.5 text-sm text-gray-600">{avgCoins} coins</td>
-                        <td className="px-4 py-3.5">
-                          <span className="text-sm text-green-600 font-medium">
-                            {activeCount}/{catGifts.length}
-                          </span>
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-bold text-emerald-500">${totalValue.toFixed(2)}</span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <span className="text-xs font-bold text-zinc-500">{activeCount} / {catGifts.length} Active</span>
                         </td>
                       </tr>
                     );
@@ -440,89 +265,68 @@ const GiftManagement: React.FC = () => {
 
           {/* Rules & Settings */}
           {tabValue === 3 && (
-            <div className="space-y-5">
-              <div className="p-4 bg-green-50/50 border border-green-100 rounded-xl">
-                <p className="text-sm text-green-700">
-                  Configure global gift rules. These apply to all gifts unless overridden individually.
-                </p>
-              </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <div className="border border-gray-100 rounded-2xl p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Settings className="w-4 h-4 text-gray-500" />
-                    <h3 className="text-sm font-semibold text-gray-900">Global Rules</h3>
-                  </div>
-                  <div className="space-y-3">
-                    {[
-                      { label: 'Require verification for gifts over $50', defaultChecked: true },
-                      { label: 'Enable cooldown between gifts', defaultChecked: true },
-                      { label: 'Allow anonymous gifts', defaultChecked: false },
-                    ].map((rule) => (
-                      <label
-                        key={rule.label}
-                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          defaultChecked={rule.defaultChecked}
-                          className="w-4 h-4 rounded text-green-500 focus:ring-green-500/20 border-gray-300"
-                        />
-                        <span className="text-sm text-gray-700">{rule.label}</span>
-                      </label>
-                    ))}
-                  </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="premium-card">
+                <h3 className="text-lg font-bold mb-8">Economic Rules</h3>
+                <div className="space-y-4">
+                  {[
+                    { label: 'Require verification for gifts over $50', active: true },
+                    { label: 'Enable cooldown between transactions', active: true },
+                    { label: 'Allow anonymous contributors', active: false },
+                  ].map(rule => (
+                    <div key={rule.label} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <span className="text-sm font-medium text-zinc-300">{rule.label}</span>
+                      <div className={`w-10 h-5 rounded-full relative transition-colors ${rule.active ? 'bg-emerald-500' : 'bg-zinc-800'}`}>
+                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${rule.active ? 'right-1' : 'left-1'}`} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="border border-gray-100 rounded-2xl p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Sparkles className="w-4 h-4 text-gray-500" />
-                    <h3 className="text-sm font-semibold text-gray-900">Effects & Animations</h3>
-                  </div>
-                  <div className="space-y-3">
-                    {[
-                      { label: 'Show gift animations', defaultChecked: true },
-                      { label: 'Play sound effects', defaultChecked: true },
-                      { label: 'Enable special effects', defaultChecked: false },
-                    ].map((rule) => (
-                      <label
-                        key={rule.label}
-                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          defaultChecked={rule.defaultChecked}
-                          className="w-4 h-4 rounded text-green-500 focus:ring-green-500/20 border-gray-300"
-                        />
-                        <span className="text-sm text-gray-700">{rule.label}</span>
-                      </label>
-                    ))}
-                  </div>
+              </div>
+              <div className="premium-card">
+                <h3 className="text-lg font-bold mb-8">Visual Effects</h3>
+                <div className="space-y-4">
+                  {[
+                    { label: 'Display high-fidelity animations', active: true },
+                    { label: 'Enable spatial sound effects', active: true },
+                    { label: 'Particle systems on legendary gifts', active: true },
+                  ].map(rule => (
+                    <div key={rule.label} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <span className="text-sm font-medium text-zinc-300">{rule.label}</span>
+                      <div className={`w-10 h-5 rounded-full relative transition-colors ${rule.active ? 'bg-emerald-500' : 'bg-zinc-800'}`}>
+                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${rule.active ? 'right-1' : 'left-1'}`} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           )}
-        </div>
-      </div>
+        </motion.div>
+      </AnimatePresence>
 
-      {/* Add/Edit Gift Dialog */}
+      {/* Modals */}
       {openDialog && (
-        <GiftDialog open={openDialog} onClose={handleCloseDialog} editingGift={editingGift} onSuccess={loadGifts} />
+        <GiftDialog open={openDialog} onClose={() => setOpenDialog(false)} editingGift={editingGift} onSuccess={loadGifts} />
       )}
-
-      <ConfirmDialog
-        isOpen={!!giftToDeactivate}
-        title="Deactivate Gift"
-        message="Are you sure you want to deactivate this gift?"
-        confirmLabel="Deactivate"
-        onConfirm={confirmDelete}
-        onCancel={() => setGiftToDeactivate(null)}
-      />
 
       <ConfirmDialog
         isOpen={!!giftToDelete}
         title="Permanently Delete Gift"
-        message="This will permanently delete the gift and cannot be undone. Are you sure?"
-        confirmLabel="Delete"
-        onConfirm={confirmHardDelete}
+        message="This will remove the digital asset from all systems. This action cannot be undone."
+        confirmLabel="Delete Asset"
+        onConfirm={async () => {
+          if (!giftToDelete) return;
+          try {
+            await adminGiftService.hardDeleteGift(giftToDelete);
+            toast.success('Asset purged');
+            loadGifts();
+          } catch (error) {
+            toast.error('Deletion failed');
+          } finally {
+            setGiftToDelete(null);
+          }
+        }}
         onCancel={() => setGiftToDelete(null)}
       />
     </div>
