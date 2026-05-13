@@ -1,34 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/adminService';
 import {
-  Users,
-  DollarSign,
-  Play,
-  Globe,
-  BarChart3,
-  PieChart,
-  Activity,
-  Download,
-  TrendingUp,
-  TrendingDown,
-  ArrowUpRight,
-  Music2,
-  Headphones,
-  Clock,
-  Calendar,
-  ChevronRight,
-  Smartphone,
-  Monitor,
-  Tablet,
-  MoreHorizontal,
-  LayoutGrid
+  Users, DollarSign, Play, Globe, BarChart3, PieChart, Activity,
+  Download, TrendingUp, TrendingDown, ArrowUpRight, Music2,
+  Headphones, Clock, Calendar, ChevronRight, Smartphone,
+  Monitor, Tablet, MoreHorizontal, LayoutGrid, Zap, ShieldCheck,
+  Star, Target, Cpu, Hash
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const cardClass = "bg-zinc-900 border border-white/[0.06] rounded-lg shadow-2xl relative overflow-hidden group";
-const labelClass = "text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1.5 italic";
-const valueClass = "text-sm font-black text-white italic uppercase tracking-tight";
-const titleClass = "text-3xl font-black text-white tracking-tighter uppercase italic";
 
 const Analytics: React.FC = () => {
   const [activeRange, setActiveRange] = useState('month');
@@ -57,109 +36,83 @@ const Analytics: React.FC = () => {
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'user': return <Users className="h-4 w-4 text-emerald-500" />;
-      case 'play': return <Play className="h-4 w-4 text-blue-500" />;
-      case 'revenue': return <DollarSign className="h-4 w-4 text-amber-500" />;
-      case 'upload': return <Music2 className="h-4 w-4 text-indigo-500" />;
-      default: return <Activity className="h-4 w-4 text-zinc-500" />;
+      case 'user': return <Users size={16} className="text-emerald-500" />;
+      case 'play': return <Play size={16} className="text-blue-500" />;
+      case 'revenue': return <DollarSign size={16} className="text-amber-500" />;
+      case 'upload': return <Music2 size={16} className="text-indigo-500" />;
+      default: return <Activity size={16} className="text-zinc-500" />;
     }
   };
 
   const getDeviceIcon = (icon: string) => {
     switch (icon) {
-      case 'smartphone': return <Smartphone className="h-5 w-5" />;
-      case 'monitor': return <Monitor className="h-5 w-5" />;
-      case 'tablet': return <Tablet className="h-5 w-5" />;
-      default: return <Monitor className="h-5 w-5" />;
+      case 'smartphone': return <Smartphone size={18} />;
+      case 'monitor': return <Monitor size={18} />;
+      case 'tablet': return <Tablet size={18} />;
+      default: return <Monitor size={18} />;
     }
   };
 
-  const maxBarValue = analyticsData?.monthlyGrowth ? Math.max(...analyticsData.monthlyGrowth.map((d: any) =>
-    selectedMetric === 'users' ? d.users : selectedMetric === 'revenue' ? d.revenue : d.plays
-  )) : 0;
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+        <div className="relative">
+          <div className="w-20 h-20 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Activity className="text-emerald-500 animate-pulse" size={24} />
+          </div>
+        </div>
+        <div className="text-center">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.4em] mb-2">Synchronizing Neural Grid</p>
+          <div className="flex gap-1 justify-center">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="w-1 h-1 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.1}s` }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const statCards = [
-    {
-      label: 'Total Identities',
-      value: analyticsData?.totalUsers.toLocaleString() || '0',
-      trend: '+12.5%',
-      trendUp: true,
-      icon: <Users className="h-5 w-5" />,
-      color: 'emerald',
-    },
-    {
-      label: 'Active Signal Nodes',
-      value: analyticsData?.activeUsers.toLocaleString() || '0',
-      trend: '+8.3%',
-      trendUp: true,
-      icon: <Activity className="h-5 w-5" />,
-      color: 'blue',
-    },
-    {
-      label: 'Revenue Protocol',
-      value: `$${analyticsData?.totalRevenue.toLocaleString() || '0'}`,
-      trend: '+15.2%',
-      trendUp: true,
-      icon: <DollarSign className="h-5 w-5" />,
-      color: 'amber',
-    },
-    {
-      label: 'Stream Pulses',
-      value: analyticsData?.totalPlays.toLocaleString() || '0',
-      trend: '+22.1%',
-      trendUp: true,
-      icon: <Headphones className="h-5 w-5" />,
-      color: 'indigo',
-    },
-    {
-      label: 'Avg Session Latency',
-      value: `${analyticsData?.avgSessionMin || 0}m`,
-      trend: '+0.0%',
-      trendUp: true,
-      icon: <Clock className="h-5 w-5" />,
-      color: 'rose',
-    },
+    { label: 'Network Identities', value: analyticsData?.totalUsers.toLocaleString() || '0', trend: '+12.5%', color: 'emerald', icon: Users },
+    { label: 'Active Signal Nodes', value: analyticsData?.activeUsers.toLocaleString() || '0', trend: '+8.3%', color: 'blue', icon: Activity },
+    { label: 'Revenue Credits', value: `$${analyticsData?.totalRevenue.toLocaleString() || '0'}`, trend: '+15.2%', color: 'amber', icon: DollarSign },
+    { label: 'Stream Pulses', value: analyticsData?.totalPlays.toLocaleString() || '0', trend: '+22.1%', color: 'indigo', icon: Headphones },
+    { label: 'Session Velocity', value: `${analyticsData?.avgSessionMin || 0}m`, trend: 'STABLE', color: 'rose', icon: Clock },
   ];
 
   const colorMap: Record<string, any> = {
-    emerald: { bg: 'bg-emerald-500/10', icon: 'text-emerald-500', border: 'border-emerald-500/20' },
-    blue:    { bg: 'bg-blue-500/10',    icon: 'text-blue-500',    border: 'border-blue-500/20' },
-    amber:   { bg: 'bg-amber-500/10',   icon: 'text-amber-500',   border: 'border-amber-500/20' },
-    indigo:  { bg: 'bg-indigo-500/10',  icon: 'text-indigo-500',  border: 'border-indigo-500/20' },
-    rose:    { bg: 'bg-rose-500/10',    icon: 'text-rose-500',    border: 'border-rose-500/20' },
+    emerald: { bg: 'bg-emerald-500/5', icon: 'text-emerald-500', border: 'border-emerald-500/10' },
+    blue:    { bg: 'bg-blue-500/5',    icon: 'text-blue-500',    border: 'border-blue-500/10' },
+    amber:   { bg: 'bg-amber-500/5',   icon: 'text-amber-500',   border: 'border-amber-500/10' },
+    indigo:  { bg: 'bg-indigo-500/5',  icon: 'text-indigo-500',  border: 'border-indigo-500/10' },
+    rose:    { bg: 'bg-rose-500/5',    icon: 'text-rose-500',    border: 'border-rose-500/10' },
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-       <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
-          <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] italic">Synchronizing Data Grid...</p>
-       </div>
-    </div>
-  );
-
   return (
-    <div className="max-w-7xl mx-auto pb-24 space-y-8 px-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="space-y-12 pb-24">
+      {/* Intelligence Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
-           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Intelligence Grid Protocol</p>
-           <h1 className={titleClass}>
-             Platform Analytics
-           </h1>
-           <p className="text-xs text-zinc-500 mt-1 uppercase font-bold tracking-widest">
-             Monitoring global platform metrics and system performance.
-           </p>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Signal Intelligence</h1>
+            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Neural Link Active</span>
+            </div>
+          </div>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1">Comprehensive telemetry and behavior analysis for global infrastructure.</p>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex bg-zinc-900 border border-white/5 rounded p-1 gap-1">
+          <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-1 flex gap-1 shadow-inner">
             {['week', 'month', 'year'].map((range) => (
               <button
                 key={range}
                 onClick={() => setActiveRange(range)}
-                className={`px-4 py-1.5 rounded text-[10px] font-black uppercase tracking-widest italic transition-all ${
+                className={`px-6 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all duration-300 ${
                   activeRange === range
-                    ? 'bg-zinc-800 text-emerald-500 shadow-lg shadow-black/40'
+                    ? 'bg-white/10 text-white shadow-xl'
                     : 'text-zinc-600 hover:text-zinc-400'
                 }`}
               >
@@ -167,61 +120,62 @@ const Analytics: React.FC = () => {
               </button>
             ))}
           </div>
-          <button className="flex items-center gap-2 px-6 py-2.5 bg-white text-black rounded text-[10px] font-black uppercase tracking-widest hover:bg-emerald-400 transition-all italic shadow-xl">
-            <Download className="h-4 w-4" />
+          <button className="flex items-center gap-3 px-8 py-3 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-emerald-400 transition-all shadow-xl shadow-white/5">
+            <Download size={16} />
             Export Protocol
           </button>
         </div>
       </div>
 
-      {/* Stat Cards */}
+      {/* Metric Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
         {statCards.map((card, index) => {
           const c = colorMap[card.color];
+          const Icon = card.icon;
           return (
             <motion.div
               key={card.label}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className={cardClass + " p-6 hover:border-emerald-500/20 transition-all"}
+              transition={{ delay: index * 0.05, duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+              className="premium-card group hover:border-emerald-500/20 transition-all cursor-default"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-10 h-10 rounded flex items-center justify-center ${c.bg} border ${c.border}`}>
-                  {React.cloneElement(card.icon as React.ReactElement, { className: `w-5 h-5 ${c.icon}` })}
+              <div className="flex items-center justify-between mb-8">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${c.bg} border ${c.border} transition-all group-hover:scale-110`}>
+                  <Icon size={20} className={c.icon} />
                 </div>
-                <span className={`text-[10px] font-black italic ${card.trendUp ? 'text-emerald-500' : 'text-rose-500'}`}>
+                <div className={`text-[9px] font-bold px-2 py-1 rounded bg-black/40 border border-white/5 ${card.trend.includes('+') ? 'text-emerald-500' : 'text-zinc-500'} tracking-widest`}>
                   {card.trend}
-                </span>
+                </div>
               </div>
-              <p className={labelClass}>{card.label}</p>
-              <p className="text-2xl font-black text-white italic uppercase tracking-tighter tabular-nums">{card.value}</p>
+              <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest mb-1.5">{card.label}</p>
+              <p className="text-2xl font-bold text-white tracking-tighter tabular-nums leading-none">{card.value}</p>
             </motion.div>
           );
         })}
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Growth Chart */}
-        <div className={cardClass + " lg:col-span-2 p-8"}>
-          <div className="flex items-center justify-between mb-8">
+      {/* Primary Analytics Layers */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        {/* Signal Propagation Matrix */}
+        <div className="premium-card lg:col-span-2 !p-0 overflow-hidden flex flex-col border-white/5">
+          <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
             <div>
-               <p className={labelClass}>Transmission Trends</p>
-               <h3 className="text-sm font-black text-white uppercase italic tracking-widest">Growth Analytics</h3>
+              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Signal Propagation Matrix</h3>
+              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Growth trajectories and transmission velocity</p>
             </div>
-            <div className="flex bg-zinc-950 border border-white/5 rounded p-1 gap-1">
+            <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1">
               {[
-                { key: 'users', label: 'Nodes' },
-                { key: 'revenue', label: 'Credits' },
-                { key: 'plays', label: 'Pulses' },
+                { key: 'users', label: 'NODES' },
+                { key: 'revenue', label: 'CREDITS' },
+                { key: 'plays', label: 'PULSES' },
               ].map((m) => (
                 <button
                   key={m.key}
                   onClick={() => setSelectedMetric(m.key)}
-                  className={`px-4 py-1.5 rounded text-[9px] font-black uppercase tracking-widest italic transition-all ${
+                  className={`px-5 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all ${
                     selectedMetric === m.key
-                      ? 'bg-zinc-900 text-emerald-500'
+                      ? 'bg-white/10 text-white shadow-lg'
                       : 'text-zinc-600 hover:text-zinc-400'
                   }`}
                 >
@@ -231,43 +185,55 @@ const Analytics: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-end gap-4 h-64 mt-12">
+          <div className="p-10 h-80 flex items-end gap-6 relative group">
+            {/* Visual Grid Lines */}
+            <div className="absolute inset-x-10 top-10 bottom-24 flex flex-col justify-between pointer-events-none">
+               {[1, 2, 3, 4].map(i => <div key={i} className="w-full h-px bg-white/[0.02]" />)}
+            </div>
+
             {(analyticsData?.monthlyGrowth || []).map((d: any, i: number) => {
               const val = selectedMetric === 'users' ? d.users : selectedMetric === 'revenue' ? d.revenue : d.plays;
-              const heightPct = maxBarValue > 0 ? (val / maxBarValue) * 100 : 0;
+              const maxVal = Math.max(...analyticsData.monthlyGrowth.map((x: any) => selectedMetric === 'users' ? x.users : selectedMetric === 'revenue' ? x.revenue : x.plays));
+              const heightPct = maxVal > 0 ? (val / maxVal) * 100 : 0;
               return (
-                <div key={d.month} className="flex-1 flex flex-col items-center gap-3 group relative">
-                  <div className="absolute -top-8 text-[9px] font-black text-emerald-500 opacity-0 group-hover:opacity-100 transition-all uppercase tracking-widest">
+                <div key={d.month} className="flex-1 flex flex-col items-center gap-4 group/bar relative">
+                  <div className="absolute -top-10 px-2 py-1 rounded bg-emerald-500 text-black text-[9px] font-black opacity-0 group-hover/bar:opacity-100 transition-all translate-y-2 group-hover/bar:translate-y-0 shadow-xl shadow-emerald-500/20">
                     {val.toLocaleString()}
                   </div>
-                  <div className="w-full flex justify-center bg-white/[0.02] rounded-t-lg relative overflow-hidden" style={{ height: '200px' }}>
+                  <div className="w-full h-full flex flex-col justify-end bg-white/[0.01] rounded-2xl p-1 relative">
                     <motion.div
                       initial={{ height: 0 }}
                       animate={{ height: `${heightPct}%` }}
-                      transition={{ delay: i * 0.05, duration: 0.8, ease: "easeOut" }}
-                      className="w-full max-w-[24px] bg-gradient-to-t from-emerald-500/20 to-emerald-500 rounded-t shadow-[0_0_20px_rgba(16,185,129,0.3)] mt-auto"
-                    />
+                      transition={{ delay: i * 0.05, duration: 1, ease: [0.23, 1, 0.32, 1] }}
+                      className="w-full bg-gradient-to-t from-emerald-500/5 via-emerald-500/20 to-emerald-500 rounded-xl relative overflow-hidden group/shine shadow-[0_0_30px_rgba(16,185,129,0.1)]"
+                    >
+                       <div className="absolute inset-0 bg-white/20 -translate-y-full group-hover/shine:translate-y-full transition-transform duration-1000" />
+                    </motion.div>
                   </div>
-                  <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest italic">{d.month}</span>
+                  <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest tabular-nums">{d.month}</span>
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* Genre Breakdown */}
-        <div className={cardClass + " p-8"}>
-          <div className="flex items-center justify-between mb-8">
+        {/* Semantic Distribution */}
+        <div className="premium-card !p-0 overflow-hidden flex flex-col border-white/5">
+          <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
             <div>
-               <p className={labelClass}>Signal Distribution</p>
-               <h3 className="text-sm font-black text-white uppercase italic tracking-widest">Genre Analytics</h3>
+              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Semantic Distribution</h3>
+              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Asset categorization and metadata density</p>
             </div>
-            <PieChart className="h-4 w-4 text-zinc-700" />
+            <Target size={16} className="text-zinc-700" />
           </div>
 
-          <div className="flex justify-center mb-10 mt-6">
-            <div className="relative w-44 h-44">
-              <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+          <div className="p-10 flex flex-col items-center flex-1">
+            <div className="relative w-56 h-56 group mb-12">
+               {/* Orbital Rings */}
+               <div className="absolute inset-0 border border-white/5 rounded-full scale-110" />
+               <div className="absolute inset-0 border border-white/[0.02] rounded-full scale-[1.25]" />
+               
+               <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90 drop-shadow-[0_0_20px_rgba(16,185,129,0.1)]">
                 {(() => {
                   let offset = 0;
                   const colors = ['#10b981', '#3b82f6', '#f59e0b', '#6366f1', '#f43f5e', '#06b6d4', '#9ca3af'];
@@ -281,11 +247,10 @@ const Analytics: React.FC = () => {
                         r="15.9155"
                         fill="none"
                         stroke={colors[i % colors.length]}
-                        strokeWidth="3"
+                        strokeWidth="3.5"
                         strokeDasharray={`${dash} ${100 - dash}`}
                         strokeDashoffset={-offset}
-                        className="transition-all duration-1000 ease-out"
-                        style={{ opacity: 0.8 }}
+                        className="transition-all duration-1000 ease-in-out opacity-80 group-hover:opacity-100 group-hover:stroke-[4]"
                       />
                     );
                     offset += dash;
@@ -294,160 +259,172 @@ const Analytics: React.FC = () => {
                 })()}
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-2xl font-black text-white uppercase italic leading-none">
+                <p className="text-3xl font-bold text-white tracking-tighter leading-none">
                   {analyticsData.topGenres.reduce((s: number, g: any) => s + g.count, 0).toLocaleString()}
                 </p>
-                <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest italic mt-1">Units</p>
+                <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mt-2">Analyzed Units</p>
               </div>
             </div>
-          </div>
 
-          <div className="space-y-3">
-            {(analyticsData?.topGenres || []).map((genre, i) => {
-               const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-amber-500', 'bg-indigo-500', 'bg-rose-500', 'bg-cyan-500', 'bg-zinc-500'];
-               return (
-                <div key={genre.name} className="flex items-center gap-4 group cursor-pointer">
-                  <div className={`w-2 h-2 rounded-full ${colors[i % colors.length]} group-hover:scale-125 transition-transform`} />
-                  <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic flex-1 truncate">{genre.name}</span>
-                  <span className="text-[10px] font-black text-zinc-400 italic w-8 text-right">{genre.percentage}%</span>
-                  <span className="text-[10px] font-black text-white italic w-12 text-right">
-                    {genre.count.toLocaleString()}
-                  </span>
-                </div>
-              );
-            })}
+            <div className="w-full space-y-4 px-4">
+              {(analyticsData?.topGenres || []).map((genre, i) => {
+                const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-amber-500', 'bg-indigo-500', 'bg-rose-500', 'bg-cyan-500', 'bg-zinc-500'];
+                return (
+                  <div key={genre.name} className="flex items-center gap-4 group cursor-pointer hover:translate-x-1 transition-all">
+                    <div className={`w-2 h-2 rounded-full ${colors[i % colors.length]} shadow-[0_0_8px_currentColor] transition-transform group-hover:scale-150`} />
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest group-hover:text-white transition-colors flex-1">{genre.name}</span>
+                    <div className="text-right">
+                       <span className="text-[10px] font-bold text-white tabular-nums tracking-tighter">{genre.count.toLocaleString()}</span>
+                       <span className="text-[9px] font-bold text-zinc-700 ml-2 uppercase">{genre.percentage}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Middle Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Top Tracks */}
-        <div className={cardClass + " p-8"}>
-          <div className="flex items-center justify-between mb-8">
+      {/* Secondary Operational Layers */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        {/* High-Impact Signal Source */}
+        <div className="premium-card !p-0 overflow-hidden flex flex-col border-white/5 shadow-2xl">
+          <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
             <div>
-               <p className={labelClass}>Transmission Leaders</p>
-               <h3 className="text-sm font-black text-white uppercase italic tracking-widest">High Priority Tracks</h3>
+              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">High-Impact Asset Analysis</h3>
+              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Peak transmission leaders and engagement spikes</p>
             </div>
-            <button className="text-[10px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest transition-all flex items-center gap-1.5 italic">
-              Full Registry <ChevronRight className="h-3.5 w-3.5" />
-            </button>
+            <div className="flex items-center gap-3">
+               <button className="text-[9px] font-bold text-emerald-500 hover:text-emerald-400 uppercase tracking-widest transition-all flex items-center gap-2">
+                 REGISTRY SPECTRUM <ChevronRight size={14} />
+               </button>
+            </div>
           </div>
-          <div className="space-y-2">
+          <div className="p-8 space-y-4">
             {(analyticsData?.topTracks || []).map((track, i) => (
               <div
                 key={track.title}
-                className="flex items-center gap-4 p-4 rounded bg-zinc-950 border border-white/[0.04] hover:border-emerald-500/20 transition-all group"
+                className="flex items-center gap-5 p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-emerald-500/30 transition-all group cursor-pointer"
               >
-                <span className="text-xs font-black text-zinc-800 w-5 italic">{i + 1}</span>
-                <div className="w-10 h-10 rounded bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform shadow-lg shadow-emerald-500/10">
-                  <Music2 className="h-5 w-5 text-black" />
+                <span className="text-[10px] font-bold text-zinc-800 w-4 tabular-nums">0{i + 1}</span>
+                <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center relative overflow-hidden group-hover:border-emerald-500/20 transition-all">
+                  <div className="absolute inset-0 bg-emerald-500/5 group-hover:bg-emerald-500/10" />
+                  <Music2 size={20} className="text-zinc-600 group-hover:text-emerald-500 transition-colors" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-black text-white uppercase tracking-tight truncate italic">{track.title}</p>
-                  <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-0.5">{track.artist}</p>
+                  <p className="text-sm font-bold text-zinc-200 group-hover:text-white transition-colors truncate tracking-tight">{track.title}</p>
+                  <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-1">{track.artist}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-black text-white italic tabular-nums">
-                    {track.plays >= 1000000 ? `${(track.plays / 1000000).toFixed(1)}M` : `${(track.plays / 1000).toFixed(1)}K`}
-                  </p>
-                  <span className={`text-[9px] font-black uppercase tracking-widest italic ${(track.trend || 0) > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                    {(track.trend || 0) > 0 ? '+' : ''}{track.trend || 0}%
+                  <div className="flex items-center gap-2 justify-end mb-1">
+                    <p className="text-sm font-bold text-white tracking-tighter tabular-nums">
+                      {track.plays >= 1000000 ? `${(track.plays / 1000000).toFixed(1)}M` : `${(track.plays / 1000).toFixed(1)}K`}
+                    </p>
+                  </div>
+                  <div className={`text-[9px] font-bold uppercase tracking-[0.2em] px-2 py-0.5 rounded bg-black/40 border border-white/5 ${(track.trend || 0) > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                    {(track.trend || 0) > 0 ? 'GAINING' : 'STABLE'}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="p-6 bg-[#0a0a0a] border-t border-white/5 text-center">
+             <button className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest hover:text-white transition-all">Analyze Global Performance Spectrum</button>
+          </div>
+        </div>
+
+        {/* Live Operational Stream */}
+        <div className="premium-card !p-0 overflow-hidden flex flex-col border-white/5 shadow-2xl">
+          <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
+            <div className="flex items-center gap-6">
+              <div>
+                <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Live Operational Stream</h3>
+                <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Real-time neural sync and system telemetry</p>
+              </div>
+              <div className="flex items-center gap-2 text-[9px] font-bold text-emerald-500 bg-emerald-500/5 px-4 py-1.5 rounded-full border border-emerald-500/10 uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
+                SYNC ACTIVE
+              </div>
+            </div>
+            <MoreHorizontal size={18} className="text-zinc-700 cursor-pointer" />
+          </div>
+          <div className="p-8 space-y-4">
+            {(analyticsData?.recentActivity || []).map((activity, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-5 p-5 rounded-2xl bg-white/[0.01] border border-white/5 hover:border-blue-500/20 transition-all group cursor-default"
+              >
+                <div className="p-3 rounded-xl bg-zinc-900 border border-white/5 group-hover:scale-110 transition-transform">
+                  {getActivityIcon(activity.type)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-zinc-300 group-hover:text-white transition-colors leading-relaxed tracking-tight">{activity.description}</p>
+                  <div className="flex items-center gap-3 mt-1.5">
+                     <Clock size={12} className="text-zinc-700" />
+                     <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">{activity.time.toUpperCase()}</p>
+                  </div>
+                </div>
+                <div className="px-4 py-2 bg-black/40 rounded-xl border border-white/5">
+                  <span className="text-[11px] font-bold text-emerald-500 tabular-nums tracking-tighter">
+                    {activity.value}
                   </span>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Live Activity Feed */}
-        <div className={cardClass + " p-8"}>
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-              <div>
-                 <p className={labelClass}>Real-time Feed</p>
-                 <h3 className="text-sm font-black text-white uppercase italic tracking-widest">Live Activity</h3>
-              </div>
-              <div className="flex items-center gap-2 text-[9px] font-black text-emerald-500 bg-emerald-500/5 px-3 py-1 rounded border border-emerald-500/10 uppercase tracking-[0.2em] italic">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                Live Sync
-              </div>
-            </div>
-            <button className="p-2 hover:bg-white/5 rounded transition-colors text-zinc-700">
-              <MoreHorizontal className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="space-y-2">
-            {(analyticsData?.recentActivity || []).map((activity, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-4 p-4 rounded bg-zinc-950 border border-white/[0.04] hover:border-blue-500/20 transition-all group"
-              >
-                <div className={`p-2.5 rounded bg-zinc-900 border border-white/5`}>
-                  {getActivityIcon(activity.type)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-black text-white uppercase tracking-tight truncate italic">{activity.description}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                     <Clock className="w-3 h-3 text-zinc-700" />
-                     <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">{activity.time}</p>
-                  </div>
-                </div>
-                <span className="text-[11px] font-black text-emerald-500 italic uppercase tracking-widest tabular-nums">
-                  {activity.value}
-                </span>
-              </div>
-            ))}
+          <div className="p-6 bg-[#0a0a0a] border-t border-white/5 text-center">
+             <button className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest hover:text-white transition-all">Intercept Entire Telemetry Stream</button>
           </div>
         </div>
       </div>
 
-      {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Regional Distribution */}
-        <div className={cardClass + " lg:col-span-2 p-8"}>
-          <div className="flex items-center justify-between mb-8">
+      {/* Global Distribution & Hardware Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        {/* Geographic Signal Strength */}
+        <div className="premium-card lg:col-span-2 !p-0 overflow-hidden border-white/5">
+          <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
             <div>
-               <p className={labelClass}>Global Reach</p>
-               <h3 className="text-sm font-black text-white uppercase italic tracking-widest">Regional Distribution</h3>
+              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Geographic Signal Strength</h3>
+              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Regional node density and credit throughput</p>
             </div>
-            <Globe className="h-4 w-4 text-zinc-700" />
+            <Globe size={18} className="text-zinc-700" />
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] italic border-b border-white/[0.04]">
-                  <th className="text-left pb-4 pl-4">Region</th>
-                  <th className="text-right pb-4">Users</th>
-                  <th className="text-right pb-4">Share</th>
-                  <th className="text-right pb-4 pr-4">Credits</th>
-                  <th className="pb-4 pr-4 w-40">Load</th>
+                <tr className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest border-b border-white/5 bg-black/20">
+                  <th className="text-left py-6 px-8">Sovereign Region</th>
+                  <th className="text-right py-6 px-8">Active Nodes</th>
+                  <th className="text-right py-6 px-8">Net Share</th>
+                  <th className="text-right py-6 px-8">Credits</th>
+                  <th className="py-6 px-8 w-48 text-left">System Load</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.02]">
+              <tbody className="divide-y divide-white/5">
                  {(analyticsData?.regions || []).map((region) => (
                   <tr key={region.name} className="hover:bg-white/[0.01] transition-colors group">
-                    <td className="py-4 pl-4">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl filter grayscale group-hover:grayscale-0 transition-all">{region.flag}</span>
-                        <span className="text-[11px] font-black text-white uppercase italic tracking-widest">{region.name}</span>
+                    <td className="py-5 px-8">
+                      <div className="flex items-center gap-4">
+                        <span className="text-xl filter grayscale group-hover:grayscale-0 transition-all duration-500">{region.flag}</span>
+                        <span className="text-sm font-bold text-zinc-300 group-hover:text-white transition-colors tracking-tight uppercase">{region.name}</span>
                       </div>
                     </td>
-                    <td className="py-4 text-right text-[11px] font-black text-zinc-500 tabular-nums">
+                    <td className="py-5 px-8 text-right text-[11px] font-bold text-zinc-500 tabular-nums">
                       {region.users.toLocaleString()}
                     </td>
-                    <td className="py-4 text-right text-[11px] font-black text-emerald-500 tabular-nums italic">
+                    <td className="py-5 px-8 text-right text-[11px] font-bold text-emerald-500 tabular-nums tracking-widest">
                       {region.percentage}%
                     </td>
-                    <td className="py-4 text-right text-[11px] font-black text-zinc-400 tabular-nums pr-4 italic">
+                    <td className="py-5 px-8 text-right text-[11px] font-bold text-zinc-400 tabular-nums">
                       ${region.revenue.toLocaleString()}
                     </td>
-                    <td className="py-4 pr-4">
+                    <td className="py-5 px-8">
                       <div className="w-full bg-zinc-900 border border-white/5 rounded-full h-1.5 overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${region.percentage}%` }}
-                          className="bg-emerald-500 h-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="bg-emerald-500 h-full shadow-[0_0_10px_rgba(16,185,129,0.3)]"
                         />
                       </div>
                     </td>
@@ -458,34 +435,34 @@ const Analytics: React.FC = () => {
           </div>
         </div>
 
-        {/* Devices + Quick Actions */}
-        <div className="space-y-8">
-          {/* Devices */}
-          <div className={cardClass + " p-8"}>
-            <div className="flex items-center justify-between mb-8">
+        {/* Neural Node Grid */}
+        <div className="space-y-10">
+          <div className="premium-card space-y-10 border-white/5">
+            <div className="flex items-center justify-between">
                <div>
-                  <p className={labelClass}>Node Type</p>
-                  <h3 className="text-sm font-black text-white uppercase italic tracking-widest">Device Grid</h3>
+                  <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Neural Node Grid</h3>
+                  <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Hardware profile and connection medium</p>
                </div>
-               <LayoutGrid className="h-4 w-4 text-zinc-700" />
+               <Cpu size={18} className="text-zinc-700" />
             </div>
-            <div className="space-y-6">
+            <div className="space-y-8">
               {(analyticsData?.devices || []).map((device) => (
                 <div key={device.name} className="group">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="p-2.5 bg-zinc-950 border border-white/5 rounded group-hover:border-emerald-500/30 transition-colors">
-                      {React.cloneElement(getDeviceIcon(device.icon) as React.ReactElement, { className: "w-4 h-4 text-zinc-600" })}
+                  <div className="flex items-center gap-5 mb-4">
+                    <div className="p-3 bg-zinc-950 border border-white/5 rounded-2xl group-hover:border-emerald-500/30 transition-all group-hover:scale-110">
+                      {React.cloneElement(getDeviceIcon(device.icon) as React.ReactElement, { className: "text-zinc-600 group-hover:text-emerald-500 transition-colors" })}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">{device.name}</span>
-                        <span className="text-[10px] font-black text-white italic tabular-nums">{device.percentage}%</span>
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{device.name}</span>
+                        <span className="text-[10px] font-bold text-white tabular-nums tracking-tighter">{device.percentage}%</span>
                       </div>
-                      <div className="w-full bg-zinc-950 border border-white/5 rounded-full h-1.5 overflow-hidden">
+                      <div className="w-full bg-zinc-950 border border-white/5 rounded-full h-1.5 overflow-hidden p-0.5">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${device.percentage}%` }}
-                          className="bg-emerald-500 h-full"
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="bg-emerald-500 h-full rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)]"
                         />
                       </div>
                     </div>
@@ -495,30 +472,32 @@ const Analytics: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className={cardClass + " p-8"}>
-             <p className={labelClass}>System Operations</p>
-             <h3 className="text-sm font-black text-white uppercase italic tracking-widest mb-6">Executive Actions</h3>
-            <div className="space-y-3">
+          <div className="premium-card space-y-8 border-white/5">
+             <div>
+                <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">System Protocols</h3>
+                <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Executive operational shortcuts</p>
+             </div>
+            <div className="space-y-4">
               {[
-                { label: 'Export Dataset', desc: 'CSV, PDF Protocol', icon: <Download className="h-4 w-4" />, color: 'emerald' },
-                { label: 'Schedule Log', desc: 'Recurrent Sync', icon: <Calendar className="h-4 w-4" />, color: 'blue' },
-                { label: 'Custom HUD', desc: 'Reconfigure View', icon: <BarChart3 className="h-4 w-4" />, color: 'amber' },
+                { label: 'EXPORT DATASET', desc: 'CSV, Neural Protocol', icon: Download, color: 'emerald' },
+                { label: 'SCHEDULED LOG', desc: 'Recurrent Sync Engine', icon: Calendar, color: 'blue' },
+                { label: 'SYSTEM OVERRIDE', desc: 'Reconfigure Interface', icon: BarChart3, color: 'amber' },
               ].map((action) => {
                  const c = colorMap[action.color];
+                 const Icon = action.icon;
                  return (
                   <button
                     key={action.label}
-                    className="w-full flex items-center gap-4 p-4 rounded bg-zinc-950 border border-white/[0.04] hover:border-white/10 transition-all text-left group"
+                    className="w-full flex items-center gap-5 p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all text-left group"
                   >
-                    <div className={`p-2.5 rounded bg-zinc-900 border border-white/5 group-hover:${c.border} transition-colors`}>
-                      {React.cloneElement(action.icon as React.ReactElement, { className: `w-4 h-4 ${c.icon}` })}
+                    <div className={`p-3 rounded-xl bg-zinc-900 border border-white/5 transition-all group-hover:scale-110`}>
+                      <Icon size={18} className={`${c.icon}`} />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-[10px] font-black text-white uppercase tracking-widest italic">{action.label}</p>
-                      <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mt-0.5">{action.desc}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-bold text-white uppercase tracking-widest">{action.label}</p>
+                      <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mt-1 truncate">{action.desc}</p>
                     </div>
-                    <ArrowUpRight className="h-4 w-4 text-zinc-800 group-hover:text-emerald-500 transition-colors" />
+                    <ArrowUpRight size={16} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                   </button>
                  );
               })}

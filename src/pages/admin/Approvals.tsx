@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Music2, Search, Filter, Play, Pause, CheckCircle, XCircle, Clock, Tag } from 'lucide-react';
+import { 
+  Music2, Search, Filter, Play, Pause, CheckCircle, XCircle, Clock, Tag,
+  ShieldCheck, Activity, Zap, Sparkles, ChevronRight, Headphones,
+  BarChart2, AlertCircle, CheckCircle2, User, ArrowLeft
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
 import { adminService } from '@/services/adminService';
@@ -92,6 +96,7 @@ export default function Approvals() {
   };
 
   const handleApproval = async (trackId: string, approved: boolean) => {
+    const loadingToast = toast.loading(approved ? 'Approving track...' : 'Rejecting track...');
     try {
       await adminService.moderateContent('songs', trackId, approved ? 'approve' : 'reject');
       setTracks(prev => prev.filter(t => t.id !== trackId));
@@ -99,9 +104,9 @@ export default function Approvals() {
         audioElements[trackId].pause();
         setCurrentlyPlaying(null);
       }
-      toast.success(`Track ${approved ? 'approved' : 'rejected'}`);
+      toast.success(`Track ${approved ? 'approved' : 'rejected'} and indexed`, { id: loadingToast });
     } catch (error) {
-      toast.error(`Failed to ${approved ? 'approve' : 'reject'}`);
+      toast.error(`Failed to execute moderation protocol`, { id: loadingToast });
     }
   };
 
@@ -115,140 +120,186 @@ export default function Approvals() {
   const uniqueGenres = ['all', ...new Set(tracks.map(track => track.genre))];
 
   return (
-    <div className="space-y-8">
-      {/* Header & Filters */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div className="space-y-12 pb-20">
+      {/* Cinematic Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Content Approvals</h1>
-          <p className="text-zinc-500">Review and moderate pending tracks from artists.</p>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Content Moderation</h1>
+            <div className="flex items-center gap-2 px-3 py-1 bg-amber-500/5 border border-amber-500/10 rounded-full">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse" />
+              <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">{tracks.length} Pending</span>
+            </div>
+          </div>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1">Reviewing incoming media transmissions for quality and compliance.</p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+        <div className="flex items-center gap-4">
           <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 group-focus-within:text-emerald-500 transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-emerald-500 transition-colors" />
             <input
               type="text"
-              placeholder="Search submissions..."
+              placeholder="SEARCH REGISTRY..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="input-field pl-10 md:w-64"
+              className="input-field pl-12 md:w-72 !py-3 !text-[10px] font-bold tracking-widest uppercase"
             />
           </div>
           <div className="relative">
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600" />
             <select
               value={genreFilter}
               onChange={(e) => setGenreFilter(e.target.value)}
-              className="input-field appearance-none pr-10 cursor-pointer"
+              className="input-field appearance-none pl-12 pr-12 cursor-pointer !py-3 !text-[10px] font-bold tracking-widest uppercase"
             >
               {uniqueGenres.map(genre => (
                 <option key={genre} value={genre} className="bg-[#0a0a0a] text-white">
-                  {genre === 'all' ? 'All Genres' : genre}
+                  {genre === 'all' ? 'ALL CATEGORIES' : genre.toUpperCase()}
                 </option>
               ))}
             </select>
-            <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 pointer-events-none" />
+            <ChevronRight size={14} className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-zinc-600 pointer-events-none" />
           </div>
         </div>
       </div>
 
-      {/* Track List */}
-      <div className="space-y-4">
+      {/* Moderation Queue */}
+      <div className="space-y-6">
         {isLoading ? (
-          <div className="premium-card py-24 flex flex-col items-center justify-center text-center">
-            <Music2 className="h-10 w-10 text-emerald-500 animate-pulse mb-4" />
-            <p className="text-zinc-500 font-medium">Scanning for pending tracks...</p>
+          <div className="premium-card py-32 flex flex-col items-center justify-center text-center">
+            <Activity className="h-10 w-10 text-emerald-500 animate-pulse mb-6" />
+            <p className="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[10px]">Scanning high-frequency signal registry...</p>
           </div>
         ) : filteredTracks.length === 0 ? (
-          <div className="premium-card py-24 flex flex-col items-center justify-center text-center">
-            <CheckCircle className="h-10 w-10 text-zinc-800 mb-4" />
-            <p className="text-zinc-500 font-medium">Registry clear. No pending submissions.</p>
+          <div className="premium-card py-32 flex flex-col items-center justify-center text-center max-w-3xl mx-auto">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/5 flex items-center justify-center mb-6 border border-emerald-500/10">
+              <ShieldCheck className="h-8 w-8 text-emerald-500" />
+            </div>
+            <h3 className="text-white font-bold text-lg mb-2">Protocol Integrity Maintained</h3>
+            <p className="text-zinc-600 font-bold uppercase tracking-widest text-[10px]">No pending transmissions requiring administrative oversight.</p>
           </div>
         ) : (
           <AnimatePresence mode="popLayout">
-            {filteredTracks.map((track, index) => (
-              <motion.div
-                key={track.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ delay: index * 0.05 }}
-                className="premium-card premium-card-hover p-4 md:p-5"
-              >
-                <div className="flex flex-col md:flex-row items-center gap-6">
-                  {/* Visual & Playback */}
-                  <div className="relative group w-32 h-32 md:w-36 md:h-36 flex-shrink-0">
-                    <img
-                      src={track.cover_url || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop'}
-                      alt={track.title}
-                      className="w-full h-full object-cover rounded-xl border border-white/5"
-                    />
-                    <button
-                      onClick={() => handlePlayPause(track.id, track.audio_url)}
-                      className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 rounded-xl flex items-center justify-center transition-all duration-200"
-                    >
-                      {currentlyPlaying === track.id ? (
-                        <Pause className="h-10 w-10 text-white fill-white" />
-                      ) : (
-                        <Play className="h-10 w-10 text-white fill-white" />
-                      )}
-                    </button>
-                    {currentlyPlaying === track.id && (
-                      <div className="absolute top-2 right-2 flex gap-1">
-                        {[1, 2, 3].map(i => (
-                          <div key={i} className="w-0.5 h-3 bg-emerald-500 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Details */}
-                  <div className="flex-1 min-w-0 text-center md:text-left">
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-white tracking-tight mb-1">{track.title}</h3>
-                        <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
-                          <img
-                            src={track.artist.profile_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(track.artist.name)}&background=10b981&color=fff`}
-                            alt={track.artist.name}
-                            className="h-5 w-5 rounded-full border border-white/10"
-                          />
-                          <span className="text-sm font-medium text-emerald-400">{track.artist.name}</span>
+            <div className="grid grid-cols-1 gap-6">
+              {filteredTracks.map((track, index) => (
+                <motion.div
+                  key={track.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ delay: index * 0.03, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                  className="premium-card group !p-0 overflow-hidden hover:border-emerald-500/20 transition-all border-white/5"
+                >
+                  <div className="flex flex-col xl:flex-row">
+                    {/* Visual & Playback Control */}
+                    <div className="relative w-full xl:w-80 h-64 xl:h-auto bg-zinc-950 overflow-hidden flex-shrink-0">
+                      <img
+                        src={track.cover_url || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=600&fit=crop'}
+                        alt={track.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent opacity-60" />
+                      
+                      <button
+                        onClick={() => handlePlayPause(track.id, track.audio_url)}
+                        className="absolute inset-0 flex items-center justify-center group/play"
+                      >
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 transition-all duration-500 ${
+                          currentlyPlaying === track.id ? 'bg-emerald-500 text-black border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.4)]' : 'bg-white/10 text-white group-hover/play:scale-110 group-hover/play:bg-white/20'
+                        }`}>
+                          {currentlyPlaying === track.id ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
                         </div>
-                        <p className="text-sm text-zinc-500 max-w-2xl line-clamp-2">{track.description}</p>
-                      </div>
+                      </button>
 
-                      <div className="flex items-center justify-center gap-3">
-                        <button
-                          onClick={() => handleApproval(track.id, true)}
-                          className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-black font-bold rounded-xl hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/10"
-                        >
-                          <CheckCircle size={18} />
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleApproval(track.id, false)}
-                          className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/30 transition-all"
-                        >
-                          <XCircle size={18} />
-                          Reject
-                        </button>
-                      </div>
+                      {currentlyPlaying === track.id && (
+                        <div className="absolute bottom-6 left-6 right-6 flex items-end gap-[3px] h-8">
+                          {[...Array(24)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              animate={{ height: [4, Math.random() * 24 + 4, 4] }}
+                              transition={{ repeat: Infinity, duration: 0.5 + Math.random() * 0.5 }}
+                              className="flex-1 bg-emerald-500/60 rounded-full"
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
 
-                    <div className="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-4">
-                      <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full text-xs font-medium text-zinc-400">
-                        <Tag size={12} className="text-emerald-500" />
-                        {track.genre}
+                    {/* Content Intelligence */}
+                    <div className="flex-1 p-8 flex flex-col justify-between bg-[#080808]/50">
+                      <div className="space-y-6">
+                        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3">
+                              <h3 className="text-2xl font-bold text-white tracking-tight leading-none">{track.title}</h3>
+                              <span className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[9px] font-bold rounded uppercase tracking-widest">Hi-Fi Audio</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="relative">
+                                <img
+                                  src={track.artist.profile_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(track.artist.name)}&background=10b981&color=fff`}
+                                  alt={track.artist.name}
+                                  className="h-6 w-6 rounded-lg border border-white/10 object-cover"
+                                />
+                                <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-black rounded-full border border-white/10 flex items-center justify-center">
+                                  <CheckCircle2 size={8} className="text-emerald-500" />
+                                </div>
+                              </div>
+                              <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest group-hover:text-emerald-400 transition-colors cursor-pointer">{track.artist.name}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => handleApproval(track.id, true)}
+                              className="flex items-center gap-2 px-8 py-3 bg-emerald-500 text-black text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10"
+                            >
+                              <ShieldCheck size={16} />
+                              Confirm Asset
+                            </button>
+                            <button
+                              onClick={() => handleApproval(track.id, false)}
+                              className="flex items-center gap-2 px-8 py-3 bg-white/5 border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/30 transition-all"
+                            >
+                              <XCircle size={16} />
+                              Purge
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Lyric Transcription Intelligence</p>
+                          <p className="text-sm text-zinc-400 max-w-3xl leading-relaxed italic border-l-2 border-emerald-500/20 pl-4">{track.description}</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-xs font-medium text-zinc-600">
-                        <Clock size={12} />
-                        Submitted {formatDistanceToNow(new Date(track.created_at), { addSuffix: true })}
+
+                      <div className="mt-10 pt-6 border-t border-white/5 flex flex-wrap items-center justify-between gap-6">
+                        <div className="flex items-center gap-6">
+                          <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-lg border border-white/5">
+                            <Tag size={12} className="text-emerald-500" />
+                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{track.genre}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
+                            <Clock size={14} />
+                            <span>DEPLOYED {formatDistanceToNow(new Date(track.created_at), { addSuffix: true }).toUpperCase()}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                           <div className="flex -space-x-2">
+                              {[1, 2, 3].map(i => (
+                                <div key={i} className="w-6 h-6 rounded-lg bg-zinc-900 border border-[#080808] flex items-center justify-center text-[8px] font-bold text-zinc-600 uppercase">
+                                  AI
+                                </div>
+                              ))}
+                           </div>
+                           <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">Automated Scan Complete</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))}
+            </div>
           </AnimatePresence>
         )}
       </div>
