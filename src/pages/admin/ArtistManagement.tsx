@@ -8,61 +8,30 @@ import { useArtistContext } from '../../context/ArtistContext';
 import {
   CheckCircle, XCircle, Search, Filter, Plus, Eye, Pencil, Trash2,
   Users, UserCheck, UserX, Clock, MoreHorizontal, Music2, ChevronDown,
-  BadgeCheck, ShieldCheck, ShieldAlert
+  BadgeCheck, ShieldCheck, ShieldAlert, Target, Activity, Globe,
+  Cpu, ArrowUpRight, Layers, Database, Save, HardDrive, Info,
+  Zap, SlidersHorizontal, UserPlus, User
 } from 'lucide-react';
 
-// Types
-type ModalType = 'add' | 'edit' | 'delete' | null;
-
-// Animation variants
-const fadeIn = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 }
-};
-
-const modalVariants = {
-  initial: { scale: 0.95, y: 10, opacity: 0 },
-  animate: { scale: 1, y: 0, opacity: 1, transition: { duration: 0.2 } },
-  exit: { scale: 0.95, y: 10, opacity: 0, transition: { duration: 0.15 } }
-};
-
 // Status badge with tactical styling
-const card = 'bg-zinc-900 border border-white/[0.06] rounded-lg';
-const labelClass = "text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-2 italic";
-const headingClass = "text-xl font-black text-white tracking-tighter uppercase italic";
-
 const StatusBadge: React.FC<{ status?: string }> = ({ status }) => {
   const normalizedStatus = (status || 'pending').toLowerCase();
-  const styles: Record<string, string> = {
-    active: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
-    pending: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
-    inactive: 'bg-rose-500/10 text-rose-400 border border-rose-500/20',
+  const styles: Record<string, { bg: string; text: string; border: string; shadow: string; label: string }> = {
+    active: { bg: 'bg-emerald-500/5', text: 'text-emerald-500', border: 'border-emerald-500/10', shadow: 'shadow-[0_0_8px_#10b981]', label: 'ACTIVE_NODE' },
+    pending: { bg: 'bg-amber-500/5', text: 'text-amber-500', border: 'border-amber-500/10', shadow: 'shadow-[0_0_8px_#f59e0b]', label: 'PENDING_SYNC' },
+    inactive: { bg: 'bg-rose-500/5', text: 'text-rose-500', border: 'border-rose-500/10', shadow: 'shadow-[0_0_8px_#f43f5e]', label: 'INACTIVE' },
+    suspended: { bg: 'bg-rose-500/10', text: 'text-rose-500', border: 'border-rose-500/20', shadow: 'shadow-[0_0_10px_rgba(244,63,94,0.3)]', label: 'QUARANTINED' },
   };
 
+  const style = styles[normalizedStatus] || { bg: 'bg-zinc-800/20', text: 'text-zinc-500', border: 'border-white/5', shadow: '', label: 'UNKNOWN' };
+
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest italic ${styles[normalizedStatus] || 'bg-zinc-800 text-zinc-500 border border-white/10'}`}>
-      {status || 'pending'}
-    </span>
+    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border ${style.bg} ${style.text} ${style.border}`}>
+      <div className={`w-1.5 h-1.5 rounded-full ${style.text.replace('text-', 'bg-')} ${style.shadow}`} />
+      <span className="text-[9px] font-black uppercase tracking-widest italic">{style.label}</span>
+    </div>
   );
 };
-
-const ModalContainer: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <motion.div
-    className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4"
-    {...fadeIn}
-  >
-    <motion.div
-      className={`${card} w-full max-w-md shadow-2xl overflow-hidden border-white/10`}
-      variants={modalVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-    >
-      {children}
-    </motion.div>
-  </motion.div>
-);
 
 const ArtistRow = React.memo(({
   artist,
@@ -108,107 +77,138 @@ const ArtistRow = React.memo(({
   const initials = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
   return (
-    <tr className="hover:bg-white/[0.02] transition-colors group">
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center gap-4">
-          <div className="flex-shrink-0 h-10 w-10 rounded overflow-hidden bg-zinc-800 flex items-center justify-center border border-white/10 group-hover:border-emerald-500/30 transition-all">
+    <motion.tr 
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="hover:bg-emerald-500/[0.01] transition-all group"
+    >
+      <td className="px-10 py-6">
+        <div className="flex items-center gap-6">
+          <div className="w-14 h-14 rounded-2xl bg-zinc-950 border border-white/5 overflow-hidden flex items-center justify-center shadow-inner relative group-hover:scale-110 transition-all duration-500">
             {avatarSrc ? (
-              <img className="h-full w-full object-cover" src={avatarSrc} alt={displayName} loading="lazy" />
+              <img className="h-full w-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" src={avatarSrc} alt={displayName} loading="lazy" />
             ) : (
-              <span className="text-[10px] font-black text-zinc-600">{initials}</span>
+              <span className="text-[10px] font-black text-zinc-700 italic">{initials}</span>
             )}
+            <div className="absolute inset-0 bg-black/20" />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-black text-white italic uppercase tracking-tight truncate">{displayName}</p>
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-sm font-bold text-white uppercase tracking-tight italic group-hover:text-emerald-400 transition-colors leading-none">{displayName}</p>
               {artist.isVerified && (
-                <BadgeCheck className="h-3.5 w-3.5 text-emerald-500" />
+                <BadgeCheck className="h-4 w-4 text-emerald-500 shadow-[0_0_8px_#10b981]" />
               )}
             </div>
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest truncate">{displayEmail}</p>
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest truncate italic">{displayEmail.toUpperCase()}</p>
           </div>
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex flex-wrap gap-1.5">
-          {displayGenres.length > 0 ? displayGenres.slice(0, 1).map((g, i) => (
-            <span key={i} className="text-[9px] font-black uppercase tracking-widest bg-emerald-500/5 text-emerald-500/70 px-2 py-0.5 rounded border border-emerald-500/10 italic">
-              {g}
-            </span>
+      <td className="px-10 py-6">
+        <div className="flex flex-wrap gap-2">
+          {displayGenres.length > 0 ? displayGenres.slice(0, 2).map((g, i) => (
+            <div key={i} className="px-3 py-1 bg-zinc-950 border border-white/5 rounded-lg shadow-inner">
+              <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 italic">
+                {g.toUpperCase()}
+              </span>
+            </div>
           )) : (
-            <span className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest">NO DATA</span>
+            <span className="text-[9px] font-black text-zinc-800 uppercase tracking-widest italic">NO_SECTOR_DATA</span>
           )}
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-10 py-6">
         <StatusBadge status={displayStatus} />
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-        {displayDate}
+      <td className="px-10 py-6">
+        <div className="flex items-center gap-2.5">
+           <Clock size={12} className="text-zinc-700" />
+           <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest italic tabular-nums">{displayDate.toUpperCase()}</span>
+        </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-right">
+      <td className="px-10 py-6 text-right">
         {displayStatus === 'pending' && onApprove && onReject ? (
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-3">
             <button
               onClick={onApprove}
-              className="px-3 py-1.5 bg-emerald-500 text-black rounded text-[10px] font-black uppercase tracking-widest italic hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/10"
+              className="h-10 px-5 bg-emerald-500 text-black rounded-xl text-[9px] font-black uppercase tracking-widest italic hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/10 flex items-center gap-2"
             >
-              APPROVE
+              <CheckCircle size={14} /> APPROVE
             </button>
             <button
               onClick={onReject}
-              className="px-3 py-1.5 bg-zinc-800 text-zinc-400 rounded text-[10px] font-black uppercase tracking-widest italic hover:bg-zinc-700 transition-colors border border-white/5"
+              className="h-10 px-5 bg-zinc-950 text-zinc-400 rounded-xl text-[9px] font-black uppercase tracking-widest italic hover:text-white hover:bg-rose-500/10 hover:border-rose-500/20 transition-all border border-white/5 shadow-inner flex items-center gap-2"
             >
-              REJECT
+              <XCircle size={14} /> REJECT
             </button>
           </div>
         ) : (
-          <div className="relative">
-            <button
-              onClick={() => setShowActions(!showActions)}
-              className="p-2 rounded hover:bg-white/5 text-zinc-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </button>
-            {showActions && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowActions(false)} />
-                <div className="absolute right-0 top-10 z-20 w-48 bg-zinc-900 rounded border border-white/10 py-1 overflow-hidden shadow-2xl animate-in fade-in slide-in-from-top-1">
-                  <button onClick={() => { onView(); setShowActions(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest italic text-zinc-400 hover:bg-white/5 hover:text-emerald-400 transition-all">
-                    <Eye className="h-4 w-4" /> View Registry
-                  </button>
-                  <button onClick={() => { onEdit(); setShowActions(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest italic text-zinc-400 hover:bg-white/5 hover:text-emerald-400 transition-all">
-                    <Pencil className="h-4 w-4" /> Modify Profile
-                  </button>
-                  {onVerify && (
-                    <button
-                      onClick={() => { onVerify(!artist.isVerified); setShowActions(false); }}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest italic transition-all ${artist.isVerified ? 'text-amber-500 hover:bg-amber-500/10' : 'text-emerald-500 hover:bg-emerald-500/10'}`}
-                    >
-                      {artist.isVerified ? (
-                        <><ShieldAlert className="h-4 w-4" /> Revoke Verification</>
-                      ) : (
-                        <><ShieldCheck className="h-4 w-4" /> Authorize Verified</>
-                      )}
-                    </button>
-                  )}
-                  <div className="h-px bg-white/5 my-1" />
-                  <button onClick={() => { onDelete(); setShowActions(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest italic text-rose-500 hover:bg-rose-500/10 transition-all">
-                    <Trash2 className="h-4 w-4" /> Terminate Artist
-                  </button>
-                </div>
-              </>
-            )}
+          <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+             <button 
+                onClick={onView} 
+                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-white hover:bg-white/5 transition-all shadow-inner"
+                title="View Registry"
+             >
+               <Eye size={20} />
+             </button>
+             <button 
+                onClick={onEdit} 
+                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-white hover:bg-white/5 transition-all shadow-inner"
+                title="Modify Profile"
+             >
+               <Pencil size={20} />
+             </button>
+             <div className="relative">
+                <button 
+                  onClick={() => setShowActions(!showActions)} 
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${showActions ? 'bg-white/10 text-white border border-white/10' : 'bg-zinc-950 text-zinc-600 hover:text-white border border-white/5 shadow-inner'}`}
+                >
+                  <MoreHorizontal size={20} />
+                </button>
+                <AnimatePresence>
+                   {showActions && (
+                     <>
+                        <div className="fixed inset-0 z-10" onClick={() => setShowActions(false)} />
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.95, y: 15 }} 
+                          animate={{ opacity: 1, scale: 1, y: 0 }} 
+                          exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                          className="absolute right-0 top-14 z-20 w-64 bg-zinc-900 rounded-[2rem] border border-white/10 p-3 shadow-[0_30px_60px_rgba(0,0,0,0.9)] backdrop-blur-2xl"
+                        >
+                           <div className="px-6 py-4 border-b border-white/5 mb-2">
+                              <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Identity Protocol</p>
+                           </div>
+                           {onVerify && (
+                              <button
+                                onClick={() => { onVerify(!artist.isVerified); setShowActions(false); }}
+                                className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest italic transition-all group/opt ${artist.isVerified ? 'text-amber-500 hover:bg-amber-500/10' : 'text-emerald-500 hover:bg-emerald-500/10'}`}
+                              >
+                                {artist.isVerified ? (
+                                  <><ShieldAlert size={18} className="group-hover/opt:scale-110 transition-transform" /> Revoke Auth</>
+                                ) : (
+                                  <><ShieldCheck size={18} className="group-hover/opt:scale-110 transition-transform" /> Authorize Verif</>
+                                )}
+                              </button>
+                           )}
+                           <div className="h-px bg-white/5 my-2" />
+                           <button 
+                             onClick={() => { onDelete(); setShowActions(false); }} 
+                             className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest italic text-rose-500 hover:bg-rose-500/10 transition-all group/opt"
+                           >
+                             <Trash2 size={18} className="group-hover/opt:scale-110 transition-transform" /> Terminate Node
+                           </button>
+                        </motion.div>
+                     </>
+                   )}
+                </AnimatePresence>
+             </div>
           </div>
         )}
       </td>
-    </tr>
+    </motion.tr>
   );
 });
 
 const ArtistManagement: React.FC = () => {
-
-  // State management
   const [modalOpen, setModalOpen] = useState<ModalType>(null);
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [formData, setFormData] = useState<Partial<Artist>>({});
@@ -216,7 +216,6 @@ const ArtistManagement: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterVerified, setFilterVerified] = useState<boolean | 'all'>('all');
 
-  // Check for route-based filtering (e.g., /verified)
   useEffect(() => {
     const path = window.location.pathname;
     if (path.endsWith('/verified')) {
@@ -224,12 +223,10 @@ const ArtistManagement: React.FC = () => {
     }
   }, []);
 
-  // Get artists data with filters
   const { artists, loading } = useFetchArtists();
   const navigate = useNavigate();
   const { approveArtist, rejectArtist, verifyArtist } = useArtistContext();
 
-  // Filtered artists
   const filteredArtists = useMemo(() => {
     if (!artists) return [];
     return artists.filter((artist) => {
@@ -245,7 +242,6 @@ const ArtistManagement: React.FC = () => {
     });
   }, [artists, searchTerm, filterStatus, filterVerified]);
 
-  // Stats
   const stats = useMemo(() => {
     if (!artists) return { total: 0, active: 0, pending: 0, verified: 0 };
     return {
@@ -256,7 +252,6 @@ const ArtistManagement: React.FC = () => {
     };
   }, [artists]);
 
-  // Modal handlers
   const handleOpenModal = useCallback((type: ModalType, artist: Artist | null = null) => {
     setModalOpen(type);
     setSelectedArtist(artist);
@@ -273,22 +268,9 @@ const ArtistManagement: React.FC = () => {
     setFormData({});
   }, []);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  }, []);
-
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    if (modalOpen === 'add') {
-      toast.success('Artist added successfully!');
-    }
-    handleCloseModal();
-  }, [modalOpen, handleCloseModal]);
-
   const handleDeleteArtist = useCallback(() => {
     if (selectedArtist) {
-      toast.success('Artist deleted successfully!');
+      toast.success('Artist induction terminated');
       handleCloseModal();
     }
   }, [selectedArtist, handleCloseModal]);
@@ -329,7 +311,7 @@ const ArtistManagement: React.FC = () => {
       toast.error('Unable to reject artist (missing id).');
       return;
     }
-    const reason = prompt('Please provide a reason for rejection:') || 'Administrative decision';
+    const reason = prompt('Provide induction rejection protocol reason:') || 'Administrative decision';
     const success = await rejectArtist(artistId, reason);
     if (success) {
       window.location.reload();
@@ -345,139 +327,127 @@ const ArtistManagement: React.FC = () => {
     await verifyArtist(artistId, isVerified);
   }, [verifyArtist]);
 
-  const StatCard_ = ({
-    label, value, icon: Icon, color, bgColor
-  }: {
-    label: string, value: number, icon: any, color: string, bgColor: string
-  }) => (
-    <div className={`${card} p-6 group hover:border-emerald-500/20 transition-all shadow-xl`}>
-      <div className="flex items-center justify-between mb-4">
-        <div className={`w-10 h-10 rounded flex items-center justify-center ${bgColor}`}>
-          <Icon className={`h-5 w-5 ${color}`} />
-        </div>
-        <div className="w-1.5 h-1.5 rounded-full bg-zinc-800 group-hover:bg-emerald-500 transition-colors" />
-      </div>
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1.5 italic">{label}</p>
-      <p className="text-2xl font-black text-white tracking-tighter uppercase italic">{value.toLocaleString()}</p>
-    </div>
-  );
+  if (loading && (!artists || artists.length === 0)) return <Preloader isVisible={true} text="Auditing artist registry..." />;
 
   return (
-    <div className="max-w-6xl mx-auto pb-24 space-y-8">
-      <Toaster position="top-right" toastOptions={{ className: 'text-xs font-black uppercase italic tracking-widest bg-zinc-900 text-white border border-white/10' }} />
+    <div className="space-y-12 pb-24">
+      <Toaster position="top-right" toastOptions={{ className: 'text-[10px] font-black uppercase italic tracking-widest bg-zinc-900 text-white border border-white/10' }} />
 
-      {loading && <Preloader isVisible={loading} text="COLLECTING ARTIST INTEL..." />}
-
-      {/* Page Header */}
-      <div className={`${card} p-8 relative overflow-hidden`}>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-6">
-            <div className="w-14 h-14 bg-emerald-500 rounded flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <Users className="h-7 w-7 text-black" />
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">GLOBAL ACCESS</p>
-              <h1 className={headingClass}>
-                Artist Management
-              </h1>
-              <p className="text-sm text-zinc-500 mt-1 uppercase font-bold tracking-wider">
-                ORCHESTRATING PLATFORM-WIDE TALENT PERFORMANCE
-              </p>
+      {/* Cinematic Identity Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">Entity Grid</h1>
+            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest italic">Registry: Live</span>
             </div>
           </div>
-          <Link
-            to="/admin/artist-add"
-            className="px-8 py-3.5 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded hover:bg-emerald-400 transition-all shadow-xl shadow-white/5 flex items-center gap-3 italic"
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Orchestrating global talent identities, performance nodes, and verified status.</p>
+        </div>
+        <Link
+          to="/admin/artist-add"
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10 italic"
+        >
+          <UserPlus size={18} />
+          Initialize Entity
+        </Link>
+      </div>
+
+      {/* Intelligence Telemetry */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        {[
+          { label: 'Total Entities', value: stats.total, icon: Users, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
+          { label: 'Active Deployment', value: stats.active, icon: UserCheck, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+          { label: 'Pending Induction', value: stats.pending, icon: Clock, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+          { label: 'Verified Auth', value: stats.verified, icon: BadgeCheck, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+        ].map((s, i) => (
+          <motion.div 
+            key={s.label}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className="premium-card group border-white/5 hover:border-emerald-500/20 transition-all cursor-default relative overflow-hidden"
           >
-            <Plus className="h-4 w-4" />
-            INITIALIZE ARTIST
-          </Link>
-        </div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.02] rounded-bl-full pointer-events-none" />
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 ${s.bg} border border-white/5 shadow-inner relative overflow-hidden group-hover:scale-110 transition-transform duration-500`}>
+              <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <s.icon size={24} className={s.color} />
+            </div>
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em] mb-2 italic">{s.label}</p>
+            <p className="text-3xl font-bold text-white tracking-tighter italic tabular-nums">{s.value}</p>
+          </motion.div>
+        ))}
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard_ label="Total Artists" value={stats.total} icon={Users} color="text-blue-400" bgColor="bg-blue-500/10" />
-        <StatCard_ label="Active Intel" value={stats.active} icon={UserCheck} color="text-emerald-400" bgColor="bg-emerald-500/10" />
-        <StatCard_ label="Pending Sync" value={stats.pending} icon={Clock} color="text-amber-400" bgColor="bg-amber-500/10" />
-        <StatCard_ label="Verified Status" value={stats.verified} icon={BadgeCheck} color="text-emerald-400" bgColor="bg-emerald-500/10" />
-      </div>
-
-      {/* Table Card */}
-      <div className={`${card} overflow-hidden shadow-2xl`}>
-        <div className="px-8 py-6 border-b border-white/[0.06] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-zinc-800/30">
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <div className="relative flex-1 md:w-80">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600" />
-              <input
-                type="text"
-                placeholder="SEARCH ARTIST REGISTRY..."
-                className="w-full pl-12 pr-4 py-3 rounded bg-zinc-950 border border-white/10 text-[11px] font-black uppercase italic tracking-widest text-white placeholder:text-zinc-700 focus:outline-none focus:border-emerald-500 transition-all"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="relative">
-              <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 pointer-events-none" />
-              <select
-                className="pl-12 pr-10 py-3 rounded bg-zinc-950 border border-white/10 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic appearance-none cursor-pointer focus:outline-none focus:border-emerald-500 transition-all"
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-              >
-                <option value="all">ALL STATUS</option>
-                <option value="active">ACTIVE</option>
-                <option value="pending">PENDING</option>
-                <option value="suspended">SUSPENDED</option>
-              </select>
-              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-600 pointer-events-none" />
-            </div>
+      {/* Operation HUD */}
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div className="flex flex-col md:flex-row gap-6 w-full lg:max-w-4xl">
+          <div className="relative flex-1 group">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
+            <input
+              type="text"
+              placeholder="SCAN ENTITY REGISTRY..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800 italic"
+            />
           </div>
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 italic">
-            {filteredArtists.length} RECORDS FOUND
-          </span>
+          <div className="relative w-full md:w-80 group">
+            <Filter className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="w-full h-14 pl-14 pr-12 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+            >
+              <option value="all">ALL ENTITY STATUS</option>
+              <option value="active">ACTIVE_NODES</option>
+              <option value="pending">PENDING_SYNC</option>
+              <option value="suspended">QUARANTINED</option>
+            </select>
+            <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-focus-within:rotate-180 duration-500 transition-all group-focus-within:text-emerald-500" size={18} />
+          </div>
         </div>
+        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700 italic">
+           {filteredArtists.length} Nodes Indexed
+        </span>
+      </div>
 
+      {/* Registry Matrix */}
+      <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl bg-[#0a0a0a]">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-white/[0.04] bg-zinc-950/50">
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 italic">Artist Identity</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 italic">Sonic Profile</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 italic">Registry Status</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 italic">Connection Date</th>
-                <th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 italic">Operations</th>
+              <tr className="border-b border-white/5 bg-zinc-950/50">
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Artist Identity</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Sonic Sector</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Registry Status</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Sync Date</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic text-right">Action Protocol</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.04]">
+            <tbody className="divide-y divide-white/5">
               {filteredArtists.length > 0 ? (
-                filteredArtists.map((artist) => {
-                  const displayStatus = artist.status || (artist.isApproved ? 'active' : 'pending');
-                  const isPending = displayStatus === 'pending';
-                  return (
-                    <ArtistRow
-                      key={(artist._id as string) || (artist as any).id}
-                      artist={artist}
-                      onView={() => handleViewDetails(artist)}
-                      onEdit={() => handleEditArtist(artist)}
-                      onDelete={() => handleOpenModal('delete', artist)}
-                      onApprove={isPending ? () => handleApproveArtist(artist) : undefined}
-                      onReject={isPending ? () => handleRejectArtist(artist) : undefined}
-                      onVerify={(isVerified) => handleVerifyArtist(artist, isVerified)}
-                    />
-                  );
-                })
+                filteredArtists.map((artist, i) => (
+                  <ArtistRow
+                    key={(artist._id as string) || (artist as any).id}
+                    artist={artist}
+                    onView={() => handleViewDetails(artist)}
+                    onEdit={() => handleEditArtist(artist)}
+                    onDelete={() => handleOpenModal('delete', artist)}
+                    onApprove={(artist.status || (artist.isApproved ? 'active' : 'pending')) === 'pending' ? () => handleApproveArtist(artist) : undefined}
+                    onReject={(artist.status || (artist.isApproved ? 'active' : 'pending')) === 'pending' ? () => handleRejectArtist(artist) : undefined}
+                    onVerify={(isVerified) => handleVerifyArtist(artist, isVerified)}
+                  />
+                ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-8 py-32 text-center">
-                    <div className="flex flex-col items-center">
-                      <div className="w-20 h-20 bg-zinc-950 border border-white/5 rounded-full flex items-center justify-center mb-6 relative">
-                        <div className="absolute inset-0 bg-emerald-500/5 blur-xl rounded-full" />
-                        <Music2 className="h-8 w-8 text-zinc-800" />
-                      </div>
-                      <h3 className="text-sm font-black text-white uppercase italic tracking-widest">Registry Empty</h3>
-                      <p className="text-[11px] text-zinc-600 mt-2 uppercase font-bold tracking-wider">NO DATA MATCHES THE CURRENT PROTOCOLS</p>
+                  <td colSpan={5} className="px-10 py-40 text-center">
+                    <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl group cursor-default">
+                      <Users size={36} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                     </div>
+                    <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3 italic">Scan Result: NULL_ARTISTS</h3>
+                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto opacity-60">Adjust scan parameters or initialize a new talent node to the grid.</p>
                   </td>
                 </tr>
               )}
@@ -486,35 +456,38 @@ const ArtistManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* Modals Console */}
       <AnimatePresence>
         {modalOpen === 'delete' && selectedArtist && (
-          <ModalContainer>
-            <div className="px-10 py-12 text-center relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-rose-500" />
-              <div className="mx-auto w-20 h-20 rounded bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-8">
-                <Trash2 className="h-10 w-10 text-rose-500" />
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl" onClick={handleCloseModal}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="premium-card w-full max-w-md text-center p-12 border-rose-500/10 shadow-[0_30px_100px_rgba(0,0,0,1)] bg-[#0a0a0a]" onClick={e => e.stopPropagation()}
+            >
+              <div className="mx-auto w-20 h-20 rounded-[2.5rem] bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-10 shadow-2xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-rose-500/10 animate-pulse" />
+                <Trash2 className="text-rose-500 relative z-10" size={36} />
               </div>
-              <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic mb-3">Terminate Registry?</h2>
-              <p className="text-zinc-500 text-[11px] uppercase font-bold tracking-widest mb-10 leading-relaxed">
-                Confirming the permanent deletion of <span className="text-white">"{selectedArtist.name}"</span>. This action is irreversible.
+              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic mb-4">Terminate Entity?</h3>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-12 italic leading-relaxed px-6">
+                Executing the permanent purge of <span className="text-white italic">"{selectedArtist.name}"</span> from the global registry. Irreversible.
               </p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-6">
                 <button
                   onClick={handleCloseModal}
-                  className="px-6 py-4 bg-zinc-800 text-zinc-400 rounded text-[10px] font-black uppercase tracking-widest italic hover:bg-zinc-700 transition-all border border-white/5"
+                  className="h-16 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all italic"
                 >
-                  Abort
+                  Abort Protocol
                 </button>
                 <button
                   onClick={handleDeleteArtist}
-                  className="px-6 py-4 bg-rose-500 text-black rounded text-[10px] font-black uppercase tracking-widest italic hover:bg-rose-600 transition-all shadow-lg shadow-rose-500/20"
+                  className="h-16 bg-rose-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl shadow-rose-900/20 hover:bg-rose-500 transition-all italic"
                 >
-                  EXECUTE
+                  Execute Purge
                 </button>
               </div>
-            </div>
-          </ModalContainer>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

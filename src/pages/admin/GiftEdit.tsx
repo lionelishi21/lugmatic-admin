@@ -7,13 +7,14 @@ import {
   Upload, Calendar, ImageIcon, Coins, DollarSign, Tag,
   Type as TypeIcon, Star, X, CheckCircle2, ShieldCheck,
   Zap, Activity, Loader2, Sparkles, ChevronRight, Gift,
-  ArrowLeft
+  ArrowLeft, Cpu, Target, Layers, SlidersHorizontal,
+  Save, Globe, HardDrive, Info, ChevronDown
 } from 'lucide-react';
 import FileUpload from '../../components/ui/FileUpload';
 import { updateGift, createGiftJson } from '../../store/slices/giftSlice';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface GiftFormData {
   name: string;
@@ -52,27 +53,27 @@ const INITIAL_FORM_DATA: GiftFormData = {
 };
 
 const GIFT_TYPES: Array<{ value: AdminGiftPayload['type']; label: string }> = [
-  { value: 'coin', label: 'COIN' },
-  { value: 'badge', label: 'BADGE' },
-  { value: 'sticker', label: 'STICKER' },
-  { value: 'special', label: 'SPECIAL' },
+  { value: 'coin', label: 'COIN_UNIT' },
+  { value: 'badge', label: 'IDENTITY_BADGE' },
+  { value: 'sticker', label: 'VISUAL_SIGNAL' },
+  { value: 'special', label: 'ELITE_ASSET' },
 ];
 
 const GIFT_RARITIES: Array<{ value: AdminGiftPayload['rarity']; label: string }> = [
-  { value: 'common', label: 'COMMON' },
-  { value: 'rare', label: 'RARE' },
-  { value: 'epic', label: 'EPIC' },
-  { value: 'legendary', label: 'LEGENDARY' },
+  { value: 'common', label: 'COMMON_TIER' },
+  { value: 'rare', label: 'RARE_TIER' },
+  { value: 'epic', label: 'EPIC_TIER' },
+  { value: 'legendary', label: 'LEGENDARY_TIER' },
 ];
 
 const GIFT_CATEGORIES: string[] = ['support', 'music', 'celebration', 'love', 'funny', 'custom'];
 
 const CLASH_ACTIONS: Array<{ value: AdminGiftPayload['clashAction']; label: string }> = [
-  { value: 'none', label: 'NONE' },
-  { value: 'mute_opponent', label: 'MUTE OPPONENT' },
-  { value: 'flame_overlay', label: 'FLAME OVERLAY' },
-  { value: 'sound_effect', label: 'SOUND EFFECT' },
-  { value: 'noise', label: 'NOISE (VUVUZELA)' },
+  { value: 'none', label: 'NULL_ACTION' },
+  { value: 'mute_opponent', label: 'MUTE_TARGET' },
+  { value: 'flame_overlay', label: 'THERMAL_OVERLAY' },
+  { value: 'sound_effect', label: 'SONIC_PULSE' },
+  { value: 'noise', label: 'SONIC_DISRUPTION' },
 ];
 
 const GiftEdit: React.FC = () => {
@@ -115,7 +116,7 @@ const GiftEdit: React.FC = () => {
           clashAction: gift.clashAction || 'none',
         });
       } else {
-        toast.error('Asset not found');
+        toast.error('Asset not found in registry');
         navigate('/admin/gift-management');
       }
     } catch (error) {
@@ -127,7 +128,7 @@ const GiftEdit: React.FC = () => {
 
   const handleIconSelect = (file: File) => {
     setPendingIconFile(file);
-    toast('Icon protocol queued', { icon: '📎' });
+    toast('Spectral icon protocol queued', { icon: '📎' });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -159,11 +160,11 @@ const GiftEdit: React.FC = () => {
       if (id) {
         const result = await dispatch(updateGift({ id, data: giftPayload }));
         if (updateGift.rejected.match(result)) throw new Error(result.payload as string);
-        toast.success('Asset registry updated', { id: loadingId });
+        toast.success('Asset registry synchronized', { id: loadingId });
       } else {
         const result = await dispatch(createGiftJson(giftPayload));
         if (createGiftJson.rejected.match(result)) throw new Error(result.payload as string);
-        toast.success('Asset deployed to economy', { id: loadingId });
+        toast.success('Asset deployed to economy matrix', { id: loadingId });
       }
 
       navigate('/admin/gift-management');
@@ -178,81 +179,161 @@ const GiftEdit: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <Loader2 size={40} className="animate-spin text-emerald-500 mx-auto mb-4" />
-          <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">Accessing Secure Registry...</p>
+          <div className="relative inline-block mb-8">
+             <div className="w-24 h-24 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin" />
+             <Cpu className="absolute inset-0 m-auto text-emerald-500 animate-pulse" size={32} />
+          </div>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-600 italic">Accessing Secure Asset Registry...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-10 pb-20">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-12 pb-24">
+      {/* Cinematic Asset Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div className="flex items-center gap-6">
-          <button onClick={() => navigate('/admin/gift-management')} className="p-3 rounded-2xl bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-all border border-white/5">
-            <ArrowLeft size={20} />
+          <button 
+            onClick={() => navigate('/admin/gift-management')} 
+            className="w-16 h-16 rounded-2xl bg-zinc-950 text-zinc-600 hover:text-white hover:bg-white/5 transition-all border border-white/5 shadow-inner flex items-center justify-center group"
+          >
+            <ArrowLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-2">{id ? 'Edit Digital Asset' : 'New Asset Registration'}</h1>
-            <p className="text-zinc-500 uppercase text-[10px] tracking-[0.2em] font-bold">Protocol Identifier: {id || 'PENDING_REGISTRATION'}</p>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">
+                {id ? 'Asset Synchronizer' : 'Asset Ingestion'}
+              </h1>
+              <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
+                <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest italic">{id ? 'Modifying Node' : 'Forging New Asset'}</span>
+              </div>
+            </div>
+            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] ml-1 italic">
+              Registry Identifier: <span className="text-zinc-300 select-all">{id || 'PENDING_REGISTRATION'}</span>
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/admin/gift-management')} className="btn-secondary !px-8">Abort</button>
-          <button onClick={handleSubmit} disabled={submitting} className="btn-primary flex items-center gap-3 !px-10 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-            {submitting ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
-            {id ? 'Synchronize' : 'Register Asset'}
+          <button 
+            onClick={() => navigate('/admin/gift-management')} 
+            className="h-16 px-10 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] border border-white/5 hover:text-white transition-all italic"
+          >
+            Abort Protocol
+          </button>
+          <button 
+            onClick={handleSubmit} 
+            disabled={submitting} 
+            className="h-16 px-12 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-emerald-400 transition-all shadow-2xl flex items-center justify-center gap-6 group border border-white/10"
+          >
+            {submitting ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} className="group-hover:translate-y-1 transition-transform" />}
+            {id ? 'Commit Sync' : 'Deploy Asset'}
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
-        {/* Main Configuration */}
+        {/* Main Configuration Console */}
         <div className="xl:col-span-2 space-y-10">
-          <div className="premium-card space-y-10">
-            <div className="space-y-6">
-              <h4 className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                <ShieldCheck size={14} /> Core Identity
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Asset Name</label>
-                  <input type="text" value={formData.name} onChange={(e) => setFormData(p => ({ ...p, name: e.target.value }))} className="input-field" placeholder="e.g. Emerald Crown" required />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Market Classification</label>
-                  <div className="relative">
-                    <select value={formData.category} onChange={e => setFormData(p => ({ ...p, category: e.target.value }))} className="input-field appearance-none">
-                      {GIFT_CATEGORIES.map(c => <option key={c} value={c}>{c.toUpperCase()}</option>)}
-                    </select>
-                    <ChevronRight size={14} className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-zinc-600 pointer-events-none" />
-                  </div>
-                </div>
+          
+          <div className="premium-card !p-12 relative overflow-hidden group border-white/5 shadow-2xl bg-[#0a0a0a]">
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-emerald-500/[0.02] blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            
+            <div className="flex items-center gap-6 mb-12 border-b border-white/5 pb-10">
+              <div className="w-16 h-16 bg-zinc-950 rounded-[1.5rem] flex items-center justify-center border border-white/5 shadow-inner relative overflow-hidden group-hover:border-emerald-500/30 transition-all">
+                 <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                 <ShieldCheck size={28} className="text-emerald-500 relative z-10" />
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Registry Description</label>
-                <textarea value={formData.description} onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} className="input-field h-32 resize-none" placeholder="Provide detailed contextual information for the virtual asset..." />
+              <div>
+                 <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-emerald-500 mb-2 italic">Neural Identity Protocol</p>
+                 <h2 className="text-2xl font-bold text-white uppercase tracking-tighter italic">Semantic Parameters</h2>
               </div>
             </div>
 
-            <div className="space-y-6 pt-10 border-t border-white/5">
-              <h4 className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                <DollarSign size={14} /> Economic Intelligence
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Fiat Valuation (USD)</label>
-                  <div className="relative">
-                    <DollarSign size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" />
-                    <input type="number" step="0.01" value={formData.value || ''} onChange={(e) => setFormData(p => ({ ...p, value: parseFloat(e.target.value) || 0 }))} className="input-field pl-12" required />
+            <div className="space-y-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Asset Identifier <span className="text-emerald-500">*</span></label>
+                  <div className="relative group">
+                    <input 
+                      type="text" 
+                      value={formData.name} 
+                      onChange={(e) => setFormData(p => ({ ...p, name: e.target.value }))} 
+                      className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800 italic" 
+                      placeholder="e.g. EMERALD_CROWN_PRO" 
+                      required 
+                    />
+                    <Target size={20} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-900 group-focus-within:text-emerald-500 transition-all" />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Virtual Coin Equivalent</label>
-                  <div className="relative">
-                    <Coins size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" />
-                    <input type="number" value={formData.coinCost || ''} onChange={(e) => setFormData(p => ({ ...p, coinCost: parseInt(e.target.value) || 0 }))} className="input-field pl-12" required />
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Market Classification</label>
+                  <div className="relative group">
+                    <select 
+                      value={formData.category} 
+                      onChange={e => setFormData(p => ({ ...p, category: e.target.value }))} 
+                      className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                    >
+                      {GIFT_CATEGORIES.map(c => <option key={c} value={c}>{c.toUpperCase()}</option>)}
+                    </select>
+                    <ChevronDown size={20} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-900 pointer-events-none group-focus-within:rotate-180 duration-500 transition-all group-focus-within:text-emerald-500" />
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Registry Logbook (Description)</label>
+                  <span className="text-[8px] font-bold text-zinc-700 uppercase tracking-widest italic">Semantic Context Mapping</span>
+                </div>
+                <textarea 
+                  value={formData.description} 
+                  onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} 
+                  className="w-full p-8 bg-zinc-950 border border-white/5 rounded-3xl text-zinc-300 text-[11px] font-bold tracking-[0.1em] focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner resize-none h-40 leading-relaxed placeholder:text-zinc-800" 
+                  placeholder="Inscribe detailed contextual metadata for the virtual asset node..." 
+                />
+              </div>
+            </div>
+
+            <div className="mt-16 pt-12 border-t border-white/5 space-y-10">
+              <div className="flex items-center gap-6 mb-12">
+                <div className="w-16 h-16 bg-zinc-950 rounded-[1.5rem] flex items-center justify-center border border-white/5 shadow-inner relative overflow-hidden group-hover:border-blue-500/30 transition-all">
+                   <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                   <DollarSign size={28} className="text-blue-500 relative z-10" />
+                </div>
+                <div>
+                   <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-blue-500 mb-2 italic">Economic Intelligence HUD</p>
+                   <h2 className="text-2xl font-bold text-white uppercase tracking-tighter italic">Fiscal Valuation</h2>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Fiat Valuation (USD)</label>
+                  <div className="relative group">
+                    <DollarSign size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-emerald-500 transition-all" />
+                    <input 
+                      type="number" 
+                      step="0.01" 
+                      value={formData.value || ''} 
+                      onChange={(e) => setFormData(p => ({ ...p, value: parseFloat(e.target.value) || 0 }))} 
+                      className="w-full h-16 pl-16 pr-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[12px] font-bold tracking-[0.2em] focus:outline-none focus:border-emerald-500/30 shadow-inner italic tabular-nums" 
+                      required 
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Virtual Unit Equivalent</label>
+                  <div className="relative group">
+                    <Zap size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-emerald-500 transition-all" />
+                    <input 
+                      type="number" 
+                      value={formData.coinCost || ''} 
+                      onChange={(e) => setFormData(p => ({ ...p, coinCost: parseInt(e.target.value) || 0 }))} 
+                      className="w-full h-16 pl-16 pr-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[12px] font-bold tracking-[0.2em] focus:outline-none focus:border-emerald-500/30 shadow-inner italic tabular-nums" 
+                      required 
+                    />
+                    <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[9px] font-bold text-zinc-800 uppercase italic">COINS</span>
                   </div>
                 </div>
               </div>
@@ -260,108 +341,175 @@ const GiftEdit: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div className="premium-card space-y-8">
-              <h4 className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                <Zap size={14} className="text-amber-500" /> Battle Engagement
-              </h4>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Clash Battle Points</label>
-                  <input type="number" value={formData.clashPoints || ''} onChange={(e) => setFormData(p => ({ ...p, clashPoints: parseInt(e.target.value) || 0 }))} className="input-field" placeholder="Intensity modifier..." />
+            <div className="premium-card !p-10 space-y-10 border-white/5 bg-[#0a0a0a]">
+              <div className="flex items-center gap-5">
+                 <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                    <Activity size={24} className="text-amber-500" />
+                 </div>
+                 <div>
+                    <h3 className="text-lg font-bold text-white uppercase tracking-tighter italic leading-none mb-1.5">Engagement Protocol</h3>
+                    <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Battle Tactical Modifiers</p>
+                 </div>
+              </div>
+              <div className="space-y-8">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic ml-1">Clash Battle Multiplier</label>
+                  <input 
+                    type="number" 
+                    value={formData.clashPoints || ''} 
+                    onChange={(e) => setFormData(p => ({ ...p, clashPoints: parseInt(e.target.value) || 0 }))} 
+                    className="w-full h-14 px-6 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] focus:outline-none focus:border-amber-500/30 shadow-inner italic tabular-nums" 
+                    placeholder="e.g. 500" 
+                  />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Live Tactical Action</label>
-                  <div className="relative">
-                    <select value={formData.clashAction} onChange={e => setFormData(p => ({ ...p, clashAction: e.target.value as any }))} className="input-field appearance-none">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic ml-1">Live Tactical Signature</label>
+                  <div className="relative group">
+                    <select 
+                      value={formData.clashAction} 
+                      onChange={e => setFormData(p => ({ ...p, clashAction: e.target.value as any }))} 
+                      className="w-full h-14 px-6 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-amber-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                    >
                       {CLASH_ACTIONS.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
                     </select>
-                    <ChevronRight size={14} className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-zinc-600 pointer-events-none" />
+                    <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-900 pointer-events-none group-focus-within:rotate-180 duration-500 transition-all group-focus-within:text-amber-500" />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="premium-card space-y-8">
-              <h4 className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                <Calendar size={14} className="text-rose-500" /> Availability Matrix
-              </h4>
-              <div className="space-y-6">
-                <label className="flex items-center gap-4 group cursor-pointer p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-rose-500/30 transition-all">
-                  <div className={`w-10 h-5 rounded-full relative transition-all ${formData.isSeasonal ? 'bg-rose-500' : 'bg-zinc-800'}`}>
-                    <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${formData.isSeasonal ? 'right-1' : 'left-1'}`} />
-                  </div>
-                  <input type="checkbox" className="hidden" checked={formData.isSeasonal} onChange={e => setFormData(p => ({ ...p, isSeasonal: e.target.checked }))} />
-                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Seasonal Deployment</span>
+            <div className="premium-card !p-10 space-y-10 border-white/5 bg-[#0a0a0a]">
+              <div className="flex items-center gap-5">
+                 <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                    <Calendar size={24} className="text-rose-500" />
+                 </div>
+                 <div>
+                    <h3 className="text-lg font-bold text-white uppercase tracking-tighter italic leading-none mb-1.5">Availability Matrix</h3>
+                    <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Temporal Deployment Window</p>
+                 </div>
+              </div>
+              <div className="space-y-8">
+                <label className="flex items-center justify-between p-6 bg-zinc-950 rounded-[2rem] border border-white/5 group cursor-pointer hover:border-rose-500/20 transition-all shadow-inner relative overflow-hidden">
+                   <div className="absolute inset-0 bg-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                   <div className="flex items-center gap-5 relative z-10">
+                      <div className={`w-1.5 h-1.5 rounded-full ${formData.isSeasonal ? 'bg-rose-500 shadow-[0_0_8px_#f43f5e]' : 'bg-zinc-800'} transition-all`} />
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest italic group-hover:text-white transition-colors">Seasonal Deployment Protocol</span>
+                   </div>
+                   <div className={`w-14 h-7 rounded-full relative transition-all duration-500 shadow-inner group/toggle ${formData.isSeasonal ? 'bg-rose-500' : 'bg-zinc-900 border border-white/5'}`}>
+                      <div className={`absolute top-1.5 w-4 h-4 rounded-full transition-all duration-500 ${formData.isSeasonal ? 'left-8 bg-black shadow-[0_0_10px_white]' : 'left-1.5 bg-zinc-700'}`} />
+                   </div>
+                   <input type="checkbox" className="hidden" checked={formData.isSeasonal} onChange={e => setFormData(p => ({ ...p, isSeasonal: e.target.checked }))} />
                 </label>
                 
-                {formData.isSeasonal && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Start Date</label>
-                      <input type="date" value={formData.seasonalStart} onChange={e => setFormData(p => ({ ...p, seasonalStart: e.target.value }))} className="input-field" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">End Date</label>
-                      <input type="date" value={formData.seasonalEnd} onChange={e => setFormData(p => ({ ...p, seasonalEnd: e.target.value }))} className="input-field" />
-                    </div>
-                  </div>
-                )}
+                <AnimatePresence>
+                  {formData.isSeasonal && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      exit={{ opacity: 0, y: -10 }}
+                      className="grid grid-cols-2 gap-6"
+                    >
+                      <div className="space-y-3">
+                        <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest italic ml-1">Initiation Cycle</label>
+                        <input type="date" value={formData.seasonalStart} onChange={e => setFormData(p => ({ ...p, seasonalStart: e.target.value }))} className="w-full h-12 px-6 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] focus:outline-none focus:border-rose-500/30 shadow-inner italic" />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest italic ml-1">Termination Cycle</label>
+                        <input type="date" value={formData.seasonalEnd} onChange={e => setFormData(p => ({ ...p, seasonalEnd: e.target.value }))} className="w-full h-12 px-6 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] focus:outline-none focus:border-rose-500/30 shadow-inner italic" />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Sidebar Configuration */}
+        {/* Sidebar Status Matrix */}
         <div className="space-y-10">
-          <div className="premium-card space-y-8">
-            <h4 className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] flex items-center gap-2">
-              <ImageIcon size={14} /> Asset Visual
-            </h4>
-            <FileUpload 
-              label="Sync Asset Icon"
-              currentFile={pendingIconFile ? URL.createObjectURL(pendingIconFile) : (formData.image ? getFullImageUrl(formData.image) : undefined)}
-              onFileSelect={handleIconSelect}
-              onFileRemove={() => { setPendingIconFile(null); setFormData(p => ({ ...p, image: '' })); }}
-            />
-            <div className="pt-4 space-y-4">
-              <label className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group cursor-pointer hover:border-emerald-500/30 transition-all">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Active Status</span>
-                <div className={`w-10 h-5 rounded-full relative transition-all ${formData.isActive ? 'bg-emerald-500' : 'bg-zinc-800'}`}>
-                  <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${formData.isActive ? 'right-1 shadow-[0_0_8px_white]' : 'left-1'}`} />
-                </div>
-                <input type="checkbox" className="hidden" checked={formData.isActive} onChange={e => setFormData(p => ({ ...p, isActive: e.target.checked }))} />
+          <div className="premium-card !p-10 space-y-10 border-white/5 bg-[#0a0a0a]">
+            <div className="flex items-center gap-5">
+               <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                  <ImageIcon size={24} className="text-emerald-500" />
+               </div>
+               <div>
+                  <h3 className="text-lg font-bold text-white uppercase tracking-tighter italic leading-none mb-1.5">Spectral Icon</h3>
+                  <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Visual Asset Protocol</p>
+               </div>
+            </div>
+            
+            <div className="bg-zinc-950 rounded-[2.5rem] border border-white/5 p-8 shadow-inner group/upload">
+               <FileUpload 
+                label="SYNC_SPECTRAL_ASSET"
+                currentFile={pendingIconFile ? URL.createObjectURL(pendingIconFile) : (formData.image ? getFullImageUrl(formData.image) : undefined)}
+                onFileSelect={handleIconSelect}
+                onFileRemove={() => { setPendingIconFile(null); setFormData(p => ({ ...p, image: '' })); }}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="flex items-center justify-between p-6 bg-zinc-950 rounded-[2rem] border border-white/5 group cursor-pointer hover:border-emerald-500/20 transition-all shadow-inner relative overflow-hidden">
+                 <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                 <div className="flex items-center gap-5 relative z-10">
+                    <div className={`w-1.5 h-1.5 rounded-full ${formData.isActive ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-zinc-800'} transition-all`} />
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest italic group-hover:text-white transition-colors">Active Link Protocol</span>
+                 </div>
+                 <div className={`w-14 h-7 rounded-full relative transition-all duration-500 shadow-inner group/toggle ${formData.isActive ? 'bg-emerald-500' : 'bg-zinc-900 border border-white/5'}`}>
+                    <div className={`absolute top-1.5 w-4 h-4 rounded-full transition-all duration-500 ${formData.isActive ? 'left-8 bg-black shadow-[0_0_10px_white]' : 'left-1.5 bg-zinc-700'}`} />
+                 </div>
+                 <input type="checkbox" className="hidden" checked={formData.isActive} onChange={e => setFormData(p => ({ ...p, isActive: e.target.checked }))} />
               </label>
-              <label className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group cursor-pointer hover:border-emerald-500/30 transition-all">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Animation Signal</span>
-                <div className={`w-10 h-5 rounded-full relative transition-all ${formData.isAnimated ? 'bg-emerald-500' : 'bg-zinc-800'}`}>
-                  <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${formData.isAnimated ? 'right-1 shadow-[0_0_8px_white]' : 'left-1'}`} />
-                </div>
-                <input type="checkbox" className="hidden" checked={formData.isAnimated} onChange={e => setFormData(p => ({ ...p, isAnimated: e.target.checked }))} />
+
+              <label className="flex items-center justify-between p-6 bg-zinc-950 rounded-[2rem] border border-white/5 group cursor-pointer hover:border-emerald-500/20 transition-all shadow-inner relative overflow-hidden">
+                 <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                 <div className="flex items-center gap-5 relative z-10">
+                    <div className={`w-1.5 h-1.5 rounded-full ${formData.isAnimated ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-zinc-800'} transition-all`} />
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest italic group-hover:text-white transition-colors">Neural Animation Signal</span>
+                 </div>
+                 <div className={`w-14 h-7 rounded-full relative transition-all duration-500 shadow-inner group/toggle ${formData.isAnimated ? 'bg-emerald-500' : 'bg-zinc-900 border border-white/5'}`}>
+                    <div className={`absolute top-1.5 w-4 h-4 rounded-full transition-all duration-500 ${formData.isAnimated ? 'left-8 bg-black shadow-[0_0_10px_white]' : 'left-1.5 bg-zinc-700'}`} />
+                 </div>
+                 <input type="checkbox" className="hidden" checked={formData.isAnimated} onChange={e => setFormData(p => ({ ...p, isAnimated: e.target.checked }))} />
               </label>
             </div>
           </div>
 
-          <div className="premium-card space-y-8">
-            <h4 className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] flex items-center gap-2">
-              <Tag size={14} /> Catalog Metrics
-            </h4>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Asset Category</label>
-                <div className="relative">
-                  <select value={formData.type} onChange={e => setFormData(p => ({ ...p, type: e.target.value as any }))} className="input-field appearance-none">
+          <div className="premium-card !p-10 space-y-10 border-white/5 bg-[#0a0a0a]">
+            <div className="flex items-center gap-5">
+               <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                  <Tag size={24} className="text-indigo-500" />
+               </div>
+               <div>
+                  <h3 className="text-lg font-bold text-white uppercase tracking-tighter italic leading-none mb-1.5">Catalog Logic</h3>
+                  <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Structural Classification</p>
+               </div>
+            </div>
+            
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic ml-1">Asset Category</label>
+                <div className="relative group/sel">
+                  <select 
+                    value={formData.type} 
+                    onChange={e => setFormData(p => ({ ...p, type: e.target.value as any }))} 
+                    className="w-full h-14 px-6 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-indigo-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                  >
                     {GIFT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
-                  <ChevronRight size={14} className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-zinc-600 pointer-events-none" />
+                  <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-900 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-indigo-500" />
                 </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Rarity Classification</label>
-                <div className="relative">
-                  <select value={formData.rarity} onChange={e => setFormData(p => ({ ...p, rarity: e.target.value as any }))} className="input-field appearance-none">
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic ml-1">Rarity Classification</label>
+                <div className="relative group/sel">
+                  <select 
+                    value={formData.rarity} 
+                    onChange={e => setFormData(p => ({ ...p, rarity: e.target.value as any }))} 
+                    className="w-full h-14 px-6 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-indigo-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                  >
                     {GIFT_RARITIES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                   </select>
-                  <ChevronRight size={14} className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-zinc-600 pointer-events-none" />
+                  <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-900 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-indigo-500" />
                 </div>
               </div>
             </div>

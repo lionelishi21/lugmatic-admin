@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { 
   Users, Search, Shield, Music2, 
   User as UserIcon, ChevronDown, X, UserPlus, UserCheck, 
-  Ban, Loader2, Key, MoreVertical, AlertTriangle
+  Ban, Loader2, Key, MoreVertical, AlertTriangle,
+  Target, Activity, Globe, Zap, Cpu, ArrowUpRight,
+  ShieldCheck, Filter, SlidersHorizontal, CheckCircle2
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { User } from '../../types';
@@ -11,16 +13,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // Role configuration for UI display
 const roleConfig: Record<string, any> = {
-  admin: { label: 'Admin', icon: Shield, bg: 'bg-amber-500/5', text: 'text-amber-500', border: 'border-amber-500/10' },
-  'super admin': { label: 'Super Admin', icon: Shield, bg: 'bg-purple-500/5', text: 'text-purple-500', border: 'border-purple-500/10' },
-  artist: { label: 'Artist', icon: Music2, bg: 'bg-emerald-500/5', text: 'text-emerald-500', border: 'border-emerald-500/10' },
-  user: { label: 'User', icon: UserIcon, bg: 'bg-white/5', text: 'text-zinc-400', border: 'border-white/5' },
+  admin: { label: 'ADMIN_NODE', icon: Shield, bg: 'bg-amber-500/5', text: 'text-amber-500', border: 'border-amber-500/10' },
+  'super admin': { label: 'EXECUTIVE_NODE', icon: Shield, bg: 'bg-purple-500/5', text: 'text-purple-500', border: 'border-purple-500/10' },
+  artist: { label: 'ARTIST_NODE', icon: Music2, bg: 'bg-emerald-500/5', text: 'text-emerald-500', border: 'border-emerald-500/10' },
+  user: { label: 'STANDARD_NODE', icon: UserIcon, bg: 'bg-white/5', text: 'text-zinc-500', border: 'border-white/5' },
 };
 
 const statusConfig: Record<string, any> = {
-  active: { label: 'Active', dot: 'bg-emerald-500' },
-  inactive: { label: 'Inactive', dot: 'bg-zinc-600' },
-  suspended: { label: 'Suspended', dot: 'bg-rose-500' },
+  active: { label: 'ACTIVE_LINK', dot: 'bg-emerald-500', shadow: 'shadow-[0_0_8px_#10b981]' },
+  inactive: { label: 'INACTIVE', dot: 'bg-zinc-700', shadow: '' },
+  suspended: { label: 'QUARANTINED', dot: 'bg-rose-500', shadow: 'shadow-[0_0_8px_#f43f5e]' },
 };
 
 export default function UserManagement() {
@@ -140,42 +142,59 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="space-y-10">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="space-y-12 pb-24">
+      {/* Cinematic Identity Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Users</h1>
-          <p className="text-zinc-500">Manage platform access, roles, and account status.</p>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Identity Grid</h1>
+            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{totalUsers} Nodes Registered</span>
+            </div>
+          </div>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1">Managing global identity nodes, access privileges, and system throughput.</p>
         </div>
-        <button onClick={() => setIsAddModalOpen(true)} className="btn-primary flex items-center gap-2">
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
+        >
           <UserPlus size={18} />
-          Add User
+          Register New Node
         </button>
       </div>
 
-      {/* Filters Bar */}
-      <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-        <div className="relative w-full lg:max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+      {/* Identity Control HUD */}
+      <div className="premium-card !p-4 bg-zinc-950/40 flex flex-col lg:flex-row items-center gap-6 border-white/5 shadow-inner">
+        <div className="relative flex-1 group w-full">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
           <input
             type="text"
-            placeholder="Search by name or email..."
+            placeholder="SCAN IDENTITY ARCHIVE..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="input-field pl-11"
+            className="w-full pl-14 pr-12 h-14 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-700 italic"
           />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-700 hover:text-white transition-colors"
+            >
+              <X size={18} />
+            </button>
+          )}
         </div>
         
-        <div className="flex flex-wrap items-center gap-8">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-zinc-500">Role</span>
-            <div className="flex bg-[#0a0a0a] border border-white/5 rounded-xl p-1 gap-1">
+        <div className="flex flex-wrap items-center gap-10 px-4">
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest italic">Privilege</span>
+            <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1.5 gap-1 shadow-inner">
               {['all', 'admin', 'artist', 'user'].map(role => (
                 <button
                   key={role}
                   onClick={() => { setRoleFilter(role); setPage(1); }}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
-                    roleFilter === role ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
+                  className={`px-5 py-2.5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all duration-300 ${
+                    roleFilter === role ? 'bg-white/10 text-white shadow-xl border border-white/5' : 'text-zinc-600 hover:text-zinc-300'
                   }`}
                 >
                   {role}
@@ -184,15 +203,15 @@ export default function UserManagement() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-zinc-500">Status</span>
-            <div className="flex bg-[#0a0a0a] border border-white/5 rounded-xl p-1 gap-1">
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest italic">Status</span>
+            <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1.5 gap-1 shadow-inner">
               {['all', 'active', 'inactive', 'suspended'].map(status => (
                 <button
                   key={status}
                   onClick={() => { setStatusFilter(status); setPage(1); }}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
-                    statusFilter === status ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
+                  className={`px-5 py-2.5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all duration-300 ${
+                    statusFilter === status ? 'bg-white/10 text-white shadow-xl border border-white/5' : 'text-zinc-600 hover:text-zinc-300'
                   }`}
                 >
                   {status}
@@ -203,100 +222,117 @@ export default function UserManagement() {
         </div>
       </div>
 
-      {/* User Table */}
-      <div className="premium-card overflow-hidden !p-0">
+      {/* Node Table Grid */}
+      <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-white/5">
-                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">User</th>
-                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Role</th>
-                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider text-right">Actions</th>
+              <tr className="border-b border-white/5 bg-zinc-950/50">
+                <th className="px-10 py-6 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Identity Node</th>
+                <th className="px-10 py-6 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Privilege Profile</th>
+                <th className="px-10 py-6 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Link Status</th>
+                <th className="px-10 py-6 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic text-right">Action Protocol</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {loading && users.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-24 text-center">
-                    <Loader2 className="h-8 w-8 text-emerald-500 animate-spin mx-auto mb-3" />
-                    <p className="text-zinc-500 font-medium">Loading users...</p>
+                  <td colSpan={4} className="px-10 py-40 text-center">
+                    <div className="relative inline-block mb-6">
+                      <div className="w-20 h-20 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin" />
+                      <Cpu className="absolute inset-0 m-auto text-emerald-500 animate-pulse" size={24} />
+                    </div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.4em] italic">Scanning Node Registry...</p>
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-24 text-center">
-                    <AlertTriangle className="h-8 w-8 text-zinc-800 mx-auto mb-3" />
-                    <p className="text-zinc-500 font-medium">No users found.</p>
+                  <td colSpan={4} className="px-10 py-40 text-center">
+                    <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-white/5 shadow-2xl group cursor-default">
+                      <AlertTriangle size={36} className="text-zinc-800 group-hover:text-amber-500 transition-colors" />
+                    </div>
+                    <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3 italic">Scan Result: Null</h3>
+                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto leading-relaxed opacity-60">
+                       Adjust your scan parameters or register a new identity node to the grid.
+                    </p>
                   </td>
                 </tr>
               ) : (
-                users.map((user) => {
+                users.map((user, i) => {
                   const role = roleConfig[user.role.toLowerCase()] || roleConfig.user;
                   const status = statusConfig[user.status.toLowerCase()] || statusConfig.inactive;
                   return (
-                    <tr key={user._id} className="hover:bg-white/[0.02] transition-colors group">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-white/5 flex items-center justify-center text-xs font-bold text-zinc-400">
+                    <motion.tr 
+                      key={user._id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="hover:bg-emerald-500/[0.01] transition-all group"
+                    >
+                      <td className="px-10 py-6">
+                        <div className="flex items-center gap-6">
+                          <div className="w-14 h-14 rounded-2xl bg-[#0a0a0a] border border-white/5 flex items-center justify-center text-[10px] font-black text-zinc-700 shadow-inner group-hover:border-emerald-500/30 transition-all group-hover:scale-110">
                             {getInitials(user)}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-white truncate group-hover:text-emerald-400 transition-colors">
-                              {user.firstName || 'Unknown'} {user.lastName || ''}
+                            <p className="text-sm font-bold text-white uppercase tracking-tight italic group-hover:text-emerald-400 transition-colors leading-none mb-2">
+                              {user.firstName || 'UNKNOWN'} {user.lastName || ''}
                             </p>
-                            <p className="text-xs text-zinc-500 truncate">{user.email}</p>
+                            <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{user.email.toUpperCase()}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold border ${role.bg} ${role.text} ${role.border}`}>
-                          <role.icon size={12} />
-                          {role.label}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
-                          <span className="text-xs font-medium text-zinc-400">{status.label}</span>
+                      <td className="px-10 py-6">
+                        <div className={`inline-flex items-center gap-3 px-4 py-2 rounded-xl border ${role.bg} ${role.text} ${role.border} shadow-inner`}>
+                          <role.icon size={14} />
+                          <span className="text-[9px] font-bold uppercase tracking-[0.2em] italic">{role.label}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="px-10 py-6">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-1.5 h-1.5 rounded-full ${status.dot} ${status.shadow}`} />
+                          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">{status.label}</span>
+                        </div>
+                      </td>
+                      <td className="px-10 py-6 text-right">
+                        <div className="flex items-center justify-end gap-3">
                           <button
                             onClick={() => { setTargetUser(user); setNewRole(user.role); setIsRoleModalOpen(true); }}
-                            className="p-2.5 rounded-xl text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
-                            title="Change Role"
+                            className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[#0a0a0a] text-zinc-700 hover:text-emerald-500 border border-white/5 hover:border-emerald-500/20 transition-all shadow-inner group-hover:shadow-emerald-500/5"
+                            title="Reconfigure Privilege"
                           >
-                            <Shield size={18} />
+                            <Shield size={20} />
                           </button>
                           <button
                             onClick={() => { setTargetUser(user); setIsResetModalOpen(true); setTempPassword(''); }}
-                            className="p-2.5 rounded-xl text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
-                            title="Reset Password"
+                            className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[#0a0a0a] text-zinc-700 hover:text-amber-500 border border-white/5 hover:border-amber-500/20 transition-all shadow-inner group-hover:shadow-amber-500/5"
+                            title="Reset Access Link"
                           >
-                            <Key size={18} />
+                            <Key size={20} />
                           </button>
                           <div className="relative">
                             <button
                               onClick={() => setOpenMenu(openMenu === user._id ? null : user._id)}
-                              className={`p-2.5 rounded-xl transition-all ${openMenu === user._id ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}
+                              className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${openMenu === user._id ? 'bg-white/10 text-white border border-white/10 shadow-2xl' : 'bg-[#0a0a0a] text-zinc-700 hover:text-white border border-white/5 hover:border-white/10 shadow-inner'}`}
                             >
-                              <MoreVertical size={18} />
+                              <MoreVertical size={20} />
                             </button>
                             <AnimatePresence>
                               {openMenu === user._id && (
                                 <motion.div
-                                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                  initial={{ opacity: 0, scale: 0.95, y: 15 }}
                                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                                  className="absolute right-0 mt-2 w-52 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl z-30 p-2 overflow-hidden"
+                                  exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                                  className="absolute right-0 mt-4 w-64 bg-zinc-900 border border-white/10 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-50 p-3 overflow-hidden backdrop-blur-2xl"
                                 >
-                                  <button onClick={() => handleStatusChange(user._id, 'active')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left">
-                                    <UserCheck size={16} className="text-emerald-500" /> Activate Account
+                                  <div className="px-6 py-4 border-b border-white/5 mb-2">
+                                     <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Override Protocol</p>
+                                  </div>
+                                  <button onClick={() => handleStatusChange(user._id, 'active')} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold text-zinc-400 hover:text-white hover:bg-emerald-500/10 transition-all text-left uppercase tracking-widest italic group/opt">
+                                    <UserCheck size={18} className="text-emerald-500 group-hover/opt:scale-110 transition-transform" /> Activate Node
                                   </button>
-                                  <button onClick={() => handleStatusChange(user._id, 'suspended')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold text-zinc-400 hover:text-rose-500 hover:bg-rose-500/5 transition-all text-left">
-                                    <Ban size={16} className="text-rose-500" /> Suspend Account
+                                  <button onClick={() => handleStatusChange(user._id, 'suspended')} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10 transition-all text-left uppercase tracking-widest italic group/opt">
+                                    <Ban size={18} className="text-rose-500 group-hover/opt:scale-110 transition-transform" /> Quarantine Node
                                   </button>
                                 </motion.div>
                               )}
@@ -304,7 +340,7 @@ export default function UserManagement() {
                           </div>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   );
                 })
               )}
@@ -312,28 +348,28 @@ export default function UserManagement() {
           </table>
         </div>
 
-        {/* Pagination */}
-        <div className="px-6 py-5 border-t border-white/5 bg-[#080808] flex items-center justify-between">
-          <p className="text-xs text-zinc-500 font-medium">
-            Showing <span className="text-white font-semibold">{users.length}</span> of <span className="text-white font-semibold">{totalUsers}</span> users
+        {/* Neural Pagination */}
+        <div className="px-10 py-8 border-t border-white/5 bg-[#080808] flex items-center justify-between">
+          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest italic">
+            Scanning <span className="text-white">{users.length}</span> / <span className="text-white">{totalUsers}</span> Node Matrix
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-4">
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 rounded-xl text-xs font-bold border border-white/5 text-zinc-500 hover:text-white disabled:opacity-30 transition-all"
+              className="px-6 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 text-zinc-600 hover:text-white disabled:opacity-20 transition-all italic"
             >
-              Previous
+              PREV_CYCLE
             </button>
-            <div className="flex gap-1">
-              {Array.from({ length: totalPages }).map((_, i) => (
+            <div className="flex gap-2">
+              {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setPage(i + 1)}
-                  className={`w-9 h-9 rounded-lg text-xs font-bold transition-all border ${
+                  className={`w-12 h-12 rounded-xl text-[10px] font-bold transition-all border ${
                     page === i + 1 
-                      ? 'bg-white text-black border-white shadow-lg' 
-                      : 'bg-transparent text-zinc-500 border-white/5 hover:border-white/10 hover:text-white'
+                      ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.2)]' 
+                      : 'bg-transparent text-zinc-700 border-white/5 hover:border-white/20 hover:text-white'
                   }`}
                 >
                   {i + 1}
@@ -343,57 +379,65 @@ export default function UserManagement() {
             <button
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 rounded-xl text-xs font-bold border border-white/5 text-zinc-500 hover:text-white disabled:opacity-30 transition-all"
+              className="px-6 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 text-zinc-600 hover:text-white disabled:opacity-20 transition-all italic"
             >
-              Next
+              NEXT_CYCLE
             </button>
           </div>
         </div>
       </div>
 
-      {/* Modals */}
-      <AnimatePresence>
+      {/* Modals Console */}
+      <AnimatePresence mode="wait">
         {isAddModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={() => setIsAddModalOpen(false)}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl" onClick={() => setIsAddModalOpen(false)}>
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="premium-card w-full max-w-lg shadow-2xl" onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="premium-card w-full max-w-xl shadow-[0_30px_100px_rgba(0,0,0,1)] border-emerald-500/10 p-12" onClick={e => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-8">
-                <h3 className="text-xl font-bold">Add User</h3>
-                <button onClick={() => setIsAddModalOpen(false)} className="p-2 rounded-full hover:bg-white/5 text-zinc-500"><X size={20} /></button>
+              <div className="flex justify-between items-center mb-10">
+                <div className="flex items-center gap-5">
+                   <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                      <UserPlus className="text-emerald-500" size={28} />
+                   </div>
+                   <div>
+                      <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic">Register Node</h3>
+                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Identity Induction Protocol</p>
+                   </div>
+                </div>
+                <button onClick={() => setIsAddModalOpen(false)} className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-white/5 text-zinc-500 transition-all"><X size={24} /></button>
               </div>
-              <form onSubmit={handleAddUser} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-semibold text-zinc-500 mb-2 block">First Name</label>
-                    <input type="text" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} className="input-field" placeholder="First Name" required />
+              <form onSubmit={handleAddUser} className="space-y-10">
+                <div className="grid grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">First Identity</label>
+                    <input type="text" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} className="w-full px-6 h-16 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner" placeholder="FIRST_NAME" required />
                   </div>
-                  <div>
-                    <label className="text-xs font-semibold text-zinc-500 mb-2 block">Last Name</label>
-                    <input type="text" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} className="input-field" placeholder="Last Name" required />
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">Last Identity</label>
+                    <input type="text" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} className="w-full px-6 h-16 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner" placeholder="LAST_NAME" required />
                   </div>
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-zinc-500 mb-2 block">Email Address</label>
-                  <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="input-field" placeholder="Email" required />
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">Signal Email</label>
+                  <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full px-6 h-16 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner" placeholder="EMAIL_ADDRESS" required />
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-zinc-500 mb-2 block">Role</label>
-                  <div className="relative">
-                    <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value as any})} className="input-field appearance-none pr-10 cursor-pointer">
-                      <option value="user">User</option>
-                      <option value="artist">Artist</option>
-                      <option value="admin">Admin</option>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">Privilege Profile</label>
+                  <div className="relative group/sel">
+                    <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value as any})} className="w-full h-16 px-8 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer">
+                      <option value="user">STANDARD_NODE</option>
+                      <option value="artist">ARTIST_NODE</option>
+                      <option value="admin">ADMIN_NODE</option>
                     </select>
-                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+                    <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-800 pointer-events-none group-focus-within/sel:text-emerald-500 transition-all group-focus-within/sel:rotate-180 duration-500" />
                   </div>
                 </div>
-                <div className="pt-6 flex justify-end gap-4 border-t border-white/5">
-                  <button type="button" onClick={() => setIsAddModalOpen(false)} className="btn-secondary">Cancel</button>
-                  <button type="submit" disabled={isSubmitting} className="btn-primary flex items-center gap-2">
-                    {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                    Create User
+                <div className="pt-10 flex justify-end gap-6 border-t border-white/5">
+                  <button type="button" onClick={() => setIsAddModalOpen(false)} className="h-16 px-10 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all italic">ABORT_PROTOCOL</button>
+                  <button type="submit" disabled={isSubmitting} className="h-16 px-12 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] shadow-2xl hover:bg-emerald-400 transition-all flex items-center gap-4">
+                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck size={20} />}
+                    EXECUTE_INDUCTION
                   </button>
                 </div>
               </form>
@@ -402,30 +446,31 @@ export default function UserManagement() {
         )}
 
         {isRoleModalOpen && targetUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={() => setIsRoleModalOpen(false)}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl" onClick={() => setIsRoleModalOpen(false)}>
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="premium-card w-full max-w-sm text-center" onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="premium-card w-full max-w-sm text-center p-12 border-indigo-500/10" onClick={e => e.stopPropagation()}
             >
-              <div className="mx-auto w-16 h-16 rounded-3xl bg-indigo-500/10 flex items-center justify-center mb-6">
-                <Shield className="h-8 w-8 text-indigo-500" />
+              <div className="mx-auto w-20 h-20 rounded-[2.5rem] bg-[#0a0a0a] border border-white/5 flex items-center justify-center mb-8 shadow-2xl relative overflow-hidden group">
+                 <div className="absolute inset-0 bg-indigo-500/5 group-hover:bg-indigo-500/10 transition-colors" />
+                 <Shield className="h-10 w-10 text-indigo-500 relative z-10" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Change Role</h3>
-              <p className="text-sm text-zinc-500 mb-8 px-4">Update access level for <span className="text-white font-semibold">{targetUser.email}</span></p>
+              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic mb-3">Privilege Sync</h3>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-10 italic leading-relaxed">Update neural access level for <br/><span className="text-emerald-500">{targetUser.email.toUpperCase()}</span></p>
               
-              <div className="space-y-6">
-                <div className="relative text-left">
-                  <select value={newRole} onChange={e => setNewRole(e.target.value)} className="input-field appearance-none pr-10 cursor-pointer">
-                    <option value="user">User</option>
-                    <option value="artist">Artist</option>
-                    <option value="admin">Admin</option>
-                    <option value="super admin">Super Admin</option>
+              <div className="space-y-8">
+                <div className="relative text-left group/sel">
+                  <select value={newRole} onChange={e => setNewRole(e.target.value)} className="w-full h-16 px-8 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-indigo-500/30 appearance-none shadow-inner transition-all italic cursor-pointer">
+                    <option value="user">STANDARD_NODE</option>
+                    <option value="artist">ARTIST_NODE</option>
+                    <option value="admin">ADMIN_NODE</option>
+                    <option value="super admin">EXECUTIVE_NODE</option>
                   </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+                  <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-800 pointer-events-none group-focus-within/sel:rotate-180 duration-500" />
                 </div>
                 <div className="flex gap-4">
-                  <button onClick={() => setIsRoleModalOpen(false)} className="btn-secondary flex-1">Cancel</button>
-                  <button onClick={handleRoleChange} disabled={isSubmitting} className="btn-primary flex-1">Update</button>
+                  <button onClick={() => setIsRoleModalOpen(false)} className="h-16 flex-1 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all italic">ABORT</button>
+                  <button onClick={handleRoleChange} disabled={isSubmitting} className="h-16 flex-1 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:bg-emerald-400 transition-all">COMMIT_SYNC</button>
                 </div>
               </div>
             </motion.div>
@@ -433,29 +478,30 @@ export default function UserManagement() {
         )}
 
         {isResetModalOpen && targetUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={() => setIsResetModalOpen(false)}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl" onClick={() => setIsResetModalOpen(false)}>
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="premium-card w-full max-w-sm text-center" onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="premium-card w-full max-w-sm text-center p-12 border-amber-500/10" onClick={e => e.stopPropagation()}
             >
-              <div className="mx-auto w-16 h-16 rounded-3xl bg-amber-500/10 flex items-center justify-center mb-6">
-                <Key className="h-8 w-8 text-amber-500" />
+              <div className="mx-auto w-20 h-20 rounded-[2.5rem] bg-[#0a0a0a] border border-white/5 flex items-center justify-center mb-8 shadow-2xl relative overflow-hidden group">
+                 <div className="absolute inset-0 bg-amber-500/5 group-hover:bg-amber-500/10 transition-colors" />
+                 <Key className="h-10 w-10 text-amber-500 relative z-10" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Reset Password</h3>
-              <p className="text-sm text-zinc-500 mb-8 px-4">Generate a temporary password for this user.</p>
+              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic mb-3">Access Reset</h3>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-10 italic leading-relaxed">Generate temporary neural access link for node.</p>
               
               {tempPassword ? (
-                <div className="bg-white/5 border border-emerald-500/30 p-8 rounded-3xl mb-8">
-                  <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest mb-3">Temporary Password</p>
-                  <code className="text-3xl font-mono font-bold text-white tracking-widest">{tempPassword}</code>
+                <div className="bg-[#0a0a0a] border border-emerald-500/20 p-10 rounded-[2.5rem] mb-10 shadow-inner group">
+                  <p className="text-[9px] text-emerald-500 font-bold uppercase tracking-[0.4em] mb-4 italic">TEMPORARY_ACCESS_KEY</p>
+                  <code className="text-4xl font-mono font-black text-white tracking-[0.3em] group-hover:text-emerald-400 transition-colors">{tempPassword}</code>
                 </div>
               ) : (
-                <div className="space-y-4">
-                   <button onClick={handleResetPassword} disabled={isResetting} className="w-full btn-primary flex items-center justify-center gap-2">
-                     {isResetting && <Loader2 className="w-4 h-4 animate-spin" />}
-                     Reset Now
+                <div className="space-y-6">
+                   <button onClick={handleResetPassword} disabled={isResetting} className="w-full h-16 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:bg-emerald-400 transition-all flex items-center justify-center gap-4 group">
+                     {isResetting ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw size={20} className="group-hover:rotate-180 transition-transform duration-700" />}
+                     INITIALIZE_RESET
                    </button>
-                   <button onClick={() => setIsResetModalOpen(false)} className="w-full btn-secondary">Close</button>
+                   <button onClick={() => setIsResetModalOpen(false)} className="w-full h-16 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all italic">ABORT_PROTOCOL</button>
                 </div>
               )}
             </motion.div>
