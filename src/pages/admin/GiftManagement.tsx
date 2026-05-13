@@ -9,7 +9,6 @@ import adminGiftService, { GiftResponse } from '../../services/adminGiftService'
 import { getFullImageUrl } from '../../services/api';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import GiftDialog from '../../components/gift/GiftDialog';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 const RARITY_CONFIG: Record<string, { color: string; bg: string; border: string }> = {
@@ -24,8 +23,6 @@ const GiftManagement: React.FC = () => {
   const [gifts, setGifts] = useState<GiftResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [tabValue, setTabValue] = useState(0);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editingGift, setEditingGift] = useState<GiftResponse | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
@@ -67,11 +64,6 @@ const GiftManagement: React.FC = () => {
     coins: gifts.reduce((s, g) => s + g.coinCost, 0),
   }), [gifts]);
 
-  const handleOpenDialog = (gift?: GiftResponse) => {
-    setEditingGift(gift || null);
-    setOpenDialog(true);
-  };
-
   const handleToggleActive = async (giftId: string, isActive: boolean) => {
     try {
       await adminGiftService.updateGift(giftId, { isActive: !isActive });
@@ -90,7 +82,7 @@ const GiftManagement: React.FC = () => {
           <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Digital Gifts</h1>
           <p className="text-zinc-500">Manage virtual assets, set values, and configure rewards.</p>
         </div>
-        <button onClick={() => handleOpenDialog()} className="btn-primary flex items-center gap-2">
+        <button onClick={() => navigate('/admin/gift-management/add')} className="btn-primary flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
           <Plus size={18} />
           Create Gift
         </button>
@@ -104,11 +96,11 @@ const GiftManagement: React.FC = () => {
           { label: 'Economic Value', value: `$${stats.value.toFixed(0)}`, icon: DollarSign, color: 'text-blue-500', bg: 'bg-blue-500/5' },
           { label: 'Coin Volume', value: stats.coins.toLocaleString(), icon: Package, color: 'text-amber-500', bg: 'bg-amber-500/5' },
         ].map(s => (
-          <div key={s.label} className="premium-card">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-6 ${s.bg}`}>
+          <div key={s.label} className="premium-card group hover:border-white/10 transition-all cursor-default">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-6 ${s.bg} border border-white/5`}>
               <s.icon size={20} className={s.color} />
             </div>
-            <p className="text-zinc-500 text-xs font-medium mb-1">{s.label}</p>
+            <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-1">{s.label}</p>
             <p className="text-2xl font-bold text-white tracking-tight">{s.value}</p>
           </div>
         ))}
@@ -120,8 +112,8 @@ const GiftManagement: React.FC = () => {
           <button
             key={label}
             onClick={() => setTabValue(i)}
-            className={`px-6 py-2 rounded-2xl text-xs font-semibold transition-all ${
-              tabValue === i ? 'bg-white/10 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'
+            className={`px-6 py-2 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all ${
+              tabValue === i ? 'bg-white/10 text-white shadow-lg' : 'text-zinc-600 hover:text-zinc-300'
             }`}
           >
             {label}
@@ -133,26 +125,26 @@ const GiftManagement: React.FC = () => {
       {(tabValue === 0 || tabValue === 1) && (
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="relative w-full md:max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 w-4 h-4" />
             <input
               type="text"
-              placeholder="Search assets..."
+              placeholder="Search registry index..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="input-field pl-11"
             />
           </div>
           <div className="relative">
-            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 w-4 h-4" />
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="input-field pl-11 pr-10 appearance-none cursor-pointer"
+              className="input-field pl-11 pr-12 appearance-none cursor-pointer"
             >
-              <option value="all">All Categories</option>
-              {categories.map(cat => <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>)}
+              <option value="all">All Market Categories</option>
+              {categories.map(cat => <option key={cat} value={cat}>{cat.toUpperCase()}</option>)}
             </select>
-            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" size={16} />
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 pointer-events-none" size={16} />
           </div>
         </div>
       )}
@@ -171,24 +163,24 @@ const GiftManagement: React.FC = () => {
               {filteredGifts.map((gift) => {
                 const rarity = RARITY_CONFIG[gift.rarity] || RARITY_CONFIG.common;
                 return (
-                  <div key={gift._id} className="premium-card group !p-0 overflow-hidden hover:border-emerald-500/20">
-                    <div className="relative h-48 bg-zinc-950 flex items-center justify-center p-8">
+                  <div key={gift._id} className="premium-card group !p-0 overflow-hidden hover:border-emerald-500/30 transition-all">
+                    <div className="relative h-56 bg-zinc-950 flex items-center justify-center p-8 group-hover:bg-[#080808] transition-colors">
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] to-transparent opacity-60" />
                       {gift.image ? (
-                        <img src={getFullImageUrl(gift.image)} alt={gift.name} className="h-full w-full object-contain relative z-10 group-hover:scale-110 transition-transform duration-500" />
+                        <img src={getFullImageUrl(gift.image)} alt={gift.name} className="h-full w-full object-contain relative z-10 group-hover:scale-110 transition-transform duration-700 ease-out" />
                       ) : (
-                        <Gift size={48} className="text-zinc-800" />
+                        <Gift size={48} className="text-zinc-900" />
                       )}
                       
                       <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
                         <span className={`px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-widest border ${rarity.bg} ${rarity.color} ${rarity.border}`}>
                           {gift.rarity}
                         </span>
-                        {gift.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />}
+                        {gift.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />}
                       </div>
 
-                      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                        <button onClick={() => setActiveMenu(activeMenu === gift._id ? null : gift._id)} className="p-2 rounded-xl bg-black/40 backdrop-blur-md text-white border border-white/10">
+                      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all z-20 translate-y-2 group-hover:translate-y-0">
+                        <button onClick={() => setActiveMenu(activeMenu === gift._id ? null : gift._id)} className="p-2.5 rounded-xl bg-black/60 backdrop-blur-md text-white border border-white/10 hover:bg-emerald-500/20 transition-all">
                           <MoreHorizontal size={18} />
                         </button>
                       </div>
@@ -196,30 +188,30 @@ const GiftManagement: React.FC = () => {
                       <AnimatePresence>
                         {activeMenu === gift._id && (
                           <motion.div 
-                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                            className="absolute top-16 right-4 w-44 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl z-30 p-2"
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="absolute top-16 right-4 w-48 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl z-30 p-2"
                           >
-                            <button onClick={() => { handleOpenDialog(gift); setActiveMenu(null); }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/5"><Edit size={16} /> Edit Asset</button>
-                            <button onClick={() => { handleToggleActive(gift._id, gift.isActive); setActiveMenu(null); }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/5"><Power size={16} /> {gift.isActive ? 'Deactivate' : 'Activate'}</button>
-                            <button onClick={() => { setGiftToDelete(gift._id); setActiveMenu(null); }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-rose-500 hover:bg-rose-500/5"><Trash2 size={16} /> Delete</button>
+                            <button onClick={() => navigate(`/admin/gift-management/${gift._id}`)} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-all"><Edit size={16} className="text-emerald-500" /> Edit Protocol</button>
+                            <button onClick={() => { handleToggleActive(gift._id, gift.isActive); setActiveMenu(null); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-all"><Power size={16} /> {gift.isActive ? 'Deactivate' : 'Activate'}</button>
+                            <button onClick={() => { setGiftToDelete(gift._id); setActiveMenu(null); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-500/5 transition-all"><Trash2 size={16} /> Purge Asset</button>
                           </motion.div>
                         )}
                       </AnimatePresence>
                     </div>
 
-                    <div className="p-6 space-y-4">
+                    <div className="p-6 space-y-4 bg-[#0a0a0a]">
                       <div>
-                        <h3 className="text-white font-bold tracking-tight mb-1">{gift.name}</h3>
-                        <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-widest">{gift.category}</p>
+                        <h3 className="text-white font-bold tracking-tight text-lg mb-1">{gift.name}</h3>
+                        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.2em]">{gift.category}</p>
                       </div>
                       <div className="flex items-center justify-between pt-4 border-t border-white/5">
                         <div className="flex flex-col">
-                          <span className="text-[10px] font-bold text-zinc-600 uppercase">Value</span>
+                          <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">Economic Value</span>
                           <span className="text-sm font-bold text-white">${gift.value.toFixed(2)}</span>
                         </div>
                         <div className="flex flex-col text-right">
-                          <span className="text-[10px] font-bold text-zinc-600 uppercase">Cost</span>
-                          <span className="text-sm font-bold text-emerald-500">{gift.coinCost} coins</span>
+                          <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">Virtual Cost</span>
+                          <span className="text-sm font-bold text-emerald-500">{gift.coinCost} <span className="text-[10px] uppercase opacity-60 ml-0.5">Coins</span></span>
                         </div>
                       </div>
                     </div>
@@ -235,10 +227,10 @@ const GiftManagement: React.FC = () => {
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-white/5">
-                    <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase">Category</th>
-                    <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase">Inventory</th>
-                    <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase">Economic Value</th>
-                    <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase text-right">Live Status</th>
+                    <th className="px-6 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Market Category</th>
+                    <th className="px-6 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Asset Inventory</th>
+                    <th className="px-6 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Cumulative Value</th>
+                    <th className="px-6 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest text-right">Deployment Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -247,18 +239,18 @@ const GiftManagement: React.FC = () => {
                     const totalValue = catGifts.reduce((s, g) => s + g.value, 0);
                     const activeCount = catGifts.filter(g => g.isActive).length;
                     return (
-                      <tr key={category} className="hover:bg-white/[0.02] transition-colors group">
-                        <td className="px-6 py-4">
-                          <span className="text-sm font-bold text-white capitalize">{category}</span>
+                      <tr key={category} className="hover:bg-white/[0.01] transition-colors group">
+                        <td className="px-6 py-5">
+                          <span className="text-xs font-bold text-white uppercase tracking-widest">{category}</span>
                         </td>
-                        <td className="px-6 py-4">
-                          <span className="text-xs font-medium text-zinc-400">{catGifts.length} unique assets</span>
+                        <td className="px-6 py-5">
+                          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{catGifts.length} Unique Assets</span>
                         </td>
-                        <td className="px-6 py-4">
-                          <span className="text-sm font-bold text-emerald-500">${totalValue.toFixed(2)}</span>
+                        <td className="px-6 py-5">
+                          <span className="text-sm font-bold text-emerald-500 tracking-tight">${totalValue.toFixed(2)}</span>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <span className="text-xs font-bold text-zinc-500">{activeCount} / {catGifts.length} Active</span>
+                        <td className="px-6 py-5 text-right">
+                          <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">{activeCount} / {catGifts.length} Active</span>
                         </td>
                       </tr>
                     );
@@ -270,35 +262,39 @@ const GiftManagement: React.FC = () => {
 
           {/* Rules & Settings */}
           {tabValue === 3 && (
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="premium-card">
-                <h3 className="text-lg font-bold mb-8">Economic Rules</h3>
+            <div className="grid md:grid-cols-2 gap-10">
+              <div className="premium-card space-y-10">
+                <h3 className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <Activity size={14} className="text-indigo-500" /> Economic Protocol Rules
+                </h3>
                 <div className="space-y-4">
                   {[
                     { label: 'Require verification for gifts over $50', active: true },
                     { label: 'Enable cooldown between transactions', active: true },
                     { label: 'Allow anonymous contributors', active: false },
                   ].map(rule => (
-                    <div key={rule.label} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
-                      <span className="text-sm font-medium text-zinc-300">{rule.label}</span>
-                      <div className={`w-10 h-5 rounded-full relative transition-colors ${rule.active ? 'bg-emerald-500' : 'bg-zinc-800'}`}>
+                    <div key={rule.label} className="flex items-center justify-between p-5 bg-white/[0.02] rounded-2xl border border-white/5">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{rule.label}</span>
+                      <div className={`w-10 h-5 rounded-full relative transition-all ${rule.active ? 'bg-emerald-500' : 'bg-zinc-800'}`}>
                         <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${rule.active ? 'right-1' : 'left-1'}`} />
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="premium-card">
-                <h3 className="text-lg font-bold mb-8">Visual Effects</h3>
+              <div className="premium-card space-y-10">
+                <h3 className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <Sparkles size={14} className="text-amber-500" /> High-Fidelity Signal Processing
+                </h3>
                 <div className="space-y-4">
                   {[
                     { label: 'Display high-fidelity animations', active: true },
                     { label: 'Enable spatial sound effects', active: true },
                     { label: 'Particle systems on legendary gifts', active: true },
                   ].map(rule => (
-                    <div key={rule.label} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
-                      <span className="text-sm font-medium text-zinc-300">{rule.label}</span>
-                      <div className={`w-10 h-5 rounded-full relative transition-colors ${rule.active ? 'bg-emerald-500' : 'bg-zinc-800'}`}>
+                    <div key={rule.label} className="flex items-center justify-between p-5 bg-white/[0.02] rounded-2xl border border-white/5">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{rule.label}</span>
+                      <div className={`w-10 h-5 rounded-full relative transition-all ${rule.active ? 'bg-emerald-500' : 'bg-zinc-800'}`}>
                         <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${rule.active ? 'right-1' : 'left-1'}`} />
                       </div>
                     </div>
@@ -310,24 +306,19 @@ const GiftManagement: React.FC = () => {
         </motion.div>
       </AnimatePresence>
 
-      {/* Modals */}
-      {openDialog && (
-        <GiftDialog open={openDialog} onClose={() => setOpenDialog(false)} editingGift={editingGift} onSuccess={loadGifts} />
-      )}
-
       <ConfirmDialog
         isOpen={!!giftToDelete}
-        title="Permanently Delete Gift"
-        message="This will remove the digital asset from all systems. This action cannot be undone."
-        confirmLabel="Delete Asset"
+        title="Permanently Purge Digital Asset"
+        message="This will remove the asset from all economy nodes. This action is irreversible."
+        confirmLabel="Purge Asset"
         onConfirm={async () => {
           if (!giftToDelete) return;
           try {
             await adminGiftService.hardDeleteGift(giftToDelete);
-            toast.success('Asset purged');
+            toast.success('Asset purged from registry');
             loadGifts();
           } catch (error) {
-            toast.error('Deletion failed');
+            toast.error('Deletion protocol failure');
           } finally {
             setGiftToDelete(null);
           }

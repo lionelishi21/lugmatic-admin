@@ -66,6 +66,7 @@ import ContributorDashboard from './pages/contributor/ContributorDashboard';
 import PayoutSettings from './pages/contributor/PayoutSettings';
 import Billboard from './pages/admin/Billboard';
 import ArtistApprovals from './pages/admin/ArtistApprovals';
+import GiftEdit from './pages/admin/GiftEdit';
 import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
@@ -152,6 +153,8 @@ function App() {
                         <Route path="podcast-management" element={<PodcastManagement />} />
                         <Route path="comment-management" element={<CommentManagement />} />
                         <Route path="gift-management" element={<GiftManagement />} />
+                        <Route path="gift-management/add" element={<GiftEdit />} />
+                        <Route path="gift-management/:id" element={<GiftEdit />} />
                         <Route path="notification-management" element={<NotificationManagement />} />
                         <Route path="content-moderation" element={<ContentModeration />} />
                         <Route path="analytics" element={<Analytics />} />
