@@ -1,50 +1,23 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
-  Video,
-  Users,
-  Clock,
-  Eye,
-  Heart,
-  MessageCircle,
-  DollarSign,
-  Play,
-  Pause,
-  Square,
-  Settings,
-  Pencil,
-  Trash2,
-  Plus,
-  Search,
-  Calendar,
-  BarChart3,
-  X,
-  MoreVertical,
-  Radio,
-  Share2,
-  ArrowUpRight,
-  Signal,
-  AlertCircle
+  Video, Users, Clock, Eye, Heart, MessageCircle, DollarSign,
+  Play, Pause, Square, Settings, Pencil, Trash2, Plus,
+  Search, Calendar, X, MoreVertical, Radio, Signal, AlertCircle, ChevronRight
 } from 'lucide-react';
 import {
-  LiveKitRoom,
-  VideoTrack,
-  AudioTrack,
-  useTracks,
+  LiveKitRoom, VideoTrack, AudioTrack, useTracks,
 } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import '@livekit/components-styles';
 import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import {
-  adminGetAllStreams,
-  getStreamToken,
-  deleteRecording,
-  type LiveStream
+  adminGetAllStreams, getStreamToken, deleteRecording, type LiveStream
 } from '../../services/liveStreamService';
 import { getFullImageUrl } from '../../services/api';
 
-// ─── Monitoring Modal ────────────────────────────────────────────────────────
-
+// ─── Monitoring Modal ───
 interface MonitoringModalProps {
   stream: LiveStream;
   onClose: () => void;
@@ -60,81 +33,68 @@ const MonitoringModal: React.FC<MonitoringModalProps> = ({ stream, onClose }) =>
         const res = await getStreamToken(stream._id);
         setTokenData({ token: res.data.token, url: res.data.url });
       } catch (err) {
-        console.error('Failed to get monitoring token:', err);
-        toast.error('Failed to join stream for monitoring');
+        toast.error('Failed to join stream');
         onClose();
       } finally {
         setLoading(false);
       }
     };
-
     fetchToken();
   }, [stream._id, onClose]);
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[60]" onClick={onClose}>
-      <div className="bg-gray-950 rounded-2xl shadow-2xl max-w-4xl w-full mx-4 aspect-video relative overflow-hidden" onClick={e => e.stopPropagation()}>
-        <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between z-10 bg-gradient-to-b from-black/80 to-transparent">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              MONITORING
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-xl flex items-center justify-center z-[70]" onClick={onClose}>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl max-w-5xl w-full mx-4 aspect-video relative overflow-hidden" 
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between z-10 bg-gradient-to-b from-black/80 to-transparent">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 text-rose-500 text-[10px] font-bold tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+              LIVE MONITOR
             </div>
             <h2 className="text-white font-bold truncate max-w-[300px]">{stream.title}</h2>
-            <span className="text-white/40 text-xs">•</span>
-            <span className="text-white/60 text-xs">{stream.host.name}</span>
+            <span className="text-zinc-500 text-xs font-medium">{stream.host.name}</span>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
-          >
-            <X className="h-5 w-5" />
+          <button onClick={onClose} className="p-2 rounded-full bg-white/5 text-white hover:bg-white/10 transition-colors">
+            <X size={20} />
           </button>
         </div>
 
         {loading ? (
-          <div className="h-full flex flex-col items-center justify-center text-white">
-            <Radio className="h-12 w-12 text-green-500 animate-pulse mb-4" />
-            <p className="text-sm font-medium">Connecting to stream...</p>
+          <div className="h-full flex flex-col items-center justify-center text-zinc-500">
+            <Radio size={48} className="text-emerald-500 animate-pulse mb-4" />
+            <p className="text-sm font-medium">Connecting to encrypted signal...</p>
           </div>
         ) : tokenData ? (
-          <LiveKitRoom
-            serverUrl={tokenData.url}
-            token={tokenData.token}
-            connect={true}
-            className="h-full w-full"
-          >
+          <LiveKitRoom serverUrl={tokenData.url} token={tokenData.token} connect={true} className="h-full w-full">
             <StreamVideoRenderer />
           </LiveKitRoom>
         ) : (
-          <div className="h-full flex flex-col items-center justify-center text-white p-6 text-center">
-            <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-            <p className="font-bold">Connection Failed</p>
-            <p className="text-sm text-white/60 mt-2">Could not establish connection to the LiveKit server.</p>
+          <div className="h-full flex flex-col items-center justify-center text-center p-12">
+            <AlertCircle size={48} className="text-rose-500 mb-4" />
+            <p className="text-white font-bold">Signal Lost</p>
+            <p className="text-sm text-zinc-500 mt-2">Could not establish connection to the streaming server.</p>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };
 
 function StreamVideoRenderer() {
-  const tracks = useTracks(
-    [Track.Source.Camera, Track.Source.ScreenShare, Track.Source.Microphone],
-    { onlySubscribed: true }
-  );
-
-  const videoTrack = tracks.find(
-    (t) => t.source === Track.Source.Camera || t.source === Track.Source.ScreenShare
-  );
-
+  const tracks = useTracks([Track.Source.Camera, Track.Source.ScreenShare, Track.Source.Microphone], { onlySubscribed: true });
+  const videoTrack = tracks.find((t) => t.source === Track.Source.Camera || t.source === Track.Source.ScreenShare);
   const audioTracks = tracks.filter((t) => t.source === Track.Source.Microphone);
 
   if (!videoTrack) {
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-gray-900">
-        <Video className="h-16 w-16 text-white/10 mb-4" />
-        <p className="text-white/40 text-sm">Waiting for video signal...</p>
+      <div className="h-full flex flex-col items-center justify-center bg-zinc-950">
+        <Video size={64} className="text-white/5 mb-4" />
+        <p className="text-zinc-600 text-sm font-medium tracking-wide">Waiting for video signal...</p>
         {audioTracks.map((t, i) => <AudioTrack key={i} trackRef={t} />)}
       </div>
     );
@@ -148,8 +108,7 @@ function StreamVideoRenderer() {
   );
 }
 
-// ─── Main Component ─────────────────────────────────────────────────────────
-
+// ─── Main Component ───
 const LiveStreamManagement: React.FC = () => {
   const [streams, setStreams] = useState<LiveStream[]>([]);
   const [loading, setLoading] = useState(true);
@@ -158,7 +117,7 @@ const LiveStreamManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 });
+  const [pagination, setPagination] = useState({ page: 1, limit: 12, total: 0, pages: 1 });
   const [viewingRecording, setViewingRecording] = useState<LiveStream | null>(null);
 
   const fetchStreams = useCallback(async () => {
@@ -170,20 +129,14 @@ const LiveStreamManagement: React.FC = () => {
         page: pagination.page,
         limit: pagination.limit
       });
-
       if (res.success) {
         setStreams(res.data);
         if (res.pagination) {
-          setPagination(prev => ({
-            ...prev,
-            total: res.pagination?.total || 0,
-            pages: res.pagination?.pages || 1
-          }));
+          setPagination(prev => ({ ...prev, total: res.pagination?.total || 0, pages: res.pagination?.pages || 1 }));
         }
       }
     } catch (err) {
-      console.error('Error fetching live streams:', err);
-      toast.error('Failed to load live streams');
+      toast.error('Failed to load streams');
     } finally {
       setLoading(false);
     }
@@ -193,498 +146,270 @@ const LiveStreamManagement: React.FC = () => {
     fetchStreams();
   }, [fetchStreams]);
 
-  const liveCount = useMemo(() => streams.filter(s => s.status === 'live').length, [streams]);
-  const scheduledCount = useMemo(() => streams.filter(s => s.status === 'scheduled').length, [streams]);
-  const totalViewers = useMemo(() => streams.reduce((sum, s) => sum + (s.currentViewers || 0), 0), [streams]);
-  const totalRevenue = useMemo(() => streams.reduce((sum, s) => sum + (s.totalGiftValue || 0), 0), [streams]);
-
-  const statusTabs = [
-    { key: 'live', label: 'Live', count: liveCount },
-    { key: 'scheduled', label: 'Scheduled', count: scheduledCount },
-    { key: 'ended', label: 'Ended', count: streams.filter(s => s.status === 'ended' && !s.isRecorded).length },
-    { key: 'recorded', label: 'Recorded', count: streams.filter(s => s.isRecorded).length },
-  ];
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'live':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-600">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-            LIVE
-          </span>
-        );
-      case 'ended':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-            <Square className="h-3 w-3" />
-            Ended
-          </span>
-        );
-      case 'scheduled':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-600">
-            <Clock className="h-3 w-3" />
-            Scheduled
-          </span>
-        );
-      case 'cancelled':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-600">
-            <X className="h-3 w-3" />
-            Cancelled
-          </span>
-        );
-      default:
-        return null;
-    }
-  };
-
-  const getArtistInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  };
+  const stats = useMemo(() => ({
+    live: streams.filter(s => s.status === 'live').length,
+    viewers: streams.reduce((sum, s) => sum + (s.currentViewers || 0), 0),
+    revenue: streams.reduce((sum, s) => sum + (s.totalGiftValue || 0), 0),
+    scheduled: streams.filter(s => s.status === 'scheduled').length,
+  }), [streams]);
 
   const handleStreamAction = async (streamId: string, action: string) => {
     if (action === 'delete-recording') {
-      if (window.confirm('Are you sure you want to delete this recording? This cannot be undone.')) {
+      if (window.confirm('Delete this recording?')) {
         try {
           await deleteRecording(streamId);
-          toast.success('Recording deleted successfully');
+          toast.success('Recording deleted');
           fetchStreams();
         } catch (err) {
-          toast.error('Failed to delete recording');
+          toast.error('Failed to delete');
         }
       }
     }
-    console.log(`Action ${action} on stream ${streamId}`);
     setOpenMenuId(null);
   };
 
-  const formatDuration = (seconds?: number) => {
-    if (!seconds) return '00:00:00';
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
-  };
-
   return (
-    <div className="p-6 max-w-[1400px] mx-auto min-h-screen">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Live Stream Management</h1>
-          <p className="text-sm text-gray-500 mt-1">Monitor and manage live streaming sessions</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Live Streams</h1>
+          <p className="text-zinc-500">Monitor active broadcasts and manage recording history.</p>
         </div>
-        <div className="flex gap-3">
-          <button
-            onClick={() => fetchStreams()}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm"
-          >
-            Refresh
-          </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-xl text-sm font-semibold hover:bg-green-700 transition-colors shadow-sm">
-            <Plus className="h-4 w-4" />
-            New Stream
-          </button>
+        <button className="btn-primary flex items-center gap-2">
+          <Plus size={18} />
+          Create Stream
+        </button>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: 'Live Now', value: stats.live, icon: Radio, color: 'text-rose-500', bg: 'bg-rose-500/5' },
+          { label: 'Total Viewers', value: stats.viewers.toLocaleString(), icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/5' },
+          { label: 'Stream Revenue', value: `$${stats.revenue.toFixed(0)}`, icon: DollarSign, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
+          { label: 'Scheduled', value: stats.scheduled, icon: Calendar, color: 'text-amber-500', bg: 'bg-amber-500/5' },
+        ].map(s => (
+          <div key={s.label} className="premium-card premium-card-hover">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-6 ${s.bg}`}>
+              <s.icon size={20} className={s.color} />
+            </div>
+            <p className="text-zinc-500 text-xs font-medium mb-1">{s.label}</p>
+            <p className="text-2xl font-bold text-white tracking-tight">{s.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Controls */}
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1 gap-1">
+          {['all', 'live', 'recorded', 'scheduled'].map(filter => (
+            <button
+              key={filter}
+              onClick={() => { setStatusFilter(filter); setPagination(prev => ({ ...prev, page: 1 })); }}
+              className={`px-4 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all ${
+                statusFilter === filter ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+        <div className="relative w-full md:w-64">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Search streams..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="input-field pl-11"
+          />
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center">
-              <Radio className="h-4.5 w-4.5 text-red-500" />
-            </div>
+      {/* Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {loading && streams.length === 0 ? (
+          <div className="col-span-full py-24 text-center">
+            <Loader2 className="h-8 w-8 text-emerald-500 animate-spin mx-auto mb-4" />
+            <p className="text-zinc-500">Scanning frequency channels...</p>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{liveCount}</p>
-          <p className="text-xs text-gray-500 mt-0.5">Live Now</p>
-        </div>
-
-        <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
-              <Users className="h-4.5 w-4.5 text-blue-500" />
-            </div>
+        ) : streams.length === 0 ? (
+          <div className="col-span-full py-24 text-center premium-card">
+            <Video className="h-12 w-12 text-zinc-800 mx-auto mb-4" />
+            <p className="text-zinc-500">No active streams found in this sector.</p>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{totalViewers.toLocaleString()}</p>
-          <p className="text-xs text-gray-500 mt-0.5">Total Viewers</p>
-        </div>
-
-        <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center">
-              <DollarSign className="h-4.5 w-4.5 text-green-500" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-gray-900">${totalRevenue.toFixed(0)}</p>
-          <p className="text-xs text-gray-500 mt-0.5">Stream Revenue</p>
-        </div>
-
-        <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center">
-              <Calendar className="h-4.5 w-4.5 text-purple-500" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-gray-900">{scheduledCount}</p>
-          <p className="text-xs text-gray-500 mt-0.5">Scheduled</p>
-        </div>
-      </div>
-
-      {/* Filters & Search */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-gray-100">
-          <div className="flex items-center gap-1">
-            {statusTabs.map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => { setStatusFilter(tab.key); setPagination(prev => ({ ...prev, page: 1 })); }}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  statusFilter === tab.key
-                    ? 'bg-green-50 text-green-700'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {tab.label}
-                <span className={`ml-1.5 text-xs ${
-                  statusFilter === tab.key ? 'text-green-500' : 'text-gray-400'
-                }`}>
-                  {tab.count}
-                </span>
-              </button>
-            ))}
-          </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search streams or artists..."
-              value={searchTerm}
-              onChange={(e) => { setSearchTerm(e.target.value); setPagination(prev => ({ ...prev, page: 1 })); }}
-              className="pl-9 pr-4 py-2 w-64 text-sm bg-gray-50/50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-400 outline-none transition-all"
-            />
-          </div>
-        </div>
-
-        {/* Streams Grid */}
-        <div className="p-5">
-          {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-10 w-10 border-2 border-green-200 border-t-green-600"></div>
-            </div>
-          ) : streams.length === 0 ? (
-            <div className="py-16 text-center">
-              <Video className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-              <p className="text-sm text-gray-500">No streams found</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {streams.map((stream) => (
-                <div
-                  key={stream._id}
-                  className="group relative bg-white border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-md transition-all duration-200"
-                >
-                  {/* Thumbnail area */}
-                  <div className={`relative h-40 rounded-t-xl overflow-hidden`}>
-                    {stream.coverImage ? (
-                      <img
-                        src={getFullImageUrl(stream.coverImage)}
-                        alt={stream.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className={`w-full h-full flex items-center justify-center ${
-                        stream.status === 'live' ? 'bg-gray-900' : 'bg-gray-100'
-                      }`}>
-                        <Radio className={`h-10 w-10 ${stream.status === 'live' ? 'text-white/20' : 'text-gray-200'}`} />
-                      </div>
-                    )}
-
-                    <div className="absolute top-3 left-3">
-                      {getStatusBadge(stream.status)}
+        ) : (
+          streams.map((stream) => (
+            <motion.div
+              key={stream._id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="premium-card group !p-0 overflow-hidden border-white/5 hover:border-emerald-500/20"
+            >
+              {/* Thumbnail */}
+              <div className="relative aspect-video bg-zinc-900 overflow-hidden">
+                {stream.coverImage ? (
+                  <img src={getFullImageUrl(stream.coverImage)} alt={stream.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-zinc-800"><Radio size={48} /></div>
+                )}
+                
+                {/* Status Badge */}
+                <div className="absolute top-4 left-4">
+                  {stream.status === 'live' ? (
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500 text-white text-[10px] font-bold tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      LIVE
                     </div>
-
-                    {stream.status === 'live' && (
-                      <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/40 text-white text-xs">
-                        <Eye className="h-3 w-3" />
-                        {(stream.currentViewers || 0).toLocaleString()}
-                      </div>
-                    )}
-
-                    {stream.status === 'live' && (
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                        <button
-                          onClick={() => setMonitoringStream(stream)}
-                          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full text-xs font-bold hover:bg-green-700 transform scale-90 group-hover:scale-100 transition-all shadow-lg"
-                        >
-                          <Play className="h-3.5 w-3.5 fill-current" />
-                          MONITOR LIVE
-                        </button>
-                      </div>
-                    )}
-
-                    {stream.isRecorded && (
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                        <button
-                          onClick={() => setViewingRecording(stream)}
-                          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-full text-xs font-bold hover:bg-purple-700 transform scale-90 group-hover:scale-100 transition-all shadow-lg"
-                        >
-                          <Play className="h-3.5 w-3.5 fill-current" />
-                          WATCH RECORDING
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
-                          {stream.host.image ? (
-                            <img src={getFullImageUrl(stream.host.image)} alt={stream.host.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-green-500 text-white text-[10px] font-bold">
-                              {getArtistInitials(stream.host.name)}
-                            </div>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <h3 className="text-sm font-semibold text-gray-900 truncate">{stream.title}</h3>
-                          <p className="text-xs text-gray-400 font-medium">@{stream.host.name.replace(/\s+/g, '').toLowerCase()}</p>
-                        </div>
-                      </div>
-                      <div className="relative flex-shrink-0">
-                        <button
-                          onClick={() => setOpenMenuId(openMenuId === stream._id ? null : stream._id)}
-                          className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
-                        {openMenuId === stream._id && (
-                          <div className="absolute right-0 top-7 w-40 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-20">
-                            <button
-                              onClick={() => { setSelectedStream(stream); setOpenMenuId(null); }}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50"
-                            >
-                              <Eye className="h-3.5 w-3.5" /> View Analytics
-                            </button>
-                            {stream.status === 'live' && (
-                              <button
-                                onClick={() => { setMonitoringStream(stream); setOpenMenuId(null); }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-green-600 hover:bg-green-50"
-                              >
-                                <Play className="h-3.5 w-3.5" /> Open Monitor
-                              </button>
-                            )}
-                            <button
-                              onClick={() => handleStreamAction(stream._id, 'edit')}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50"
-                            >
-                              <Pencil className="h-3.5 w-3.5" /> Edit Settings
-                            </button>
-                            {stream.isRecorded && (
-                              <button
-                                onClick={() => { handleStreamAction(stream._id, 'delete-recording'); }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" /> Delete Recording
-                              </button>
-                            )}
-                            <hr className="my-1 border-gray-100" />
-                            <button
-                              onClick={() => handleStreamAction(stream._id, 'delete')}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 hover:bg-red-50"
-                            >
-                              <X className="h-3.5 w-3.5" /> Stop / End Stream
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Mini stats row */}
-                    <div className="flex items-center gap-4 text-xs text-gray-400">
-                      <span className="flex items-center gap-1">
-                        <Users className="h-3.5 w-3.5" />
-                        {(stream.totalViewers || 0).toLocaleString()}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <DollarSign className="h-3.5 w-3.5" />
-                        {(stream.totalGiftValue || 0).toFixed(0)}
-                      </span>
-                      <span className="flex items-center gap-1 ml-auto">
-                        <Clock className="h-3.5 w-3.5" />
-                        {stream.status === 'live' ? formatDuration(stream.duration) : stream.status === 'scheduled' ? 'Scheduled' : 'Ended'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Pagination */}
-        {pagination.pages > 1 && (
-          <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between">
-            <p className="text-xs text-gray-500">
-              Showing <span className="font-medium">{(pagination.page - 1) * pagination.limit + 1}</span> to <span className="font-medium">{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of <span className="font-medium">{pagination.total}</span> streams
-            </p>
-            <div className="flex gap-2">
-              <button
-                disabled={pagination.page === 1}
-                onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-                className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-medium hover:bg-gray-50 disabled:opacity-50 transition-colors"
-              >
-                Previous
-              </button>
-              <button
-                disabled={pagination.page === pagination.pages}
-                onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-medium hover:bg-gray-50 disabled:opacity-50 transition-colors"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Stream Details Modal */}
-      {selectedStream && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setSelectedStream(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-5 border-b border-gray-100">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">Stream Analytics</h2>
-                <p className="text-xs text-gray-500 mt-0.5">Performance insights for this session</p>
-              </div>
-              <button
-                onClick={() => setSelectedStream(null)}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="p-5">
-              {/* Stream info header */}
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-full overflow-hidden bg-gray-100">
-                  {selectedStream.host.image ? (
-                    <img src={getFullImageUrl(selectedStream.host.image)} alt={selectedStream.host.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-green-500 text-white font-bold">
-                      {getArtistInitials(selectedStream.host.name)}
+                    <div className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white/60 text-[10px] font-bold uppercase tracking-wider border border-white/10">
+                      {stream.status}
                     </div>
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900">{selectedStream.title}</h3>
-                  <p className="text-sm text-gray-500">Live with {selectedStream.host.name}</p>
-                </div>
-                {getStatusBadge(selectedStream.status)}
-              </div>
 
-              {/* Details grid */}
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <div className="p-3 bg-gray-50 rounded-xl text-center">
-                  <Users className="h-5 w-5 text-blue-500 mx-auto mb-1.5" />
-                  <p className="text-lg font-bold text-gray-900">{(selectedStream.totalViewers || 0).toLocaleString()}</p>
-                  <p className="text-[11px] text-gray-500">Total Viewers</p>
-                </div>
-                <div className="p-3 bg-gray-50 rounded-xl text-center">
-                  <DollarSign className="h-5 w-5 text-green-500 mx-auto mb-1.5" />
-                  <p className="text-lg font-bold text-gray-900">${(selectedStream.totalGiftValue || 0).toFixed(2)}</p>
-                  <p className="text-[11px] text-gray-500">Revenue</p>
-                </div>
-                <div className="p-3 bg-gray-50 rounded-xl text-center">
-                  <Heart className="h-5 w-5 text-red-500 mx-auto mb-1.5" />
-                  <p className="text-lg font-bold text-gray-900">{(selectedStream.peakViewers || 0).toLocaleString()}</p>
-                  <p className="text-[11px] text-gray-500">Peak Viewers</p>
-                </div>
-                <div className="p-3 bg-gray-50 rounded-xl text-center">
-                  <MessageCircle className="h-5 w-5 text-purple-500 mx-auto mb-1.5" />
-                  <p className="text-lg font-bold text-gray-900">{selectedStream.totalGiftsReceived || 0}</p>
-                  <p className="text-[11px] text-gray-500">Gifts Received</p>
+                {/* Overlay Controls */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                  {stream.status === 'live' && (
+                    <button onClick={() => setMonitoringStream(stream)} className="btn-primary scale-90 group-hover:scale-100 transition-transform">
+                      Monitor Signal
+                    </button>
+                  )}
+                  {stream.isRecorded && (
+                    <button onClick={() => setViewingRecording(stream)} className="btn-secondary scale-90 group-hover:scale-100 transition-transform bg-white text-black hover:bg-zinc-200">
+                      Watch Archive
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Info rows */}
-              <div className="space-y-2.5 mb-5">
+              {/* Info */}
+              <div className="p-6">
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <img 
+                      src={stream.host.image ? getFullImageUrl(stream.host.image) : `https://ui-avatars.com/api/?name=${encodeURIComponent(stream.host.name)}&background=10b981&color=fff`} 
+                      className="w-10 h-10 rounded-xl object-cover border border-white/5" 
+                    />
+                    <div className="min-w-0">
+                      <h3 className="text-white font-bold truncate tracking-tight">{stream.title}</h3>
+                      <p className="text-xs text-zinc-500 truncate">{stream.host.name}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setOpenMenuId(openMenuId === stream._id ? null : stream._id)} className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-white/5">
+                    <MoreVertical size={18} />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5 text-xs text-zinc-400 font-medium">
+                      <Users size={14} className="text-emerald-500" />
+                      {(stream.currentViewers || 0).toLocaleString()}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-zinc-400 font-medium">
+                      <DollarSign size={14} className="text-emerald-500" />
+                      {stream.totalGiftValue || 0}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-zinc-600 font-medium">
+                    <Clock size={14} />
+                    {stream.status === 'live' ? 'On Air' : 'Ended'}
+                  </div>
+                </div>
+              </div>
+
+              <AnimatePresence>
+                {openMenuId === stream._id && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                    className="absolute bottom-20 right-6 w-48 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl z-20 p-2"
+                  >
+                    <button onClick={() => { setSelectedStream(stream); setOpenMenuId(null); }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/5">
+                      <Eye size={16} /> Stream Analytics
+                    </button>
+                    {stream.isRecorded && (
+                      <button onClick={() => handleStreamAction(stream._id, 'delete-recording')} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-rose-500 hover:bg-rose-500/5">
+                        <Trash2 size={16} /> Delete Recording
+                      </button>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))
+        )}
+      </div>
+
+      {/* Analytics Modal */}
+      <AnimatePresence>
+        {selectedStream && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={() => setSelectedStream(null)}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="premium-card w-full max-w-xl shadow-2xl" onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h3 className="text-xl font-bold">Stream Analytics</h3>
+                  <p className="text-xs text-zinc-500 mt-1">Deep analysis of transmission #{selectedStream._id.slice(-8)}</p>
+                </div>
+                <button onClick={() => setSelectedStream(null)} className="p-2 rounded-full hover:bg-white/5 text-zinc-500"><X size={20} /></button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-8">
                 {[
-                  { label: 'Category', value: selectedStream.category },
-                  { label: 'Stream ID', value: selectedStream._id.slice(-8).toUpperCase() },
-                  { label: 'Duration', value: formatDuration(selectedStream.duration) },
-                  { label: 'Started At', value: selectedStream.actualStartTime ? new Date(selectedStream.actualStartTime).toLocaleString() : 'Not started' },
-                  { label: 'Scheduled For', value: selectedStream.scheduledStartTime ? new Date(selectedStream.scheduledStartTime).toLocaleString() : 'Immediate' },
-                ].map(row => (
-                  <div key={row.label} className="flex items-center justify-between py-1.5 text-sm">
-                    <span className="text-gray-500">{row.label}</span>
-                    <span className="font-medium text-gray-900">{row.value}</span>
+                  { label: 'Total Viewers', value: selectedStream.totalViewers, icon: Users, color: 'text-blue-500' },
+                  { label: 'Revenue', value: `$${selectedStream.totalGiftValue || 0}`, icon: DollarSign, color: 'text-emerald-500' },
+                  { label: 'Peak Concurrency', value: selectedStream.peakViewers, icon: Signal, color: 'text-rose-500' },
+                  { label: 'Engagement', value: selectedStream.totalGiftsReceived, icon: Heart, color: 'text-purple-500' },
+                ].map(metric => (
+                  <div key={metric.label} className="bg-white/5 border border-white/5 p-4 rounded-2xl text-center">
+                    <metric.icon size={18} className={`${metric.color} mx-auto mb-2`} />
+                    <p className="text-lg font-bold text-white">{metric.value || 0}</p>
+                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{metric.label}</p>
                   </div>
                 ))}
               </div>
 
-              {/* Actions */}
-              <div className="flex justify-end gap-2.5 pt-4 border-t border-gray-100">
-                <button
-                  onClick={() => setSelectedStream(null)}
-                  className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-                >
-                  Close
-                </button>
-                {selectedStream.status === 'live' && (
-                  <button
-                    onClick={() => { setMonitoringStream(selectedStream); setSelectedStream(null); }}
-                    className="px-5 py-2 text-sm bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
-                  >
-                    Watch Now
-                  </button>
-                )}
+              <div className="space-y-4 pt-6 border-t border-white/5">
+                {[
+                  { label: 'Category', value: selectedStream.category },
+                  { label: 'Host Profile', value: selectedStream.host.name },
+                  { label: 'Start Time', value: selectedStream.actualStartTime ? new Date(selectedStream.actualStartTime).toLocaleString() : 'Pending' },
+                ].map(item => (
+                  <div key={item.label} className="flex justify-between items-center text-sm">
+                    <span className="text-zinc-500 font-medium">{item.label}</span>
+                    <span className="text-white font-bold">{item.value}</span>
+                  </div>
+                ))}
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
-      {/* Monitoring Modal */}
-      {monitoringStream && (
-        <MonitoringModal
-          stream={monitoringStream}
-          onClose={() => setMonitoringStream(null)}
-        />
-      )}
-
-      {/* Recording Player Modal */}
-      {viewingRecording && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[70]" onClick={() => setViewingRecording(null)}>
-          <div className="max-w-5xl w-full mx-4 aspect-video relative" onClick={e => e.stopPropagation()}>
-            <video 
-              src={viewingRecording.recordingUrl} 
-              controls 
-              autoPlay 
-              className="w-full h-full rounded-2xl shadow-2xl"
-            />
-            <button
-              onClick={() => setViewingRecording(null)}
-              className="absolute -top-12 right-0 text-white/60 hover:text-white transition-colors"
+      {/* Recording Player */}
+      <AnimatePresence>
+        {viewingRecording && (
+          <div className="fixed inset-0 bg-black/95 backdrop-blur-2xl flex items-center justify-center z-[80]" onClick={() => setViewingRecording(null)}>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              className="max-w-5xl w-full mx-4 aspect-video relative group" onClick={e => e.stopPropagation()}
             >
-              <X className="h-8 w-8" />
-            </button>
+              <video src={viewingRecording.recordingUrl} controls autoPlay className="w-full h-full rounded-3xl shadow-2xl border border-white/10" />
+              <button onClick={() => setViewingRecording(null)} className="absolute -top-16 right-0 p-3 rounded-full bg-white/5 text-white/40 hover:text-white hover:bg-white/10 transition-all">
+                <X size={24} />
+              </button>
+            </motion.div>
           </div>
-        </div>
-      )}
-
-      {/* Click-away listener for menus */}
-      {openMenuId && (
-        <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 export default LiveStreamManagement;
+
+const Loader2 = ({ className }: { className?: string }) => <Signal className={`${className} animate-pulse`} />;

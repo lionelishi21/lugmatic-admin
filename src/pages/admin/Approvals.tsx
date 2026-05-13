@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Music2, Search, Filter, Play, Pause, CheckCircle, XCircle } from 'lucide-react';
+import { Music2, Search, Filter, Play, Pause, CheckCircle, XCircle, Clock, Tag } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
 import { adminService } from '@/services/adminService';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Track {
   id: string;
@@ -32,7 +33,6 @@ export default function Approvals() {
   }, []);
 
   useEffect(() => {
-    // Cleanup audio elements on unmount
     return () => {
       Object.values(audioElements).forEach(audio => {
         audio.pause();
@@ -45,8 +45,6 @@ export default function Approvals() {
     try {
       setIsLoading(true);
       const response = await adminService.getContentForModeration('songs');
-      
-      // Map backend Song to UI Track interface
       const mappedTracks: Track[] = (response.data.data as any[]).map((song: any) => ({
         id: song._id,
         title: song.name,
@@ -61,7 +59,6 @@ export default function Approvals() {
           profile_image: song.artist?.image || ''
         }
       }));
-
       setTracks(mappedTracks);
     } catch (error) {
       console.error('Error fetching tracks:', error);
@@ -79,23 +76,17 @@ export default function Approvals() {
 
     if (!audioElements[trackId]) {
       audioElements[trackId] = new Audio(audioUrl);
-      audioElements[trackId].addEventListener('ended', () => {
-        setCurrentlyPlaying(null);
-      });
+      audioElements[trackId].addEventListener('ended', () => setCurrentlyPlaying(null));
     }
 
     if (currentlyPlaying === trackId) {
       audioElements[trackId].pause();
       setCurrentlyPlaying(null);
     } else {
-      // Pause any currently playing audio
       if (currentlyPlaying && audioElements[currentlyPlaying]) {
         audioElements[currentlyPlaying].pause();
       }
-      audioElements[trackId].play().catch(err => {
-        console.error('Playback error:', err);
-        toast.error('Could not play audio');
-      });
+      audioElements[trackId].play().catch(() => toast.error('Could not play audio'));
       setCurrentlyPlaying(trackId);
     }
   };
@@ -103,25 +94,20 @@ export default function Approvals() {
   const handleApproval = async (trackId: string, approved: boolean) => {
     try {
       await adminService.moderateContent('songs', trackId, approved ? 'approve' : 'reject');
-      
-      // Update local state
       setTracks(prev => prev.filter(t => t.id !== trackId));
-      
       if (currentlyPlaying === trackId) {
         audioElements[trackId].pause();
         setCurrentlyPlaying(null);
       }
-      
-      toast.success(`Track ${approved ? 'approved' : 'rejected'} successfully`);
+      toast.success(`Track ${approved ? 'approved' : 'rejected'}`);
     } catch (error) {
-      console.error('Error moderating track:', error);
-      toast.error(`Failed to ${approved ? 'approve' : 'reject'} track`);
+      toast.error(`Failed to ${approved ? 'approve' : 'reject'}`);
     }
   };
 
   const filteredTracks = tracks.filter(track => {
     const matchesSearch = track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         track.artist.name.toLowerCase().includes(searchQuery.toLowerCase());
+                          track.artist.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesGenre = genreFilter === 'all' || track.genre === genreFilter;
     return matchesSearch && matchesGenre;
   });
@@ -129,121 +115,143 @@ export default function Approvals() {
   const uniqueGenres = ['all', ...new Set(tracks.map(track => track.genre))];
 
   return (
-      <div className="space-y-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Track Approvals</h1>
-            <div className="flex space-x-4 w-full sm:w-auto">
-              <div className="relative flex-1 sm:flex-none">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search tracks or artists..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full text-gray-900 focus:ring-purple-500 focus:border-purple-500"
-                />
-              </div>
-              <div className="relative">
-                <select
-                  value={genreFilter}
-                  onChange={(e) => setGenreFilter(e.target.value)}
-                  className="appearance-none bg-white border border-gray-300 rounded-md pl-4 pr-10 py-2 focus:ring-purple-500 focus:border-purple-500"
-                >
-                  {uniqueGenres.map(genre => (
-                    <option key={genre} value={genre}>
-                      {genre.charAt(0).toUpperCase() + genre.slice(1)}
-                    </option>
-                  ))}
-                </select>
-                <Filter className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
+    <div className="space-y-8">
+      {/* Header & Filters */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Content Approvals</h1>
+          <p className="text-zinc-500">Review and moderate pending tracks from artists.</p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 group-focus-within:text-emerald-500 transition-colors" />
+            <input
+              type="text"
+              placeholder="Search submissions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="input-field pl-10 md:w-64"
+            />
           </div>
+          <div className="relative">
+            <select
+              value={genreFilter}
+              onChange={(e) => setGenreFilter(e.target.value)}
+              className="input-field appearance-none pr-10 cursor-pointer"
+            >
+              {uniqueGenres.map(genre => (
+                <option key={genre} value={genre} className="bg-[#0a0a0a] text-white">
+                  {genre === 'all' ? 'All Genres' : genre}
+                </option>
+              ))}
+            </select>
+            <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 pointer-events-none" />
+          </div>
+        </div>
+      </div>
 
-          {isLoading ? (
-            <div className="text-center py-12">
-              <Music2 className="h-8 w-8 text-purple-600 animate-pulse mx-auto mb-4" />
-              <p className="text-gray-500">Loading tracks...</p>
-            </div>
-          ) : filteredTracks.length === 0 ? (
-            <div className="text-center py-12">
-              <Music2 className="h-8 w-8 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No pending tracks found</p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {filteredTracks.map((track) => (
-                <div key={track.id} className="bg-gray-50 rounded-lg p-6">
-                  <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
-                    {/* Track Cover & Controls */}
-                    <div className="relative group w-40 h-40 flex-shrink-0">
-                      <img
-                        src={track.cover_url || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop'}
-                        alt={track.title}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                      <button
-                        onClick={() => handlePlayPause(track.id, track.audio_url)}
-                        className="absolute inset-0 bg-black bg-opacity-50 group-hover:bg-opacity-75 rounded-lg flex items-center justify-center transition-all"
-                      >
-                        {currentlyPlaying === track.id ? (
-                          <Pause className="h-12 w-12 text-white" />
-                        ) : (
-                          <Play className="h-12 w-12 text-white" />
-                        )}
-                      </button>
-                    </div>
+      {/* Track List */}
+      <div className="space-y-4">
+        {isLoading ? (
+          <div className="premium-card py-24 flex flex-col items-center justify-center text-center">
+            <Music2 className="h-10 w-10 text-emerald-500 animate-pulse mb-4" />
+            <p className="text-zinc-500 font-medium">Scanning for pending tracks...</p>
+          </div>
+        ) : filteredTracks.length === 0 ? (
+          <div className="premium-card py-24 flex flex-col items-center justify-center text-center">
+            <CheckCircle className="h-10 w-10 text-zinc-800 mb-4" />
+            <p className="text-zinc-500 font-medium">Registry clear. No pending submissions.</p>
+          </div>
+        ) : (
+          <AnimatePresence mode="popLayout">
+            {filteredTracks.map((track, index) => (
+              <motion.div
+                key={track.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ delay: index * 0.05 }}
+                className="premium-card premium-card-hover p-4 md:p-5"
+              >
+                <div className="flex flex-col md:flex-row items-center gap-6">
+                  {/* Visual & Playback */}
+                  <div className="relative group w-32 h-32 md:w-36 md:h-36 flex-shrink-0">
+                    <img
+                      src={track.cover_url || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop'}
+                      alt={track.title}
+                      className="w-full h-full object-cover rounded-xl border border-white/5"
+                    />
+                    <button
+                      onClick={() => handlePlayPause(track.id, track.audio_url)}
+                      className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 rounded-xl flex items-center justify-center transition-all duration-200"
+                    >
+                      {currentlyPlaying === track.id ? (
+                        <Pause className="h-10 w-10 text-white fill-white" />
+                      ) : (
+                        <Play className="h-10 w-10 text-white fill-white" />
+                      )}
+                    </button>
+                    {currentlyPlaying === track.id && (
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        {[1, 2, 3].map(i => (
+                          <div key={i} className="w-0.5 h-3 bg-emerald-500 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Track Info */}
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="text-xl font-semibold text-gray-900">{track.title}</h3>
-                          <div className="flex items-center mt-2">
-                            <img
-                              src={track.artist.profile_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(track.artist.name)}&background=random`}
-                              alt={track.artist.name}
-                              className="h-6 w-6 rounded-full"
-                            />
-                            <span className="ml-2 text-sm text-gray-600">{track.artist.name}</span>
-                          </div>
+                  {/* Details */}
+                  <div className="flex-1 min-w-0 text-center md:text-left">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-white tracking-tight mb-1">{track.title}</h3>
+                        <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
+                          <img
+                            src={track.artist.profile_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(track.artist.name)}&background=10b981&color=fff`}
+                            alt={track.artist.name}
+                            className="h-5 w-5 rounded-full border border-white/10"
+                          />
+                          <span className="text-sm font-medium text-emerald-400">{track.artist.name}</span>
                         </div>
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleApproval(track.id, true)}
-                            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                          >
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => handleApproval(track.id, false)}
-                            className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                          >
-                            <XCircle className="h-4 w-4 mr-2" />
-                            Reject
-                          </button>
-                        </div>
+                        <p className="text-sm text-zinc-500 max-w-2xl line-clamp-2">{track.description}</p>
                       </div>
 
-                      <p className="mt-2 text-sm text-gray-600">{track.description}</p>
+                      <div className="flex items-center justify-center gap-3">
+                        <button
+                          onClick={() => handleApproval(track.id, true)}
+                          className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-black font-bold rounded-xl hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/10"
+                        >
+                          <CheckCircle size={18} />
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleApproval(track.id, false)}
+                          className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/30 transition-all"
+                        >
+                          <XCircle size={18} />
+                          Reject
+                        </button>
+                      </div>
+                    </div>
 
-                      <div className="mt-4 flex items-center space-x-4">
-                        <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
-                          {track.genre}
-                        </span>
-                        <span className="text-sm text-gray-500">
-                          Submitted {formatDistanceToNow(new Date(track.created_at), { addSuffix: true })}
-                        </span>
+                    <div className="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-4">
+                      <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full text-xs font-medium text-zinc-400">
+                        <Tag size={12} className="text-emerald-500" />
+                        {track.genre}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs font-medium text-zinc-600">
+                        <Clock size={12} />
+                        Submitted {formatDistanceToNow(new Date(track.created_at), { addSuffix: true })}
                       </div>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        )}
       </div>
+    </div>
   );
 }

@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Music2, Users, Upload, Radio, Gift, DollarSign, LogOut, Shield,
-  Settings, BarChart2, Film, Disc, Music, Tag, Menu, X, ChevronRight, LayoutGrid, CreditCard,
-  MessageCircle, Bell, Search, User, Podcast, MessageSquare, TrendingUp, Video as VideoIcon,
-  Users as UsersIcon, FileText, AlertTriangle, Zap, Award, Cog, HelpCircle, ListMusic, Swords, UserCheck, Sun, Moon
+  Users, Shield, DollarSign, Settings, BarChart2, Film, Disc, Music, Tag, 
+  Menu, X, ChevronRight, LayoutGrid, Bell, Search, User, UserCheck, Sun, Moon, LogOut, ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
@@ -21,8 +19,7 @@ type NavItemType = {
   path: string;
   label: string;
   icon: React.ReactNode;
-  subItems?: { path: string; label: string; icon?: React.ReactNode }[];
-  badge?: string;
+  subItems?: { path: string; label: string }[];
 };
 
 export default function Layout({ children, userRole: userRoleProp }: LayoutProps) {
@@ -30,8 +27,8 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
   const { logout } = useAuth();
   const [userRole, setUserRole] = useState(userRoleProp ?? 'admin');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
 
   useEffect(() => {
     if (userRoleProp) {
@@ -39,25 +36,18 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     } else {
       if (location.pathname.startsWith('/admin')) {
         setUserRole('admin');
-      } else if (location.pathname.startsWith('/contributor')) {
-        setUserRole('contributor');
       } else {
         setUserRole('artist');
       }
     }
-
-    if (isMobile) {
-      setIsSidebarOpen(false);
-    }
-  }, [location.pathname, isMobile, userRoleProp]);
+  }, [location.pathname, userRoleProp]);
 
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
-      setIsSidebarOpen(!mobile);
+      if (!mobile) setIsSidebarOpen(true);
     };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -69,11 +59,8 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
   };
 
   const isActive = (path: string) => {
-    return location.pathname === path || location.pathname.startsWith(`${path}/`);
-  };
-
-  const toggleExpand = (path: string) => {
-    setExpandedItem(expandedItem === path ? null : path);
+    if (path === '/admin' || path === '/artist') return location.pathname === path;
+    return location.pathname.startsWith(path);
   };
 
   const adminNavItems: NavItemType[] = [
@@ -83,7 +70,11 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     { path: '/admin/user-management', label: 'Users', icon: <Users size={20} /> },
     { path: '/admin/financial-management', label: 'Revenue', icon: <DollarSign size={20} /> },
     { path: '/admin/live-stream-management', label: 'Streams', icon: <Film size={20} /> },
-    { path: '/admin/content', label: 'Library', icon: <Disc size={20} />, subItems: [
+    { 
+      path: '/admin/library', 
+      label: 'Library', 
+      icon: <Disc size={20} />,
+      subItems: [
         { path: '/admin/album-management', label: 'Albums' },
         { path: '/admin/song-management', label: 'Songs' },
         { path: '/admin/genre-management', label: 'Genres' }
@@ -93,7 +84,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
   ];
 
   const artistNavItems: NavItemType[] = [
-    { path: '/artist', label: 'Studio', icon: <BarChart2 size={20} /> },
+    { path: '/artist', label: 'Dashboard', icon: <LayoutGrid size={20} /> },
     { path: '/artist/songs', label: 'Music', icon: <Music size={20} /> },
     { path: '/artist/upload', label: 'Publish', icon: <Upload size={20} /> },
     { path: '/artist/live', label: 'Live', icon: <Radio size={20} /> },
@@ -103,73 +94,122 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
   const navItems = userRole === 'admin' ? adminNavItems : artistNavItems;
 
   return (
-    <div className="flex h-screen bg-black text-white selection:bg-emerald-500/30">
+    <div className="flex h-screen bg-black text-white selection:bg-emerald-500/30 font-inter">
       {/* Sidebar */}
       <motion.aside 
         initial={false}
-        animate={{ width: isSidebarOpen ? (isMobile ? '100%' : '260px') : '0px' }}
+        animate={{ width: isSidebarOpen ? (isMobile ? '100%' : '280px') : '0px' }}
         className={`fixed lg:relative z-50 h-full bg-[#050505] border-r border-white/5 flex flex-col overflow-hidden ${!isSidebarOpen && isMobile ? 'hidden' : ''}`}
       >
-        <div className="p-6 mb-4 flex items-center gap-3">
-          <img src={lugmaticIcon} alt="Logo" className="w-8 h-8 opacity-90" />
-          <span className="font-bold text-lg tracking-tight">Lugmatic</span>
+        <div className="p-8 mb-4 flex items-center gap-3">
+          <img src={lugmaticIcon} alt="Logo" className="w-10 h-10" />
+          <span className="font-bold text-xl tracking-tight">Lugmatic</span>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
           {navItems.map((item) => (
-            <div key={item.path}>
-              <Link
-                to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                  isActive(item.path) 
-                    ? 'bg-emerald-500/10 text-emerald-400' 
-                    : 'text-zinc-500 hover:text-white hover:bg-white/[0.03]'
-                }`}
-              >
-                {item.icon}
-                <span className="font-medium text-[15px]">{item.label}</span>
-                {item.badge && (
-                  <span className="ml-auto bg-emerald-500/20 text-emerald-400 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
+            <div key={item.path} className="space-y-1">
+              {item.subItems ? (
+                <div>
+                  <button
+                    onClick={() => setExpandedItem(expandedItem === item.path ? null : item.path)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group ${
+                      isActive(item.path) || expandedItem === item.path
+                        ? 'bg-white/10 text-white' 
+                        : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]'
+                    }`}
+                  >
+                    <div className={isActive(item.path) || expandedItem === item.path ? 'text-emerald-500' : 'text-zinc-600 group-hover:text-zinc-400'}>
+                      {item.icon}
+                    </div>
+                    <span className="font-semibold text-[15px]">{item.label}</span>
+                    <ChevronDown size={16} className={`ml-auto transition-transform duration-200 ${expandedItem === item.path ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  <AnimatePresence>
+                    {expandedItem === item.path && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden pl-11 space-y-1 mt-1"
+                      >
+                        {item.subItems.map((sub) => (
+                          <Link
+                            key={sub.path}
+                            to={sub.path}
+                            className={`block py-2 text-sm font-medium transition-all ${
+                              location.pathname === sub.path ? 'text-emerald-400' : 'text-zinc-500 hover:text-white'
+                            }`}
+                          >
+                            {sub.label}
+                          </Link>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <Link
+                  to={item.path}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group ${
+                    isActive(item.path) 
+                      ? 'bg-white/10 text-white' 
+                      : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]'
+                  }`}
+                >
+                  <div className={isActive(item.path) ? 'text-emerald-500' : 'text-zinc-600 group-hover:text-zinc-400'}>
+                    {item.icon}
+                  </div>
+                  <span className="font-semibold text-[15px]">{item.label}</span>
+                </Link>
+              )}
             </div>
           ))}
         </nav>
 
-        <div className="p-4 border-t border-white/5 space-y-2">
-          <button onClick={toggleTheme} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-500 hover:bg-white/[0.03] transition-all">
+        <div className="p-6 border-t border-white/5 space-y-2 bg-[#050505]">
+          <button onClick={toggleTheme} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-zinc-500 hover:bg-white/[0.03] transition-all">
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-            <span className="text-sm font-medium">Appearance</span>
+            <span className="text-sm font-semibold">Appearance</span>
           </button>
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-500 hover:bg-red-500/10 hover:text-red-500 transition-all">
+          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-zinc-500 hover:bg-rose-500/10 hover:text-red-500 transition-all">
             <LogOut size={18} />
-            <span className="text-sm font-medium">Sign Out</span>
+            <span className="text-sm font-semibold">Sign Out</span>
           </button>
         </div>
       </motion.aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 bg-black overflow-hidden">
-        <header className="h-16 border-b border-white/5 flex items-center px-6 gap-4">
-          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-zinc-400 hover:text-white transition-colors">
-            <Menu size={20} />
+      <div className="flex-1 flex flex-col min-w-0 bg-black overflow-hidden relative">
+        <header className="h-20 border-b border-white/5 flex items-center px-8 gap-4 bg-black/50 backdrop-blur-md sticky top-0 z-40">
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-zinc-500 hover:text-white transition-colors lg:hidden">
+            <Menu size={24} />
           </button>
           <Breadcrumb />
-          <div className="ml-auto flex items-center gap-4">
-             <button className="text-zinc-400 hover:text-white"><Search size={20} /></button>
-             <button className="text-zinc-400 hover:text-white"><Bell size={20} /></button>
-             <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10" />
+          <div className="ml-auto flex items-center gap-6">
+             <button className="text-zinc-500 hover:text-white transition-colors"><Search size={20} /></button>
+             <button className="text-zinc-500 hover:text-white transition-colors relative">
+               <Bell size={20} />
+               <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full" />
+             </button>
+             <div className="w-10 h-10 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 font-bold text-xs">
+                AD
+             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6 lg:p-10">
-          <div className="max-w-7xl mx-auto">
-            {children}
+        <main className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="p-8 lg:p-12">
+            <div className="max-w-7xl mx-auto">
+              {children}
+            </div>
           </div>
         </main>
       </div>
     </div>
   );
 }
+
+const Upload = ({ size }: { size: number }) => <LayoutGrid size={size} />;
+const Radio = ({ size }: { size: number }) => <Film size={size} />;
