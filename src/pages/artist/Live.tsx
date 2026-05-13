@@ -659,6 +659,14 @@ export default function Live() {
                   <button onClick={toggleCamera} className={`w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 transition-all ${isCameraOn ? 'bg-white/10 text-white' : 'bg-rose-600 text-white'}`}>
                     {isCameraOn ? <Video size={20} /> : <VideoOff size={20} />}
                   </button>
+                  <button 
+                    onClick={() => setIsChallengeModalOpen(true)}
+                    disabled={!!activeClash}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 transition-all ${activeClash ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' : 'bg-purple-600 text-white shadow-lg shadow-purple-900/20'}`}
+                    title="Challenge another artist"
+                  >
+                    <Swords size={20} />
+                  </button>
                 </div>
                 <div className="px-4 py-2 bg-black/40 backdrop-blur-xl rounded-xl border border-white/5 flex items-center gap-3">
                    <Users size={16} className="text-white/60" />
@@ -817,6 +825,13 @@ export default function Live() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Challenge Modal */}
+      <ChallengeModal 
+        isOpen={isChallengeModalOpen}
+        onClose={() => setIsChallengeModalOpen(false)}
+        currentStreamId={streamData?._id || ''}
+      />
     </div>
   );
 }
