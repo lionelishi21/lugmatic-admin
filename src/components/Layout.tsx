@@ -99,11 +99,24 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
   ];
 
   const artistNavItems: NavItemType[] = [
-    { path: '/artist', label: 'Dashboard', icon: <LayoutGrid size={20} /> },
-    { path: '/artist/songs', label: 'Music', icon: <Music size={20} /> },
-    { path: '/artist/upload', label: 'Publish', icon: <Upload size={20} /> },
-    { path: '/artist/live', label: 'Live', icon: <RadioIcon size={20} /> },
-    { path: '/artist/profile', label: 'Profile', icon: <User size={20} /> }
+    // Core
+    { path: '/artist', label: 'Overview', icon: <LayoutGrid size={20} />, section: 'General' },
+    { path: '/artist/songs', label: 'Music', icon: <Music size={20} />, section: 'General' },
+    { path: '/artist/upload', label: 'Publish', icon: <Upload size={20} />, section: 'General' },
+    { path: '/artist/live', label: 'Live', icon: <RadioIcon size={20} />, section: 'General' },
+    
+    // Engagement
+    { path: '/artist/clashes', label: 'Clashes', icon: <Swords size={20} />, section: 'Engagement' },
+    { path: '/artist/billboard', label: 'Billboard', icon: <Award size={20} />, section: 'Engagement' },
+    { path: '/artist/podcasts', label: 'Podcasts', icon: <Podcast size={20} />, section: 'Engagement' },
+    { path: '/artist/gifts', label: 'Gifts', icon: <Gift size={20} />, section: 'Engagement' },
+    { path: '/artist/reels', label: 'Reels', icon: <Film size={20} />, section: 'Engagement' },
+    
+    // Performance
+    { path: '/artist/earnings', label: 'Earnings', icon: <DollarSign size={20} />, section: 'Performance' },
+    { path: '/artist/profile', label: 'Profile', icon: <User size={20} />, section: 'Performance' },
+    { path: '/artist/support', label: 'Support', icon: <Shield size={20} />, section: 'Performance' },
+    { path: '/artist/settings', label: 'Settings', icon: <Settings size={20} />, section: 'Performance' }
   ];
 
   const navItems = userRole === 'admin' ? adminNavItems : artistNavItems;
@@ -123,7 +136,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
         </div>
 
         <nav className="flex-1 px-4 space-y-8 overflow-y-auto custom-scrollbar pb-10">
-          {userRole === 'admin' ? (
+          {sections.length > 0 ? (
             sections.map((section) => (
               <div key={section} className="space-y-1">
                 <p className="px-4 text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-4">{section}</p>
