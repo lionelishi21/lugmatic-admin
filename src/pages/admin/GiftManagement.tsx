@@ -67,6 +67,11 @@ const GiftManagement: React.FC = () => {
     coins: gifts.reduce((s, g) => s + g.coinCost, 0),
   }), [gifts]);
 
+  const handleOpenDialog = (gift?: GiftResponse) => {
+    setEditingGift(gift || null);
+    setOpenDialog(true);
+  };
+
   const handleToggleActive = async (giftId: string, isActive: boolean) => {
     try {
       await adminGiftService.updateGift(giftId, { isActive: !isActive });
@@ -85,7 +90,7 @@ const GiftManagement: React.FC = () => {
           <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Digital Gifts</h1>
           <p className="text-zinc-500">Manage virtual assets, set values, and configure rewards.</p>
         </div>
-        <button onClick={() => setOpenDialog(true)} className="btn-primary flex items-center gap-2">
+        <button onClick={() => handleOpenDialog()} className="btn-primary flex items-center gap-2">
           <Plus size={18} />
           Create Gift
         </button>
