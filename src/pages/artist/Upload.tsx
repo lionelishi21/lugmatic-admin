@@ -48,10 +48,17 @@ export default function Upload() {
   const [coverPreview, setCoverPreview] = useState<string>('');
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [contributors, setContributors] = useState<Contributor[]>([
-    { name: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : (user?.name || user?.email || ''), role: 'ARTIST', share: 100 }
-  ]);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [userLoaded, setUserLoaded] = useState(false);
+
+  // Initialize contributor name once user data is available
+  useEffect(() => {
+    if (user && !userLoaded) {
+      const name = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : (user.name || user.email || '');
+      setContributors([{ name, role: 'ARTIST', share: 100 }]);
+      setUserLoaded(true);
+    }
+  }, [user, userLoaded]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loadingGenres, setLoadingGenres] = useState(true);
   const [artistsList, setArtistsList] = useState<Artist[]>([]);
@@ -430,6 +437,25 @@ export default function Upload() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {isAdmin && (
+                <div className="md:col-span-2 space-y-2">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Assign to Artist</label>
+                  <div className="relative">
+                    <select
+                      value={selectedArtistId}
+                      onChange={e => setSelectedArtistId(e.target.value)}
+                      className="w-full h-14 px-6 bg-zinc-950 border border-white/5 rounded-2xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500/30 transition-all appearance-none"
+                      required={isAdmin}
+                    >
+                      <option value="">Select an artist profile</option>
+                      {artistsList.map(a => (
+                        <option key={a._id} value={a._id}>{a.name || a.fullName || 'Unnamed Artist'}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-600 pointer-events-none" />
+                  </div>
+                </div>
+              )}
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Track Title</label>
                 <input
