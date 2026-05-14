@@ -5,7 +5,7 @@ import {
   CheckCircle2, FileAudio, Sparkles, Film, Zap, Shield,
   Layers, ChevronRight, Plus, Search, Mail, UserPlus,
   PlayCircle, Activity, Target, ShieldCheck, Smartphone,
-  ChevronDown, Calendar, ArrowUpRight, Cpu, Save, Globe
+  ChevronDown, Calendar, ArrowUpRight, Cpu, Save, Globe, FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
