@@ -3,7 +3,7 @@ import {
   Users, Music2, Radio, DollarSign, TrendingUp, Clock, Headphones, 
   Globe, PlayCircle, AlertCircle, UserPlus, LayoutGrid, ChevronRight,
   ShieldCheck, Zap, Activity, Star, Calendar, ArrowUpRight, ArrowDownRight,
-  Package, Search, Bell
+  Package, Search, Bell, CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
