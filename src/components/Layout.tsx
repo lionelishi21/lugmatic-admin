@@ -139,7 +139,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
           {sections.length > 0 ? (
             sections.map((section) => (
               <div key={section} className="space-y-1">
-                <p className="px-4 text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-4">{section}</p>
+                <p className="px-4 text-[10px] font-bold text-zinc-600">{section}</p>
                 <div className="space-y-1">
                   {navItems.filter(i => i.section === section).map((item) => (
                     <div key={item.path}>

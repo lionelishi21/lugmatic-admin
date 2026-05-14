@@ -150,17 +150,17 @@ const AlbumManagement: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">Catalog Matrix</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Catalog Matrix</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest italic">Registry: Live</span>
+              <span className="text-[10px] font-bold text-emerald-500 tracking-wide">Registry: Live</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Managing cinematic project releases, multi-track artifacts, and artistic legacies.</p>
+          <p className="text-zinc-500 text-xs font-semibold tracking-wide ml-1">Managing cinematic project releases, multi-track artifacts, and artistic legacies.</p>
         </div>
         <button
           onClick={() => handleOpenDialog()}
-          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
         >
           <Plus size={18} />
           Register Project

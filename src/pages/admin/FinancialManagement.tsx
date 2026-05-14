@@ -52,19 +52,19 @@ export default function FinancialManagement() {
             <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Financial Intelligence</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Live Ledger</span>
+              <span className="text-[10px] font-bold text-emerald-500">Live Ledger Active</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1">Managing high-volume transactional data and artist liquidity.</p>
+          <p className="text-zinc-500 text-xs font-semibold ml-1">Managing high-volume transactional data and artist liquidity.</p>
         </div>
         <div className="flex items-center gap-4">
           <button className="btn-secondary !px-8 flex items-center gap-2">
             <Download size={18} />
-            <span className="text-[10px] font-bold tracking-widest uppercase">Export Registry</span>
+            <span className="text-[10px] font-bold">Export Registry</span>
           </button>
           <button className="btn-primary flex items-center gap-2 !px-10 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
             <Plus size={18} />
-            <span className="text-[10px] font-bold tracking-widest uppercase">New Transaction</span>
+            <span className="text-[10px] font-bold">New Transaction</span>
           </button>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function FinancialManagement() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-3 px-8 py-3.5 rounded-[1.5rem] text-[10px] font-bold tracking-widest transition-all duration-300 ${
+              className={`flex items-center gap-3 px-8 py-3.5 rounded-[1.5rem] text-[10px] font-bold transition-all duration-300 ${
                 activeTab === tab.id
                   ? 'bg-white/10 text-white shadow-xl border border-white/5'
                   : 'text-zinc-600 hover:text-zinc-300'
@@ -99,7 +99,7 @@ export default function FinancialManagement() {
               <DollarSign size={24} className="text-emerald-500" />
             </div>
           </div>
-          <p className="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[10px]">Processing Transactional Telemetry...</p>
+          <p className="text-zinc-500 font-bold text-[10px]">Processing Transactional Telemetry...</p>
         </div>
       ) : (
         <AnimatePresence mode="wait">
@@ -132,9 +132,9 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
   ];
 
   const breakdown = [
-    { label: 'SUBSCRIPTIONS', value: `$${((stats?.revenueBreakdown?.['subscription_payment'] || 0) / 100).toLocaleString()}`, pct: 65, color: 'bg-emerald-500' },
-    { label: 'VIRTUAL GIFTS', value: `$${((stats?.revenueBreakdown?.['gift_received'] || 0) / 100).toLocaleString()}`, pct: 25, color: 'bg-blue-500' },
-    { label: 'COIN REGISTRY', value: `$${((stats?.revenueBreakdown?.['coin_purchase'] || 0) / 100).toLocaleString()}`, pct: 10, color: 'bg-amber-500' },
+    { label: 'Subscriptions', value: `$${((stats?.revenueBreakdown?.['subscription_payment'] || 0) / 100).toLocaleString()}`, pct: 65, color: 'bg-emerald-500' },
+    { label: 'Virtual Gifts', value: `$${((stats?.revenueBreakdown?.['gift_received'] || 0) / 100).toLocaleString()}`, pct: 25, color: 'bg-blue-500' },
+    { label: 'Coin Registry', value: `$${((stats?.revenueBreakdown?.['coin_purchase'] || 0) / 100).toLocaleString()}`, pct: 10, color: 'bg-amber-500' },
   ];
 
   return (
@@ -152,7 +152,7 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
                 {s.trend}
               </div>
             </div>
-            <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest mb-1.5">{s.label}</p>
+            <p className="text-zinc-600 text-[10px] font-bold mb-1.5">{s.label}</p>
             <p className="text-3xl font-bold text-white tracking-tighter">{s.value}</p>
           </div>
         ))}
@@ -163,8 +163,8 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
         <div className="premium-card lg:col-span-2 space-y-10 border-white/5">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Asset Performance Analytics</h3>
-              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Revenue categorization and signal strength</p>
+              <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Asset Performance Analytics</h3>
+              <p className="text-[10px] text-zinc-700 font-bold">Revenue categorization and signal strength</p>
             </div>
             <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1 shadow-inner">
               {['30D', '90D', '1Y'].map(t => (
@@ -182,7 +182,7 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
                ))}
             </div>
             <BarChart3 className="w-12 h-12 text-zinc-800 relative z-10" />
-            <p className="text-[10px] font-bold text-zinc-800 uppercase tracking-widest relative z-10 mt-4">Telemetry Visualization Active</p>
+            <p className="text-[10px] font-bold text-zinc-800 relative z-10 mt-4">Telemetry Visualization Active</p>
           </div>
 
           <div className="space-y-8">
@@ -197,7 +197,7 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
                 <div key={b.label} className="space-y-3 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all group">
                   <div className="flex items-center gap-3">
                     <div className={`w-2.5 h-2.5 rounded-full ${b.color} shadow-[0_0_8px_currentColor]`} />
-                    <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-[0.2em]">{b.label}</span>
+                    <span className="text-[9px] font-bold text-zinc-500">{b.label}</span>
                   </div>
                   <div className="flex items-end justify-between">
                     <p className="text-xl font-bold text-white tracking-tight leading-none group-hover:text-emerald-400 transition-colors">{b.value}</p>
@@ -212,8 +212,8 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
         {/* High-Impact Artist Performance */}
         <div className="premium-card space-y-10">
           <div className="flex items-center justify-between">
-            <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Top Liquidity Drivers</h3>
-            <button className="text-[10px] font-bold text-emerald-500 hover:text-emerald-400 transition-colors tracking-widest uppercase">Global Rank</button>
+            <h3 className="text-[10px] font-bold text-zinc-500">Top Liquidity Drivers</h3>
+            <button className="text-[10px] font-bold text-emerald-500 hover:text-emerald-400 transition-colors">Global Rank</button>
           </div>
           <div className="space-y-8 flex-1">
             {(stats?.topEarners || []).slice(0, 6).map((a, i) => (
@@ -224,7 +224,7 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-zinc-200 group-hover:text-white transition-colors">{a.name}</p>
-                    <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mt-0.5">{a.transactions} TRANSACTION NODES</p>
+                    <p className="text-[9px] text-zinc-600 font-bold mt-0.5">{a.transactions} Transaction Nodes</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -237,7 +237,7 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
             ))}
           </div>
           <div className="pt-6 border-t border-white/5">
-             <button className="w-full py-3.5 rounded-2xl bg-white/5 text-[10px] font-bold text-zinc-600 uppercase tracking-widest hover:text-white hover:bg-white/10 transition-all border border-white/5">Analyze Full Payout Spectrum</button>
+             <button className="w-full py-3.5 rounded-2xl bg-white/5 text-[10px] font-bold text-zinc-600 hover:text-white hover:bg-white/10 transition-all border border-white/5">Analyze Full Payout Spectrum</button>
           </div>
         </div>
       </div>
@@ -259,16 +259,16 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
       {/* Liquidity Status */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'PENDING LIQUIDITY', value: `$${((stats?.payouts?.['pending']?.amount || 0) / 100).toLocaleString()}`, icon: Clock, color: 'text-amber-500' },
-          { label: 'COMPLETED BATCHES', value: `$${((stats?.payouts?.['completed']?.amount || 0) / 100).toLocaleString()}`, icon: CheckCircle2, color: 'text-emerald-500' },
-          { label: 'PURGE / FAILED', value: `$${((stats?.payouts?.['failed']?.amount || 0) / 100).toLocaleString()}`, icon: XCircle, color: 'text-rose-500' },
-          { label: 'NEXT CYCLE INDEX', value: 'FEB 15', icon: Calendar, color: 'text-blue-500' },
+          { label: 'Pending Liquidity', value: `$${((stats?.payouts?.['pending']?.amount || 0) / 100).toLocaleString()}`, icon: Clock, color: 'text-amber-500' },
+          { label: 'Completed Batches', value: `$${((stats?.payouts?.['completed']?.amount || 0) / 100).toLocaleString()}`, icon: CheckCircle2, color: 'text-emerald-500' },
+          { label: 'Purge / Failed', value: `$${((stats?.payouts?.['failed']?.amount || 0) / 100).toLocaleString()}`, icon: XCircle, color: 'text-rose-500' },
+          { label: 'Next Cycle Index', value: 'FEB 15', icon: Calendar, color: 'text-blue-500' },
         ].map(s => (
           <div key={s.label} className="premium-card hover:border-emerald-500/20 transition-all group">
             <div className={`w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center mb-6 transition-all group-hover:scale-110`}>
               <s.icon size={20} className={`${s.color}`} />
             </div>
-            <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest mb-1.5">{s.label}</p>
+            <p className="text-zinc-600 text-[10px] font-bold mb-1.5">{s.label}</p>
             <p className="text-2xl font-bold text-white tracking-tighter leading-none">{s.value}</p>
           </div>
         ))}
@@ -278,13 +278,13 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
       <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
         <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 bg-zinc-950/50">
           <div>
-            <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">High-Volume Payout Log</h3>
-            <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Audited distribution history for artist entities</p>
+            <h3 className="text-[10px] font-bold text-zinc-500 mb-1">High-Volume Payout Log</h3>
+            <p className="text-[10px] text-zinc-700 font-bold">Audited distribution history for artist entities</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="relative w-full md:w-80 group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-emerald-500 w-4 h-4 transition-colors" />
-              <input type="text" placeholder="SEARCH ENTITY PROTOCOL..." className="input-field pl-12 !py-3 !text-[10px] font-bold uppercase tracking-widest" />
+              <input type="text" placeholder="Search entity protocol..." className="input-field pl-12 !py-3 !text-[10px] font-bold" />
             </div>
             <button className="p-3 rounded-2xl bg-white/5 text-zinc-600 hover:text-white transition-all border border-white/5"><Filter size={18} /></button>
           </div>
@@ -293,11 +293,11 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/5 bg-black/20">
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Artist Entity</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Liquidity Amount</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Protocol Method</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Sync Status</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest text-right">Timestamp</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Artist Entity</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Liquidity Amount</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Protocol Method</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Sync Status</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 text-right">Timestamp</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -313,24 +313,24 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
                   </td>
                   <td className="px-8 py-5 text-sm font-bold text-emerald-500">${(p.amount / 100).toLocaleString()}</td>
                   <td className="px-8 py-5">
-                    <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500">
                        <Wallet size={12} className="text-zinc-700" />
                        {p.method}
                     </div>
                   </td>
                   <td className="px-8 py-5">
-                    <span className={`inline-flex px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border ${statusStyles[p.status]}`}>
+                    <span className={`inline-flex px-3 py-1 rounded-lg text-[9px] font-bold border ${statusStyles[p.status]}`}>
                       {p.status}
                     </span>
                   </td>
-                  <td className="px-8 py-5 text-right text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{new Date(p.createdAt).toLocaleDateString()}</td>
+                  <td className="px-8 py-5 text-right text-[10px] text-zinc-600 font-bold">{new Date(p.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         <div className="p-8 bg-[#0a0a0a] border-t border-white/5 text-center">
-            <button className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest hover:text-white transition-all">Load Extended Archive</button>
+            <button className="text-[10px] font-bold text-zinc-700 hover:text-white transition-all">Load Extended Archive</button>
         </div>
       </div>
     </div>
@@ -340,9 +340,9 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
 /* ─── Service Plan Hierarchy ─── */
 const SubscriptionsSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
   const plans = [
-    { name: 'FREE PROTOCOL', price: '$0', period: '/mo', subscribers: '12,456', features: ['Ad-supported signals', '5 temporal skips/hour', 'Standard telemetry'], icon: Music, color: 'zinc' },
-    { name: 'PREMIUM TIER', price: '$9.99', period: '/mo', subscribers: '5,234', features: ['Ad-free immersion', 'Unlimited temporal skips', 'High-fidelity audio'], icon: Zap, color: 'emerald', popular: true },
-    { name: 'PRO EXECUTIVE', price: '$14.99', period: '/mo', subscribers: '2,456', features: ['Lossless audio stream', 'Exclusive artist assets', 'Priority administrative support'], icon: Crown, color: 'indigo' },
+    { name: 'Free Protocol', price: '$0', period: '/mo', subscribers: '12,456', features: ['Ad-supported signals', '5 temporal skips/hour', 'Standard telemetry'], icon: Music, color: 'zinc' },
+    { name: 'Premium Tier', price: '$9.99', period: '/mo', subscribers: '5,234', features: ['Ad-free immersion', 'Unlimited temporal skips', 'High-fidelity audio'], icon: Zap, color: 'emerald', popular: true },
+    { name: 'Pro Executive', price: '$14.99', period: '/mo', subscribers: '2,456', features: ['Lossless audio stream', 'Exclusive artist assets', 'Priority administrative support'], icon: Crown, color: 'indigo' },
   ];
 
   return (
@@ -351,31 +351,31 @@ const SubscriptionsSection = ({ stats }: { stats: AdminFinancialStats | null }) 
         {plans.map((plan) => (
           <div key={plan.name} className={`premium-card relative group transition-all duration-500 hover:border-emerald-500/30 ${plan.popular ? 'border-emerald-500/20 bg-emerald-500/5 shadow-[0_0_50px_rgba(16,185,129,0.05)]' : 'border-white/5 bg-zinc-950/30'}`}>
             {plan.popular && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 text-[9px] font-bold uppercase tracking-[0.3em] text-black bg-emerald-500 rounded-full shadow-lg shadow-emerald-500/20">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 text-[9px] font-bold text-black bg-emerald-500 rounded-full shadow-lg shadow-emerald-500/20">
                 Optimized Tier
               </div>
             )}
             <div className={`w-14 h-14 rounded-2xl mb-10 flex items-center justify-center bg-white/5 text-zinc-500 group-hover:text-emerald-500 transition-all duration-500 group-hover:scale-110 border border-white/5`}>
               <plan.icon size={28} />
             </div>
-            <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] mb-4">{plan.name}</h4>
+            <h4 className="text-[10px] font-bold text-zinc-500 mb-4">{plan.name}</h4>
             <div className="mb-10 flex items-end gap-1">
               <span className="text-5xl font-bold text-white tracking-tighter leading-none">{plan.price}</span>
-              <span className="text-zinc-600 text-xs font-bold uppercase tracking-widest mb-1">{plan.period}</span>
+              <span className="text-zinc-600 text-xs font-bold mb-1">{plan.period}</span>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-black/40 rounded-2xl border border-white/5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-10">
+            <div className="flex items-center gap-3 p-4 bg-black/40 rounded-2xl border border-white/5 text-[10px] font-bold text-zinc-400 mb-10">
               <Users size={16} className="text-emerald-500" />
-              {plan.subscribers} ACTIVE NODES
+              {plan.subscribers} Active Nodes
             </div>
             <ul className="space-y-6 mb-12">
               {plan.features.map((f) => (
                 <li key={f} className="flex items-start gap-4 text-xs font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors">
                   <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
-                  <span className="leading-relaxed uppercase tracking-wider text-[10px] font-bold">{f}</span>
+                  <span className="leading-relaxed text-[10px] font-bold">{f}</span>
                 </li>
               ))}
             </ul>
-            <button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-emerald-500 hover:text-black hover:border-emerald-500 transition-all duration-500">Edit Deployment Specs</button>
+            <button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-bold hover:bg-emerald-500 hover:text-black hover:border-emerald-500 transition-all duration-500">Edit Deployment Specs</button>
           </div>
         ))}
       </div>
@@ -394,10 +394,10 @@ const ComplianceSection = () => {
         </div>
         <div className="flex-1 relative z-10">
           <p className="text-xl font-bold text-white mb-2">Administrative Tax Compliance Critical</p>
-          <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest leading-loose max-w-2xl">22 artist entities are currently flagged for missing or invalid IRS documentation. Liquidity distribution cycles are suspended for these nodes until resolution.</p>
+          <p className="text-[11px] font-bold text-zinc-500 leading-loose max-w-2xl">22 artist entities are currently flagged for missing or invalid IRS documentation. Liquidity distribution cycles are suspended for these nodes until resolution.</p>
         </div>
         <button className="btn-primary !bg-amber-500 !text-black hover:!bg-amber-400 !px-12 relative z-10 shadow-2xl shadow-amber-500/20">
-           <span className="text-[10px] font-bold tracking-widest uppercase">Initiate Audit</span>
+           <span className="text-[10px] font-bold">Initiate Audit</span>
         </button>
       </div>
 
@@ -406,20 +406,20 @@ const ComplianceSection = () => {
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-center shadow-xl"><FileText size={22} className="text-emerald-500" /></div>
             <div>
-              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Tax Documentation Stream</h3>
-              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Operational W-9/1099 verification status</p>
+              <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Tax Documentation Stream</h3>
+              <p className="text-[10px] text-zinc-700 font-bold">Operational W-9/1099 verification status</p>
             </div>
           </div>
           <div className="space-y-8">
             {[
-              { label: 'W-9 FORM COLLECTION', value: '234 / 256', trend: 'warning' },
-              { label: '1099 REGISTRY GENERATION', value: '198 ACTIVE', trend: 'ok' },
-              { label: 'INTL / CROSS-BORDER COMPLIANCE', value: '45 / 48', trend: 'warning' },
+              { label: 'W-9 Form Collection', value: '234 / 256', trend: 'warning' },
+              { label: '1099 Registry Generation', value: '198 Active', trend: 'ok' },
+              { label: 'INTL / Cross-Border Compliance', value: '45 / 48', trend: 'warning' },
             ].map(item => (
               <div key={item.label} className="space-y-3">
                 <div className="flex justify-between items-center px-1">
-                  <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">{item.label}</span>
-                  <span className={`text-[10px] font-bold uppercase tracking-widest ${item.trend === 'ok' ? 'text-emerald-500' : 'text-amber-500'}`}>{item.value}</span>
+                  <span className="text-[10px] font-bold text-zinc-600">{item.label}</span>
+                  <span className={`text-[10px] font-bold ${item.trend === 'ok' ? 'text-emerald-500' : 'text-amber-500'}`}>{item.value}</span>
                 </div>
                 <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
                    <div className={`h-full ${item.trend === 'ok' ? 'bg-emerald-500' : 'bg-amber-500'} shadow-[0_0_8px_currentColor]`} style={{ width: item.trend === 'ok' ? '80%' : '92%' }} />

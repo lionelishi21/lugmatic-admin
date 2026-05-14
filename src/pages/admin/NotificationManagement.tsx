@@ -61,11 +61,11 @@ const NotificationManagement: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3 italic uppercase">
             <Bell className="text-indigo-500" size={32} />
-            Notifications
+            Signal Broadcast
           </h1>
-          <p className="text-zinc-500">Broadcast system-wide transmissions and push alerts.</p>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Broadcast system-wide transmissions and push alerts.</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="premium-card !py-2 !px-4 flex items-center gap-3">

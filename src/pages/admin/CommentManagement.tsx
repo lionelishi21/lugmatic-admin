@@ -86,16 +86,16 @@ const CommentManagement: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3 italic uppercase">
             <MessageCircle className="text-blue-500" size={32} />
-            Comments
+            Community Intelligence
           </h1>
-          <p className="text-zinc-500">Moderate community discussions and sentiment across the network.</p>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Moderate community discussions and sentiment across the network.</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="premium-card !py-2 !px-4 flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6] animate-pulse" />
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Real-time Feed Active</span>
+            <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest italic">Signal Feed Active</span>
           </div>
         </div>
       </div>
@@ -111,8 +111,8 @@ const CommentManagement: React.FC = () => {
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-6 ${s.bg}`}>
               <s.icon size={20} className={s.color} />
             </div>
-            <p className="text-zinc-500 text-xs font-medium mb-1">{s.label}</p>
-            <p className="text-2xl font-bold text-white tracking-tight">{s.value}</p>
+            <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest mb-1.5 italic">{s.label}</p>
+            <p className="text-2xl font-bold text-white tracking-tight italic uppercase">{s.value}</p>
           </div>
         ))}
       </div>

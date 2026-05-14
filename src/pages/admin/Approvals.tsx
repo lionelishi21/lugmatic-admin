@@ -125,13 +125,13 @@ export default function Approvals() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Content Moderation</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">Content Moderation</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-amber-500/5 border border-amber-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse" />
-              <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">{tracks.length} Pending</span>
+              <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest italic">{tracks.length} PENDING_SIGNALS</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1">Reviewing incoming media transmissions for quality and compliance.</p>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Reviewing incoming media transmissions for quality and compliance.</p>
         </div>
         
         <div className="flex items-center gap-4">

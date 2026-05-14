@@ -106,11 +106,11 @@ const PodcastManagement: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3 italic uppercase">
             <Mic className="text-purple-500" size={32} />
-            Podcasts
+            Podcast Intelligence
           </h1>
-          <p className="text-zinc-500">Monitor and manage audio broadcasts across the platform.</p>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Monitor and manage audio broadcasts across the platform.</p>
         </div>
         <button className="btn-primary flex items-center gap-2">
           <Plus size={18} />

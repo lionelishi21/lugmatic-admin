@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuth } from '../../hooks/useAuth';
 import { adminService } from '../../services/adminService';
 import { Skeleton } from '../../components/ui/skeleton';
 
@@ -52,6 +53,7 @@ interface DashboardData {
 }
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -118,7 +120,7 @@ export default function AdminDashboard() {
             <Icon size={18} className={c.text} />
           </div>
           <div>
-            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em]">{title}</p>
+            <p className="text-[10px] font-bold text-zinc-600 tracking-wide">{title}</p>
           </div>
         </div>
         
@@ -178,23 +180,19 @@ export default function AdminDashboard() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Intelligence</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">
+              {user?.role === 'super admin' ? 'Executive Intelligence' : 'Admin Intelligence'}
+            </h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Live Sync</span>
+              <span className="text-[10px] font-bold text-emerald-500 tracking-wide">Live Sync Active</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1">Platform-wide executive overview and signal analysis.</p>
+          <p className="text-zinc-500 text-xs font-semibold tracking-wide ml-1">Platform-wide executive overview and signal analysis.</p>
         </div>
         <div className="flex items-center gap-6">
-          <div className="text-right">
-            <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Total Revenue</p>
-            <p className="text-2xl font-bold text-white tracking-tighter leading-none">${revenue.total.toLocaleString()}</p>
-          </div>
-          <div className="w-px h-10 bg-white/5" />
-          <div className="text-right">
-            <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Transactions</p>
-            <p className="text-2xl font-bold text-emerald-500 tracking-tighter leading-none">{revenue.totalTransactions.toLocaleString()}</p>
+          <div className="text-right px-6 py-3 bg-[#0a0a0a] border border-white/5 rounded-2xl">
+            <p className="text-[11px] font-bold text-emerald-500 tracking-wide">{user?.role?.toUpperCase() || 'ADMIN_NODE'}</p>
           </div>
         </div>
       </div>
@@ -239,10 +237,10 @@ export default function AdminDashboard() {
         <div className="premium-card !p-0 overflow-hidden flex flex-col border-emerald-500/5">
           <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
             <div>
-              <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
+              <h2 className="text-[10px] font-bold text-zinc-500 tracking-wide flex items-center gap-2">
                 <Star size={14} className="text-amber-500" /> Elite Artist Roster
               </h2>
-              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest mt-1">Ranking by engagement & follower density</p>
+              <p className="text-[10px] text-zinc-700 font-bold tracking-wide mt-1">Ranking by engagement & follower density</p>
             </div>
             <button className="p-2.5 rounded-xl bg-white/5 text-zinc-500 hover:text-white hover:bg-white/10 transition-all border border-white/5">
               <ChevronRight size={18} />
@@ -291,10 +289,10 @@ export default function AdminDashboard() {
         <div className="premium-card !p-0 overflow-hidden flex flex-col">
           <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
             <div>
-              <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
+              <h2 className="text-[10px] font-bold text-zinc-500 tracking-wide flex items-center gap-2">
                 <Activity size={14} className="text-emerald-500" /> Operational Stream
               </h2>
-              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest mt-1">Real-time system telemetry and user events</p>
+              <p className="text-[10px] text-zinc-700 font-bold tracking-wide mt-1">Real-time system telemetry and user events</p>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Auto-Refresh</span>

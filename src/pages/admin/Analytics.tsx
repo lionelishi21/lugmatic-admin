@@ -96,13 +96,13 @@ const Analytics: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Signal Intelligence</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">Signal Intelligence</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Neural Link Active</span>
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest italic">Neural Link Active</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1">Comprehensive telemetry and behavior analysis for global infrastructure.</p>
+          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Comprehensive telemetry and behavior analysis for global infrastructure.</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-1 flex gap-1 shadow-inner">
@@ -148,8 +148,8 @@ const Analytics: React.FC = () => {
                   {card.trend}
                 </div>
               </div>
-              <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest mb-1.5">{card.label}</p>
-              <p className="text-2xl font-bold text-white tracking-tighter tabular-nums leading-none">{card.value}</p>
+              <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest mb-1.5 italic">{card.label}</p>
+              <p className="text-2xl font-bold text-white tracking-tighter tabular-nums leading-none italic uppercase">{card.value}</p>
             </motion.div>
           );
         })}
@@ -161,8 +161,8 @@ const Analytics: React.FC = () => {
         <div className="premium-card lg:col-span-2 !p-0 overflow-hidden flex flex-col border-white/5">
           <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
             <div>
-              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Signal Propagation Matrix</h3>
-              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Growth trajectories and transmission velocity</p>
+              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">Signal Propagation Matrix</h3>
+              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest italic">Growth trajectories and transmission velocity</p>
             </div>
             <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1">
               {[
@@ -221,8 +221,8 @@ const Analytics: React.FC = () => {
         <div className="premium-card !p-0 overflow-hidden flex flex-col border-white/5">
           <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
             <div>
-              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Semantic Distribution</h3>
-              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Asset categorization and metadata density</p>
+              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">Semantic Distribution</h3>
+              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest italic">Asset categorization and metadata density</p>
             </div>
             <Target size={16} className="text-zinc-700" />
           </div>
@@ -291,8 +291,8 @@ const Analytics: React.FC = () => {
         <div className="premium-card !p-0 overflow-hidden flex flex-col border-white/5 shadow-2xl">
           <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
             <div>
-              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">High-Impact Asset Analysis</h3>
-              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Peak transmission leaders and engagement spikes</p>
+              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">High-Impact Asset Analysis</h3>
+              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest italic">Peak transmission leaders and engagement spikes</p>
             </div>
             <div className="flex items-center gap-3">
                <button className="text-[9px] font-bold text-emerald-500 hover:text-emerald-400 uppercase tracking-widest transition-all flex items-center gap-2">
@@ -338,8 +338,8 @@ const Analytics: React.FC = () => {
           <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
             <div className="flex items-center gap-6">
               <div>
-                <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Live Operational Stream</h3>
-                <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Real-time neural sync and system telemetry</p>
+                <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">Live Operational Stream</h3>
+                <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest italic">Real-time neural sync and system telemetry</p>
               </div>
               <div className="flex items-center gap-2 text-[9px] font-bold text-emerald-500 bg-emerald-500/5 px-4 py-1.5 rounded-full border border-emerald-500/10 uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(16,185,129,0.1)]">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
@@ -384,8 +384,8 @@ const Analytics: React.FC = () => {
         <div className="premium-card lg:col-span-2 !p-0 overflow-hidden border-white/5">
           <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
             <div>
-              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Geographic Signal Strength</h3>
-              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Regional node density and credit throughput</p>
+              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">Geographic Signal Strength</h3>
+              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest italic">Regional node density and credit throughput</p>
             </div>
             <Globe size={18} className="text-zinc-700" />
           </div>
@@ -440,8 +440,8 @@ const Analytics: React.FC = () => {
           <div className="premium-card space-y-10 border-white/5">
             <div className="flex items-center justify-between">
                <div>
-                  <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Neural Node Grid</h3>
-                  <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Hardware profile and connection medium</p>
+                  <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">Neural Node Grid</h3>
+                  <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest italic">Hardware profile and connection medium</p>
                </div>
                <Cpu size={18} className="text-zinc-700" />
             </div>
@@ -474,8 +474,8 @@ const Analytics: React.FC = () => {
 
           <div className="premium-card space-y-8 border-white/5">
              <div>
-                <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">System Protocols</h3>
-                <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Executive operational shortcuts</p>
+                <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">System Protocols</h3>
+                <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest italic">Executive operational shortcuts</p>
              </div>
             <div className="space-y-4">
               {[

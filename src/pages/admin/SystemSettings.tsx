@@ -120,22 +120,22 @@ const SystemSettings: React.FC = () => {
             <h1 className="text-4xl font-bold tracking-tight text-white leading-none">System Configuration</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Core Access Active</span>
+              <span className="text-[10px] font-bold text-emerald-500 tracking-wide">Core Access Active</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1">Executing high-level infrastructure protocols and global parameter sync.</p>
+          <p className="text-zinc-500 text-xs font-semibold tracking-wide ml-1">Executing high-level infrastructure protocols and global parameter sync.</p>
         </div>
         <div className="flex items-center gap-4">
           <button 
             onClick={() => window.location.reload()} 
-            className="h-14 px-8 bg-zinc-950 text-zinc-500 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] border border-white/5 hover:text-white hover:bg-white/5 transition-all italic"
+            className="h-14 px-8 bg-zinc-950 text-zinc-500 rounded-2xl text-[10px] font-bold border border-white/5 hover:text-white hover:bg-white/5 transition-all"
           >
             Reset Engine
           </button>
           <button 
             onClick={handleSave} 
             disabled={saving} 
-            className="h-14 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-emerald-400 transition-all shadow-2xl flex items-center justify-center gap-4 group"
+            className="h-14 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:bg-emerald-400 transition-all shadow-2xl flex items-center justify-center gap-4 group"
           >
             {saving ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
             Commit Protocol
@@ -165,8 +165,8 @@ const SystemSettings: React.FC = () => {
                       <Icon size={18} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold uppercase tracking-widest leading-none mb-1.5 italic">{category.name}</p>
-                      <p className={`text-[9px] font-bold uppercase tracking-widest truncate ${active ? 'text-zinc-400' : 'text-zinc-700'}`}>
+                      <p className="text-[10px] font-bold leading-none mb-1.5">{category.name}</p>
+                      <p className={`text-[9px] font-bold truncate ${active ? 'text-zinc-400' : 'text-zinc-700'}`}>
                         {category.description}
                       </p>
                     </div>
@@ -180,7 +180,7 @@ const SystemSettings: React.FC = () => {
           {/* Real-time Infrastructure Telemetry */}
           <div className="premium-card space-y-8 border-white/5 bg-zinc-950/20 shadow-2xl">
             <div className="flex items-center justify-between">
-              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic flex items-center gap-3">
+              <h3 className="text-[10px] font-bold text-zinc-500 flex items-center gap-3">
                 <Activity size={14} className="text-emerald-500" /> Infrastructure Health
               </h3>
               <div className="flex items-center gap-2">
@@ -197,10 +197,10 @@ const SystemSettings: React.FC = () => {
                 <div key={s.name} className="flex items-center justify-between group cursor-default">
                   <div className="flex items-center gap-4">
                     <div className={`w-1.5 h-1.5 rounded-full ${s.ok ? 'bg-emerald-500' : 'bg-rose-500'} shadow-[0_0_8px_#10b981] group-hover:scale-150 transition-transform`} />
-                    <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest group-hover:text-zinc-300 transition-colors">{s.name}</span>
+                    <span className="text-[10px] font-bold text-zinc-600 group-hover:text-zinc-300 transition-colors">{s.name}</span>
                   </div>
                   <div className="px-3 py-1 bg-black/40 rounded-lg border border-white/5">
-                    <span className="text-[9px] font-bold text-zinc-400 tabular-nums italic">{s.lat}</span>
+                    <span className="text-[9px] font-bold text-zinc-400 tabular-nums">{s.lat}</span>
                   </div>
                 </div>
               ))}
@@ -219,14 +219,14 @@ const SystemSettings: React.FC = () => {
                   {activeCategory && <activeCategory.icon size={28} className="text-emerald-500 relative z-10" />}
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white uppercase tracking-tighter italic leading-none mb-3">{activeCategory?.name} Protocol</h2>
-                  <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Executing parameters for {activeCategory?.description.toLowerCase()}</p>
+                  <h2 className="text-2xl font-bold text-white leading-none mb-3">{activeCategory?.name} Protocol</h2>
+                  <p className="text-zinc-500 text-xs font-semibold ml-1">Executing parameters for {activeCategory?.description.toLowerCase()}</p>
                 </div>
               </div>
               <div className="relative z-10">
                 <div className="flex items-center gap-3 px-6 py-2.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 shadow-xl">
                   <ShieldCheck size={18} className="text-emerald-500" />
-                  <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.2em] italic">Executive Access Control</span>
+                  <span className="text-[10px] font-bold text-emerald-500">Executive Access Control</span>
                 </div>
               </div>
             </div>

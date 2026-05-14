@@ -84,17 +84,17 @@ const SongManagement: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">Artifact Registry</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Artifact Registry</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest italic">Matrix: Active</span>
+              <span className="text-[10px] font-bold text-emerald-500">Matrix: Active</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Auditing global sonic artifacts, linguistic nodes, and spectral metadata.</p>
+          <p className="text-zinc-500 text-xs font-semibold ml-1">Auditing global sonic artifacts, linguistic nodes, and spectral metadata.</p>
         </div>
         <button 
           onClick={() => navigate('/admin/song-management/add')} 
-          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
         >
           <Plus size={18} />
           Register Artifact
@@ -107,20 +107,20 @@ const SongManagement: React.FC = () => {
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
           <input
             type="text"
-            placeholder="SCAN ARTIFACT REGISTRY..."
+            placeholder="Search artifact registry..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800 italic"
+            className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
           />
         </div>
         <div className="flex items-center gap-6">
            <div className="px-5 py-3 bg-zinc-950/40 border border-white/5 rounded-2xl shadow-inner flex items-center gap-4">
               <Activity size={14} className="text-emerald-500" />
-              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic leading-none">Scanning <span className="text-white">{filteredSongs.length}</span> Results</span>
+              <span className="text-[10px] font-bold text-zinc-500 leading-none">Scanning <span className="text-white">{filteredSongs.length}</span> Results</span>
            </div>
            <div className="flex bg-zinc-950/40 border border-white/5 rounded-2xl p-1.5 gap-1.5 shadow-inner">
-              <button className="px-5 py-2.5 rounded-xl text-[9px] font-bold text-white bg-white/10 border border-white/5 shadow-xl uppercase tracking-widest">Global Archive</button>
-              <button className="px-5 py-2.5 rounded-xl text-[9px] font-bold text-zinc-600 hover:text-zinc-300 transition-all uppercase tracking-widest">Priority Nodes</button>
+              <button className="px-5 py-2.5 rounded-xl text-[9px] font-bold text-white bg-white/10 border border-white/5 shadow-xl">Global Archive</button>
+              <button className="px-5 py-2.5 rounded-xl text-[9px] font-bold text-zinc-600 hover:text-zinc-300 transition-all">Priority Nodes</button>
            </div>
         </div>
       </div>
@@ -131,11 +131,11 @@ const SongManagement: React.FC = () => {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/5 bg-zinc-950/50">
-                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Sonic Artifact</th>
-                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Entity Association</th>
-                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Linguistic Specs</th>
-                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Engagement Telemetry</th>
-                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic text-right">Action Protocol</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500">Sonic Artifact</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500">Entity Association</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500">Linguistic Specs</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500">Engagement Telemetry</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 text-right">Action Protocol</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -145,8 +145,8 @@ const SongManagement: React.FC = () => {
                     <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl group cursor-default">
                       <Music2 size={36} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                     </div>
-                    <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3 italic">Scan Result: NULL_ARTIFACTS</h3>
-                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto opacity-60">Adjust scan parameters or register a new sonic node to the registry.</p>
+                    <h3 className="text-[10px] font-bold text-white mb-3">Scan Result: NULL_ARTIFACTS</h3>
+                    <p className="text-[10px] text-zinc-600 font-bold max-w-sm mx-auto opacity-60">Adjust scan parameters or register a new sonic node to the registry.</p>
                   </td>
                 </tr>
               ) : (
@@ -170,11 +170,11 @@ const SongManagement: React.FC = () => {
                           <div className="absolute inset-0 bg-black/20" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-white uppercase tracking-tight italic group-hover:text-emerald-400 transition-colors leading-none mb-2">{song.name}</p>
+                          <p className="text-sm font-bold text-white tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2">{song.name}</p>
                           {!song.isApproved && (
                             <div className="flex items-center gap-2 bg-amber-500/5 px-2 py-1 rounded-lg border border-amber-500/10 w-fit">
                               <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse" />
-                              <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest italic">Pending Protocol</span>
+                              <span className="text-[8px] font-black text-amber-500">Pending Protocol</span>
                             </div>
                           )}
                         </div>
@@ -184,12 +184,12 @@ const SongManagement: React.FC = () => {
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
                            <User size={12} className="text-zinc-700" />
-                           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest italic leading-none">{typeof song.artist === 'string' ? 'UNKNOWN_ENTITY' : (song.artist as any)?.name.toUpperCase()}</span>
+                           <span className="text-[10px] font-bold text-zinc-400 leading-none">{typeof song.artist === 'string' ? 'UNKNOWN_ENTITY' : (song.artist as any)?.name}</span>
                         </div>
                         <div className="flex items-center gap-2">
                            <Disc size={12} className="text-zinc-700" />
-                           <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest italic leading-none">
-                             {song.album ? (typeof song.album === 'string' ? 'STANDALONE_NODE' : (song.album as any)?.name.toUpperCase()) : 'STANDALONE_NODE'}
+                           <span className="text-[9px] text-zinc-600 font-bold leading-none">
+                             {song.album ? (typeof song.album === 'string' ? 'STANDALONE_NODE' : (song.album as any)?.name) : 'STANDALONE_NODE'}
                            </span>
                         </div>
                       </div>
@@ -198,11 +198,11 @@ const SongManagement: React.FC = () => {
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2 text-zinc-500">
                            <Clock size={12} className="text-zinc-700" />
-                           <span className="text-[10px] font-bold tabular-nums italic">{formatDuration(song.duration)} <span className="opacity-40 ml-1 tracking-widest">CYCLE</span></span>
+                           <span className="text-[10px] font-bold tabular-nums">{formatDuration(song.duration)} <span className="opacity-40 ml-1">CYCLE</span></span>
                         </div>
                         <div className="px-2 py-1 bg-zinc-950 border border-white/5 rounded-lg w-fit">
-                           <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest italic">
-                             {typeof song.genre === 'string' ? 'GENRE_MIX' : (song.genre as any)?.name.toUpperCase() || 'GENRE_MIX'}
+                           <span className="text-[8px] font-black text-zinc-600">
+                             {typeof song.genre === 'string' ? 'GENRE_MIX' : (song.genre as any)?.name || 'GENRE_MIX'}
                            </span>
                         </div>
                       </div>
@@ -213,8 +213,8 @@ const SongManagement: React.FC = () => {
                             <Zap size={16} className="text-emerald-500" />
                          </div>
                          <div className="flex flex-col">
-                            <span className="text-lg font-bold text-white tracking-tighter italic tabular-nums leading-none">{(song.playCount || 0).toLocaleString()}</span>
-                            <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest italic mt-1">Impact Units</span>
+                            <span className="text-lg font-bold text-white tracking-tighter tabular-nums leading-none">{(song.playCount || 0).toLocaleString()}</span>
+                            <span className="text-[8px] font-black text-zinc-700 mt-1">Impact Units</span>
                          </div>
                       </div>
                     </td>
