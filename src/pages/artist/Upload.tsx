@@ -49,6 +49,7 @@ export default function Upload() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [contributors, setContributors] = useState<Contributor[]>([]);
   const [userLoaded, setUserLoaded] = useState(false);
 
   // Initialize contributor name once user data is available
