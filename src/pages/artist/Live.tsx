@@ -519,7 +519,7 @@ export default function Live() {
 
   const handleCopyLink = () => {
     if (!streamData?._id) return;
-    const url = `https://lugmaticmusic.com/stream/${streamData._id}`;
+    const url = `${window.location.origin}/share/stream/${streamData._id}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
     toast.success('Link copied');
@@ -528,7 +528,7 @@ export default function Live() {
 
   const handleSocialShare = (platform: 'twitter' | 'facebook' | 'whatsapp') => {
     if (!streamData?._id) return;
-    const url = `https://lugmaticmusic.com/stream/${streamData._id}`;
+    const url = `${window.location.origin}/share/stream/${streamData._id}`;
     const text = `I'm live on Lugmatic! Watch me now: ${streamSettings.title}`;
     let shareUrl = '';
     if (platform === 'twitter') shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;

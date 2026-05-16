@@ -68,6 +68,8 @@ import Billboard from './pages/admin/Billboard';
 import ArtistApprovals from './pages/admin/ArtistApprovals';
 import GiftEdit from './pages/admin/GiftEdit';
 import { ThemeProvider } from './context/ThemeContext';
+import SongShare from './pages/public/SongShare';
+import StreamShare from './pages/public/StreamShare';
 
 function App() {
   return (
@@ -84,6 +86,10 @@ function App() {
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/resend-verification" element={<ResendVerification />} />
             <Route path="/setup-account" element={<SetupAccount />} />
+
+            {/* Public share pages — no auth required */}
+            <Route path="/share/song/:songId" element={<SongShare />} />
+            <Route path="/share/stream/:streamId" element={<StreamShare />} />
 
             <Route path="/artist/*" element={
               <ProtectedRoute requiredRole="artist">

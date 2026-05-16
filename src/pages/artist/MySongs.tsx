@@ -8,8 +8,9 @@ import {
   Play, Clock, Target, Activity, Award, ShieldCheck,
   Zap, Headphones, Filter, SlidersHorizontal, ArrowUpRight,
   Disc, Mic, Layers, Activity as ActivityIcon,
-  Globe, Shield, Database, Radio
+  Globe, Shield, Database, Radio, Share2
 } from 'lucide-react';
+import ShareModal from '../../components/ShareModal';
 import { format } from 'date-fns';
 import { RootState } from '../../store';
 import artistService from '../../services/artistService';
@@ -28,6 +29,7 @@ export default function MySongs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [songToDelete, setSongToDelete] = useState<string | null>(null);
+  const [shareTarget, setShareTarget] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     if (user?.artistId) fetchSongs();
@@ -239,6 +241,13 @@ export default function MySongs() {
                       <BarChart2 size={20} />
                     </button>
                     <button
+                      onClick={() => setShareTarget({ id: track._id, title: track.name })}
+                      className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#0a0a0a] text-zinc-700 hover:text-indigo-400 border border-white/5 hover:border-indigo-500/20 transition-all shadow-xl"
+                      title="Share"
+                    >
+                      <Share2 size={20} />
+                    </button>
+                    <button
                       onClick={() => navigate(`/artist/song-edit/${track._id}`)}
                       className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#0a0a0a] text-zinc-700 hover:text-blue-500 border border-white/5 hover:border-blue-500/20 transition-all shadow-xl"
                     >
@@ -261,6 +270,15 @@ export default function MySongs() {
             <button className="text-xs font-bold text-zinc-700 hover:text-white transition-all uppercase tracking-widest">Load More Songs</button>
         </div>
       </div>
+
+      {shareTarget && (
+        <ShareModal
+          type="song"
+          id={shareTarget.id}
+          title={shareTarget.title}
+          onClose={() => setShareTarget(null)}
+        />
+      )}
 
       <ConfirmDialog
         isOpen={!!songToDelete}
