@@ -5,6 +5,8 @@ import ContributorLogin from './pages/auth/ContributorLogin';
 import AcceptInvitation from './pages/auth/AcceptInvitation';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import ResendVerification from './pages/auth/ResendVerification';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 import SetupAccount from './pages/auth/SetupAccount';
 import ArtistDashboard from './pages/artist/ArtistDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -81,6 +83,8 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<ArtistRegister />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/contributor/login" element={<ContributorLogin />} />
             <Route path="/accept-invitation" element={<AcceptInvitation />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
