@@ -129,7 +129,6 @@ export default function Login() {
       const role = (user.role || '').toLowerCase().trim();
       const isAdmin = role.includes('admin');
       
-      if (role === 'user') { window.location.href = 'https://lugmaticmusic.com'; return; }
       if (isAdmin) navigate('/admin', { replace: true });
       else if (role === 'contributor') navigate('/contributor', { replace: true });
       else navigate('/artist', { replace: true });

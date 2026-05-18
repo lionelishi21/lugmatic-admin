@@ -85,6 +85,15 @@ export const initializeAuth = createAsyncThunk(
       try {
         const response = await apiService.get('/auth/me');
         const userData = (response.data as any).data ?? response.data;
+        
+        // Allowed roles for this dashboard
+        const allowedRoles = ['admin', 'artist', 'contributor', 'super admin'];
+        const userRole = (userData.role || '').toLowerCase().trim();
+        if (!userRole || !allowedRoles.includes(userRole)) {
+          clearTokens();
+          return { isAuthenticated: false, user: null };
+        }
+
         return { isAuthenticated: true, user: userData };
       } catch (error) {
         clearTokens();
@@ -105,6 +114,16 @@ export const loginUser = createAsyncThunk(
       const raw = response.data as any;
       const payload = raw?.data ?? raw;
 
+      const user: AuthUser = (payload?.user ?? payload) as AuthUser;
+      
+      // Check role BEFORE setting tokens and returning
+      const allowedRoles = ['admin', 'artist', 'contributor', 'super admin'];
+      const userRole = (user.role || '').toLowerCase().trim();
+      
+      if (!userRole || !allowedRoles.includes(userRole)) {
+         throw new Error('Access denied. Regular user accounts are restricted to the main platform at lugmaticmusic.com.');
+      }
+
       const accessToken = payload?.accessToken || payload?.token;
       const refreshToken = payload?.refreshToken || accessToken;
 
@@ -114,9 +133,13 @@ export const loginUser = createAsyncThunk(
         throw new Error('No token received from server');
       }
 
-      const user: AuthUser = (payload?.user ?? payload) as AuthUser;
       return user;
     } catch (error: unknown) {
+      // getErrorMessage doesn't handle Error objects directly with .message unless casted or structured differently, but wait, error.message works if it's a standard Error. 
+      // getErrorMessage handles AxiosError. Let's just return the message if it's our custom error.
+      if (error instanceof Error && error.message.includes('Access denied')) {
+        return rejectWithValue(error.message);
+      }
       return rejectWithValue(getErrorMessage(error));
     }
   }
