@@ -20,10 +20,31 @@ export default function ShareModal({ type, id, title, artist, onClose }: ShareMo
     : `Watch "${title}" live on Lugmatic`;
 
   const copy = async () => {
-    await navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    toast.success('Link copied');
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        // Fallback for older browsers or non-HTTPS connections
+        const textArea = document.createElement("textarea");
+        textArea.value = shareUrl;
+        textArea.style.position = "fixed";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+        } catch (err) {
+          console.error('Fallback copy failed', err);
+        }
+        document.body.removeChild(textArea);
+      }
+      setCopied(true);
+      toast.success('Link copied');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Copy failed', error);
+      toast.error('Failed to copy link');
+    }
   };
 
   const shareTwitter = () =>

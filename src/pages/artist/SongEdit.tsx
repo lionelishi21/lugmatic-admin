@@ -96,7 +96,7 @@ const SongEdit: React.FC = () => {
       reloadContributors();
     } catch (err: any) {
       toast.error('Failed to load track details');
-      navigate('/artist/dashboard');
+      navigate('/artist/songs');
     } finally {
       setLoading(false);
     }
@@ -252,7 +252,7 @@ const SongEdit: React.FC = () => {
               />
             </div>
 
-            {song.audioFile && (
+            {(song.audioFileUrl || song.audioFile) && (
               <div className="bg-zinc-950 p-6 rounded-2xl border border-white/5 shadow-inner">
                 <div className="flex items-center gap-5">
                   <button type="button" onClick={togglePlay} className="w-14 h-14 rounded-2xl bg-emerald-500 text-black flex items-center justify-center hover:scale-105 transition-all shadow-xl">
@@ -266,7 +266,7 @@ const SongEdit: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <audio ref={audioRef} src={song.audioFile} onEnded={() => setIsPlaying(false)} />
+                <audio ref={audioRef} src={song.audioFileUrl || song.audioFile} onEnded={() => setIsPlaying(false)} />
               </div>
             )}
           </div>
