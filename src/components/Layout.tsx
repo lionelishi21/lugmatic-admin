@@ -28,8 +28,8 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
   const location = useLocation();
   const { logout } = useAuth();
   const [userRole, setUserRole] = useState(userRoleProp ?? 'admin');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
 
   useEffect(() => {
@@ -130,9 +130,16 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
         animate={{ width: isSidebarOpen ? (isMobile ? '100%' : '280px') : '0px' }}
         className={`fixed lg:relative z-50 h-full bg-[#050505] border-r border-white/5 flex flex-col overflow-hidden ${!isSidebarOpen && isMobile ? 'hidden' : ''}`}
       >
-        <div className="p-8 mb-4 flex items-center gap-3">
-          <img src={lugmaticIcon} alt="Logo" className="w-10 h-10" />
-          <span className="font-bold text-xl tracking-tight">Lugmatic</span>
+        <div className="p-8 mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src={lugmaticIcon} alt="Logo" className="w-10 h-10" />
+            <span className="font-bold text-xl tracking-tight">Lugmatic</span>
+          </div>
+          {isMobile && (
+            <button onClick={() => setIsSidebarOpen(false)} className="text-zinc-500 hover:text-white">
+              <X size={24} />
+            </button>
+          )}
         </div>
 
         <nav className="flex-1 px-4 space-y-8 overflow-y-auto custom-scrollbar pb-10">
@@ -172,6 +179,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                                   <Link
                                     key={sub.path}
                                     to={sub.path}
+                                    onClick={() => { if (isMobile) setIsSidebarOpen(false); }}
                                     className={`block py-2 text-sm font-medium transition-all ${
                                       location.pathname === sub.path ? 'text-emerald-400' : 'text-zinc-500 hover:text-white'
                                     }`}
@@ -186,6 +194,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                       ) : (
                         <Link
                           to={item.path}
+                          onClick={() => { if (isMobile) setIsSidebarOpen(false); }}
                           className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group ${
                             isActive(item.path) 
                               ? 'bg-white/10 text-white' 
@@ -209,6 +218,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                 <Link
                   key={item.path}
                   to={item.path}
+                  onClick={() => { if (isMobile) setIsSidebarOpen(false); }}
                   className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group ${
                     isActive(item.path) 
                       ? 'bg-white/10 text-white' 
