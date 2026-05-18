@@ -3,8 +3,7 @@ import {
   Users, Search, Shield, Music2, 
   User as UserIcon, ChevronDown, X, UserPlus, UserCheck, 
   Ban, Loader2, Key, MoreVertical, AlertTriangle,
-  Target, Activity, Globe, Zap, Cpu, ArrowUpRight,
-  ShieldCheck, Filter, SlidersHorizontal, CheckCircle2
+  ArrowUpRight, ShieldCheck, RefreshCw
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { User } from '../../types';
@@ -13,16 +12,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // Role configuration for UI display
 const roleConfig: Record<string, any> = {
-  admin: { label: 'ADMIN_NODE', icon: Shield, bg: 'bg-amber-500/5', text: 'text-amber-500', border: 'border-amber-500/10' },
-  'super admin': { label: 'EXECUTIVE_NODE', icon: Shield, bg: 'bg-purple-500/5', text: 'text-purple-500', border: 'border-purple-500/10' },
-  artist: { label: 'ARTIST_NODE', icon: Music2, bg: 'bg-emerald-500/5', text: 'text-emerald-500', border: 'border-emerald-500/10' },
-  user: { label: 'STANDARD_NODE', icon: UserIcon, bg: 'bg-white/5', text: 'text-zinc-500', border: 'border-white/5' },
+  admin: { label: 'Admin', icon: Shield, bg: 'bg-indigo-500/5', text: 'text-indigo-500', border: 'border-indigo-500/10' },
+  'super admin': { label: 'Super Admin', icon: Shield, bg: 'bg-purple-500/5', text: 'text-purple-500', border: 'border-purple-500/10' },
+  artist: { label: 'Artist', icon: Music2, bg: 'bg-emerald-500/5', text: 'text-emerald-500', border: 'border-emerald-500/10' },
+  user: { label: 'User', icon: UserIcon, bg: 'bg-white/5', text: 'text-zinc-500', border: 'border-white/5' },
 };
 
 const statusConfig: Record<string, any> = {
-  active: { label: 'ACTIVE_LINK', dot: 'bg-emerald-500', shadow: 'shadow-[0_0_8px_#10b981]' },
-  inactive: { label: 'INACTIVE', dot: 'bg-zinc-700', shadow: '' },
-  suspended: { label: 'QUARANTINED', dot: 'bg-rose-500', shadow: 'shadow-[0_0_8px_#f43f5e]' },
+  active: { label: 'Active', dot: 'bg-emerald-500', shadow: 'shadow-[0_0_8px_#10b981]' },
+  inactive: { label: 'Inactive', dot: 'bg-zinc-700', shadow: '' },
+  suspended: { label: 'Suspended', dot: 'bg-rose-500', shadow: 'shadow-[0_0_8px_#f43f5e]' },
 };
 
 export default function UserManagement() {
@@ -142,59 +141,76 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="space-y-12 pb-24">
-      {/* Cinematic Identity Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Identity Grid</h1>
-            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{totalUsers} Nodes Registered</span>
-            </div>
+    <div className="space-y-8 pb-24">
+      {/* Premium Welcome Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="premium-card !p-12 relative overflow-hidden group shadow-2xl border-white/5"
+      >
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/[0.03] blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        
+        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-12 z-10">
+          <div className="flex items-center gap-8">
+             <div className="w-20 h-20 bg-indigo-500/10 rounded-3xl flex items-center justify-center flex-shrink-0 border border-indigo-500/20 shadow-2xl relative overflow-hidden">
+                <Users className="w-10 h-10 text-indigo-500" />
+             </div>
+             <div>
+                <h2 className="text-4xl font-bold text-white tracking-tight mb-2">
+                  User Management
+                </h2>
+                <p className="text-zinc-500 font-medium max-w-md leading-relaxed">
+                   Manage your platform's users, roles, and access privileges.
+                </p>
+             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1">Managing global identity nodes, access privileges, and system throughput.</p>
+          <div className="flex items-center gap-4">
+             <div className="flex flex-col items-end mr-4">
+               <span className="text-3xl font-bold text-white tabular-nums leading-none">{totalUsers}</span>
+               <span className="text-xs text-zinc-500 font-medium mt-1">Total Users</span>
+             </div>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="h-14 px-8 bg-white text-black rounded-2xl text-sm font-semibold hover:scale-105 transition-all shadow-xl flex items-center justify-center gap-3 border border-white/10"
+            >
+              <UserPlus size={18} />
+              Add User
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
-        >
-          <UserPlus size={18} />
-          Register New Node
-        </button>
-      </div>
+      </motion.div>
 
-      {/* Identity Control HUD */}
-      <div className="premium-card !p-4 bg-zinc-950/40 flex flex-col lg:flex-row items-center gap-6 border-white/5 shadow-inner">
+      {/* Control HUD */}
+      <div className="premium-card !p-4 flex flex-col lg:flex-row items-center gap-6 border-white/5 shadow-md">
         <div className="relative flex-1 group w-full">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500 h-5 w-5 group-focus-within:text-indigo-500 transition-colors" />
           <input
             type="text"
-            placeholder="SCAN IDENTITY ARCHIVE..."
+            placeholder="Search users by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-14 pr-12 h-14 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-700 italic"
+            className="w-full pl-14 pr-12 h-14 bg-zinc-900/50 border border-white/5 rounded-2xl text-white text-sm focus:outline-none focus:border-indigo-500/30 focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-zinc-600"
           />
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-700 hover:text-white transition-colors"
+              className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-white transition-colors"
             >
               <X size={18} />
             </button>
           )}
         </div>
         
-        <div className="flex flex-wrap items-center gap-10 px-4">
-          <div className="flex items-center gap-4">
-            <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest italic">Privilege</span>
-            <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1.5 gap-1 shadow-inner">
+        <div className="flex flex-wrap items-center gap-8 px-4">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Role</span>
+            <div className="flex bg-zinc-900/50 border border-white/5 rounded-xl p-1 gap-1">
               {['all', 'admin', 'artist', 'user'].map(role => (
                 <button
                   key={role}
                   onClick={() => { setRoleFilter(role); setPage(1); }}
-                  className={`px-5 py-2.5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all duration-300 ${
-                    roleFilter === role ? 'bg-white/10 text-white shadow-xl border border-white/5' : 'text-zinc-600 hover:text-zinc-300'
+                  className={`px-4 py-2 rounded-lg text-xs font-semibold capitalize transition-all duration-300 ${
+                    roleFilter === role ? 'bg-white/10 text-white shadow-md border border-white/5' : 'text-zinc-500 hover:text-zinc-300'
                   }`}
                 >
                   {role}
@@ -203,15 +219,15 @@ export default function UserManagement() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest italic">Status</span>
-            <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1.5 gap-1 shadow-inner">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Status</span>
+            <div className="flex bg-zinc-900/50 border border-white/5 rounded-xl p-1 gap-1">
               {['all', 'active', 'inactive', 'suspended'].map(status => (
                 <button
                   key={status}
                   onClick={() => { setStatusFilter(status); setPage(1); }}
-                  className={`px-5 py-2.5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all duration-300 ${
-                    statusFilter === status ? 'bg-white/10 text-white shadow-xl border border-white/5' : 'text-zinc-600 hover:text-zinc-300'
+                  className={`px-4 py-2 rounded-lg text-xs font-semibold capitalize transition-all duration-300 ${
+                    statusFilter === status ? 'bg-white/10 text-white shadow-md border border-white/5' : 'text-zinc-500 hover:text-zinc-300'
                   }`}
                 >
                   {status}
@@ -223,37 +239,36 @@ export default function UserManagement() {
       </div>
 
       {/* Node Table Grid */}
-      <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
+      <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-xl flex flex-col">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-white/5 bg-zinc-950/50">
-                <th className="px-10 py-6 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Identity Node</th>
-                <th className="px-10 py-6 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Privilege Profile</th>
-                <th className="px-10 py-6 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Link Status</th>
-                <th className="px-10 py-6 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic text-right">Action Protocol</th>
+              <tr className="border-b border-white/5 bg-zinc-950/20">
+                <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">User</th>
+                <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">Role</th>
+                <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">Status</th>
+                <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {loading && users.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-10 py-40 text-center">
-                    <div className="relative inline-block mb-6">
-                      <div className="w-20 h-20 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin" />
-                      <Cpu className="absolute inset-0 m-auto text-emerald-500 animate-pulse" size={24} />
+                  <td colSpan={4} className="px-10 py-32 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <Loader2 className="h-10 w-10 text-indigo-500 animate-spin mb-4" />
+                      <p className="text-sm font-medium text-zinc-500">Loading users...</p>
                     </div>
-                    <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.4em] italic">Scanning Node Registry...</p>
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-10 py-40 text-center">
-                    <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-white/5 shadow-2xl group cursor-default">
-                      <AlertTriangle size={36} className="text-zinc-800 group-hover:text-amber-500 transition-colors" />
+                  <td colSpan={4} className="px-10 py-32 text-center">
+                    <div className="w-20 h-20 bg-zinc-900/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5">
+                      <Users size={32} className="text-zinc-600" />
                     </div>
-                    <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3 italic">Scan Result: Null</h3>
-                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto leading-relaxed opacity-60">
-                       Adjust your scan parameters or register a new identity node to the grid.
+                    <h3 className="text-lg font-bold text-white mb-2">No users found</h3>
+                    <p className="text-sm text-zinc-500 max-w-sm mx-auto">
+                       Try adjusting your search or filters to find what you're looking for.
                     </p>
                   </td>
                 </tr>
@@ -267,72 +282,69 @@ export default function UserManagement() {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.03 }}
-                      className="hover:bg-emerald-500/[0.01] transition-all group"
+                      className="hover:bg-white/[0.02] transition-colors group"
                     >
-                      <td className="px-10 py-6">
-                        <div className="flex items-center gap-6">
-                          <div className="w-14 h-14 rounded-2xl bg-[#0a0a0a] border border-white/5 flex items-center justify-center text-[10px] font-black text-zinc-700 shadow-inner group-hover:border-emerald-500/30 transition-all group-hover:scale-110">
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-sm font-bold text-zinc-500 shadow-sm">
                             {getInitials(user)}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-bold text-white uppercase tracking-tight italic group-hover:text-emerald-400 transition-colors leading-none mb-2">
-                              {user.firstName || 'UNKNOWN'} {user.lastName || ''}
+                            <p className="text-sm font-bold text-white leading-snug">
+                              {user.firstName || 'Unknown'} {user.lastName || ''}
                             </p>
-                            <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{user.email.toUpperCase()}</p>
+                            <p className="text-xs text-zinc-500 mt-0.5">{user.email}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-10 py-6">
-                        <div className={`inline-flex items-center gap-3 px-4 py-2 rounded-xl border ${role.bg} ${role.text} ${role.border} shadow-inner`}>
+                      <td className="px-8 py-5">
+                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border ${role.bg} ${role.text} ${role.border}`}>
                           <role.icon size={14} />
-                          <span className="text-[9px] font-bold uppercase tracking-[0.2em] italic">{role.label}</span>
+                          <span className="text-xs font-semibold">{role.label}</span>
                         </div>
                       </td>
-                      <td className="px-10 py-6">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-1.5 h-1.5 rounded-full ${status.dot} ${status.shadow}`} />
-                          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">{status.label}</span>
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`w-2 h-2 rounded-full ${status.dot} ${status.shadow}`} />
+                          <span className="text-xs font-medium text-zinc-400">{status.label}</span>
                         </div>
                       </td>
-                      <td className="px-10 py-6 text-right">
-                        <div className="flex items-center justify-end gap-3">
+                      <td className="px-8 py-5 text-right">
+                        <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => { setTargetUser(user); setNewRole(user.role); setIsRoleModalOpen(true); }}
-                            className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[#0a0a0a] text-zinc-700 hover:text-emerald-500 border border-white/5 hover:border-emerald-500/20 transition-all shadow-inner group-hover:shadow-emerald-500/5"
-                            title="Reconfigure Privilege"
+                            className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent text-zinc-500 hover:text-indigo-400 hover:bg-white/5 transition-colors"
+                            title="Edit Role"
                           >
-                            <Shield size={20} />
+                            <Shield size={18} />
                           </button>
                           <button
                             onClick={() => { setTargetUser(user); setIsResetModalOpen(true); setTempPassword(''); }}
-                            className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[#0a0a0a] text-zinc-700 hover:text-amber-500 border border-white/5 hover:border-amber-500/20 transition-all shadow-inner group-hover:shadow-amber-500/5"
-                            title="Reset Access Link"
+                            className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent text-zinc-500 hover:text-amber-400 hover:bg-white/5 transition-colors"
+                            title="Reset Password"
                           >
-                            <Key size={20} />
+                            <Key size={18} />
                           </button>
                           <div className="relative">
                             <button
                               onClick={() => setOpenMenu(openMenu === user._id ? null : user._id)}
-                              className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${openMenu === user._id ? 'bg-white/10 text-white border border-white/10 shadow-2xl' : 'bg-[#0a0a0a] text-zinc-700 hover:text-white border border-white/5 hover:border-white/10 shadow-inner'}`}
+                              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${openMenu === user._id ? 'bg-white/10 text-white' : 'bg-transparent text-zinc-500 hover:text-white hover:bg-white/5'}`}
                             >
-                              <MoreVertical size={20} />
+                              <MoreVertical size={18} />
                             </button>
                             <AnimatePresence>
                               {openMenu === user._id && (
                                 <motion.div
-                                  initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
                                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                                  exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                                  className="absolute right-0 mt-4 w-64 bg-zinc-900 border border-white/10 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-50 p-3 overflow-hidden backdrop-blur-2xl"
+                                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                  className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-white/10 rounded-xl shadow-xl z-50 p-2 overflow-hidden backdrop-blur-xl"
                                 >
-                                  <div className="px-6 py-4 border-b border-white/5 mb-2">
-                                     <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Override Protocol</p>
-                                  </div>
-                                  <button onClick={() => handleStatusChange(user._id, 'active')} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold text-zinc-400 hover:text-white hover:bg-emerald-500/10 transition-all text-left uppercase tracking-widest italic group/opt">
-                                    <UserCheck size={18} className="text-emerald-500 group-hover/opt:scale-110 transition-transform" /> Activate Node
+                                  <button onClick={() => handleStatusChange(user._id, 'active')} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-emerald-500/10 transition-colors text-left group/opt">
+                                    <UserCheck size={16} className="text-emerald-500" /> Activate
                                   </button>
-                                  <button onClick={() => handleStatusChange(user._id, 'suspended')} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10 transition-all text-left uppercase tracking-widest italic group/opt">
-                                    <Ban size={18} className="text-rose-500 group-hover/opt:scale-110 transition-transform" /> Quarantine Node
+                                  <button onClick={() => handleStatusChange(user._id, 'suspended')} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-300 hover:text-rose-500 hover:bg-rose-500/10 transition-colors text-left group/opt">
+                                    <Ban size={16} className="text-rose-500" /> Suspend
                                   </button>
                                 </motion.div>
                               )}
@@ -348,28 +360,28 @@ export default function UserManagement() {
           </table>
         </div>
 
-        {/* Neural Pagination */}
-        <div className="px-10 py-8 border-t border-white/5 bg-[#080808] flex items-center justify-between">
-          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest italic">
-            Scanning <span className="text-white">{users.length}</span> / <span className="text-white">{totalUsers}</span> Node Matrix
+        {/* Pagination */}
+        <div className="px-8 py-5 border-t border-white/5 bg-zinc-950/20 flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto">
+          <p className="text-xs font-medium text-zinc-500">
+            Showing <span className="text-white">{users.length}</span> of <span className="text-white">{totalUsers}</span> users
           </p>
-          <div className="flex gap-4">
+          <div className="flex gap-2">
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-6 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 text-zinc-600 hover:text-white disabled:opacity-20 transition-all italic"
+              className="px-4 py-2 rounded-lg text-xs font-semibold border border-white/5 text-zinc-400 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
             >
-              PREV_CYCLE
+              Previous
             </button>
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setPage(i + 1)}
-                  className={`w-12 h-12 rounded-xl text-[10px] font-bold transition-all border ${
+                  className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all border ${
                     page === i + 1 
-                      ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.2)]' 
-                      : 'bg-transparent text-zinc-700 border-white/5 hover:border-white/20 hover:text-white'
+                      ? 'bg-white text-black border-white' 
+                      : 'bg-transparent text-zinc-400 border-white/5 hover:bg-white/5'
                   }`}
                 >
                   {i + 1}
@@ -379,9 +391,9 @@ export default function UserManagement() {
             <button
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-6 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 text-zinc-600 hover:text-white disabled:opacity-20 transition-all italic"
+              className="px-4 py-2 rounded-lg text-xs font-semibold border border-white/5 text-zinc-400 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
             >
-              NEXT_CYCLE
+              Next
             </button>
           </div>
         </div>
@@ -390,54 +402,54 @@ export default function UserManagement() {
       {/* Modals Console */}
       <AnimatePresence mode="wait">
         {isAddModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl" onClick={() => setIsAddModalOpen(false)}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" onClick={() => setIsAddModalOpen(false)}>
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="premium-card w-full max-w-xl shadow-[0_30px_100px_rgba(0,0,0,1)] border-emerald-500/10 p-12" onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="premium-card w-full max-w-lg shadow-2xl border-white/10 p-8" onClick={e => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-10">
-                <div className="flex items-center gap-5">
-                   <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
-                      <UserPlus className="text-emerald-500" size={28} />
+              <div className="flex justify-between items-start mb-8">
+                <div className="flex items-center gap-4">
+                   <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center border border-indigo-500/20">
+                      <UserPlus className="text-indigo-500" size={24} />
                    </div>
                    <div>
-                      <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic">Register Node</h3>
-                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Identity Induction Protocol</p>
+                      <h3 className="text-xl font-bold text-white">Add User</h3>
+                      <p className="text-sm text-zinc-500 font-medium">Create a new user account.</p>
                    </div>
                 </div>
-                <button onClick={() => setIsAddModalOpen(false)} className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-white/5 text-zinc-500 transition-all"><X size={24} /></button>
+                <button onClick={() => setIsAddModalOpen(false)} className="p-2 rounded-lg hover:bg-white/5 text-zinc-500 hover:text-white transition-colors"><X size={20} /></button>
               </div>
-              <form onSubmit={handleAddUser} className="space-y-10">
-                <div className="grid grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">First Identity</label>
-                    <input type="text" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} className="w-full px-6 h-16 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner" placeholder="FIRST_NAME" required />
+              <form onSubmit={handleAddUser} className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-zinc-400">First Name</label>
+                    <input type="text" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} className="w-full px-4 h-12 bg-zinc-900/50 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-600" placeholder="John" required />
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">Last Identity</label>
-                    <input type="text" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} className="w-full px-6 h-16 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner" placeholder="LAST_NAME" required />
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-zinc-400">Last Name</label>
+                    <input type="text" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} className="w-full px-4 h-12 bg-zinc-900/50 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-600" placeholder="Doe" required />
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">Signal Email</label>
-                  <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full px-6 h-16 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner" placeholder="EMAIL_ADDRESS" required />
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-400">Email Address</label>
+                  <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full px-4 h-12 bg-zinc-900/50 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-600" placeholder="john@example.com" required />
                 </div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">Privilege Profile</label>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-400">Role</label>
                   <div className="relative group/sel">
-                    <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value as any})} className="w-full h-16 px-8 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer">
-                      <option value="user">STANDARD_NODE</option>
-                      <option value="artist">ARTIST_NODE</option>
-                      <option value="admin">ADMIN_NODE</option>
+                    <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value as any})} className="w-full h-12 px-4 pr-10 bg-zinc-900/50 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
+                      <option value="user">User</option>
+                      <option value="artist">Artist</option>
+                      <option value="admin">Admin</option>
                     </select>
-                    <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-800 pointer-events-none group-focus-within/sel:text-emerald-500 transition-all group-focus-within/sel:rotate-180 duration-500" />
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none group-focus-within/sel:text-indigo-400 transition-colors" />
                   </div>
                 </div>
-                <div className="pt-10 flex justify-end gap-6 border-t border-white/5">
-                  <button type="button" onClick={() => setIsAddModalOpen(false)} className="h-16 px-10 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all italic">ABORT_PROTOCOL</button>
-                  <button type="submit" disabled={isSubmitting} className="h-16 px-12 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] shadow-2xl hover:bg-emerald-400 transition-all flex items-center gap-4">
-                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck size={20} />}
-                    EXECUTE_INDUCTION
+                <div className="pt-6 flex justify-end gap-3 border-t border-white/5 mt-8">
+                  <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-6 py-2.5 text-sm font-semibold text-zinc-400 hover:text-white transition-colors">Cancel</button>
+                  <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-white text-black rounded-xl text-sm font-bold shadow-lg hover:bg-zinc-200 transition-colors flex items-center gap-2">
+                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck size={18} />}
+                    Create User
                   </button>
                 </div>
               </form>
@@ -446,31 +458,33 @@ export default function UserManagement() {
         )}
 
         {isRoleModalOpen && targetUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl" onClick={() => setIsRoleModalOpen(false)}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" onClick={() => setIsRoleModalOpen(false)}>
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="premium-card w-full max-w-sm text-center p-12 border-indigo-500/10" onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="premium-card w-full max-w-sm text-center p-8 border-indigo-500/10 shadow-2xl" onClick={e => e.stopPropagation()}
             >
-              <div className="mx-auto w-20 h-20 rounded-[2.5rem] bg-[#0a0a0a] border border-white/5 flex items-center justify-center mb-8 shadow-2xl relative overflow-hidden group">
-                 <div className="absolute inset-0 bg-indigo-500/5 group-hover:bg-indigo-500/10 transition-colors" />
-                 <Shield className="h-10 w-10 text-indigo-500 relative z-10" />
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 flex items-center justify-center mb-6">
+                 <Shield className="h-8 w-8 text-indigo-500" />
               </div>
-              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic mb-3">Privilege Sync</h3>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-10 italic leading-relaxed">Update neural access level for <br/><span className="text-emerald-500">{targetUser.email.toUpperCase()}</span></p>
+              <h3 className="text-xl font-bold text-white mb-2">Update Role</h3>
+              <p className="text-sm text-zinc-500 mb-8">
+                Change the access level for <br/>
+                <span className="text-white font-medium">{targetUser.email}</span>
+              </p>
               
-              <div className="space-y-8">
+              <div className="space-y-6">
                 <div className="relative text-left group/sel">
-                  <select value={newRole} onChange={e => setNewRole(e.target.value)} className="w-full h-16 px-8 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-indigo-500/30 appearance-none shadow-inner transition-all italic cursor-pointer">
-                    <option value="user">STANDARD_NODE</option>
-                    <option value="artist">ARTIST_NODE</option>
-                    <option value="admin">ADMIN_NODE</option>
-                    <option value="super admin">EXECUTIVE_NODE</option>
+                  <select value={newRole} onChange={e => setNewRole(e.target.value)} className="w-full h-12 px-4 pr-10 bg-zinc-900/50 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
+                    <option value="user">User</option>
+                    <option value="artist">Artist</option>
+                    <option value="admin">Admin</option>
+                    <option value="super admin">Super Admin</option>
                   </select>
-                  <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-800 pointer-events-none group-focus-within/sel:rotate-180 duration-500" />
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none group-focus-within/sel:text-indigo-400 transition-colors" />
                 </div>
-                <div className="flex gap-4">
-                  <button onClick={() => setIsRoleModalOpen(false)} className="h-16 flex-1 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all italic">ABORT</button>
-                  <button onClick={handleRoleChange} disabled={isSubmitting} className="h-16 flex-1 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:bg-emerald-400 transition-all">COMMIT_SYNC</button>
+                <div className="flex gap-3">
+                  <button onClick={() => setIsRoleModalOpen(false)} className="flex-1 py-2.5 text-sm font-semibold text-zinc-400 hover:text-white transition-colors">Cancel</button>
+                  <button onClick={handleRoleChange} disabled={isSubmitting} className="flex-1 py-2.5 bg-white text-black rounded-xl text-sm font-bold shadow-lg hover:bg-zinc-200 transition-colors">Update Role</button>
                 </div>
               </div>
             </motion.div>
@@ -478,30 +492,31 @@ export default function UserManagement() {
         )}
 
         {isResetModalOpen && targetUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl" onClick={() => setIsResetModalOpen(false)}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" onClick={() => setIsResetModalOpen(false)}>
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="premium-card w-full max-w-sm text-center p-12 border-amber-500/10" onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="premium-card w-full max-w-sm text-center p-8 border-amber-500/10 shadow-2xl" onClick={e => e.stopPropagation()}
             >
-              <div className="mx-auto w-20 h-20 rounded-[2.5rem] bg-[#0a0a0a] border border-white/5 flex items-center justify-center mb-8 shadow-2xl relative overflow-hidden group">
-                 <div className="absolute inset-0 bg-amber-500/5 group-hover:bg-amber-500/10 transition-colors" />
-                 <Key className="h-10 w-10 text-amber-500 relative z-10" />
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-amber-500/5 border border-amber-500/10 flex items-center justify-center mb-6">
+                 <Key className="h-8 w-8 text-amber-500" />
               </div>
-              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic mb-3">Access Reset</h3>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-10 italic leading-relaxed">Generate temporary neural access link for node.</p>
+              <h3 className="text-xl font-bold text-white mb-2">Reset Password</h3>
+              <p className="text-sm text-zinc-500 mb-8">
+                Generate a new temporary password for this user.
+              </p>
               
               {tempPassword ? (
-                <div className="bg-[#0a0a0a] border border-emerald-500/20 p-10 rounded-[2.5rem] mb-10 shadow-inner group">
-                  <p className="text-[9px] text-emerald-500 font-bold uppercase tracking-[0.4em] mb-4 italic">TEMPORARY_ACCESS_KEY</p>
-                  <code className="text-4xl font-mono font-black text-white tracking-[0.3em] group-hover:text-emerald-400 transition-colors">{tempPassword}</code>
+                <div className="bg-zinc-900/50 border border-white/5 p-6 rounded-2xl mb-8">
+                  <p className="text-xs text-zinc-400 font-semibold uppercase tracking-wider mb-2">Temporary Password</p>
+                  <code className="text-2xl font-mono text-white tracking-widest">{tempPassword}</code>
                 </div>
               ) : (
-                <div className="space-y-6">
-                   <button onClick={handleResetPassword} disabled={isResetting} className="w-full h-16 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:bg-emerald-400 transition-all flex items-center justify-center gap-4 group">
-                     {isResetting ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw size={20} className="group-hover:rotate-180 transition-transform duration-700" />}
-                     INITIALIZE_RESET
+                <div className="space-y-4">
+                   <button onClick={handleResetPassword} disabled={isResetting} className="w-full py-3 bg-white text-black rounded-xl text-sm font-bold shadow-lg hover:bg-zinc-200 transition-all flex items-center justify-center gap-2">
+                     {isResetting ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw size={18} />}
+                     Reset Password
                    </button>
-                   <button onClick={() => setIsResetModalOpen(false)} className="w-full h-16 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all italic">ABORT_PROTOCOL</button>
+                   <button onClick={() => setIsResetModalOpen(false)} className="w-full py-3 text-sm font-semibold text-zinc-400 hover:text-white transition-colors">Cancel</button>
                 </div>
               )}
             </motion.div>
