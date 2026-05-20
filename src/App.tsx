@@ -47,6 +47,8 @@ import SongAnalytics from './pages/artist/SongAnalytics';
 import SupportHistory from './pages/artist/SupportHistory';
 import Onboarding from './pages/artist/Onboarding';
 import Reels from './pages/artist/Reels';
+import Messages from './pages/artist/Messages';
+import MessageThread from './pages/artist/MessageThread';
 import OnboardingGuard from './components/OnboardingGuard';
 
 // Import new admin pages
@@ -127,6 +129,8 @@ function App() {
                       <Route path="songs" element={<MySongs />} />
                       <Route path="songs/:id/analytics" element={<SongAnalytics />} />
                       <Route path="song-edit/:id" element={<SongEdit />} />
+                      <Route path="messages" element={<Messages />} />
+                      <Route path="messages/:conversationId" element={<MessageThread />} />
                     </Routes>
                   </Layout>
                 </OnboardingGuard>

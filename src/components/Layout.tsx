@@ -26,7 +26,7 @@ type NavItemType = {
 
 export default function Layout({ children, userRole: userRoleProp }: LayoutProps) {
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [userRole, setUserRole] = useState(userRoleProp ?? 'admin');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
@@ -108,13 +108,16 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     { path: '/artist/songs', label: 'Music', icon: <Music size={20} />, section: 'General' },
     { path: '/artist/upload', label: 'Publish', icon: <Upload size={20} />, section: 'General' },
     { path: '/artist/live', label: 'Live', icon: <RadioIcon size={20} />, section: 'General' },
+    { path: '/artist/search', label: 'Search', icon: <Search size={20} />, section: 'General' },
     
     // Engagement
     { path: '/artist/clashes', label: 'Clashes', icon: <Swords size={20} />, section: 'Engagement' },
     { path: '/artist/billboard', label: 'Billboard', icon: <Award size={20} />, section: 'Engagement' },
     { path: '/artist/podcasts', label: 'Podcasts', icon: <Podcast size={20} />, section: 'Engagement' },
     { path: '/artist/gifts', label: 'Gifts', icon: <Gift size={20} />, section: 'Engagement' },
+    { path: '/artist/messages', label: 'Messages', icon: <MessageSquare size={20} />, section: 'Engagement' },
     { path: '/artist/reels', label: 'Reels', icon: <Film size={20} />, section: 'Engagement' },
+    { path: '/artist/notifications', label: 'Notifications', icon: <Bell size={20} />, section: 'Engagement' },
     
     // Performance
     { path: '/artist/earnings', label: 'Earnings', icon: <DollarSign size={20} />, section: 'Performance' },
@@ -262,14 +265,23 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
           </button>
           <Breadcrumb />
           <div className="ml-auto flex items-center gap-6">
-             <button className="text-zinc-500 hover:text-white transition-colors"><Search size={20} /></button>
-             <button className="text-zinc-500 hover:text-white transition-colors relative">
+             <Link to={userRole === 'admin' ? '/admin' : '/artist/search'} className="text-zinc-500 hover:text-white transition-colors">
+               <Search size={20} />
+             </Link>
+             <Link to={userRole === 'admin' ? '/admin/notification-management' : '/artist/notifications'} className="text-zinc-500 hover:text-white transition-colors relative">
                <Bell size={20} />
                <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full" />
-             </button>
-             <div className="w-10 h-10 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 font-bold text-xs flex-shrink-0">
-                AD
-             </div>
+             </Link>
+             <Link 
+               to={userRole === 'admin' ? '/admin/system-settings' : '/artist/profile'} 
+               className="w-10 h-10 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 font-bold text-xs flex-shrink-0 hover:border-emerald-500/50 hover:text-white transition-all overflow-hidden"
+             >
+               {user?.name ? (
+                 <span className="uppercase">{user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}</span>
+               ) : (
+                 <User size={18} />
+               )}
+             </Link>
           </div>
         </header>
 
