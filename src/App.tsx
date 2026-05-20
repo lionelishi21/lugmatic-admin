@@ -74,12 +74,19 @@ import Billboard from './pages/admin/Billboard';
 import ArtistApprovals from './pages/admin/ArtistApprovals';
 import GiftEdit from './pages/admin/GiftEdit';
 import { ThemeProvider } from './context/ThemeContext';
+import { usePushNotifications } from './hooks/usePushNotifications';
 import SongShare from './pages/public/SongShare';
 import StreamShare from './pages/public/StreamShare';
+
+function AppInner() {
+  usePushNotifications();
+  return null;
+}
 
 function App() {
   return (
     <ThemeProvider>
+      <AppInner />
       <Toaster position="top-center" />
       <AuthInitializer>
         <Router>
