@@ -8,7 +8,7 @@ firebase.initializeApp({
   projectId:         'lugmatic-fe310',
   storageBucket:     'lugmatic-fe310.firebasestorage.app',
   messagingSenderId: '518032014474',
-  appId:             '1:518032014474:web:d32f7b1fbadd66f2cec173',
+  appId:             '1:518032014474:web:301f6a474e7bafabcec173',
 });
 
 const messaging = firebase.messaging();
