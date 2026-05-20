@@ -50,6 +50,7 @@ import Reels from './pages/artist/Reels';
 import Messages from './pages/artist/Messages';
 import MessageThread from './pages/artist/MessageThread';
 import Streams from './pages/artist/Streams';
+import Mixer from './pages/artist/Mixer';
 import OnboardingGuard from './components/OnboardingGuard';
 
 // Import new admin pages
@@ -133,6 +134,7 @@ function App() {
                       <Route path="messages" element={<Messages />} />
                       <Route path="messages/:conversationId" element={<MessageThread />} />
                       <Route path="streams" element={<Streams />} />
+                      <Route path="mixer" element={<Mixer />} />
                     </Routes>
                   </Layout>
                 </OnboardingGuard>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Users, Shield, DollarSign, Settings, BarChart2, Film, Disc, Music, Tag, 
+  Users, Shield, DollarSign, Settings, BarChart2, Film, Disc, Music, Music2, Tag,
   Menu, X, ChevronRight, LayoutGrid, Bell, Search, User, UserCheck, Sun, Moon, LogOut, ChevronDown,
   Swords, Award, Podcast, Megaphone, MessageSquare, Gift, AlertTriangle, Radio as RadioIcon, Upload
 } from 'lucide-react';
@@ -109,6 +109,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     { path: '/artist/upload', label: 'Publish', icon: <Upload size={20} />, section: 'General' },
     { path: '/artist/live', label: 'Live', icon: <RadioIcon size={20} />, section: 'General' },
     { path: '/artist/streams', label: 'Past Streams', icon: <Film size={20} />, section: 'General' },
+    { path: '/artist/mixer', label: 'AI Mixer', icon: <Music2 size={20} />, section: 'General' },
     { path: '/artist/search', label: 'Search', icon: <Search size={20} />, section: 'General' },
     
     // Engagement
