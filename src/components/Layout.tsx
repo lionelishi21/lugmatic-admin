@@ -108,6 +108,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     { path: '/artist/songs', label: 'Music', icon: <Music size={20} />, section: 'General' },
     { path: '/artist/upload', label: 'Publish', icon: <Upload size={20} />, section: 'General' },
     { path: '/artist/live', label: 'Live', icon: <RadioIcon size={20} />, section: 'General' },
+    { path: '/artist/streams', label: 'Past Streams', icon: <Film size={20} />, section: 'General' },
     { path: '/artist/search', label: 'Search', icon: <Search size={20} />, section: 'General' },
     
     // Engagement
