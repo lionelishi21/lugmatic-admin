@@ -7,6 +7,11 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import toast from 'react-hot-toast';
+import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
+import apiService from '../../services/api';
+import { useDispatch } from 'react-redux';
+import { loginUser } from '../../store/slices/authSlice';
+import type { AppDispatch } from '../../store';
 
 const schema = yup.object({
   email:    yup.string().email('Enter a valid email').required('Email is required'),
@@ -98,6 +103,26 @@ export default function Login() {
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const { login, isLoading, error, isAuthenticated, user, clearAuthError } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleGoogleSuccess = async (cred: CredentialResponse) => {
+    if (!cred.credential) return;
+    try {
+      const res = await apiService.post<any>('/auth/google', {
+        idToken: cred.credential,
+        deviceType: 'web',
+      });
+      const { accessToken, refreshToken, user: u } = (res.data as any).data;
+      localStorage.setItem('access_token', accessToken);
+      localStorage.setItem('refresh_token', refreshToken);
+      // Sync redux state
+      dispatch({ type: 'auth/login/fulfilled', payload: u });
+      toast.success(`Welcome, ${u?.firstName || 'Artist'}!`);
+      navigate(u?.role === 'admin' ? '/admin' : '/artist');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Google sign-in failed');
+    }
+  };
 
   const cardRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
@@ -362,6 +387,19 @@ export default function Login() {
                 <div className="flex-1 h-px bg-white/[0.07]" />
                 <span className="text-zinc-600 text-xs">or</span>
                 <div className="flex-1 h-px bg-white/[0.07]" />
+              </div>
+
+              {/* Google Sign-In */}
+              <div className="flex justify-center mb-6">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => toast.error('Google sign-in failed')}
+                  theme="filled_black"
+                  shape="rectangular"
+                  size="large"
+                  text="signin_with"
+                  width="320"
+                />
               </div>
 
               {/* Footer */}

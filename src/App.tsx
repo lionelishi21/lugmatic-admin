@@ -74,6 +74,7 @@ import Billboard from './pages/admin/Billboard';
 import ArtistApprovals from './pages/admin/ArtistApprovals';
 import GiftEdit from './pages/admin/GiftEdit';
 import { ThemeProvider } from './context/ThemeContext';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { usePushNotifications } from './hooks/usePushNotifications';
 import SongShare from './pages/public/SongShare';
 import StreamShare from './pages/public/StreamShare';
@@ -85,6 +86,7 @@ function AppInner() {
 
 function App() {
   return (
+    <GoogleOAuthProvider clientId="952677583974-d5ao7s59okc1r97sjv08np687srrqduc.apps.googleusercontent.com">
     <ThemeProvider>
       <AppInner />
       <Toaster position="top-center" />
@@ -216,6 +218,7 @@ function App() {
         </Router>
       </AuthInitializer>
     </ThemeProvider>
+    </GoogleOAuthProvider>
   )
 }
 

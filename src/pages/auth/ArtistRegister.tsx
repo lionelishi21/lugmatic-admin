@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
+import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
+import apiService from '../../services/api';
 
 // ── Validation ────────────────────────────────────────────────────────
 const schema = yup.object({
@@ -113,6 +115,24 @@ const STEPS = ['Details', 'Account', 'Ready'];
 // ── Main ─────────────────────────────────────────────────────────────
 export default function ArtistRegister() {
   const navigate = useNavigate();
+
+  const handleGoogleSuccess = async (cred: CredentialResponse) => {
+    if (!cred.credential) return;
+    try {
+      const res = await apiService.post<any>('/auth/google', {
+        idToken: cred.credential,
+        deviceType: 'web',
+      });
+      const { accessToken, refreshToken } = (res.data as any).data;
+      localStorage.setItem('access_token', accessToken);
+      localStorage.setItem('refresh_token', refreshToken);
+      toast.success('Signed in with Google! Complete your artist application.');
+      navigate('/artist/onboarding');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Google sign-up failed');
+    }
+  };
+
   const [showPassword, setShowPassword]   = useState(false);
   const [showConfirm, setShowConfirm]     = useState(false);
   const [isLoading, setIsLoading]         = useState(false);
@@ -475,6 +495,26 @@ export default function ArtistRegister() {
                   </span>
                 </motion.button>
               </form>
+
+              {/* Google Sign-Up */}
+              <div className="mt-5 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px bg-white/[0.07]" />
+                  <span className="text-zinc-600 text-xs">or sign up with</span>
+                  <div className="flex-1 h-px bg-white/[0.07]" />
+                </div>
+                <div className="flex justify-center">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => toast.error('Google sign-up failed')}
+                    theme="filled_black"
+                    shape="rectangular"
+                    size="large"
+                    text="signup_with"
+                    width="320"
+                  />
+                </div>
+              </div>
 
               {/* Sign in link */}
               <p className="text-center text-zinc-500 text-sm mt-6 pt-6 border-t border-white/[0.06]">
