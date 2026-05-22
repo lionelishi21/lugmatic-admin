@@ -47,7 +47,11 @@ export default function Upload() {
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string>('');
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoUploadProgress, setVideoUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [createdSongId, setCreatedSongId] = useState<string | null>(null);
+  const [showAiLyrics, setShowAiLyrics] = useState(false);
+  const [generatingLyrics, setGeneratingLyrics] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [userLoaded, setUserLoaded] = useState(false);
@@ -293,9 +297,10 @@ export default function Upload() {
 
       let videoFileKey = '';
       if (videoFile) {
-        const videoRes = await songService.getPresignedUrl('profile-image', videoFile.name, videoFile.type); 
-        await songService.uploadToS3(videoRes.uploadUrl, videoFile, videoFile.type);
-        videoFileKey = videoRes.key;
+        setVideoUploadProgress(0);
+        const videoPresign = await songService.getPresignedUrl('music-video', videoFile.name, videoFile.type);
+        await songService.uploadToS3(videoPresign.uploadUrl, videoFile, videoFile.type, (p) => setVideoUploadProgress(p));
+        videoFileKey = videoPresign.key;
       }
 
        const songData: CreateSongData = {
@@ -308,7 +313,6 @@ export default function Upload() {
         audioFileKey: audioRes.key,
         coverArtKey: coverRes.key,
         videoFileKey: videoFileKey || undefined,
-        videoUrl: form.videoUrl || undefined,
         splitSheet: contributors.map(c => ({
           contributor: c.name,
           userId: c.userId,
@@ -318,9 +322,14 @@ export default function Upload() {
         termsAccepted: true
       };
 
-      await songService.createSong(songData);
+      const createdSong = await songService.createSong(songData);
       toast.success('Track uploaded successfully!', { id: 'upload' });
-      navigate('/artist/songs');
+      if (!form.lyrics || form.lyrics.trim() === '') {
+        setCreatedSongId(createdSong._id);
+        setShowAiLyrics(true);
+      } else {
+        navigate('/artist/songs');
+      }
     } catch (error: any) {
       console.error('Upload error:', error);
       toast.error(error.message || 'Upload failed.', { id: 'upload' });
@@ -499,15 +508,38 @@ export default function Upload() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">YouTube URL (Optional)</label>
-                <input
-                  type="text"
-                  name="videoUrl"
-                  value={form.videoUrl}
-                  onChange={handleFormChange}
-                  placeholder="https://youtube.com/..."
-                  className="w-full h-14 px-6 bg-zinc-950 border border-white/5 rounded-2xl text-white text-sm font-medium focus:outline-none focus:border-emerald-500/30 transition-all"
-                />
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Music Video (Optional)</label>
+                <div
+                  className={`relative rounded-2xl border-2 border-dashed p-6 transition-all cursor-pointer
+                    ${videoFile ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-white/5 hover:border-emerald-500/20 bg-zinc-950/30'}`}
+                  onClick={() => !videoFile && videoInputRef.current?.click()}
+                >
+                  {videoFile ? (
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20">
+                        <Film size={18} className="text-emerald-500" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-white truncate">{videoFile.name}</p>
+                        <p className="text-[10px] text-zinc-500 font-medium mt-0.5">{(videoFile.size / 1024 / 1024).toFixed(1)} MB</p>
+                        {videoUploadProgress > 0 && videoUploadProgress < 100 && (
+                          <div className="mt-2 h-1 bg-zinc-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-500 transition-all" style={{ width: `${videoUploadProgress}%` }} />
+                          </div>
+                        )}
+                      </div>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setVideoFile(null); setVideoUploadProgress(0); }} className="text-zinc-600 hover:text-white">
+                        <X size={18} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <Film size={22} className="text-zinc-700 mx-auto mb-2" />
+                      <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Select Video</p>
+                    </div>
+                  )}
+                  <input ref={videoInputRef} type="file" className="hidden" accept="video/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) setVideoFile(f); }} />
+                </div>
               </div>
             </div>
 
@@ -608,6 +640,53 @@ export default function Upload() {
           </div>
         </div>
       </form>
+
+      {showAiLyrics && createdSongId && (
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="premium-card p-8 border-emerald-500/20 bg-emerald-500/5 shadow-2xl flex flex-col md:flex-row md:items-center gap-6"
+          >
+            <div className="flex-1">
+              <p className="text-sm font-bold text-white mb-1">No lyrics yet?</p>
+              <p className="text-sm text-zinc-400 font-medium">Let AI write some based on your genre and title.</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                disabled={generatingLyrics}
+                onClick={async () => {
+                  setGeneratingLyrics(true);
+                  try {
+                    const result = await songService.generateLyrics(createdSongId);
+                    setForm(prev => ({ ...prev, lyrics: result }));
+                    await songService.updateSong(createdSongId, { lyrics: result });
+                    toast.success('AI lyrics generated and saved!');
+                    setShowAiLyrics(false);
+                    navigate('/artist/songs');
+                  } catch (err: any) {
+                    toast.error(err.message || 'Failed to generate lyrics.');
+                  } finally {
+                    setGeneratingLyrics(false);
+                  }
+                }}
+                className="h-12 px-6 bg-emerald-500 text-black text-xs font-bold rounded-xl flex items-center gap-2 hover:bg-emerald-400 transition-all disabled:opacity-50"
+              >
+                {generatingLyrics ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                Generate Lyrics with AI
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/artist/songs')}
+                className="h-12 px-6 bg-white/5 text-zinc-400 text-xs font-bold rounded-xl border border-white/10 hover:text-white transition-all"
+              >
+                Skip
+              </button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      )}
     </div>
   );
 }

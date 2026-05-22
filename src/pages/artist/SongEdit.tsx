@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { 
-  ArrowLeft, Music2, Disc, Tag, Clock, Calendar, 
+import {
+  ArrowLeft, Music2, Disc, Tag, Clock, Calendar,
   FileText, Save, Play, Pause, AlertCircle,
   CheckCircle, Loader2, Info, Layout, Users, Trash2,
   Activity, Target, Award, ShieldAlert, Sparkles, Send, ShieldCheck,
-  ChevronDown, Plus
+  ChevronDown, Plus, Film, X
 } from 'lucide-react';
 import songService, { Song, CreateSongData } from '../../services/songService';
 import albumService, { Album } from '../../services/albumService';
@@ -31,6 +31,9 @@ const SongEdit: React.FC = () => {
   const [formData, setFormData] = useState<Partial<CreateSongData>>({});
   const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoUploadProgress, setVideoUploadProgress] = useState(0);
+  const [generatingLyrics, setGeneratingLyrics] = useState(false);
   const [splitSheet, setSplitSheet] = useState<any[]>([]);
   const [isInviting, setIsInviting] = useState(false);
   const [newContributor, setNewContributor] = useState({ contributorName: '', email: '', role: 'songwriter', share: 0 });
@@ -150,7 +153,7 @@ const SongEdit: React.FC = () => {
         album: formData.album && formData.album.trim() !== '' ? formData.album : undefined,
         splitSheet: splitSheet,
       };
-      if (coverArtFile || audioFile) {
+      if (coverArtFile || audioFile || videoFile) {
         toast.loading('Uploading media...', { id: 'edit-upload' });
         if (audioFile) {
           const audioPresign = await songService.getPresignedUrl('song-audio', audioFile.name, audioFile.type);
@@ -161,6 +164,12 @@ const SongEdit: React.FC = () => {
           const coverPresign = await songService.getPresignedUrl('cover-art', coverArtFile.name, coverArtFile.type);
           await songService.uploadToS3(coverPresign.uploadUrl, coverArtFile, coverArtFile.type);
           cleanedData.coverArtKey = coverPresign.key;
+        }
+        if (videoFile) {
+          setVideoUploadProgress(0);
+          const videoPresign = await songService.getPresignedUrl('music-video', videoFile.name, videoFile.type);
+          await songService.uploadToS3(videoPresign.uploadUrl, videoFile, videoFile.type, (p) => setVideoUploadProgress(p));
+          cleanedData.videoFileKey = videoPresign.key;
         }
       }
       toast.loading('Saving changes...', { id: 'edit-upload' });
@@ -313,8 +322,37 @@ const SongEdit: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Lyrics</label>
+                <div className="flex items-center justify-between ml-1">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Lyrics</label>
+                  <button
+                    type="button"
+                    disabled={generatingLyrics || !song}
+                    onClick={async () => {
+                      if (!song) return;
+                      setGeneratingLyrics(true);
+                      try {
+                        const lyrics = await songService.generateLyrics(song._id);
+                        setFormData(prev => ({ ...prev, lyrics }));
+                        toast.success('Lyrics generated!');
+                      } catch (err: any) {
+                        toast.error(err.message || 'Failed to generate lyrics.');
+                      } finally {
+                        setGeneratingLyrics(false);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 text-zinc-400 hover:text-emerald-400 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all disabled:opacity-40"
+                  >
+                    {generatingLyrics ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                    Generate with AI
+                  </button>
+                </div>
                 <textarea name="lyrics" value={formData.lyrics || ''} onChange={handleInputChange} rows={6} placeholder="Track lyrics..." className="w-full p-6 bg-zinc-950 border border-white/5 rounded-2xl text-white font-medium focus:border-emerald-500/30 transition-all resize-none" />
+                {formData.lyrics?.startsWith('[AI Suggested') && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/5 border border-emerald-500/15 rounded-xl w-fit">
+                    <Sparkles size={12} className="text-emerald-400" />
+                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">AI Suggested — edit before publishing</span>
+                  </div>
+                )}
               </div>
             </div>
 

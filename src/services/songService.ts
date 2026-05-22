@@ -133,7 +133,7 @@ const songService = {
   /**
    * Get a presigned URL for uploading a file to S3
    */
-  getPresignedUrl: async (type: 'song-audio' | 'cover-art' | 'profile-image', filename: string, contentType: string) => {
+  getPresignedUrl: async (type: 'song-audio' | 'cover-art' | 'profile-image' | 'music-video', filename: string, contentType: string) => {
     const response = await apiService.post<{
       uploadUrl: string;
       key: string;
@@ -149,13 +149,20 @@ const songService = {
   /**
    * Directly upload a file to S3 via presigned URL
    */
-  uploadToS3: async (uploadUrl: string, file: File, contentType: string): Promise<void> => {
+  uploadToS3: async (uploadUrl: string, file: File, contentType: string, onProgress?: (percent: number) => void): Promise<void> => {
     // Use a clean axios instance to avoid global interceptors (like Auth headers)
     const cleanAxios = axios.create({});
     await cleanAxios.put(uploadUrl, file, {
       headers: {
         'Content-Type': contentType,
       },
+      onUploadProgress: onProgress
+        ? (progressEvent) => {
+            const total = progressEvent.total ?? file.size;
+            const percent = Math.round((progressEvent.loaded / total) * 100);
+            onProgress(percent);
+          }
+        : undefined,
     });
   },
 
@@ -272,6 +279,14 @@ const songService = {
    */
   removeContributor: async (id: string, contributorId: string): Promise<void> => {
     await apiService.delete(`/song/${id}/contributors/${contributorId}`);
+  },
+  /**
+   * Generate AI lyrics for a song based on its genre and title
+   */
+  generateLyrics: async (songId: string): Promise<string> => {
+    const response = await apiService.post<{ lyrics: string }>(`/song/${songId}/generate-lyrics`, {});
+    const data = (response.data as any)?.data;
+    return data?.lyrics ?? '';
   },
 };
 
