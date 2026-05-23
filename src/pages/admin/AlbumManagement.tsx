@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Preloader from '../../components/ui/Preloader';
 import { toast } from 'react-hot-toast';
@@ -13,7 +13,7 @@ import {
   Loader2, Filter, Image as ImageIcon, CheckCircle2, History,
   Activity, ShieldCheck, Share2, Zap, BarChart3, 
   ChevronRight, Music2, Target, Globe, Cpu, ArrowUpRight,
-  Layers, Database, Save, HardDrive, Info
+  Layers, Database, Save, HardDrive, Info, ArrowUpDown, ArrowUp, ArrowDown
 } from 'lucide-react';
 import { getFullImageUrl } from '../../services/api';
 
@@ -29,6 +29,34 @@ const AlbumManagement: React.FC = () => {
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [genreFilter, setGenreFilter] = useState<string>('all');
+  const [sortField, setSortField] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const renderSortHeader = (label: string, field: string) => {
+    const isSorted = sortField === field;
+    return (
+      <button 
+        onClick={() => handleSort(field)}
+        className="flex items-center gap-1.5 hover:text-white transition-colors group/btn text-[10px] font-bold text-zinc-500 uppercase tracking-widest"
+      >
+        <span>{label}</span>
+        {isSorted ? (
+          sortDirection === 'asc' ? <ArrowUp size={12} className="text-emerald-500" /> : <ArrowDown size={12} className="text-emerald-500" />
+        ) : (
+          <ArrowUpDown size={12} className="text-zinc-700 opacity-60 group-hover/btn:opacity-100 transition-opacity" />
+        )}
+      </button>
+    );
+  };
   
   const [formData, setFormData] = useState<Partial<CreateAlbumData>>({
     name: '',
@@ -56,7 +84,7 @@ const AlbumManagement: React.FC = () => {
       setArtists(artistsData);
       setGenres(genresData);
     } catch (err: any) {
-      toast.error('Failed to synchronize catalog registry');
+      toast.error('Failed to load album catalog');
     } finally {
       setLoading(false);
     }
@@ -96,7 +124,7 @@ const AlbumManagement: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    const loadingId = toast.loading(selectedAlbum ? 'Synchronizing album metadata...' : 'Registering new album project...');
+    const loadingId = toast.loading(selectedAlbum ? 'Saving album details...' : 'Creating new album...');
     
     try {
       let coverArtUrl = formData.coverArt || '';
@@ -111,16 +139,16 @@ const AlbumManagement: React.FC = () => {
 
       if (selectedAlbum) {
         await albumService.adminUpdateAlbum(selectedAlbum._id, finalData);
-        toast.success('Album registry updated', { id: loadingId });
+        toast.success('Album updated successfully', { id: loadingId });
       } else {
         await albumService.createAlbum(finalData as CreateAlbumData);
-        toast.success('Album project deployed', { id: loadingId });
+        toast.success('Album created successfully', { id: loadingId });
       }
       
       setIsDialogOpen(false);
       fetchData();
     } catch (err: any) {
-      toast.error('Transmission protocol failure', { id: loadingId });
+      toast.error('Upload failed', { id: loadingId });
     } finally {
       setSubmitting(false);
     }
@@ -135,6 +163,39 @@ const AlbumManagement: React.FC = () => {
     return matchesSearch && matchesGenre;
   });
 
+  const sortedAlbums = React.useMemo(() => {
+    const list = [...filteredAlbums];
+    list.sort((a, b) => {
+      let valA: any = '';
+      let valB: any = '';
+
+      if (sortField === 'name') {
+        valA = a.name || '';
+        valB = b.name || '';
+      } else if (sortField === 'artist') {
+        valA = typeof a.artist === 'string' ? '' : (a.artist as any)?.name || '';
+        valB = typeof b.artist === 'string' ? '' : (b.artist as any)?.name || '';
+      } else if (sortField === 'releaseDate') {
+        valA = a.releaseDate ? new Date(a.releaseDate).getTime() : 0;
+        valB = b.releaseDate ? new Date(b.releaseDate).getTime() : 0;
+      } else if (sortField === 'tracks') {
+        valA = a.songs?.length || 0;
+        valB = b.songs?.length || 0;
+      }
+
+      if (typeof valA === 'string') {
+        return sortDirection === 'asc' 
+          ? valA.localeCompare(valB) 
+          : valB.localeCompare(valA);
+      } else {
+        return sortDirection === 'asc' 
+          ? (valA > valB ? 1 : -1) 
+          : (valB > valA ? 1 : -1);
+      }
+    });
+    return list;
+  }, [filteredAlbums, sortField, sortDirection]);
+
   const stats = {
     total: albums.length,
     tracks: albums.reduce((sum, a) => sum + (a.songs?.length || 0), 0),
@@ -142,38 +203,38 @@ const AlbumManagement: React.FC = () => {
     avg: albums.length > 0 ? Math.round(albums.reduce((sum, a) => sum + (a.songs?.length || 0), 0) / albums.length) : 0
   };
 
-  if (loading && albums.length === 0) return <Preloader isVisible={true} text="Initializing catalog environment..." />;
+  if (loading && albums.length === 0) return <Preloader isVisible={true} text="Loading album catalog..." />;
 
   return (
     <div className="space-y-12 pb-24">
-      {/* Cinematic Identity Header */}
+      {/* Premium Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Catalog Matrix</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Album Management</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 tracking-wide">Registry: Live</span>
+              <span className="text-[10px] font-bold text-emerald-500 tracking-wide">System: Online</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-semibold tracking-wide ml-1">Managing cinematic project releases, multi-track artifacts, and artistic legacies.</p>
+          <p className="text-zinc-500 text-xs font-semibold tracking-wide ml-1">Manage music albums, EPs, and release classifications.</p>
         </div>
         <button
           onClick={() => handleOpenDialog()}
           className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
         >
           <Plus size={18} />
-          Register Project
+          Create Album
         </button>
       </div>
 
-      {/* Intelligence Telemetry */}
+      {/* Stats Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {[
-          { label: 'Project Count', value: stats.total, icon: Disc, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
-          { label: 'Artifact Density', value: stats.tracks, icon: Music, color: 'text-blue-500', bg: 'bg-blue-500/5' },
-          { label: 'Creative Entities', value: stats.artists, icon: User, color: 'text-indigo-500', bg: 'bg-indigo-500/5' },
-          { label: 'Release Velocity', value: `${stats.avg} T/A`, icon: Zap, color: 'text-amber-500', bg: 'bg-amber-500/5' },
+          { label: 'Total Albums', value: stats.total, icon: Disc, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
+          { label: 'Total Tracks', value: stats.tracks, icon: Music, color: 'text-blue-500', bg: 'bg-blue-500/5' },
+          { label: 'Artists', value: stats.artists, icon: User, color: 'text-indigo-500', bg: 'bg-indigo-500/5' },
+          { label: 'Average Tracks', value: `${stats.avg} / Album`, icon: Zap, color: 'text-amber-500', bg: 'bg-amber-500/5' },
         ].map((s, i) => (
           <motion.div 
             key={s.label}
@@ -187,23 +248,23 @@ const AlbumManagement: React.FC = () => {
               <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <s.icon size={24} className={s.color} />
             </div>
-            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em] mb-2 italic">{s.label}</p>
-            <p className="text-3xl font-bold text-white tracking-tighter italic">{s.value}</p>
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{s.label}</p>
+            <p className="text-3xl font-bold text-white tracking-tighter tabular-nums">{s.value}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* Operation Matrix HUD */}
+      {/* Filter and Search Bar */}
       <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
         <div className="flex flex-col md:flex-row gap-6 w-full lg:max-w-4xl">
           <div className="relative flex-1 group">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
             <input
               type="text"
-              placeholder="SCAN PROJECT REGISTRY..."
+              placeholder="Search albums..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800 italic"
+              className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
             />
           </div>
           <div className="relative w-full md:w-80 group">
@@ -211,9 +272,9 @@ const AlbumManagement: React.FC = () => {
             <select
               value={genreFilter}
               onChange={(e) => setGenreFilter(e.target.value)}
-              className="w-full h-14 pl-14 pr-12 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+              className="w-full h-14 pl-14 pr-12 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer"
             >
-              <option value="all">ALL CLASSIFICATIONS</option>
+              <option value="all">All Genres</option>
               {genres.map(g => <option key={g._id} value={g._id}>{g.name.toUpperCase()}</option>)}
             </select>
             <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-focus-within:rotate-180 duration-500 transition-all group-focus-within:text-emerald-500" size={18} />
@@ -230,7 +291,7 @@ const AlbumManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Content Grid */}
+      {/* Albums Grid */}
       <AnimatePresence mode="wait">
         <motion.div
           key={viewMode}
@@ -239,17 +300,17 @@ const AlbumManagement: React.FC = () => {
           exit={{ opacity: 0, y: -15 }}
           className="min-h-[400px]"
         >
-          {filteredAlbums.length === 0 ? (
+          {sortedAlbums.length === 0 ? (
             <div className="premium-card py-40 text-center border-white/5 shadow-2xl group">
               <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl group-hover:border-emerald-500/20 transition-all">
                 <Disc size={36} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />
               </div>
-              <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3 italic">Scan Result: NULL_PROJECTS</h3>
-              <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto opacity-60">Adjust scan parameters or register a new cinematic project to the grid.</p>
+              <h3 className="text-[10px] font-bold text-white uppercase tracking-widest mb-3">No Albums Found</h3>
+              <p className="text-[10px] text-zinc-600 font-bold max-w-sm mx-auto opacity-60">Try adjusting your search filters or create a new album.</p>
             </div>
           ) : viewMode === 'grid' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
-              {filteredAlbums.map((album, i) => (
+              {sortedAlbums.map((album, i) => (
                 <motion.div 
                   key={album._id}
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -289,13 +350,13 @@ const AlbumManagement: React.FC = () => {
                     <div className="absolute bottom-8 left-8 right-8 z-20">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="px-2 py-0.5 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                           <p className="text-[8px] font-black text-emerald-500 uppercase tracking-widest italic">Registered</p>
+                           <p className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Active</p>
                         </div>
                       </div>
-                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] mb-2 truncate italic">
-                        {typeof album.artist === 'string' ? 'UNKNOWN_ENTITY' : (album.artist as any)?.name.toUpperCase()}
+                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] mb-2 truncate">
+                        {typeof album.artist === 'string' ? 'Unknown Artist' : (album.artist as any)?.name.toUpperCase()}
                       </p>
-                      <h3 className="text-white font-bold tracking-tighter text-2xl truncate group-hover:text-emerald-400 transition-colors italic leading-none uppercase">
+                      <h3 className="text-white font-bold tracking-tighter text-2xl truncate group-hover:text-emerald-400 transition-colors leading-none uppercase">
                         {album.name}
                       </h3>
                     </div>
@@ -306,10 +367,10 @@ const AlbumManagement: React.FC = () => {
                       <div className="w-8 h-8 bg-zinc-950 rounded-xl flex items-center justify-center border border-white/5 shadow-inner">
                          <Music2 size={14} className="text-emerald-500" />
                       </div>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 italic tabular-nums">{album.songs?.length || 0} Artifacts</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 tabular-nums">{album.songs?.length || 0} Tracks</span>
                     </div>
-                    <span className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest font-mono italic">
-                      REL_{album.releaseDate ? new Date(album.releaseDate).getFullYear() : 'XXXX'}
+                    <span className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest font-mono">
+                      {album.releaseDate ? new Date(album.releaseDate).getFullYear() : 'XXXX'}
                     </span>
                   </div>
                 </motion.div>
@@ -327,14 +388,15 @@ const AlbumManagement: React.FC = () => {
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-white/5 bg-zinc-950/50">
-                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Project Registry</th>
-                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Primary Entity</th>
-                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Protocol Date</th>
-                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic text-right">Action Protocol</th>
+                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">{renderSortHeader('Album Name', 'name')}</th>
+                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">{renderSortHeader('Artist', 'artist')}</th>
+                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">{renderSortHeader('Release Date', 'releaseDate')}</th>
+                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">{renderSortHeader('Tracks', 'tracks')}</th>
+                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {filteredAlbums.map((album, i) => (
+                    {sortedAlbums.map((album, i) => (
                       <motion.tr 
                         key={album._id}
                         initial={{ opacity: 0, x: -10 }}
@@ -353,18 +415,18 @@ const AlbumManagement: React.FC = () => {
                               <div className="absolute inset-0 bg-black/20" />
                             </div>
                             <div>
-                              <p className="text-sm font-bold text-white uppercase tracking-tight italic group-hover:text-emerald-400 transition-colors leading-none mb-2">{album.name}</p>
-                              <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest italic">{album.songs?.length || 0} TRACK_NODES</p>
+                              <p className="text-sm font-bold text-white uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2">{album.name}</p>
+                              <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{album.songs?.length || 0} Tracks</p>
                             </div>
                           </div>
                         </td>
                         <td className="px-10 py-6">
                           <div className="flex items-center gap-3">
                              <User size={14} className="text-zinc-700" />
-                             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest italic">{typeof album.artist === 'string' ? 'UNKNOWN' : (album.artist as any)?.name.toUpperCase()}</span>
+                             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{typeof album.artist === 'string' ? 'Unknown' : (album.artist as any)?.name.toUpperCase()}</span>
                           </div>
                         </td>
-                        <td className="px-10 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest font-mono italic">
+                        <td className="px-10 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest font-mono">
                           {album.releaseDate ? new Date(album.releaseDate).toLocaleDateString() : 'XX/XX/XXXX'}
                         </td>
                         <td className="px-10 py-6 text-right">
@@ -383,13 +445,13 @@ const AlbumManagement: React.FC = () => {
         </motion.div>
       </AnimatePresence>
 
-      {/* Modals Console */}
+      {/* Album Form Modal */}
       <AnimatePresence>
         {isDialogOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl" onClick={() => !submitting && setIsDialogOpen(false)}>
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="premium-card w-full max-w-xl shadow-[0_30px_100px_rgba(0,0,0,1)] border-emerald-500/10 p-12" onClick={e => e.stopPropagation()}
+              className="premium-card w-full max-w-xl shadow-[0_30px_100px_rgba(0,0,0,1)] border-emerald-500/10 p-12 bg-[#0a0a0a]" onClick={e => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-10 border-b border-white/5 pb-10">
                 <div className="flex items-center gap-5">
@@ -397,8 +459,8 @@ const AlbumManagement: React.FC = () => {
                       {selectedAlbum ? <Edit className="text-emerald-500" size={28} /> : <Plus className="text-emerald-500" size={28} />}
                    </div>
                    <div>
-                      <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic leading-none mb-1.5">{selectedAlbum ? 'Modify Project' : 'Project Induction'}</h3>
-                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Registry Configuration Matrix</p>
+                      <h3 className="text-2xl font-bold text-white uppercase tracking-tighter leading-none mb-1.5">{selectedAlbum ? 'Modify Album' : 'Create Album'}</h3>
+                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Album Configuration</p>
                    </div>
                 </div>
                 <button onClick={() => !submitting && setIsDialogOpen(false)} className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-white/5 text-zinc-500 transition-all border border-white/5 shadow-inner"><X size={24} /></button>
@@ -406,10 +468,10 @@ const AlbumManagement: React.FC = () => {
 
               <form onSubmit={handleSubmit} className="space-y-10">
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Visual Identity Index (Artwork)</label>
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Album Cover Image</label>
                   <div className="bg-zinc-950 rounded-[2.5rem] border border-white/5 p-8 shadow-inner group/upload">
                     <FileUpload
-                      label="DROP_PROJECT_ARTWORK_PROTOCOL"
+                      label="Upload Cover Artwork"
                       currentFile={coverArtFile ? URL.createObjectURL(coverArtFile) : (formData.coverArt ? getFullImageUrl(formData.coverArt) : undefined)}
                       onFileSelect={(f) => setCoverArtFile(f)}
                       onFileRemove={() => { setCoverArtFile(null); setFormData(p => ({ ...p, coverArt: '' })); }}
@@ -419,26 +481,26 @@ const AlbumManagement: React.FC = () => {
 
                 <div className="space-y-10">
                   <div className="space-y-4">
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Project Identifier <span className="text-emerald-500">*</span></label>
-                    <input name="name" value={formData.name} onChange={handleInputChange as any} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800 italic" placeholder="e.g. SONIC_REVELATION" required />
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Album Title <span className="text-emerald-500">*</span></label>
+                    <input name="name" value={formData.name} onChange={handleInputChange as any} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wider uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800" placeholder="e.g. Midnight Memories" required />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                     <div className="space-y-4">
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Entity Association</label>
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Artist</label>
                       <div className="relative group/sel">
-                        <select name="artist" value={formData.artist} onChange={handleInputChange as any} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer" required>
-                          <option value="">SELECT_ARTIST</option>
+                        <select name="artist" value={formData.artist} onChange={handleInputChange as any} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wider uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer" required>
+                          <option value="">Select Artist</option>
                           {artists.map(a => <option key={a._id} value={a._id}>{a.name.toUpperCase()}</option>)}
                         </select>
                         <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-emerald-500" />
                       </div>
                     </div>
                     <div className="space-y-4">
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Genre Classification</label>
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Genre</label>
                       <div className="relative group/sel">
-                        <select name="genre" value={formData.genre} onChange={handleInputChange as any} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer">
-                          <option value="">SELECT_GENRE</option>
+                        <select name="genre" value={formData.genre} onChange={handleInputChange as any} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wider uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer">
+                          <option value="">Select Genre</option>
                           {genres.map(g => <option key={g._id} value={g._id}>{g.name.toUpperCase()}</option>)}
                         </select>
                         <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-emerald-500" />
@@ -447,19 +509,19 @@ const AlbumManagement: React.FC = () => {
                   </div>
 
                   <div className="space-y-4">
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Release Protocol Initiation</label>
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Release Date</label>
                     <div className="relative group">
                       <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-emerald-500 transition-all" size={20} />
-                      <input type="date" name="releaseDate" value={formData.releaseDate} onChange={handleInputChange as any} className="w-full h-16 pl-16 pr-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] focus:outline-none focus:border-emerald-500/30 shadow-inner italic" />
+                      <input type="date" name="releaseDate" value={formData.releaseDate} onChange={handleInputChange as any} className="w-full h-16 pl-16 pr-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wider focus:outline-none focus:border-emerald-500/30 shadow-inner" />
                     </div>
                   </div>
                 </div>
 
                 <div className="pt-12 border-t border-white/5 flex justify-end gap-6">
-                  <button type="button" onClick={() => setIsDialogOpen(false)} className="h-16 px-10 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] border border-white/5 hover:bg-white/5 transition-all italic">Abort Protocol</button>
-                  <button type="submit" disabled={submitting} className="h-16 px-12 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] shadow-2xl hover:bg-emerald-400 transition-all flex items-center gap-4 group">
+                  <button type="button" onClick={() => setIsDialogOpen(false)} className="h-16 px-10 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all">Cancel</button>
+                  <button type="submit" disabled={submitting} className="h-16 px-12 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:bg-emerald-400 transition-all flex items-center gap-4 group">
                     {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={20} className="group-hover:translate-y-1 transition-transform" />}
-                    {selectedAlbum ? 'Commit Sync' : 'Deploy Project'}
+                    {selectedAlbum ? 'Save Changes' : 'Create Album'}
                   </button>
                 </div>
               </form>
@@ -469,17 +531,17 @@ const AlbumManagement: React.FC = () => {
 
         <ConfirmDialog
           isOpen={!!albumToDelete}
-          title="Terminate Project Node?"
-          message="This action will permanently purge the album project from the catalog matrix. Irreversible."
-          confirmLabel="Execute Purge"
+          title="Delete Album?"
+          message="Are you sure you want to permanently delete this album? This action cannot be undone."
+          confirmLabel="Delete"
           onConfirm={async () => {
              if (!albumToDelete) return;
-             const loadingId = toast.loading('Executing purge protocol...');
+             const loadingId = toast.loading('Deleting album...');
              try {
                await albumService.deleteAlbum(albumToDelete);
-               toast.success('Project node terminated', { id: loadingId });
+               toast.success('Album deleted successfully', { id: loadingId });
                fetchData();
-             } catch { toast.error('Purge failure', { id: loadingId }); }
+             } catch { toast.error('Delete failed', { id: loadingId }); }
              finally { setAlbumToDelete(null); }
           }}
           onCancel={() => setAlbumToDelete(null)}

@@ -350,3 +350,7 @@ class SocketService {
 // Singleton instance
 const socketService = new SocketService();
 export default socketService;
+
+export function connectSocket(): Socket {
+  return socketService.connect();
+}

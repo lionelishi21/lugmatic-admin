@@ -16,7 +16,7 @@ const colorMap: Record<string, { color: string; bg: string; border: string; glow
   orange: { color: 'text-orange-500', bg: 'bg-orange-500/5', border: 'border-orange-500/10', glow: 'shadow-[0_0_15px_rgba(249,115,22,0.2)]' },
   violet: { color: 'text-violet-500', bg: 'bg-violet-500/5', border: 'border-violet-500/10', glow: 'shadow-[0_0_15px_rgba(139,92,246,0.2)]' },
   cyan: { color: 'text-cyan-500', bg: 'bg-cyan-500/5', border: 'border-cyan-500/10', glow: 'shadow-[0_0_15px_rgba(6,182,212,0.2)]' },
-  amber: { color: 'text-amber-500', bg: 'bg-amber-500/5', border: 'border-amber-500/10', glow: 'shadow-[0_0_15_rgba(245,158,11,0.2)]' },
+  amber: { color: 'text-amber-500', bg: 'bg-amber-500/5', border: 'border-amber-500/10', glow: 'shadow-[0_0_15px_rgba(245,158,11,0.2)]' },
   emerald: { color: 'text-emerald-500', bg: 'bg-emerald-500/5', border: 'border-emerald-500/10', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.2)]' },
   blue: { color: 'text-blue-500', bg: 'bg-blue-500/5', border: 'border-blue-500/10', glow: 'shadow-[0_0_15px_rgba(59,130,246,0.2)]' },
   indigo: { color: 'text-indigo-500', bg: 'bg-indigo-500/5', border: 'border-indigo-500/10', glow: 'shadow-[0_0_15px_rgba(99,102,241,0.2)]' },
@@ -89,10 +89,10 @@ const GenreManagement: React.FC = () => {
 
       if (selectedGenre) {
         await genreService.updateGenre(selectedGenre._id, data);
-        toast.success('Category protocol updated');
+        toast.success('Genre updated successfully');
       } else {
         await genreService.createGenre(data);
-        toast.success('New category registered');
+        toast.success('Genre created successfully');
       }
 
       await fetchGenres();
@@ -108,7 +108,7 @@ const GenreManagement: React.FC = () => {
     if (!deleteDialog) return;
     try {
       await genreService.deleteGenre(deleteDialog._id);
-      toast.success('Category purged from registry');
+      toast.success('Genre deleted successfully');
       await fetchGenres();
       setDeleteDialog(null);
     } catch (error: any) {
@@ -135,33 +135,33 @@ const GenreManagement: React.FC = () => {
 
   return (
     <div className="space-y-12 pb-24">
-      {/* Cinematic Identity Header */}
+      {/* Premium Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">Taxonomy Grid</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Genre Catalog</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest italic">Core Logic: Sync</span>
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">System: Online</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Categorizing global sonic artifacts, linguistic nodes, and genre signatures.</p>
+          <p className="text-zinc-500 text-xs font-semibold ml-1">Categorize and manage all music genres, classifications, and system tags.</p>
         </div>
         <button
           onClick={() => handleOpenDialog()}
-          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
         >
           <Plus size={18} />
-          Forge Category
+          Add New Genre
         </button>
       </div>
 
-      {/* Intelligence Telemetry */}
+      {/* Stats Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {[
-          { label: 'Total Categories', value: stats.total, icon: Tag, color: 'text-indigo-500', bg: 'bg-indigo-500/5' },
-          { label: 'Active Deployment', value: stats.active, icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
-          { label: 'Artifact Density', value: stats.songs.toLocaleString(), icon: Music, color: 'text-blue-500', bg: 'bg-blue-500/5' },
+          { label: 'Total Genres', value: stats.total, icon: Tag, color: 'text-indigo-500', bg: 'bg-indigo-500/5' },
+          { label: 'Active Genres', value: stats.active, icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
+          { label: 'Song Count', value: stats.songs.toLocaleString(), icon: Music, color: 'text-blue-500', bg: 'bg-blue-500/5' },
         ].map((s, i) => (
           <motion.div 
             key={s.label}
@@ -175,22 +175,22 @@ const GenreManagement: React.FC = () => {
               <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <s.icon size={24} className={s.color} />
             </div>
-            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em] mb-2 italic">{s.label}</p>
-            <p className="text-3xl font-bold text-white tracking-tighter italic">{s.value}</p>
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{s.label}</p>
+            <p className="text-3xl font-bold text-white tracking-tighter">{s.value}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* Operation Matrix HUD */}
+      {/* Control Bar */}
       <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
         <div className="relative w-full lg:max-w-md group">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
           <input
             type="text"
-            placeholder="SCAN TAXONOMY REGISTRY..."
+            placeholder="Search genres..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800 italic"
+            className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
           />
         </div>
         
@@ -220,7 +220,7 @@ const GenreManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Content Grid */}
+      {/* Main Content Area */}
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div 
@@ -232,7 +232,7 @@ const GenreManagement: React.FC = () => {
               <div className="w-20 h-20 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin" />
               <Cpu className="absolute inset-0 m-auto text-emerald-500 animate-pulse" size={24} />
             </div>
-            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.4em] italic">Accessing Category Registry...</p>
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Loading Genres...</p>
           </motion.div>
         ) : filteredGenres.length === 0 ? (
           <motion.div 
@@ -243,8 +243,8 @@ const GenreManagement: React.FC = () => {
             <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl group-hover:border-emerald-500/20 transition-all">
               <AlertTriangle size={36} className="text-zinc-800 group-hover:text-amber-500 transition-colors" />
             </div>
-            <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3 italic">Scan Result: NULL_ARTIFACTS</h3>
-            <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto opacity-60">Adjust scan parameters or forge a new taxonomy node to the grid.</p>
+            <h3 className="text-[10px] font-bold text-white uppercase tracking-widest mb-3">No Genres Found</h3>
+            <p className="text-[10px] text-zinc-600 font-bold max-w-sm mx-auto opacity-60">Adjust your search parameters or register a new genre classification.</p>
           </motion.div>
         ) : viewMode === 'grid' ? (
           <motion.div 
@@ -274,33 +274,33 @@ const GenreManagement: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-3 bg-zinc-950/80 px-3 py-1.5 rounded-xl border border-white/5 shadow-inner">
                        <div className={`w-1.5 h-1.5 rounded-full ${genre.isActive ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-zinc-700'}`} />
-                       <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest italic">{genre.isActive ? 'LINK_ACTIVE' : 'OFFLINE'}</span>
+                       <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{genre.isActive ? 'Active' : 'Inactive'}</span>
                     </div>
                   </div>
 
-                  <h3 className="text-xl font-bold text-white mb-3 italic uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none">{genre.name}</h3>
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.1em] line-clamp-2 leading-relaxed mb-10 italic h-10 opacity-60 group-hover:opacity-100 transition-opacity">
-                    {genre.description || 'No registry metadata provided for this taxonomy node.'}
+                  <h3 className="text-xl font-bold text-white mb-3 uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none">{genre.name}</h3>
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.1em] line-clamp-2 leading-relaxed mb-10 h-10 opacity-60 group-hover:opacity-100 transition-opacity">
+                    {genre.description || 'No description provided for this genre.'}
                   </p>
 
                   <div className="grid grid-cols-3 gap-4 mb-10 relative z-10">
                     <div className="bg-zinc-950 border border-white/5 rounded-2xl p-4 text-center shadow-inner group-hover:border-emerald-500/20 transition-all">
-                      <p className="text-lg font-bold text-white tabular-nums italic leading-none mb-1.5">{genre.songCount}</p>
-                      <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest italic">Artifacts</p>
+                      <p className="text-lg font-bold text-white tabular-nums leading-none mb-1.5">{genre.songCount}</p>
+                      <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Songs</p>
                     </div>
                     <div className="bg-zinc-950 border border-white/5 rounded-2xl p-4 text-center shadow-inner group-hover:border-emerald-500/20 transition-all">
-                      <p className="text-lg font-bold text-white tabular-nums italic leading-none mb-1.5">{genre.albumCount}</p>
-                      <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest italic">Matrix</p>
+                      <p className="text-lg font-bold text-white tabular-nums leading-none mb-1.5">{genre.albumCount}</p>
+                      <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Albums</p>
                     </div>
                     <div className="bg-zinc-950 border border-white/5 rounded-2xl p-4 text-center shadow-inner group-hover:border-emerald-500/20 transition-all">
-                      <p className="text-lg font-bold text-white tabular-nums italic leading-none mb-1.5">{genre.artistCount}</p>
-                      <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest italic">Nodes</p>
+                      <p className="text-lg font-bold text-white tabular-nums leading-none mb-1.5">{genre.artistCount}</p>
+                      <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Artists</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4 pt-6 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
-                    <button onClick={() => handleOpenDialog(genre)} className="flex-1 h-12 bg-white/5 text-zinc-400 hover:text-white hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all italic">Reconfigure</button>
-                    <button onClick={() => setDeleteDialog(genre)} className="flex-1 h-12 bg-zinc-950 text-rose-500/60 hover:text-rose-500 hover:bg-rose-500/10 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all italic">Purge Node</button>
+                    <button onClick={() => handleOpenDialog(genre)} className="flex-1 h-12 bg-white/5 text-zinc-400 hover:text-white hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all">Edit</button>
+                    <button onClick={() => setDeleteDialog(genre)} className="flex-1 h-12 bg-zinc-950 text-rose-500/60 hover:text-rose-500 hover:bg-rose-500/10 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all">Delete</button>
                   </div>
                 </motion.div>
               );
@@ -317,10 +317,10 @@ const GenreManagement: React.FC = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-white/5 bg-zinc-950/50">
-                  <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Category Node</th>
-                  <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Artifact Density</th>
-                  <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Link Status</th>
-                  <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic text-right">Action Protocol</th>
+                  <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Genre Details</th>
+                  <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Item Counts</th>
+                  <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Status</th>
+                  <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -341,8 +341,8 @@ const GenreManagement: React.FC = () => {
                             <span className="relative z-10">{genre.name[0].toUpperCase()}</span>
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-bold text-white uppercase tracking-tight italic group-hover:text-emerald-400 transition-colors leading-none mb-2">{genre.name}</p>
-                            <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest line-clamp-1 italic">{genre.description || 'NO_METADATA'}</p>
+                            <p className="text-sm font-bold text-white uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2">{genre.name}</p>
+                            <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest line-clamp-1">{genre.description || 'No description'}</p>
                           </div>
                         </div>
                       </td>
@@ -350,18 +350,18 @@ const GenreManagement: React.FC = () => {
                         <div className="flex items-center gap-6">
                           <div className="flex items-center gap-2.5">
                              <Music size={14} className="text-zinc-700" />
-                             <span className="text-[10px] font-bold text-zinc-400 tabular-nums italic uppercase tracking-widest">{genre.songCount} <span className="opacity-40 ml-1">ARTIFACTS</span></span>
+                             <span className="text-[10px] font-bold text-zinc-400 tabular-nums uppercase tracking-widest">{genre.songCount} <span className="opacity-40 ml-1">Songs</span></span>
                           </div>
                           <div className="flex items-center gap-2.5">
                              <Disc size={14} className="text-zinc-700" />
-                             <span className="text-[10px] font-bold text-zinc-400 tabular-nums italic uppercase tracking-widest">{genre.albumCount} <span className="opacity-40 ml-1">MATRIX</span></span>
+                             <span className="text-[10px] font-bold text-zinc-400 tabular-nums uppercase tracking-widest">{genre.albumCount} <span className="opacity-40 ml-1">Albums</span></span>
                           </div>
                         </div>
                       </td>
                       <td className="px-10 py-6">
                         <div className="flex items-center gap-3">
                           <div className={`w-1.5 h-1.5 rounded-full ${genre.isActive ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-zinc-800'}`} />
-                          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">{genre.isActive ? 'DEPLOYED' : 'QUARANTINED'}</span>
+                          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{genre.isActive ? 'Active' : 'Inactive'}</span>
                         </div>
                       </td>
                       <td className="px-10 py-6 text-right">
@@ -379,7 +379,7 @@ const GenreManagement: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Modals Console */}
+      {/* Genre Modals */}
       <AnimatePresence>
         {openDialog && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl" onClick={handleCloseDialog}>
@@ -393,8 +393,8 @@ const GenreManagement: React.FC = () => {
                       {selectedGenre ? <Pencil className="text-emerald-500" size={28} /> : <Plus className="text-emerald-500" size={28} />}
                    </div>
                    <div>
-                      <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic leading-none mb-1.5">{selectedGenre ? 'Modify Protocol' : 'Category Induction'}</h3>
-                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Identity Induction Protocol</p>
+                      <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic leading-none mb-1.5">{selectedGenre ? 'Edit Genre' : 'Add New Genre'}</h3>
+                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Genre Configuration</p>
                    </div>
                 </div>
                 <button onClick={handleCloseDialog} className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-white/5 text-zinc-500 transition-all border border-white/5 shadow-inner"><X size={24} /></button>
@@ -402,30 +402,30 @@ const GenreManagement: React.FC = () => {
               
               <form ref={formRef} onSubmit={handleSubmit} className="space-y-10">
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Taxonomy Identifier <span className="text-emerald-500">*</span></label>
-                  <input name="name" defaultValue={selectedGenre?.name} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800 italic" placeholder="e.g. SONIC_WAVE_AFRO" required />
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Genre Name <span className="text-emerald-500">*</span></label>
+                  <input name="name" defaultValue={selectedGenre?.name} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-widest uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800" placeholder="e.g. Afrobeat" required />
                 </div>
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Registry Logbook (Description)</label>
-                  <textarea name="description" defaultValue={selectedGenre?.description} className="w-full p-8 bg-zinc-950 border border-white/5 rounded-3xl text-zinc-300 text-[11px] font-bold tracking-[0.1em] focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner resize-none h-32 leading-relaxed placeholder:text-zinc-800" placeholder="Provide semantic context metadata for this taxonomy node..." />
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Description</label>
+                  <textarea name="description" defaultValue={selectedGenre?.description} className="w-full p-8 bg-zinc-950 border border-white/5 rounded-3xl text-zinc-300 text-[11px] font-bold tracking-wide focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner resize-none h-32 leading-relaxed placeholder:text-zinc-800" placeholder="Provide background description for this genre..." />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-10">
                   <div className="space-y-4">
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Spectral Signature</label>
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Theme Color</label>
                     <div className="relative group/sel">
-                      <select name="color" defaultValue={selectedGenre?.color || 'emerald'} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer">
+                      <select name="color" defaultValue={selectedGenre?.color || 'emerald'} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-widest uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer">
                         {Object.keys(colorMap).map(c => <option key={c} value={c}>{c.toUpperCase()}</option>)}
                       </select>
                       <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-emerald-500" />
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Visibility Matrix</label>
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Visibility</label>
                     <div className="relative group/sel">
-                      <select name="status" defaultValue={selectedGenre?.isActive ? 'active' : 'inactive'} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer">
-                        <option value="active">VISIBLE_LINK</option>
-                        <option value="inactive">QUARANTINED</option>
+                      <select name="status" defaultValue={selectedGenre?.isActive ? 'active' : 'inactive'} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-widest uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
                       </select>
                       <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-emerald-500" />
                     </div>
@@ -433,20 +433,20 @@ const GenreManagement: React.FC = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Asset Background Signal</label>
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Background Image URL</label>
                   <div className="flex gap-4">
-                    <input name="image" defaultValue={selectedGenre?.image} className="flex-1 h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.1em] focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800 italic" placeholder="ASSET_URL_PROTOCOL" />
-                    <button type="button" onClick={() => toast.success('Neural asset generation protocol standby')} className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-emerald-400 hover:text-white hover:bg-emerald-500/20 border border-white/5 shadow-inner transition-all group/spark">
+                    <input name="image" defaultValue={selectedGenre?.image} className="flex-1 h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wide focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800" placeholder="https://example.com/genre.jpg" />
+                    <button type="button" onClick={() => toast.success('Image generation coming soon')} className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-emerald-400 hover:text-white hover:bg-emerald-500/20 border border-white/5 shadow-inner transition-all group/spark">
                        <Sparkles size={24} className="group-hover/spark:rotate-180 transition-transform duration-700" />
                     </button>
                   </div>
                 </div>
 
                 <div className="pt-12 border-t border-white/5 flex justify-end gap-6">
-                  <button type="button" onClick={handleCloseDialog} className="h-16 px-10 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] border border-white/5 hover:bg-white/5 transition-all italic">Abort</button>
-                  <button type="submit" disabled={submitting} className="h-16 px-12 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] shadow-2xl hover:bg-emerald-400 transition-all flex items-center gap-4 group">
+                  <button type="button" onClick={handleCloseDialog} className="h-16 px-10 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all">Cancel</button>
+                  <button type="submit" disabled={submitting} className="h-16 px-12 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:bg-emerald-400 transition-all flex items-center gap-4 group">
                     {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={20} className="group-hover:translate-y-1 transition-transform" />}
-                    {selectedGenre ? 'Commit Sync' : 'Initialize Node'}
+                    Save Genre
                   </button>
                 </div>
               </form>
@@ -464,13 +464,13 @@ const GenreManagement: React.FC = () => {
                 <div className="absolute inset-0 bg-rose-500/10 animate-pulse" />
                 <AlertTriangle className="text-rose-500 relative z-10" size={36} />
               </div>
-              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic mb-3">Terminate Node?</h3>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-10 italic leading-relaxed px-6">
-                This will unlink all artifacts from <span className="text-white">{deleteDialog.name.toUpperCase()}</span>. Deployment purge is irreversible.
+              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic mb-3">Delete Genre?</h3>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-10 leading-relaxed px-6">
+                Are you sure you want to permanently delete <span className="text-white">{deleteDialog.name.toUpperCase()}</span>? This action cannot be undone.
               </p>
               <div className="flex gap-4">
-                <button onClick={() => setDeleteDialog(null)} className="h-16 flex-1 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all italic">Keep Link</button>
-                <button onClick={handleDelete} className="h-16 flex-1 bg-rose-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl shadow-rose-900/20 hover:bg-rose-500 transition-all italic">Execute Purge</button>
+                <button onClick={() => setDeleteDialog(null)} className="h-16 flex-1 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all">Cancel</button>
+                <button onClick={handleDelete} className="h-16 flex-1 bg-rose-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl shadow-rose-900/20 hover:bg-rose-500 transition-all">Delete</button>
               </div>
             </motion.div>
           </div>

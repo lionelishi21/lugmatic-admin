@@ -10,25 +10,25 @@ import {
   Users, UserCheck, UserX, Clock, MoreHorizontal, Music2, ChevronDown,
   BadgeCheck, ShieldCheck, ShieldAlert, Target, Activity, Globe,
   Cpu, ArrowUpRight, Layers, Database, Save, HardDrive, Info,
-  Zap, SlidersHorizontal, UserPlus, User
+  Zap, SlidersHorizontal, UserPlus, User, ArrowUpDown, ArrowUp, ArrowDown
 } from 'lucide-react';
 
-// Status badge with tactical styling
+// Status badge with clean styling
 const StatusBadge: React.FC<{ status?: string }> = ({ status }) => {
   const normalizedStatus = (status || 'pending').toLowerCase();
   const styles: Record<string, { bg: string; text: string; border: string; shadow: string; label: string }> = {
-    active: { bg: 'bg-emerald-500/5', text: 'text-emerald-500', border: 'border-emerald-500/10', shadow: 'shadow-[0_0_8px_#10b981]', label: 'ACTIVE_NODE' },
-    pending: { bg: 'bg-amber-500/5', text: 'text-amber-500', border: 'border-amber-500/10', shadow: 'shadow-[0_0_8px_#f59e0b]', label: 'PENDING_SYNC' },
-    inactive: { bg: 'bg-rose-500/5', text: 'text-rose-500', border: 'border-rose-500/10', shadow: 'shadow-[0_0_8px_#f43f5e]', label: 'INACTIVE' },
-    suspended: { bg: 'bg-rose-500/10', text: 'text-rose-500', border: 'border-rose-500/20', shadow: 'shadow-[0_0_10px_rgba(244,63,94,0.3)]', label: 'QUARANTINED' },
+    active: { bg: 'bg-emerald-500/5', text: 'text-emerald-500', border: 'border-emerald-500/10', shadow: 'shadow-[0_0_8px_#10b981]', label: 'Active' },
+    pending: { bg: 'bg-amber-500/5', text: 'text-amber-500', border: 'border-amber-500/10', shadow: 'shadow-[0_0_8px_#f59e0b]', label: 'Pending' },
+    inactive: { bg: 'bg-rose-500/5', text: 'text-rose-500', border: 'border-rose-500/10', shadow: 'shadow-[0_0_8px_#f43f5e]', label: 'Inactive' },
+    suspended: { bg: 'bg-rose-500/10', text: 'text-rose-500', border: 'border-rose-500/20', shadow: 'shadow-[0_0_10px_rgba(244,63,94,0.3)]', label: 'Suspended' },
   };
 
-  const style = styles[normalizedStatus] || { bg: 'bg-zinc-800/20', text: 'text-zinc-500', border: 'border-white/5', shadow: '', label: 'UNKNOWN' };
+  const style = styles[normalizedStatus] || { bg: 'bg-zinc-800/20', text: 'text-zinc-500', border: 'border-white/5', shadow: '', label: 'Unknown' };
 
   return (
     <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border ${style.bg} ${style.text} ${style.border}`}>
       <div className={`w-1.5 h-1.5 rounded-full ${style.text.replace('text-', 'bg-')} ${style.shadow}`} />
-      <span className="text-[9px] font-black uppercase tracking-widest italic">{style.label}</span>
+      <span className="text-[9px] font-black uppercase tracking-widest">{style.label}</span>
     </div>
   );
 };
@@ -112,7 +112,7 @@ const ArtistRow = React.memo(({
               </span>
             </div>
           )) : (
-            <span className="text-[9px] font-black text-zinc-800 uppercase tracking-widest italic">NO_SECTOR_DATA</span>
+            <span className="text-[9px] font-black text-zinc-800 uppercase tracking-widest italic">No Genre</span>
           )}
         </div>
       </td>
@@ -146,7 +146,7 @@ const ArtistRow = React.memo(({
              <button 
                 onClick={onView} 
                 className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-white hover:bg-white/5 transition-all shadow-inner"
-                title="View Registry"
+                title="View Profile"
              >
                <Eye size={20} />
              </button>
@@ -175,26 +175,26 @@ const ArtistRow = React.memo(({
                           className="absolute right-0 top-14 z-20 w-64 bg-zinc-900 rounded-[2rem] border border-white/10 p-3 shadow-[0_30px_60px_rgba(0,0,0,0.9)] backdrop-blur-2xl"
                         >
                            <div className="px-6 py-4 border-b border-white/5 mb-2">
-                              <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Identity Protocol</p>
+                              <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Artist Options</p>
                            </div>
                            {onVerify && (
                               <button
                                 onClick={() => { onVerify(!artist.isVerified); setShowActions(false); }}
-                                className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest italic transition-all group/opt ${artist.isVerified ? 'text-amber-500 hover:bg-amber-500/10' : 'text-emerald-500 hover:bg-emerald-500/10'}`}
+                                className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all group/opt ${artist.isVerified ? 'text-amber-500 hover:bg-amber-500/10' : 'text-emerald-500 hover:bg-emerald-500/10'}`}
                               >
                                 {artist.isVerified ? (
-                                  <><ShieldAlert size={18} className="group-hover/opt:scale-110 transition-transform" /> Revoke Auth</>
+                                  <><ShieldAlert size={18} className="group-hover/opt:scale-110 transition-transform" /> Revoke Verification</>
                                 ) : (
-                                  <><ShieldCheck size={18} className="group-hover/opt:scale-110 transition-transform" /> Authorize Verif</>
+                                  <><ShieldCheck size={18} className="group-hover/opt:scale-110 transition-transform" /> Verify Artist</>
                                 )}
                               </button>
                            )}
                            <div className="h-px bg-white/5 my-2" />
                            <button 
                              onClick={() => { onDelete(); setShowActions(false); }} 
-                             className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest italic text-rose-500 hover:bg-rose-500/10 transition-all group/opt"
+                             className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-500/10 transition-all group/opt"
                            >
-                             <Trash2 size={18} className="group-hover/opt:scale-110 transition-transform" /> Terminate Node
+                             <Trash2 size={18} className="group-hover/opt:scale-110 transition-transform" /> Delete Artist
                            </button>
                         </motion.div>
                      </>
@@ -208,6 +208,8 @@ const ArtistRow = React.memo(({
   );
 });
 
+type ModalType = 'delete' | 'edit' | 'add' | null;
+
 const ArtistManagement: React.FC = () => {
   const [modalOpen, setModalOpen] = useState<ModalType>(null);
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
@@ -215,6 +217,8 @@ const ArtistManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterVerified, setFilterVerified] = useState<boolean | 'all'>('all');
+  const [sortField, setSortField] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     const path = window.location.pathname;
@@ -226,6 +230,32 @@ const ArtistManagement: React.FC = () => {
   const { artists, loading } = useFetchArtists();
   const navigate = useNavigate();
   const { approveArtist, rejectArtist, verifyArtist } = useArtistContext();
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const renderSortHeader = (label: string, field: string) => {
+    const isSorted = sortField === field;
+    return (
+      <button 
+        onClick={() => handleSort(field)}
+        className="flex items-center gap-1.5 hover:text-white transition-colors group/btn text-[10px] font-bold uppercase tracking-widest text-zinc-500"
+      >
+        <span>{label}</span>
+        {isSorted ? (
+          sortDirection === 'asc' ? <ArrowUp size={12} className="text-emerald-500" /> : <ArrowDown size={12} className="text-emerald-500" />
+        ) : (
+          <ArrowUpDown size={12} className="text-zinc-700 opacity-60 group-hover/btn:opacity-100 transition-opacity" />
+        )}
+      </button>
+    );
+  };
 
   const filteredArtists = useMemo(() => {
     if (!artists) return [];
@@ -241,6 +271,39 @@ const ArtistManagement: React.FC = () => {
       return matchesSearch && matchesStatus && matchesVerified;
     });
   }, [artists, searchTerm, filterStatus, filterVerified]);
+
+  const sortedArtists = useMemo(() => {
+    const list = [...filteredArtists];
+    list.sort((a, b) => {
+      let valA: any = '';
+      let valB: any = '';
+
+      if (sortField === 'name') {
+        valA = a.name || a.fullName || [a.firstName, a.lastName].filter(Boolean).join(' ') || '';
+        valB = b.name || b.fullName || [b.firstName, b.lastName].filter(Boolean).join(' ') || '';
+      } else if (sortField === 'genres') {
+        valA = (a.genres && a.genres[0]) || '';
+        valB = (b.genres && b.genres[0]) || '';
+      } else if (sortField === 'status') {
+        valA = a.status || (a.isApproved ? 'active' : 'pending');
+        valB = b.status || (b.isApproved ? 'active' : 'pending');
+      } else if (sortField === 'date') {
+        valA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        valB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      }
+
+      if (typeof valA === 'string') {
+        return sortDirection === 'asc' 
+          ? valA.localeCompare(valB) 
+          : valB.localeCompare(valA);
+      } else {
+        return sortDirection === 'asc' 
+          ? (valA > valB ? 1 : -1) 
+          : (valB > valA ? 1 : -1);
+      }
+    });
+    return list;
+  }, [filteredArtists, sortField, sortDirection]);
 
   const stats = useMemo(() => {
     if (!artists) return { total: 0, active: 0, pending: 0, verified: 0 };
@@ -270,7 +333,7 @@ const ArtistManagement: React.FC = () => {
 
   const handleDeleteArtist = useCallback(() => {
     if (selectedArtist) {
-      toast.success('Artist induction terminated');
+      toast.success('Artist deleted successfully');
       handleCloseModal();
     }
   }, [selectedArtist, handleCloseModal]);
@@ -311,7 +374,7 @@ const ArtistManagement: React.FC = () => {
       toast.error('Unable to reject artist (missing id).');
       return;
     }
-    const reason = prompt('Provide induction rejection protocol reason:') || 'Administrative decision';
+    const reason = prompt('Please enter rejection reason:') || 'Administrative decision';
     const success = await rejectArtist(artistId, reason);
     if (success) {
       window.location.reload();
@@ -327,40 +390,40 @@ const ArtistManagement: React.FC = () => {
     await verifyArtist(artistId, isVerified);
   }, [verifyArtist]);
 
-  if (loading && (!artists || artists.length === 0)) return <Preloader isVisible={true} text="Auditing artist registry..." />;
+  if (loading && (!artists || artists.length === 0)) return <Preloader isVisible={true} text="Loading artists..." />;
 
   return (
     <div className="space-y-12 pb-24">
-      <Toaster position="top-right" toastOptions={{ className: 'text-[10px] font-black uppercase italic tracking-widest bg-zinc-900 text-white border border-white/10' }} />
+      <Toaster position="top-right" toastOptions={{ className: 'text-[10px] font-black uppercase tracking-widest bg-zinc-900 text-white border border-white/10' }} />
 
-      {/* Cinematic Identity Header */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">Entity Grid</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Artists</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest italic">Registry: Live</span>
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">System: Online</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Orchestrating global talent identities, performance nodes, and verified status.</p>
+          <p className="text-zinc-500 text-xs font-semibold ml-1">Manage and verify artists on the platform.</p>
         </div>
         <Link
           to="/admin/artist-add"
-          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10 italic"
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
         >
           <UserPlus size={18} />
-          Initialize Entity
+          Add Artist
         </Link>
       </div>
 
-      {/* Intelligence Telemetry */}
+      {/* Stats Summary */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
         {[
-          { label: 'Total Entities', value: stats.total, icon: Users, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
-          { label: 'Active Deployment', value: stats.active, icon: UserCheck, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-          { label: 'Pending Induction', value: stats.pending, icon: Clock, color: 'text-amber-400', bg: 'bg-amber-500/10' },
-          { label: 'Verified Auth', value: stats.verified, icon: BadgeCheck, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+          { label: 'Total Artists', value: stats.total, icon: Users, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
+          { label: 'Active Artists', value: stats.active, icon: UserCheck, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+          { label: 'Pending Approvals', value: stats.pending, icon: Clock, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+          { label: 'Verified Artists', value: stats.verified, icon: BadgeCheck, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
         ].map((s, i) => (
           <motion.div 
             key={s.label}
@@ -374,23 +437,23 @@ const ArtistManagement: React.FC = () => {
               <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <s.icon size={24} className={s.color} />
             </div>
-            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em] mb-2 italic">{s.label}</p>
-            <p className="text-3xl font-bold text-white tracking-tighter italic tabular-nums">{s.value}</p>
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{s.label}</p>
+            <p className="text-3xl font-bold text-white tracking-tighter tabular-nums">{s.value}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* Operation HUD */}
+      {/* Toolbar controls */}
       <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
         <div className="flex flex-col md:flex-row gap-6 w-full lg:max-w-4xl">
           <div className="relative flex-1 group">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
             <input
               type="text"
-              placeholder="SCAN ENTITY REGISTRY..."
+              placeholder="Search artists..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800 italic"
+              className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
             />
           </div>
           <div className="relative w-full md:w-80 group">
@@ -398,37 +461,37 @@ const ArtistManagement: React.FC = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full h-14 pl-14 pr-12 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+              className="w-full h-14 pl-14 pr-12 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer"
             >
-              <option value="all">ALL ENTITY STATUS</option>
-              <option value="active">ACTIVE_NODES</option>
-              <option value="pending">PENDING_SYNC</option>
-              <option value="suspended">QUARANTINED</option>
+              <option value="all">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="suspended">Suspended</option>
             </select>
             <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-focus-within:rotate-180 duration-500 transition-all group-focus-within:text-emerald-500" size={18} />
           </div>
         </div>
-        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700 italic">
-           {filteredArtists.length} Nodes Indexed
+        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-700">
+           {filteredArtists.length} Artists Indexed
         </span>
       </div>
 
-      {/* Registry Matrix */}
+      {/* Artists Table */}
       <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl bg-[#0a0a0a]">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/5 bg-zinc-950/50">
-                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Artist Identity</th>
-                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Sonic Sector</th>
-                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Registry Status</th>
-                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Sync Date</th>
-                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic text-right">Action Protocol</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{renderSortHeader('Artist', 'name')}</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{renderSortHeader('Genres', 'genres')}</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{renderSortHeader('Status', 'status')}</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{renderSortHeader('Date Joined', 'date')}</th>
+                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {filteredArtists.length > 0 ? (
-                filteredArtists.map((artist, i) => (
+              {sortedArtists.length > 0 ? (
+                sortedArtists.map((artist, i) => (
                   <ArtistRow
                     key={(artist._id as string) || (artist as any).id}
                     artist={artist}
@@ -446,8 +509,8 @@ const ArtistManagement: React.FC = () => {
                     <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl group cursor-default">
                       <Users size={36} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                     </div>
-                    <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3 italic">Scan Result: NULL_ARTISTS</h3>
-                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto opacity-60">Adjust scan parameters or initialize a new talent node to the grid.</p>
+                    <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3">No Artists Found</h3>
+                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto opacity-60">Adjust search filters or add a new artist.</p>
                   </td>
                 </tr>
               )}
@@ -456,7 +519,7 @@ const ArtistManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Modals Console */}
+      {/* Delete Confirmation Modal */}
       <AnimatePresence>
         {modalOpen === 'delete' && selectedArtist && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl" onClick={handleCloseModal}>
@@ -468,22 +531,22 @@ const ArtistManagement: React.FC = () => {
                 <div className="absolute inset-0 bg-rose-500/10 animate-pulse" />
                 <Trash2 className="text-rose-500 relative z-10" size={36} />
               </div>
-              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic mb-4">Terminate Entity?</h3>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-12 italic leading-relaxed px-6">
-                Executing the permanent purge of <span className="text-white italic">"{selectedArtist.name}"</span> from the global registry. Irreversible.
+              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter mb-4">Delete Artist?</h3>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-12 leading-relaxed px-6">
+                Are you sure you want to permanently delete <span className="text-white">"{selectedArtist.name}"</span>? This action cannot be undone.
               </p>
               <div className="grid grid-cols-2 gap-6">
                 <button
                   onClick={handleCloseModal}
-                  className="h-16 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all italic"
+                  className="h-16 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all"
                 >
-                  Abort Protocol
+                  Cancel
                 </button>
                 <button
                   onClick={handleDeleteArtist}
-                  className="h-16 bg-rose-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl shadow-rose-900/20 hover:bg-rose-500 transition-all italic"
+                  className="h-16 bg-rose-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl shadow-rose-900/20 hover:bg-rose-500 transition-all"
                 >
-                  Execute Purge
+                  Delete
                 </button>
               </div>
             </motion.div>

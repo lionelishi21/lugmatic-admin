@@ -252,8 +252,7 @@ export default function Landing() {
               </h1>
 
               <p className="mt-8 text-zinc-300 text-lg md:text-xl max-w-lg mx-auto leading-relaxed font-light">
-                Manage your music, engage with fans, and grow your career.
-                Advanced analytics, live streaming, and direct fan gifting.
+                The high-performance platform for Caribbean music creators. Upload your catalog, broadcast live directly to the Lugmatic Fan App, and receive direct tips from your listeners.
               </p>
 
               <motion.div
@@ -566,6 +565,69 @@ export default function Landing() {
               <h3 className="text-2xl font-bold mb-4">Hi-Fi Audio</h3>
               <p className="text-zinc-500 text-sm leading-relaxed font-medium">Lossless quality streaming across all devices.</p>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ THE CONNECTED NETWORK: HOW IT WORKS ═══ */}
+      <section className="py-24 relative bg-black overflow-hidden border-t border-white/5">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(34,197,94,0.03),transparent)]" />
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-20">
+            <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-green-500 mb-6">Unified Network</p>
+            <h2 className="text-6xl md:text-7xl font-bold tracking-tighter italic leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+              HOW THE <span className="text-green-500">ECOSYSTEM</span> WORKS
+            </h2>
+            <p className="text-zinc-500 mt-6 max-w-lg mx-auto text-lg font-light">
+              Lugmatic is one platform divided into two powerful apps that work in perfect harmony.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Step 1 */}
+            <div className="p-8 rounded-[2rem] bg-zinc-900/30 border border-white/5 relative group hover:border-green-500/20 transition-all">
+              <div className="absolute -top-5 left-8 w-10 h-10 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center font-bold text-green-500 text-sm">
+                1
+              </div>
+              <h4 className="text-2xl font-bold mb-4 mt-2">Publish in the Studio</h4>
+              <p className="text-zinc-400 text-sm leading-relaxed mb-6">
+                Use your Artist Studio dashboard on web or mobile to upload high-fidelity tracks, manage albums, set release schedules, and start your live streams.
+              </p>
+              <div className="text-xs text-zinc-500 bg-white/[0.02] border border-white/5 rounded-xl p-3 flex items-center justify-between">
+                <span>Studio Interface</span>
+                <span className="text-green-500 font-semibold">&bull; Online</span>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="p-8 rounded-[2rem] bg-zinc-900/30 border border-white/5 relative group hover:border-green-500/20 transition-all">
+              <div className="absolute -top-5 left-8 w-10 h-10 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center font-bold text-green-500 text-sm">
+                2
+              </div>
+              <h4 className="text-2xl font-bold mb-4 mt-2">Deliver to the Fans</h4>
+              <p className="text-zinc-400 text-sm leading-relaxed mb-6">
+                Your content is instantly pushed to the Lugmatic Fan App (web, iOS, and Android). Listeners stream your music, follow your profile, and tune into your live sessions.
+              </p>
+              <div className="text-xs text-zinc-500 bg-white/[0.02] border border-white/5 rounded-xl p-3 flex items-center justify-between">
+                <span>Fan Distribution</span>
+                <span className="text-green-500 font-semibold">&bull; Real-time sync</span>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="p-8 rounded-[2rem] bg-zinc-900/30 border border-white/5 relative group hover:border-green-500/20 transition-all">
+              <div className="absolute -top-5 left-8 w-10 h-10 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center font-bold text-green-500 text-sm">
+                3
+              </div>
+              <h4 className="text-2xl font-bold mb-4 mt-2">Earn Direct Support</h4>
+              <p className="text-zinc-400 text-sm leading-relaxed mb-6">
+                Fans use virtual coins to send gifts directly to you while streaming or during live clashes. Studio tracks all earnings with a 95% creator payout rate.
+              </p>
+              <div className="text-xs text-zinc-500 bg-white/[0.02] border border-white/5 rounded-xl p-3 flex items-center justify-between">
+                <span>Direct Payouts</span>
+                <span className="text-green-500 font-semibold">&bull; 95% Share</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>

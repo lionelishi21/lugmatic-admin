@@ -13,7 +13,7 @@ import {
   ArrowLeft, Music2, User, Disc, Tag, Clock, Calendar,
   FileText, Edit2, Trash2, Save, X, Play, Pause, AlertCircle,
   CheckCircle, XCircle, Loader2, ExternalLink, Video, 
-  Activity, ShieldCheck, Share2, Zap, BarChart3, 
+  Activity, ShieldCheck, Share2, Zap, BarChart3, Heart,
   ChevronRight, Music, CheckCircle2, ShieldAlert
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
@@ -63,7 +63,7 @@ const SongDetail: React.FC = () => {
       setLinkedVideo(videoData);
       populateForm(songData, artistData, albumData, genreData);
     } catch (err: any) {
-      toast.error('Failed to synchronize track registry');
+      toast.error('Failed to load song details');
     } finally {
       setLoading(false);
     }
@@ -109,14 +109,14 @@ const SongDetail: React.FC = () => {
     try {
       const base64 = await songService.uploadCoverArt(file);
       setFormData(prev => ({ ...prev, coverArt: base64 }));
-    } catch { toast.error('Artwork processing failed'); }
+    } catch { toast.error('Artwork upload failed'); }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!song) return;
     setSubmitting(true);
-    const loadingId = toast.loading('Synchronizing track updates...');
+    const loadingId = toast.loading('Saving song changes...');
     try {
       const cleanedData: Partial<CreateSongData> = {
         ...formData,
@@ -143,9 +143,9 @@ const SongDetail: React.FC = () => {
       setIsEditing(false);
       setCoverArtFile(null);
       setAudioFile(null);
-      toast.success('Track registry updated', { id: loadingId });
+      toast.success('Song details updated successfully', { id: loadingId });
     } catch (err: any) {
-      toast.error('Transmission failed', { id: loadingId });
+      toast.error('Failed to save changes', { id: loadingId });
     } finally {
       setSubmitting(false);
     }
@@ -155,10 +155,10 @@ const SongDetail: React.FC = () => {
     if (!song) return;
     try {
       await songService.deleteSong(song._id);
-      toast.success('Track purged');
+      toast.success('Song deleted successfully');
       navigate('/admin/song-management');
     } catch (err: any) {
-      toast.error('Purge failed');
+      toast.error('Failed to delete song');
     }
   };
   
@@ -166,15 +166,15 @@ const SongDetail: React.FC = () => {
     if (!song) return;
     let reason = '';
     if (action === 'reject') {
-      reason = window.prompt('Provide rejection justification:') || '';
-      if (!reason) { toast.error('Justification required for rejection'); return; }
+      reason = window.prompt('Provide rejection reason:') || '';
+      if (!reason) { toast.error('Reason is required for rejection'); return; }
     }
 
     try {
-      toast.loading(`Executing ${action} protocol...`, { id: 'moderate-action' });
+      toast.loading(`Processing ${action}...`, { id: 'moderate-action' });
       const response = await adminService.moderateContent('songs', song._id, action, reason);
       if (response.data.success) {
-        toast.success(`Protocol ${action} finalized`, { id: 'moderate-action' });
+        toast.success(`Song ${action}d successfully`, { id: 'moderate-action' });
         setSong({ 
           ...song, 
           isApproved: action === 'approve',
@@ -183,7 +183,7 @@ const SongDetail: React.FC = () => {
         });
       }
     } catch (err: any) {
-      toast.error('Protocol failure', { id: 'moderate-action' });
+      toast.error('Action failed', { id: 'moderate-action' });
     }
   };
 
@@ -199,7 +199,7 @@ const SongDetail: React.FC = () => {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  if (loading) return <Preloader isVisible text="Loading track parameters..." />;
+  if (loading) return <Preloader isVisible text="Loading song details..." />;
   if (!song) return null;
 
   const artistName = typeof song.artist === 'object' && song.artist !== null
@@ -222,13 +222,13 @@ const SongDetail: React.FC = () => {
             className="flex items-center gap-2 text-zinc-500 hover:text-white mb-6 transition-colors group"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xs font-bold uppercase tracking-widest">Back to Library</span>
+            <span className="text-xs font-bold uppercase tracking-widest">Back to Catalog</span>
           </button>
           <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
             <Music className="text-emerald-500" size={32} />
-            {isEditing ? 'Edit Track Registry' : song.name}
+            {isEditing ? 'Edit Song Details' : song.name}
           </h1>
-          <p className="text-zinc-500">Manage cinematic metadata and track moderation status.</p>
+          <p className="text-zinc-500">Manage audio track details and moderation status.</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -238,7 +238,7 @@ const SongDetail: React.FC = () => {
                 <Edit2 size={16} /> Edit
               </button>
               <button onClick={() => setDeleteOpen(true)} className="btn-secondary !text-rose-500 hover:!bg-rose-500/5 !border-rose-500/20 flex items-center gap-2 !px-6">
-                <Trash2 size={16} /> Purge
+                <Trash2 size={16} /> Delete
               </button>
               {song.status === 'pending' && (
                 <div className="flex items-center gap-2 pl-3 border-l border-white/10 ml-3">
@@ -258,7 +258,7 @@ const SongDetail: React.FC = () => {
               </button>
               <button form="edit-form" type="submit" disabled={submitting} className="btn-primary flex items-center gap-2 !px-8">
                 {submitting ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                Save Protocol
+                Save Changes
               </button>
             </div>
           )}
@@ -266,7 +266,7 @@ const SongDetail: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Left: Cinematic Overview */}
+        {/* Left: Overview */}
         <div className="lg:col-span-1 space-y-8">
           <div className="premium-card !p-0 overflow-hidden group">
             <div className="aspect-square relative bg-zinc-950">
@@ -299,7 +299,7 @@ const SongDetail: React.FC = () => {
                   </button>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-white truncate">{song.name}</p>
-                    <p className="text-[10px] text-zinc-500 font-mono tracking-widest mt-1">{formatDuration(song.duration)} / MASTER AUDIO</p>
+                    <p className="text-[10px] text-zinc-500 font-mono tracking-widest mt-1">{formatDuration(song.duration)} / TRACK AUDIO</p>
                   </div>
                   <a href={audioUrl} target="_blank" rel="noreferrer" className="p-2 text-zinc-600 hover:text-white transition-colors">
                     <ExternalLink size={18} />
@@ -331,9 +331,9 @@ const SongDetail: React.FC = () => {
             <div className="premium-card border-rose-500/20 bg-rose-500/[0.02]">
               <div className="flex items-center gap-3 text-rose-500 mb-4">
                 <ShieldAlert size={18} />
-                <h4 className="text-xs font-bold uppercase tracking-widest">Rejection Protocol</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest">Rejection Reason</h4>
               </div>
-              <p className="text-sm text-zinc-400 italic">"{song.rejectionReason || 'No justification provided'}"</p>
+              <p className="text-sm text-zinc-400 italic">"{song.rejectionReason || 'No details provided'}"</p>
             </div>
           )}
         </div>
@@ -346,11 +346,11 @@ const SongDetail: React.FC = () => {
                 <form id="edit-form" onSubmit={handleSubmit} className="space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Artwork Workspace</label>
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Cover Artwork</label>
                       <FileUpload currentFile={formData.coverArt || undefined} onFileSelect={handleCoverArtSelect} onFileRemove={() => { setCoverArtFile(null); setFormData(p => ({ ...p, coverArt: '' })); }} />
                     </div>
                     <div className="space-y-4">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Audio Payload</label>
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Audio File</label>
                       <FileUpload fileType="audio" maxSize={50} onFileSelect={file => setAudioFile(file)} onFileRemove={() => { setAudioFile(null); setFormData(p => ({ ...p, audioFile: '' })); }} currentFile={formData.audioFile || undefined} />
                     </div>
                   </div>
@@ -361,7 +361,7 @@ const SongDetail: React.FC = () => {
                       <input type="text" name="name" value={formData.name || ''} onChange={handleInputChange} required className="input-field" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Artist Entity</label>
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Artist</label>
                       <div className="relative">
                         <select name="artist" value={formData.artist || ''} onChange={handleInputChange} required className="input-field appearance-none">
                           <option value="">Select Artist...</option>
@@ -371,7 +371,7 @@ const SongDetail: React.FC = () => {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Album Association</label>
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Album</label>
                       <div className="relative">
                         <select name="album" value={formData.album || ''} onChange={handleInputChange} className="input-field appearance-none">
                           <option value="">Single (No Album)</option>
@@ -381,7 +381,7 @@ const SongDetail: React.FC = () => {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Genre Mapping</label>
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Genre</label>
                       <div className="relative">
                         <select name="genre" value={formData.genre || ''} onChange={handleInputChange} required className="input-field appearance-none">
                           <option value="">Select Genre...</option>
@@ -391,16 +391,16 @@ const SongDetail: React.FC = () => {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Duration (Sec)</label>
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Duration (Seconds)</label>
                       <input type="number" name="duration" value={formData.duration || 0} onChange={handleInputChange} required className="input-field" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Release Protocol</label>
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Release Date</label>
                       <input type="date" name="releaseDate" value={formData.releaseDate || ''} onChange={handleInputChange} required className="input-field" />
                     </div>
                     <div className="space-y-2 md:col-span-2">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Lyric Transmission</label>
-                      <textarea name="lyrics" value={formData.lyrics || ''} onChange={handleInputChange} rows={8} className="input-field h-auto resize-none" placeholder="Enter lyrical data..." />
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Lyrics</label>
+                      <textarea name="lyrics" value={formData.lyrics || ''} onChange={handleInputChange} rows={8} className="input-field h-auto resize-none" placeholder="Enter lyrics..." />
                     </div>
                   </div>
                 </form>
@@ -409,14 +409,14 @@ const SongDetail: React.FC = () => {
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-8">
                 <div className="premium-card">
                   <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-4 mb-8">
-                    <FileText size={14} /> Protocol Intelligence
+                    <FileText size={14} /> Song Information
                   </h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
                     {[
                       { label: 'Associated Album', value: albumName, icon: Disc, color: 'text-purple-500' },
-                      { label: 'Genre Classification', value: genreName, icon: Tag, color: 'text-amber-500' },
-                      { label: 'Signal Duration', value: formatDuration(song.duration), icon: Clock, color: 'text-emerald-500' },
+                      { label: 'Genre', value: genreName, icon: Tag, color: 'text-amber-500' },
+                      { label: 'Duration', value: formatDuration(song.duration), icon: Clock, color: 'text-emerald-500' },
                       { label: 'Release Date', value: song.releaseDate ? new Date(song.releaseDate).toLocaleDateString() : 'Pending', icon: Calendar, color: 'text-rose-500' },
                     ].map(item => (
                       <div key={item.label} className="flex items-center gap-4">
@@ -434,13 +434,13 @@ const SongDetail: React.FC = () => {
                   <div className="space-y-4 pt-8 border-t border-white/5">
                     <div className="flex items-center gap-2 mb-4">
                       <FileText size={14} className="text-zinc-600" />
-                      <h4 className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Lyric Data</h4>
+                      <h4 className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Lyrics</h4>
                     </div>
                     <div className="bg-zinc-950/50 rounded-3xl p-8 border border-white/5">
                       {song.lyrics ? (
                         <pre className="text-sm text-zinc-400 whitespace-pre-wrap font-sans leading-relaxed max-h-[400px] overflow-y-auto no-scrollbar">{song.lyrics}</pre>
                       ) : (
-                        <p className="text-xs text-zinc-700 italic text-center py-10 uppercase tracking-widest font-bold">No lyrical transmission detected</p>
+                        <p className="text-xs text-zinc-700 italic text-center py-10 uppercase tracking-widest font-bold">No lyrics provided</p>
                       )}
                     </div>
                   </div>
@@ -449,7 +449,7 @@ const SongDetail: React.FC = () => {
                 {song.splitSheet && song.splitSheet.length > 0 && (
                   <div className="premium-card">
                     <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-4 mb-6">
-                      <ShieldCheck size={14} className="text-emerald-500" /> Ownership Split Agreement
+                      <ShieldCheck size={14} className="text-emerald-500" /> Splits & Ownership
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {song.splitSheet.map((item, idx) => (
@@ -474,7 +474,7 @@ const SongDetail: React.FC = () => {
                         <Video size={14} className="text-blue-500" /> Music Video Integration
                       </h3>
                       <button onClick={() => navigate('/admin/video-management')} className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest hover:text-emerald-400 transition-colors">
-                        Manage Assets
+                        Manage Videos
                       </button>
                     </div>
                     <div className="aspect-video rounded-[2rem] overflow-hidden bg-black border border-white/5 group relative shadow-2xl">
@@ -490,9 +490,9 @@ const SongDetail: React.FC = () => {
 
       <ConfirmDialog 
         isOpen={deleteOpen} 
-        title="Purge Track Registry?" 
-        message={`This protocol will permanently delete "${song?.name}" from the network. Proceed?`} 
-        confirmLabel="Purge Media" 
+        title="Delete Song?" 
+        message={`Are you sure you want to permanently delete "${song?.name}"? This action cannot be undone.`} 
+        confirmLabel="Delete" 
         onConfirm={handleDelete} 
         onCancel={() => setDeleteOpen(false)} 
       />

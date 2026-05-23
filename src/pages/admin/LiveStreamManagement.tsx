@@ -39,7 +39,7 @@ const MonitoringModal: React.FC<MonitoringModalProps> = ({ stream, onClose }) =>
         const res = await getStreamToken(stream._id);
         setTokenData({ token: res.data.token, url: res.data.url });
       } catch (err) {
-        toast.error('Failed to join signal');
+        toast.error('Failed to connect to stream');
         onClose();
       } finally {
         setLoading(false);
@@ -59,14 +59,14 @@ const MonitoringModal: React.FC<MonitoringModalProps> = ({ stream, onClose }) =>
       >
         <div className="absolute top-0 left-0 right-0 p-10 flex items-center justify-between z-30 bg-gradient-to-b from-black/90 via-black/40 to-transparent">
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-rose-500/10 text-rose-500 text-[10px] font-black tracking-[0.3em] border border-rose-500/20 shadow-lg italic">
+            <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-rose-500/10 text-rose-500 text-[10px] font-bold uppercase border border-rose-500/20 shadow-lg">
               <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shadow-[0_0_12px_#f43f5e]" />
-              SIGNAL_INTERCEPT
+              Monitoring Stream
             </div>
             <div className="h-10 w-px bg-white/5 mx-2" />
             <div>
-               <h2 className="text-white text-2xl font-bold tracking-tighter italic uppercase leading-none mb-1.5">{stream.title}</h2>
-               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest italic leading-none">{stream.host.name} • BROADCAST_NODE_{stream._id.slice(-6).toUpperCase()}</p>
+               <h2 className="text-white text-2xl font-bold tracking-tighter uppercase leading-none mb-1.5">{stream.title}</h2>
+               <p className="text-[10px] text-zinc-500 font-semibold uppercase leading-none">{stream.host.name} • Stream ID: {stream._id.slice(-6).toUpperCase()}</p>
             </div>
           </div>
           <button onClick={onClose} className="w-14 h-14 rounded-2xl bg-zinc-950 border border-white/5 text-zinc-500 hover:text-white hover:bg-white/5 transition-all shadow-inner flex items-center justify-center">
@@ -81,7 +81,7 @@ const MonitoringModal: React.FC<MonitoringModalProps> = ({ stream, onClose }) =>
                <div className="w-24 h-24 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin" />
                <Activity className="absolute inset-0 m-auto text-emerald-500 animate-pulse" size={32} />
             </div>
-            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] italic">Decrypting Frequency Spectrum...</p>
+            <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Connecting to Stream...</p>
           </div>
         ) : tokenData ? (
           <div className="h-full w-full relative">
@@ -89,7 +89,7 @@ const MonitoringModal: React.FC<MonitoringModalProps> = ({ stream, onClose }) =>
               <StreamVideoRenderer />
             </LiveKitRoom>
             
-            {/* Tactical Overlay */}
+            {/* Overlay Statistics */}
             <div className="absolute bottom-10 left-10 right-10 flex items-end justify-between z-30">
                <div className="flex gap-4">
                   <div className="premium-card !bg-black/60 !backdrop-blur-xl border-white/5 p-4 flex items-center gap-4">
@@ -97,8 +97,8 @@ const MonitoringModal: React.FC<MonitoringModalProps> = ({ stream, onClose }) =>
                         <Users size={18} className="text-blue-500" />
                      </div>
                      <div>
-                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest italic mb-1">Signal Reach</p>
-                        <p className="text-lg font-bold text-white tabular-nums italic leading-none">{(stream.currentViewers || 0).toLocaleString()}</p>
+                        <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Current Viewers</p>
+                        <p className="text-lg font-bold text-white tabular-nums leading-none">{(stream.currentViewers || 0).toLocaleString()}</p>
                      </div>
                   </div>
                   <div className="premium-card !bg-black/60 !backdrop-blur-xl border-white/5 p-4 flex items-center gap-4">
@@ -106,8 +106,8 @@ const MonitoringModal: React.FC<MonitoringModalProps> = ({ stream, onClose }) =>
                         <Zap size={18} className="text-emerald-500" />
                      </div>
                      <div>
-                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest italic mb-1">Gift Volume</p>
-                        <p className="text-lg font-bold text-white tabular-nums italic leading-none">${stream.totalGiftValue || 0}</p>
+                        <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Gifts Received</p>
+                        <p className="text-lg font-bold text-white tabular-nums leading-none">${stream.totalGiftValue || 0}</p>
                      </div>
                   </div>
                </div>
@@ -122,19 +122,19 @@ const MonitoringModal: React.FC<MonitoringModalProps> = ({ stream, onClose }) =>
                   <div className="flex items-center gap-4">
                      <button className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center border border-white/5 text-zinc-500 hover:text-white transition-all"><Camera size={18} /></button>
                      <button className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center border border-white/5 text-zinc-500 hover:text-white transition-all"><Mic size={18} /></button>
-                     <button className="px-6 h-10 bg-rose-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest italic shadow-xl shadow-rose-900/20">Disconnect</button>
+                     <button className="px-6 h-10 bg-rose-600 text-white rounded-xl text-[9px] font-bold uppercase tracking-widest">Disconnect</button>
                   </div>
                </div>
             </div>
           </div>
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-center p-24">
-            <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mb-10 border border-white/5 shadow-2xl relative overflow-hidden group">
+            <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl relative overflow-hidden group">
                <div className="absolute inset-0 bg-rose-500/5 animate-pulse" />
                <AlertCircle size={40} className="text-rose-500 relative z-10" />
             </div>
-            <h3 className="text-[10px] font-black text-white uppercase tracking-[0.4em] mb-4 italic">Signal Integrity Compromised</h3>
-            <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto opacity-60 leading-relaxed italic">Unable to establish a high-fidelity sync with the broadcast node. Protocol failure: NULL_HANDSHAKE.</p>
+            <h3 className="text-[10px] font-bold text-white uppercase tracking-widest mb-4">Connection Failed</h3>
+            <p className="text-[10px] text-zinc-600 font-semibold max-w-sm mx-auto opacity-60 leading-relaxed">Unable to establish a connection with the live stream broadcast server.</p>
           </div>
         )}
       </motion.div>
@@ -152,7 +152,7 @@ function StreamVideoRenderer() {
       <div className="h-full flex flex-col items-center justify-center bg-black relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900/20 via-transparent to-transparent" />
         <Monitor size={80} className="text-zinc-900 mb-8 relative z-10" />
-        <p className="text-zinc-700 text-[10px] font-black uppercase tracking-[0.4em] animate-pulse relative z-10 italic">Awaiting Visual Uplink...</p>
+        <p className="text-zinc-700 text-[10px] font-bold uppercase tracking-widest animate-pulse relative z-10">Awaiting Video Stream...</p>
         {audioTracks.map((t, i) => <AudioTrack key={i} trackRef={t} />)}
       </div>
     );
@@ -198,7 +198,7 @@ const LiveStreamManagement: React.FC = () => {
         pages: pag.pages || 1 
       }));
     } catch (err) {
-      toast.error('Failed to synchronize stream registry');
+      toast.error('Failed to load stream catalog');
     } finally {
       setLoading(false);
     }
@@ -217,56 +217,56 @@ const LiveStreamManagement: React.FC = () => {
 
   const handleStreamAction = async (streamId: string, action: string) => {
     if (action === 'delete-recording') {
-      const loadingId = toast.loading('Purging transmission archive...');
+      const loadingId = toast.loading('Deleting stream recording...');
       try {
         await deleteRecording(streamId);
-        toast.success('Archive purged from storage', { id: loadingId });
+        toast.success('Recording deleted successfully', { id: loadingId });
         fetchStreams();
       } catch (err) {
-        toast.error('Purge failure', { id: loadingId });
+        toast.error('Delete failed', { id: loadingId });
       }
     }
     setOpenMenuId(null);
   };
 
-  if (loading && streams.length === 0) return <Preloader isVisible text="Scanning transmission frequencies..." />;
+  if (loading && streams.length === 0) return <Preloader isVisible text="Loading live streams..." />;
 
   return (
     <div className="space-y-12 pb-24">
-      {/* Cinematic Identity Header */}
+      {/* Premium Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">Signal Command</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Live Stream Management</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest italic">Matrix: Active</span>
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">System: Online</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Monitoring active transmissions, decrypting signals, and managing artifact persistence.</p>
+          <p className="text-zinc-500 text-xs font-semibold ml-1">Monitor active transmissions, review platform streams, and manage stream recordings.</p>
         </div>
         <div className="flex items-center gap-4">
           <button 
             onClick={fetchStreams} 
-            className="h-16 px-8 bg-zinc-950 border border-white/5 text-zinc-500 hover:text-white hover:bg-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-inner flex items-center justify-center gap-3 italic"
+            className="h-16 px-8 bg-zinc-950 border border-white/5 text-zinc-500 hover:text-white hover:bg-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-inner flex items-center justify-center gap-3"
           >
             <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-700" />
-            Refresh Signals
+            Refresh
           </button>
-          <button className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10 italic">
+          <button className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10">
             <Plus size={18} />
-            Induct Stream
+            Create Stream
           </button>
         </div>
       </div>
 
-      {/* Intelligence Telemetry */}
+      {/* Stats Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {[
-          { label: 'Active Signals', value: stats.live, icon: Wifi, color: 'text-rose-500', bg: 'bg-rose-500/10' },
-          { label: 'Global Reach', value: stats.viewers.toLocaleString(), icon: Globe, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-          { label: 'Fiscal Velocity', value: `$${stats.revenue.toFixed(0)}`, icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-          { label: 'Scheduled Syncs', value: stats.scheduled, icon: Calendar, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+          { label: 'Active Streams', value: stats.live, icon: Wifi, color: 'text-rose-500', bg: 'bg-rose-500/10' },
+          { label: 'Total Viewers', value: stats.viewers.toLocaleString(), icon: Globe, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+          { label: 'Gifts Received', value: `$${stats.revenue.toFixed(0)}`, icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+          { label: 'Scheduled Streams', value: stats.scheduled, icon: Calendar, color: 'text-amber-500', bg: 'bg-amber-500/10' },
         ].map((s, i) => (
           <motion.div 
             key={s.label}
@@ -280,13 +280,13 @@ const LiveStreamManagement: React.FC = () => {
               <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <s.icon size={24} className={s.color} />
             </div>
-            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em] mb-2 italic">{s.label}</p>
-            <p className="text-3xl font-bold text-white tracking-tighter italic tabular-nums">{s.value}</p>
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{s.label}</p>
+            <p className="text-3xl font-bold text-white tracking-tighter tabular-nums">{s.value}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* Operation matrix HUD */}
+      {/* Filter and Search Bar */}
       <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
         <div className="flex bg-zinc-950/40 border border-white/5 rounded-2xl p-1.5 gap-1.5 shadow-inner">
           {['all', 'live', 'recorded', 'scheduled'].map(filter => (
@@ -297,7 +297,7 @@ const LiveStreamManagement: React.FC = () => {
                 statusFilter === filter ? 'bg-white/10 text-white shadow-xl border border-white/5' : 'text-zinc-600 hover:text-zinc-300'
               }`}
             >
-              {filter.toUpperCase()}
+              {filter}
             </button>
           ))}
         </div>
@@ -305,15 +305,15 @@ const LiveStreamManagement: React.FC = () => {
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
           <input
             type="text"
-            placeholder="SCAN SIGNAL REGISTRY..."
+            placeholder="Search streams..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800 italic"
+            className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
           />
         </div>
       </div>
 
-      {/* Signal Grid */}
+      {/* Streams Grid */}
       <AnimatePresence mode="wait">
         <motion.div 
           key={statusFilter}
@@ -325,8 +325,8 @@ const LiveStreamManagement: React.FC = () => {
               <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl group-hover:border-rose-500/20 transition-all">
                 <Video size={36} className="text-zinc-800 group-hover:text-rose-500 transition-colors" />
               </div>
-              <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3 italic">Scan Result: NULL_TRANSMISSIONS</h3>
-              <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto opacity-60 italic">No active or archived transmissions detected in this frequency spectrum.</p>
+              <h3 className="text-[10px] font-bold text-white uppercase tracking-widest mb-3">No Streams Found</h3>
+              <p className="text-[10px] text-zinc-600 font-bold max-w-sm mx-auto opacity-60">No active or archived streams found matching your filter.</p>
             </div>
           ) : (
             streams.map((stream, i) => (
@@ -338,7 +338,7 @@ const LiveStreamManagement: React.FC = () => {
                 transition={{ delay: i * 0.02 }}
                 className="premium-card group !p-0 overflow-hidden hover:border-emerald-500/30 transition-all duration-700 bg-zinc-950/40 border-white/5 shadow-2xl relative"
               >
-                {/* Thumbnail Layer */}
+                {/* Cover Image */}
                 <div className="relative aspect-video bg-zinc-950 overflow-hidden">
                   {stream.coverImage ? (
                     <img 
@@ -351,39 +351,38 @@ const LiveStreamManagement: React.FC = () => {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80 z-10" />
                   
-                  {/* Status Overlay */}
+                  {/* Status Tag */}
                   <div className="absolute top-6 left-6 z-20">
                     {stream.status === 'live' ? (
-                      <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-rose-500 text-white text-[9px] font-black tracking-[0.2em] shadow-[0_0_20px_rgba(244,63,94,0.4)] italic border border-white/10">
+                      <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-rose-500 text-white text-[9px] font-black tracking-widest shadow-[0_0_20px_rgba(244,63,94,0.4)] border border-white/10">
                         <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                        ACTIVE_SIGNAL
+                        LIVE
                       </div>
                     ) : (
-                      <div className="px-4 py-2 rounded-2xl bg-black/80 backdrop-blur-xl text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em] border border-white/5 italic">
+                      <div className="px-4 py-2 rounded-2xl bg-black/80 backdrop-blur-xl text-zinc-500 text-[9px] font-black uppercase tracking-widest border border-white/5">
                         {stream.status.toUpperCase()}
                       </div>
                     )}
                   </div>
 
-                  {/* Operational Controls Overlay */}
+                  {/* Play/Monitor Overlay */}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all z-20 flex flex-col items-center justify-center gap-6 backdrop-blur-sm">
                     <div className="flex gap-4">
                        {stream.status === 'live' && (
-                         <button onClick={() => setMonitoringStream(stream)} className="h-14 px-8 bg-white text-black rounded-2xl text-[9px] font-black uppercase tracking-widest italic flex items-center gap-3 shadow-2xl hover:bg-emerald-400 transition-all">
-                           <Activity size={18} /> Monitor Decrypt
-                         </button>
+                          <button onClick={() => setMonitoringStream(stream)} className="h-14 px-8 bg-white text-black rounded-2xl text-[9px] font-bold uppercase tracking-widest flex items-center gap-3 shadow-2xl hover:bg-emerald-400 transition-all">
+                            <Activity size={18} /> Monitor Stream
+                          </button>
                        )}
                        {stream.isRecorded && stream.recordingUrl && (
-                         <button onClick={() => setViewingRecording(stream)} className="h-14 px-8 bg-zinc-950 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest italic flex items-center gap-3 shadow-2xl border border-white/10 hover:bg-white/5 transition-all">
-                           <HardDrive size={18} /> Watch Archive
-                         </button>
+                          <button onClick={() => setViewingRecording(stream)} className="h-14 px-8 bg-zinc-950 text-white rounded-2xl text-[9px] font-bold uppercase tracking-widest flex items-center gap-3 shadow-2xl border border-white/10 hover:bg-white/5 transition-all">
+                            <HardDrive size={18} /> Watch Recording
+                          </button>
                        )}
                     </div>
-                    <p className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.4em] italic opacity-60">Protocol_{stream._id.slice(-8).toUpperCase()}</p>
                   </div>
                 </div>
 
-                {/* Information Layer */}
+                {/* Details Layer */}
                 <div className="p-8 relative">
                   <div className="flex items-start justify-between gap-6 mb-10">
                     <div className="flex items-center gap-5 min-w-0">
@@ -395,8 +394,8 @@ const LiveStreamManagement: React.FC = () => {
                         <div className="absolute inset-0 bg-black/20" />
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-xl font-bold text-white truncate tracking-tight group-hover:text-emerald-400 transition-colors uppercase italic leading-none mb-2">{stream.title}</h3>
-                        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest italic leading-none">{stream.host.name}</p>
+                        <h3 className="text-xl font-bold text-white truncate tracking-tight group-hover:text-emerald-400 transition-colors uppercase leading-none mb-2">{stream.title}</h3>
+                        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest leading-none">{stream.host.name}</p>
                       </div>
                     </div>
                     <div className="relative">
@@ -410,14 +409,14 @@ const LiveStreamManagement: React.FC = () => {
                             className="absolute bottom-full right-0 mb-4 w-64 bg-zinc-900 border border-white/10 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-30 p-3 overflow-hidden backdrop-blur-2xl"
                           >
                             <div className="px-5 py-3 border-b border-white/5 mb-2">
-                               <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest italic">Signal Protocol</p>
+                               <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Stream Options</p>
                             </div>
-                            <button onClick={() => { setSelectedStream(stream); setOpenMenuId(null); }} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest italic text-zinc-400 hover:text-white hover:bg-white/5 transition-all group/opt">
-                              <BarChart3 size={18} className="group-hover/opt:scale-110 transition-transform" /> Telemetry Log
+                            <button onClick={() => { setSelectedStream(stream); setOpenMenuId(null); }} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-all group/opt">
+                              <BarChart3 size={18} className="group-hover/opt:scale-110 transition-transform" /> View Statistics
                             </button>
                             {stream.isRecorded && (
-                              <button onClick={() => handleStreamAction(stream._id, 'delete-recording')} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest italic text-rose-500 hover:bg-rose-500/10 transition-all group/opt">
-                                <Trash2 size={18} className="group-hover/opt:scale-110 transition-transform" /> Purge Artifact
+                              <button onClick={() => handleStreamAction(stream._id, 'delete-recording')} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-500/10 transition-all group/opt">
+                                <Trash2 size={18} className="group-hover/opt:scale-110 transition-transform" /> Delete Recording
                               </button>
                             )}
                           </motion.div>
@@ -433,8 +432,8 @@ const LiveStreamManagement: React.FC = () => {
                             <Users size={14} className="text-blue-500" />
                          </div>
                          <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-white tabular-nums italic leading-none">{(stream.currentViewers || 0).toLocaleString()}</span>
-                            <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest italic mt-1">Reach</span>
+                            <span className="text-[10px] font-bold text-white tabular-nums leading-none">{(stream.currentViewers || 0).toLocaleString()}</span>
+                            <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest mt-1">Viewers</span>
                          </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -442,15 +441,15 @@ const LiveStreamManagement: React.FC = () => {
                             <Zap size={14} className="text-emerald-500" />
                          </div>
                          <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-white tabular-nums italic leading-none">${stream.totalGiftValue || 0}</span>
-                            <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest italic mt-1">Fiscal</span>
+                            <span className="text-[10px] font-bold text-white tabular-nums leading-none">${stream.totalGiftValue || 0}</span>
+                            <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest mt-1">Gifts</span>
                          </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2.5 px-3 py-1.5 bg-zinc-950 border border-white/5 rounded-xl shadow-inner">
                       <HardDrive size={12} className={stream.isRecorded ? "text-emerald-500" : "text-zinc-800"} />
-                      <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest italic">
-                        {stream.isRecorded ? 'RECORD_LOCKED' : 'NO_ARTIFACT'}
+                      <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">
+                        {stream.isRecorded ? 'Recorded' : 'No Recording'}
                       </span>
                     </div>
                   </div>
@@ -461,7 +460,7 @@ const LiveStreamManagement: React.FC = () => {
         </motion.div>
       </AnimatePresence>
 
-      {/* Telemetry Console */}
+      {/* Telemetry Modal */}
       <AnimatePresence>
         {selectedStream && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl" onClick={() => setSelectedStream(null)}>
@@ -475,8 +474,8 @@ const LiveStreamManagement: React.FC = () => {
                       <BarChart3 className="text-emerald-500" size={28} />
                    </div>
                    <div>
-                      <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic leading-none mb-1.5">Transmission Telemetry</h3>
-                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Protocol Trace: {selectedStream._id.slice(-12).toUpperCase()}</p>
+                      <h3 className="text-2xl font-bold text-white uppercase tracking-tighter leading-none mb-1.5">Stream Statistics</h3>
+                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Details for stream: {selectedStream._id.slice(-12).toUpperCase()}</p>
                    </div>
                 </div>
                 <button onClick={() => setSelectedStream(null)} className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-white/5 text-zinc-500 transition-all border border-white/5 shadow-inner"><X size={24} /></button>
@@ -484,30 +483,30 @@ const LiveStreamManagement: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-8 mb-12">
                 {[
-                  { label: 'Peak Reach', value: selectedStream.peakViewers, icon: Signal, color: 'text-blue-500', bg: 'bg-blue-500/5' },
-                  { label: 'Fiscal Volume', value: `$${selectedStream.totalGiftValue || 0}`, icon: DollarSign, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
-                  { label: 'Total Syncs', value: selectedStream.totalViewers, icon: Users, color: 'text-indigo-500', bg: 'bg-indigo-500/5' },
-                  { label: 'Artifact Density', value: selectedStream.totalGiftsReceived, icon: Heart, color: 'text-rose-500', bg: 'bg-rose-500/5' },
+                  { label: 'Peak Viewers', value: selectedStream.peakViewers, icon: Signal, color: 'text-blue-500', bg: 'bg-blue-500/5' },
+                  { label: 'Gift Value', value: `$${selectedStream.totalGiftValue || 0}`, icon: DollarSign, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
+                  { label: 'Total Viewers', value: selectedStream.totalViewers, icon: Users, color: 'text-indigo-500', bg: 'bg-indigo-500/5' },
+                  { label: 'Gifts Received', value: selectedStream.totalGiftsReceived, icon: Heart, color: 'text-rose-500', bg: 'bg-rose-500/5' },
                 ].map(metric => (
                   <div key={metric.label} className="bg-zinc-950 border border-white/5 p-8 rounded-[2rem] text-center shadow-inner hover:border-emerald-500/20 transition-all group/met">
                     <div className={`w-12 h-12 ${metric.bg} rounded-2xl flex items-center justify-center mx-auto mb-6 border border-white/5 group-hover/met:scale-110 transition-transform duration-500`}>
                        <metric.icon size={20} className={metric.color} />
                     </div>
                     <p className="text-3xl font-bold text-white tracking-tighter italic tabular-nums leading-none mb-2">{metric.value || 0}</p>
-                    <p className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest italic">{metric.label}</p>
+                    <p className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">{metric.label}</p>
                   </div>
                 ))}
               </div>
 
               <div className="space-y-6 pt-10 border-t border-white/5">
                 {[
-                  { label: 'Induction Category', value: selectedStream.category.toUpperCase() },
-                  { label: 'Primary Host', value: selectedStream.host.name.toUpperCase() },
-                  { label: 'Protocol Init', value: selectedStream.actualStartTime ? new Date(selectedStream.actualStartTime).toLocaleString().toUpperCase() : 'N/A' },
+                  { label: 'Category', value: selectedStream.category.toUpperCase() },
+                  { label: 'Host', value: selectedStream.host.name.toUpperCase() },
+                  { label: 'Start Time', value: selectedStream.actualStartTime ? new Date(selectedStream.actualStartTime).toLocaleString().toUpperCase() : 'N/A' },
                 ].map(item => (
                   <div key={item.label} className="flex justify-between items-center px-4 py-3 bg-zinc-950 border border-white/5 rounded-2xl shadow-inner">
-                    <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.2em] italic">{item.label}</span>
-                    <span className="text-[11px] text-white font-bold tracking-widest italic">{item.value}</span>
+                    <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">{item.label}</span>
+                    <span className="text-[11px] text-white font-bold tracking-widest">{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -516,7 +515,7 @@ const LiveStreamManagement: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Recording Player Console */}
+      {/* Recording Player Modal */}
       <AnimatePresence>
         {viewingRecording && (
           <div className="fixed inset-0 bg-black/98 backdrop-blur-3xl flex items-center justify-center z-[130]" onClick={() => setViewingRecording(null)}>
@@ -527,11 +526,11 @@ const LiveStreamManagement: React.FC = () => {
               <video src={viewingRecording.recordingUrl} controls autoPlay className="w-full h-full object-cover" />
               <div className="absolute top-8 left-8 right-8 flex items-center justify-between pointer-events-none z-30">
                  <div className="px-6 py-3 bg-black/80 backdrop-blur-xl rounded-2xl border border-white/10">
-                    <p className="text-[10px] font-black text-white uppercase tracking-[0.3em] italic">ARCHIVE_PLAYBACK: {viewingRecording.title.toUpperCase()}</p>
+                    <p className="text-[10px] font-black text-white uppercase tracking-widest">Playback: {viewingRecording.title.toUpperCase()}</p>
                  </div>
                  <button onClick={() => setViewingRecording(null)} className="w-16 h-16 rounded-[2rem] bg-black/80 backdrop-blur-xl text-white pointer-events-auto border border-white/10 flex items-center justify-center hover:bg-white/5 transition-all">
                     <X size={28} />
-                 </button>
+                  </button>
               </div>
             </motion.div>
           </div>

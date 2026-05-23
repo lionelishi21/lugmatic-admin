@@ -3,7 +3,7 @@ import {
   Users, Search, Shield, Music2, 
   User as UserIcon, ChevronDown, X, UserPlus, UserCheck, 
   Ban, Loader2, Key, MoreVertical, AlertTriangle,
-  ArrowUpRight, ShieldCheck, RefreshCw
+  ArrowUpRight, ShieldCheck, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { User } from '../../types';
@@ -35,6 +35,8 @@ export default function UserManagement() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   // Modals State
@@ -53,10 +55,39 @@ export default function UserManagement() {
     role: 'user' as const
   });
 
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+  };
+
+  const renderSortHeader = (label: string, field: string) => {
+    const isSorted = sortBy === field;
+    return (
+      <button 
+        onClick={() => handleSort(field)}
+        className="flex items-center gap-1.5 hover:text-white transition-colors group/btn font-bold uppercase tracking-wider text-xs"
+      >
+        <span>{label}</span>
+        {isSorted ? (
+          sortOrder === 'asc' ? <ArrowUp size={12} className="text-emerald-500" /> : <ArrowDown size={12} className="text-emerald-500" />
+        ) : (
+          <ArrowUpDown size={12} className="text-zinc-600 opacity-60 group-hover/btn:opacity-100 transition-opacity" />
+        )}
+      </button>
+    );
+  };
+
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const filters: Record<string, string> = {};
+      const filters: Record<string, string> = {
+        sortBy,
+        sortOrder
+      };
       if (search) filters.search = search;
       if (roleFilter !== 'all') filters.role = roleFilter;
       if (statusFilter !== 'all') filters.status = statusFilter;
@@ -73,7 +104,7 @@ export default function UserManagement() {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, search, roleFilter, statusFilter]);
+  }, [page, pageSize, search, roleFilter, statusFilter, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchUsers();
@@ -244,9 +275,9 @@ export default function UserManagement() {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/5 bg-zinc-950/20">
-                <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">User</th>
-                <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">Role</th>
-                <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">Status</th>
+                <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">{renderSortHeader('User', 'name')}</th>
+                <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">{renderSortHeader('Role', 'role')}</th>
+                <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">{renderSortHeader('Status', 'status')}</th>
                 <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>

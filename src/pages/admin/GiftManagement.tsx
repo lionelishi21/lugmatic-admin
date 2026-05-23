@@ -5,7 +5,7 @@ import {
   Search, Sparkles, Filter, MoreHorizontal, Power, AlertTriangle,
   X, ChevronDown, CheckCircle2, Zap, LayoutGrid, List,
   Target, Activity, Globe, Cpu, ArrowUpRight, ShieldCheck,
-  SlidersHorizontal, Layers
+  SlidersHorizontal, Layers, User
 } from 'lucide-react';
 import adminGiftService, { GiftResponse } from '../../services/adminGiftService';
 import { getFullImageUrl } from '../../services/api';
@@ -69,7 +69,7 @@ const GiftManagement: React.FC = () => {
   const handleToggleActive = async (giftId: string, isActive: boolean) => {
     try {
       await adminGiftService.updateGift(giftId, { isActive: !isActive });
-      toast.success(`Asset protocol ${!isActive ? 'activated' : 'deactivated'}`);
+      toast.success(`Gift ${!isActive ? 'activated' : 'deactivated'} successfully`);
       loadGifts();
     } catch (error) {
       toast.error('Update failed');
@@ -78,34 +78,34 @@ const GiftManagement: React.FC = () => {
 
   return (
     <div className="space-y-12 pb-24">
-      {/* Cinematic Asset Header */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">Virtual Economy</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Virtual Economy</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest italic">Protocol Sync: Active</span>
+              <span className="text-[10px] font-bold text-emerald-500 tracking-wider">System: Online</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Managing high-fidelity digital assets, fiscal valuation, and reward distribution.</p>
+          <p className="text-zinc-500 text-xs font-semibold ml-1">Manage virtual economy items, digital gifts, and reward settings.</p>
         </div>
         <button
           onClick={() => navigate('/admin/gift-management/add')}
-          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
         >
           <Plus size={18} />
-          Forge New Asset
+          Create Gift
         </button>
       </div>
 
-      {/* Intelligence Telemetry */}
+      {/* Stats Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {[
-          { label: 'Total Registry', value: stats.total, icon: Gift, color: 'text-indigo-500', bg: 'bg-indigo-500/5' },
-          { label: 'Active Economy', value: stats.active, icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
-          { label: 'Fiscal Volume', value: `$${stats.value.toFixed(0)}`, icon: DollarSign, color: 'text-blue-500', bg: 'bg-blue-500/5' },
-          { label: 'Virtual Liquidity', value: stats.coins.toLocaleString(), icon: Package, color: 'text-amber-500', bg: 'bg-amber-500/5' },
+          { label: 'Total Gifts', value: stats.total, icon: Gift, color: 'text-indigo-500', bg: 'bg-indigo-500/5' },
+          { label: 'Active Gifts', value: stats.active, icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
+          { label: 'Total Value', value: `$${stats.value.toFixed(0)}`, icon: DollarSign, color: 'text-blue-500', bg: 'bg-blue-500/5' },
+          { label: 'Total Coin Cost', value: stats.coins.toLocaleString(), icon: Package, color: 'text-amber-500', bg: 'bg-amber-500/5' },
         ].map((s, i) => (
           <motion.div 
             key={s.label}
@@ -119,15 +119,15 @@ const GiftManagement: React.FC = () => {
               <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <s.icon size={24} className={s.color} />
             </div>
-            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em] mb-2 italic">{s.label}</p>
-            <p className="text-3xl font-bold text-white tracking-tighter italic">{s.value}</p>
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{s.label}</p>
+            <p className="text-3xl font-bold text-white tracking-tighter tabular-nums">{s.value}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* Operation Matrix HUD */}
+      {/* Tabs bar */}
       <div className="premium-card !p-3 bg-zinc-950/40 border-white/5 flex flex-wrap items-center gap-3 w-fit shadow-inner">
-        {['Registry Archive', 'Active Stream', 'Market Sectors', 'Distribution Rules'].map((label, i) => (
+        {['All Gifts', 'Active', 'Categories', 'Settings'].map((label, i) => (
           <button
             key={label}
             onClick={() => setTabValue(i)}
@@ -137,7 +137,7 @@ const GiftManagement: React.FC = () => {
           >
             <span className="relative z-10">
               {label}
-              {i < 3 && <span className="ml-3 opacity-40 font-mono italic">[{i === 2 ? categories.length : (i === 1 ? stats.active : stats.total)}]</span>}
+              {i < 3 && <span className="ml-3 opacity-40 font-mono">[{i === 2 ? categories.length : (i === 1 ? stats.active : stats.total)}]</span>}
             </span>
             {tabValue === i && <motion.div layoutId="activeTab" className="absolute inset-0 bg-white/5" />}
           </button>
@@ -150,10 +150,10 @@ const GiftManagement: React.FC = () => {
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
             <input
               type="text"
-              placeholder="SCAN ASSET REGISTRY..."
+              placeholder="Search gifts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-14 pr-12 h-14 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800 italic"
+              className="w-full pl-14 pr-12 h-14 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800"
             />
           </div>
           <div className="relative group">
@@ -161,9 +161,9 @@ const GiftManagement: React.FC = () => {
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="w-full lg:w-72 h-14 pl-14 pr-12 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+              className="w-full lg:w-72 h-14 pl-14 pr-12 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[10px] font-bold uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer"
             >
-              <option value="all">ALL MARKET SECTORS</option>
+              <option value="all">All Categories</option>
               {categories.map(cat => <option key={cat} value={cat}>{cat.toUpperCase()}</option>)}
             </select>
             <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-focus-within:text-emerald-500 transition-all group-focus-within:rotate-180 duration-500" size={18} />
@@ -171,7 +171,7 @@ const GiftManagement: React.FC = () => {
         </div>
       )}
 
-      {/* Tactical Asset Matrix */}
+      {/* Gifts Matrix */}
       <AnimatePresence mode="wait">
         <motion.div
           key={tabValue}
@@ -180,7 +180,7 @@ const GiftManagement: React.FC = () => {
           exit={{ opacity: 0, y: -15 }}
           transition={{ duration: 0.4 }}
         >
-          {/* Asset Grid */}
+          {/* Gifts Grid */}
           {(tabValue === 0 || tabValue === 1) && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
               {filteredGifts.map((gift, i) => {
@@ -193,12 +193,12 @@ const GiftManagement: React.FC = () => {
                     transition={{ delay: i * 0.02 }}
                     className="premium-card group !p-0 overflow-hidden hover:border-emerald-500/30 transition-all duration-700 bg-[#0a0a0a] border-white/5 shadow-2xl"
                   >
-                    <div className="relative h-64 bg-zinc-950 flex items-center justify-center p-12 group-hover:bg-zinc-900/50 transition-all duration-700 relative overflow-hidden">
+                    <div className="relative h-64 bg-zinc-950 flex items-center justify-center p-12 group-hover:bg-zinc-900/50 transition-all duration-700 overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 z-10" />
                       
-                      {/* Spectral Background Artifacts */}
+                      {/* Rarity Glow Effect */}
                       <div className="absolute inset-0 pointer-events-none z-0">
-                         <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 blur-[60px] rounded-full opacity-0 group-hover:opacity-20 transition-all duration-1000 ${rarity.bg.replace('bg-', 'bg-')}`} />
+                         <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 blur-[60px] rounded-full opacity-0 group-hover:opacity-20 transition-all duration-1000 ${rarity.bg}`} />
                       </div>
 
                       {gift.image ? (
@@ -241,17 +241,17 @@ const GiftManagement: React.FC = () => {
                             className="absolute top-20 right-6 w-56 bg-zinc-900 border border-white/10 rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.9)] z-50 p-3 backdrop-blur-2xl"
                           >
                             <div className="px-6 py-4 border-b border-white/5 mb-2">
-                               <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Asset Management</p>
+                               <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Gift Settings</p>
                             </div>
-                            <button onClick={() => navigate(`/admin/gift-management/${gift._id}`)} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-emerald-500/10 transition-all text-left italic group/opt">
-                               <Edit size={18} className="text-emerald-500 group-hover/opt:scale-110 transition-transform" /> Reconfigure
+                            <button onClick={() => navigate(`/admin/gift-management/${gift._id}`)} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-emerald-500/10 transition-all text-left group/opt">
+                               <Edit size={18} className="text-emerald-500 group-hover/opt:scale-110 transition-transform" /> Edit Gift
                             </button>
-                            <button onClick={() => { handleToggleActive(gift._id, gift.isActive); setActiveMenu(null); }} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left italic group/opt">
-                               <Power size={18} className={gift.isActive ? 'text-zinc-600' : 'text-emerald-500'} /> {gift.isActive ? 'Suspend Asset' : 'Activate Asset'}
+                            <button onClick={() => { handleToggleActive(gift._id, gift.isActive); setActiveMenu(null); }} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left group/opt">
+                               <Power size={18} className={gift.isActive ? 'text-zinc-600' : 'text-emerald-500'} /> {gift.isActive ? 'Suspend' : 'Activate'}
                             </button>
                             <div className="h-px bg-white/5 my-2" />
-                            <button onClick={() => { setGiftToDelete(gift._id); setActiveMenu(null); }} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-rose-500/60 hover:text-rose-500 hover:bg-rose-500/10 transition-all text-left italic group/opt">
-                               <Trash2 size={18} className="group-hover/opt:scale-110 transition-transform" /> Purge Asset
+                            <button onClick={() => { setGiftToDelete(gift._id); setActiveMenu(null); }} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-rose-500/60 hover:text-rose-500 hover:bg-rose-500/10 transition-all text-left group/opt">
+                               <Trash2 size={18} className="group-hover/opt:scale-110 transition-transform" /> Delete
                             </button>
                           </motion.div>
                         )}
@@ -261,23 +261,23 @@ const GiftManagement: React.FC = () => {
                     <div className="p-8 space-y-6 relative overflow-hidden">
                       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
                       <div>
-                        <h3 className="text-white font-bold tracking-tight text-xl mb-2 italic uppercase">{gift.name}</h3>
+                        <h3 className="text-white font-bold tracking-tight text-xl mb-2 uppercase">{gift.name}</h3>
                         <div className="flex items-center gap-3">
                            <div className="px-3 py-1 bg-zinc-950 rounded-lg border border-white/5 shadow-inner">
-                              <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-[0.2em] italic leading-none">{gift.category}</p>
+                              <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-[0.2em] leading-none">{gift.category}</p>
                            </div>
                         </div>
                       </div>
                       <div className="flex items-center justify-between pt-6 border-t border-white/5">
                         <div className="flex flex-col gap-1.5">
-                          <span className="text-[8px] font-bold text-zinc-700 uppercase tracking-[0.3em] italic">Fiscal Valuation</span>
-                          <span className="text-base font-bold text-white tracking-tighter italic">${gift.value.toFixed(2)}</span>
+                          <span className="text-[8px] font-bold text-zinc-700 uppercase tracking-wider">Cash Value</span>
+                          <span className="text-base font-bold text-white tracking-tighter">${gift.value.toFixed(2)}</span>
                         </div>
                         <div className="flex flex-col items-end gap-1.5">
-                          <span className="text-[8px] font-bold text-zinc-700 uppercase tracking-[0.3em] italic">Virtual Unit Cost</span>
+                          <span className="text-[8px] font-bold text-zinc-700 uppercase tracking-wider">Coin Cost</span>
                           <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/5 rounded-xl border border-emerald-500/10 shadow-inner">
                              <Zap size={12} className="text-emerald-500" />
-                             <span className="text-sm font-bold text-emerald-500 tabular-nums italic">{gift.coinCost}</span>
+                             <span className="text-sm font-bold text-emerald-500 tabular-nums">{gift.coinCost}</span>
                           </div>
                         </div>
                       </div>
@@ -288,17 +288,17 @@ const GiftManagement: React.FC = () => {
             </div>
           )}
 
-          {/* Sectors Management Grid */}
+          {/* Categories Management Grid */}
           {tabValue === 2 && (
             <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-white/5 bg-zinc-950/50">
-                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Market Sector</th>
-                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Asset Inventory</th>
-                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Cumulative Value</th>
-                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic text-right">Deployment Status</th>
+                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Category</th>
+                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Total Items</th>
+                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Total Value</th>
+                      <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-right">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -318,26 +318,26 @@ const GiftManagement: React.FC = () => {
                             <div className="flex items-center gap-6">
                                <div className="w-12 h-12 bg-zinc-950 rounded-2xl border border-white/5 flex items-center justify-center shadow-inner group-hover:border-emerald-500/30 transition-all">
                                   <Layers size={20} className="text-zinc-700 group-hover:text-emerald-500 transition-colors" />
-                               </div>
-                               <span className="text-sm font-bold text-white uppercase tracking-widest italic">{category}</span>
+                                </div>
+                               <span className="text-sm font-bold text-white uppercase tracking-widest">{category}</span>
                             </div>
                           </td>
                           <td className="px-10 py-8">
                             <div className="flex items-center gap-3">
                                <Package size={14} className="text-zinc-700" />
-                               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] italic">{catGifts.length} UNIQUE_NODES</span>
+                               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{catGifts.length} Gifts</span>
                             </div>
                           </td>
                           <td className="px-10 py-8">
                             <div className="flex items-center gap-3">
                                <DollarSign size={14} className="text-emerald-500" />
-                               <span className="text-lg font-bold text-white tracking-tighter italic tabular-nums">${totalValue.toFixed(2)}</span>
+                               <span className="text-lg font-bold text-white tracking-tighter tabular-nums">${totalValue.toFixed(2)}</span>
                             </div>
                           </td>
                           <td className="px-10 py-8 text-right">
                             <div className="inline-flex items-center gap-3 px-4 py-2 bg-black/40 rounded-xl border border-white/5">
-                               <span className="text-[10px] font-bold text-emerald-500 tabular-nums italic">{activeCount}</span>
-                               <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">/ {catGifts.length} ACTIVE_ASSETS</span>
+                               <span className="text-[10px] font-bold text-emerald-500 tabular-nums">{activeCount}</span>
+                               <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">/ {catGifts.length} Active</span>
                             </div>
                           </td>
                         </motion.tr>
@@ -349,7 +349,7 @@ const GiftManagement: React.FC = () => {
             </div>
           )}
 
-          {/* Protocol Configuration Grid */}
+          {/* Settings Grid */}
           {tabValue === 3 && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               <motion.div 
@@ -363,15 +363,15 @@ const GiftManagement: React.FC = () => {
                       <ShieldCheck size={28} className="text-indigo-500" />
                    </div>
                    <div>
-                      <h3 className="text-xl font-bold text-white uppercase tracking-tighter italic leading-none mb-2">Fiscal Protocol Rules</h3>
-                      <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Economy Enforcement Parameters</p>
+                      <h3 className="text-xl font-bold text-white uppercase tracking-tighter leading-none mb-2">Gift Policy Settings</h3>
+                      <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Configure rules and policies for sending gifts.</p>
                    </div>
                 </div>
                 <div className="space-y-6 relative z-10">
                   {[
                     { label: 'Require verification for gifts over $50', active: true, icon: ShieldCheck },
                     { label: 'Enable cooldown between transactions', active: true, icon: Clock },
-                    { label: 'Allow anonymous contributors', active: false, icon: UserIcon },
+                    { label: 'Allow anonymous contributors', active: false, icon: User },
                   ].map(rule => {
                     const RuleIcon = rule.icon as any;
                     return (
@@ -380,10 +380,10 @@ const GiftManagement: React.FC = () => {
                            <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center border border-white/5 shadow-inner group-hover:bg-indigo-500/5 transition-all">
                               <RuleIcon size={18} className="text-zinc-700 group-hover:text-indigo-500 transition-colors" />
                            </div>
-                           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest italic">{rule.label}</span>
+                           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{rule.label}</span>
                         </div>
                         <button className={`w-14 h-7 rounded-full relative transition-all duration-500 shadow-inner group/toggle ${rule.active ? 'bg-indigo-500' : 'bg-zinc-900 border border-white/5'}`}>
-                          <div className={`absolute top-1.5 w-4 h-4 rounded-full transition-all duration-500 ${rule.active ? 'left-8 bg-black shadow-[0_0_10px_white]' : 'left-1.5 bg-zinc-700'}`} />
+                           <div className={`absolute top-1.5 w-4 h-4 rounded-full transition-all duration-500 ${rule.active ? 'left-8 bg-black shadow-[0_0_10px_white]' : 'left-1.5 bg-zinc-700'}`} />
                         </button>
                       </div>
                     );
@@ -402,15 +402,15 @@ const GiftManagement: React.FC = () => {
                       <Sparkles size={28} className="text-amber-500" />
                    </div>
                    <div>
-                      <h3 className="text-xl font-bold text-white uppercase tracking-tighter italic leading-none mb-2">Spectral Processing</h3>
-                      <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Visual Identity Parameters</p>
+                      <h3 className="text-xl font-bold text-white uppercase tracking-tighter leading-none mb-2">Display Preferences</h3>
+                      <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Configure premium visual feedback and effects.</p>
                    </div>
                 </div>
                 <div className="space-y-6 relative z-10">
                   {[
-                    { label: 'Display high-fidelity animations', active: true, icon: Zap },
-                    { label: 'Enable spatial sound effects', active: true, icon: Globe },
-                    { label: 'Particle systems on legendary gifts', active: true, icon: Target },
+                    { label: 'Show animations', active: true, icon: Zap },
+                    { label: 'Enable sound effects', active: true, icon: Globe },
+                    { label: 'Show particle systems for legendary gifts', active: true, icon: Target },
                   ].map(rule => {
                     const RuleIcon = rule.icon as any;
                     return (
@@ -419,10 +419,10 @@ const GiftManagement: React.FC = () => {
                            <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center border border-white/5 shadow-inner group-hover:bg-amber-500/5 transition-all">
                               <RuleIcon size={18} className="text-zinc-700 group-hover:text-amber-500 transition-colors" />
                            </div>
-                           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest italic">{rule.label}</span>
+                           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{rule.label}</span>
                         </div>
                         <button className={`w-14 h-7 rounded-full relative transition-all duration-500 shadow-inner group/toggle ${rule.active ? 'bg-amber-500' : 'bg-zinc-900 border border-white/5'}`}>
-                          <div className={`absolute top-1.5 w-4 h-4 rounded-full transition-all duration-500 ${rule.active ? 'left-8 bg-black shadow-[0_0_10px_white]' : 'left-1.5 bg-zinc-700'}`} />
+                           <div className={`absolute top-1.5 w-4 h-4 rounded-full transition-all duration-500 ${rule.active ? 'left-8 bg-black shadow-[0_0_10px_white]' : 'left-1.5 bg-zinc-700'}`} />
                         </button>
                       </div>
                     );
@@ -436,17 +436,17 @@ const GiftManagement: React.FC = () => {
 
       <ConfirmDialog
         isOpen={!!giftToDelete}
-        title="Permanently Purge Digital Asset"
-        message="This will remove the asset from all economy nodes. This action is irreversible."
-        confirmLabel="Purge Asset"
+        title="Delete Gift?"
+        message="Are you sure you want to permanently delete this gift? This action cannot be undone."
+        confirmLabel="Delete"
         onConfirm={async () => {
           if (!giftToDelete) return;
           try {
             await adminGiftService.hardDeleteGift(giftToDelete);
-            toast.success('Asset purged from registry');
+            toast.success('Gift deleted successfully');
             loadGifts();
           } catch (error) {
-            toast.error('Deletion protocol failure');
+            toast.error('Delete failed');
           } finally {
             setGiftToDelete(null);
           }

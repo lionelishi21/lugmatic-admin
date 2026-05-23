@@ -525,7 +525,7 @@ const PlaylistManagement: React.FC = () => {
                     disabled={submitting}
                     className="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest italic hover:text-white transition-colors"
                   >
-                    Abort
+                    Cancel
                   </button>
                   <button
                     type="submit"
@@ -535,7 +535,7 @@ const PlaylistManagement: React.FC = () => {
                     {submitting ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      selectedPlaylist ? 'SYNC CHANGES' : 'INITIALIZE REPOSITORY'
+                      selectedPlaylist ? 'SAVE CHANGES' : 'CREATE PLAYLIST'
                     )}
                   </button>
                 </div>
@@ -547,10 +547,10 @@ const PlaylistManagement: React.FC = () => {
 
       <ConfirmDialog
         isOpen={!!playlistToDelete}
-        title="Purge Repository"
-        message="Are you sure you want to purge this playlist from the system? This action cannot be reversed."
-        confirmLabel="PURGE_SEQUENCE"
-        cancelLabel="ABORT"
+        title="Delete Playlist?"
+        message="Are you sure you want to delete this playlist? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
         onConfirm={confirmDelete}
         onCancel={() => setPlaylistToDelete(null)}
       />

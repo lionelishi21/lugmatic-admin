@@ -179,7 +179,7 @@ const ContentModeration: React.FC = () => {
                         onClick={() => handleAction(item._id, 'delete')}
                         className="btn-secondary !py-2 !px-0 flex items-center justify-center gap-1.5 text-[10px] text-rose-500 border-rose-500/10 hover:border-rose-500/20 hover:bg-rose-500/5"
                       >
-                        <Trash2 size={12} /> Purge
+                        <Trash2 size={12} /> Delete
                       </button>
                     </div>
                   </motion.div>
@@ -227,7 +227,7 @@ const ContentModeration: React.FC = () => {
                   />
                 </div>
                 <div className="flex justify-end gap-4 pt-4 border-t border-white/5">
-                  <button onClick={() => setRejectDialogOpen(false)} className="btn-secondary">Abort</button>
+                  <button onClick={() => setRejectDialogOpen(false)} className="btn-secondary">Cancel</button>
                   <button 
                     onClick={() => { if (selectedItem) handleAction(selectedItem._id, 'reject', rejectReason); setRejectDialogOpen(false); }}
                     className="btn-primary !bg-amber-500 !text-black hover:!bg-amber-400"

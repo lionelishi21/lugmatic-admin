@@ -302,7 +302,7 @@ const GiftEdit: React.FC = () => {
                    <DollarSign size={28} className="text-blue-500 relative z-10" />
                 </div>
                 <div>
-                   <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-blue-500 mb-2 italic">Economic Intelligence HUD</p>
+                   <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-blue-500 mb-2 italic">Economic Configuration</p>
                    <h2 className="text-2xl font-bold text-white uppercase tracking-tighter italic">Fiscal Valuation</h2>
                 </div>
               </div>

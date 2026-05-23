@@ -86,16 +86,16 @@ const CommentManagement: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3 italic uppercase">
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3 uppercase">
             <MessageCircle className="text-blue-500" size={32} />
-            Community Intelligence
+            Comment Moderation
           </h1>
-          <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Moderate community discussions and sentiment across the network.</p>
+          <p className="text-zinc-500 text-xs font-semibold ml-1">Moderate community discussions and comments.</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="premium-card !py-2 !px-4 flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6] animate-pulse" />
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest italic">Signal Feed Active</span>
+            <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">System: Online</span>
           </div>
         </div>
       </div>
@@ -163,7 +163,7 @@ const CommentManagement: React.FC = () => {
                 <tr>
                   <td colSpan={4} className="px-6 py-24 text-center">
                     <MessageCircle className="h-10 w-10 text-zinc-800 mx-auto mb-4" />
-                    <p className="text-zinc-500 font-medium italic">No comments matching your search protocol.</p>
+                    <p className="text-zinc-500 font-medium italic">No comments found.</p>
                   </td>
                 </tr>
               ) : (
@@ -227,7 +227,7 @@ const CommentManagement: React.FC = () => {
                         <button 
                           onClick={() => setCommentToDelete(comment._id)} 
                           className="p-2 rounded-lg text-zinc-500 hover:text-rose-500 hover:bg-rose-500/5 transition-all"
-                          title="Purge"
+                          title="Delete"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -252,9 +252,9 @@ const CommentManagement: React.FC = () => {
 
       <ConfirmDialog
         isOpen={!!commentToDelete}
-        title="Purge Comment?"
-        message="This action will permanently remove the comment from the platform. This protocol is irreversible."
-        confirmLabel="Purge"
+        title="Delete Comment?"
+        message="Are you sure you want to permanently delete this comment? This action cannot be undone."
+        confirmLabel="Delete"
         onConfirm={() => commentToDelete && handleAction(commentToDelete, 'delete')}
         onCancel={() => setCommentToDelete(null)}
       />

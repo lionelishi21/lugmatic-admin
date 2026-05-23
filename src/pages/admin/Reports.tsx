@@ -165,13 +165,13 @@ const Reports: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold text-white leading-none">Intelligence Reports</h1>
+            <h1 className="text-4xl font-bold text-white leading-none">Reports</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-500">Live Database Sync</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-semibold ml-1">Comprehensive platform-wide analytical deep-dives and archival data.</p>
+          <p className="text-zinc-500 text-xs font-semibold ml-1">Comprehensive platform-wide analytical deep-dives and historical data.</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center bg-[#0a0a0a] border border-white/5 rounded-xl p-1">
@@ -189,7 +189,7 @@ const Reports: React.FC = () => {
           </div>
           <button className="h-12 px-6 bg-emerald-500 text-black rounded-xl text-[10px] font-bold hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10 flex items-center gap-2">
             <Plus size={16} />
-            Initialize Protocol
+            Generate Report
           </button>
         </div>
       </div>
@@ -271,7 +271,7 @@ const Reports: React.FC = () => {
                     </div>
                     <div className="flex items-center justify-between pt-6 border-t border-white/5">
                       <div className="text-[9px] font-bold text-zinc-700">
-                        LATENCY: <span className="text-zinc-500">{cat.lastGenerated}</span>
+                        LAST GENERATED: <span className="text-zinc-500">{cat.lastGenerated}</span>
                       </div>
                       <ArrowUpRight className={`w-4 h-4 ${cat.color} opacity-0 group-hover:opacity-100 transition-all`} />
                     </div>
@@ -283,11 +283,11 @@ const Reports: React.FC = () => {
                 <div className="lg:col-span-2 premium-card !bg-zinc-950/40 border-white/5 p-8">
                   <div className="flex items-center justify-between mb-8">
                     <div>
-                      <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Growth Matrix Projection</h3>
+                      <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Revenue Forecast</h3>
                       <p className="text-[10px] text-zinc-700 font-bold">Historical revenue data vs forecast</p>
                     </div>
                     <button className="text-[10px] font-bold text-zinc-600 hover:text-white flex items-center gap-2 transition-all">
-                      <Download size={14} /> EXPORT_RAW
+                      <Download size={14} /> EXPORT RAW
                     </button>
                   </div>
                   <div className="flex items-end gap-4 h-56">
@@ -307,12 +307,12 @@ const Reports: React.FC = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-[10px] font-bold text-zinc-500 mb-4">Operational Protocols</h3>
+                  <h3 className="text-[10px] font-bold text-zinc-500 mb-4">Available Actions</h3>
                   {[
                     { label: 'Export All Data', desc: 'CSV, PDF, EXCEL', icon: Download, color: 'text-emerald-500', bg: 'bg-emerald-500/5' },
                     { label: 'Schedule Sync', desc: 'RECURRING TASKS', icon: Calendar, color: 'text-blue-500', bg: 'bg-blue-500/5' },
-                    { label: 'Share Matrix', desc: 'TEAM DEPLOYMENT', icon: Share2, color: 'text-violet-500', bg: 'bg-violet-500/5' },
-                    { label: 'Custom Filter', desc: 'GRANULAR QUERY', icon: Filter, color: 'text-amber-500', bg: 'bg-amber-500/5' },
+                    { label: 'Share Report', desc: 'TEAM', icon: Share2, color: 'text-violet-500', bg: 'bg-violet-500/5' },
+                    { label: 'Custom Filter', desc: 'FILTER', icon: Filter, color: 'text-amber-500', bg: 'bg-amber-500/5' },
                   ].map((a, i) => (
                     <button key={i} className="w-full flex items-center gap-4 p-4 rounded-2xl border border-white/5 bg-zinc-950/40 hover:border-emerald-500/20 hover:bg-zinc-900 transition-all text-left group">
                       <div className={`p-2.5 rounded-xl ${a.bg} border border-white/5`}>
@@ -334,9 +334,9 @@ const Reports: React.FC = () => {
           {activeTab === 'saved' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b border-white/5 pb-6">
-                <p className="text-[10px] font-bold text-zinc-600">ARCHIVAL REGISTRY ({savedReports.length} ENTRIES)</p>
+                <p className="text-[10px] font-bold text-zinc-600">SAVED REPORTS ({savedReports.length} REPORTS)</p>
                 <button className="text-[10px] font-bold text-zinc-600 hover:text-white flex items-center gap-2 transition-all">
-                  <Filter size={14} /> FILTER_LOGS
+                  <Filter size={14} /> FILTER REPORTS
                 </button>
               </div>
               <div className="space-y-2">
@@ -377,17 +377,17 @@ const Reports: React.FC = () => {
                             <div className="absolute right-0 top-10 z-20 w-48 bg-[#0a0a0a] rounded-2xl border border-white/10 shadow-2xl py-2 overflow-hidden backdrop-blur-xl">
                               {report.status === 'completed' && (
                                 <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 uppercase tracking-widest transition-all">
-                                  <Download size={14} /> DOWNLOAD_ASSET
+                                  <Download size={14} /> DOWNLOAD
                                 </button>
                               )}
                               <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 uppercase tracking-widest transition-all">
-                                <Eye size={14} /> INSPECT_SIGNALS
+                                <Eye size={14} /> VIEW DETAILS
                               </button>
                               <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 uppercase tracking-widest transition-all">
-                                <RefreshCw size={14} /> REFRESH_NODE
+                                <RefreshCw size={14} /> REGENERATE
                               </button>
                               <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-rose-500 hover:bg-rose-500/10 uppercase tracking-widest transition-all border-t border-white/5 mt-1">
-                                <Trash2 size={14} /> PURGE_ENTRY
+                                <Trash2 size={14} /> DELETE REPORT
                               </button>
                             </div>
                           </>
@@ -404,9 +404,9 @@ const Reports: React.FC = () => {
           {activeTab === 'scheduled' && (
             <div className="space-y-8">
               <div className="flex items-center justify-between border-b border-white/5 pb-6">
-                <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest italic">AUTOMATED PIPELINES ({scheduledReports.length} ACTIVE)</p>
+                <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">SCHEDULED REPORTS ({scheduledReports.length} RUNNING)</p>
                 <button className="flex items-center gap-2 text-[10px] font-bold text-emerald-500 hover:text-emerald-400 uppercase tracking-widest transition-all">
-                  <Plus size={16} /> NEW_SCHEDULE
+                  <Plus size={16} /> NEW SCHEDULE
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -415,7 +415,7 @@ const Reports: React.FC = () => {
                     <div className="flex items-center justify-between mb-8">
                        <div className={`p-3 rounded-xl ${sr.active ? 'bg-emerald-500/5' : 'bg-zinc-900'} border border-white/5`}>
                         <Calendar className={`w-5 h-5 ${sr.active ? 'text-emerald-500' : 'text-zinc-600'}`} />
-                      </div>
+                       </div>
                       <button
                         className={`relative w-12 h-6 rounded-full transition-all duration-300 ${sr.active ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-zinc-800'}`}
                       >
@@ -425,20 +425,20 @@ const Reports: React.FC = () => {
                     <div className="space-y-4">
                       <div>
                         <div className="flex items-center gap-3">
-                          <h4 className="text-sm font-bold text-white uppercase tracking-wide italic">{sr.name}</h4>
+                          <h4 className="text-sm font-bold text-white uppercase tracking-wide">{sr.name}</h4>
                           <span className="text-[9px] font-bold bg-zinc-900 text-zinc-600 px-2 py-0.5 rounded border border-white/5">{sr.format}</span>
                         </div>
                         <div className="flex flex-wrap gap-4 mt-3">
-                          <span className="text-[10px] font-bold text-zinc-500 flex items-center gap-1.5 uppercase tracking-widest italic">
+                          <span className="text-[10px] font-bold text-zinc-500 flex items-center gap-1.5 uppercase tracking-widest">
                             <RefreshCw size={12} className="text-emerald-500" /> {sr.frequency}
                           </span>
-                          <span className="text-[10px] font-bold text-zinc-500 flex items-center gap-1.5 uppercase tracking-widest italic">
+                          <span className="text-[10px] font-bold text-zinc-500 flex items-center gap-1.5 uppercase tracking-widest">
                             <Clock size={12} className="text-blue-500" /> NEXT: {sr.nextRun}
                           </span>
                         </div>
                       </div>
                       <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                        <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">PROPAGATION: {sr.recipients} NODES</span>
+                        <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">RECIPIENTS: {sr.recipients} USERS</span>
                         <button className="text-zinc-700 hover:text-white transition-all"><MoreHorizontal size={16} /></button>
                       </div>
                     </div>

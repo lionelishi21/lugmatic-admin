@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   Users, Shield, DollarSign, Settings, BarChart2, Film, Disc, Music, Music2, Tag,
   Menu, X, ChevronRight, LayoutGrid, Bell, Search, User, UserCheck, Sun, Moon, LogOut, ChevronDown,
-  Swords, Award, Podcast, Megaphone, MessageSquare, Gift, AlertTriangle, Radio as RadioIcon, Upload
+  Swords, Award, Podcast, Megaphone, MessageSquare, Gift, AlertTriangle, Radio as RadioIcon, Upload, HelpCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
@@ -99,7 +99,8 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     { path: '/admin/notification-management', label: 'Notifications', icon: <Bell size={20} />, section: 'Engagement' },
     { path: '/admin/content-moderation', label: 'Moderation', icon: <AlertTriangle size={20} />, section: 'Engagement' },
 
-    { path: '/admin/system-settings', label: 'Settings', icon: <Settings size={20} />, section: 'System' }
+    { path: '/admin/system-settings', label: 'Settings', icon: <Settings size={20} />, section: 'System' },
+    { path: '/admin/documentation', label: 'Documentation', icon: <HelpCircle size={20} />, section: 'System' }
   ];
 
   const artistNavItems: NavItemType[] = [

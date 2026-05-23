@@ -33,6 +33,7 @@ import { ArtistProvider } from './context/ArtistContext';
 import AuthInitializer from './components/AuthInitializer';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
+import Documentation from './pages/admin/Documentation';
 
 // Import new pages for comprehensive features
 import Podcasts from './pages/artist/Podcasts';
@@ -191,6 +192,7 @@ function App() {
                         <Route path="clash-management" element={<ClashManagement />} />
                         <Route path="billboard" element={<Billboard />} />
                         <Route path="artist-approvals" element={<ArtistApprovals />} />
+                        <Route path="documentation" element={<Documentation />} />
                       </Routes>
                     </Layout>
                   </ArtistProvider>

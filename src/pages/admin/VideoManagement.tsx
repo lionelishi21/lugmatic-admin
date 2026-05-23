@@ -14,7 +14,7 @@ import {
   Settings, Monitor, BarChart3, HardDrive, RefreshCw,
   Globe, Target, Cpu, ArrowUpRight, Layers, Database,
   Save, Info, Waves, Wifi, LayoutGrid, List, ChevronDown,
-  Lock, Unlock, Shield, Camera, Mic, Volume2
+  Lock, Unlock, Shield, Camera, Mic, Volume2, User
 } from 'lucide-react';
 import Preloader from '../../components/ui/Preloader';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
@@ -69,7 +69,7 @@ const VideoManagement: React.FC = () => {
             setSongs(sData);
             setRecordedStreams(Array.isArray(rData) ? rData : (rData as any).data || []);
         } catch (err: any) {
-            toast.error('Failed to synchronize media library');
+            toast.error('Failed to load media catalog');
         } finally {
             setLoading(false);
         }
@@ -142,7 +142,7 @@ const VideoManagement: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setUploading(true);
-        const loadingId = toast.loading('Processing cinematic transmission...');
+        const loadingId = toast.loading('Uploading video details...');
 
         try {
             let finalVideoUrl = formData.videoUrl;
@@ -155,7 +155,7 @@ const VideoManagement: React.FC = () => {
                 });
                 finalVideoUrl = presign.publicUrl;
             } else if (!selectedVideo && !videoFile && !formData.videoUrl) {
-                toast.error('Source media payload required', { id: loadingId });
+                toast.error('Video file is required', { id: loadingId });
                 setUploading(false);
                 return;
             }
@@ -176,15 +176,15 @@ const VideoManagement: React.FC = () => {
 
             if (selectedVideo) {
                 await videoService.updateVideo(selectedVideo._id, videoPayload);
-                toast.success('Cinematic metadata updated', { id: loadingId });
+                toast.success('Video updated successfully', { id: loadingId });
             } else {
                 await videoService.createVideo(videoPayload);
-                toast.success('Cinematic artifact deployed to feed', { id: loadingId });
+                toast.success('Video uploaded successfully', { id: loadingId });
             }
             setIsFormOpen(false);
             fetchInitialData();
         } catch (err: any) {
-            toast.error(err.response?.data?.message || err.message || 'Transmission failed', { id: loadingId });
+            toast.error(err.response?.data?.message || err.message || 'Upload failed', { id: loadingId });
         } finally {
             setUploading(false);
         }
@@ -195,49 +195,49 @@ const VideoManagement: React.FC = () => {
         setLoading(true);
         try {
             await videoService.deleteVideo(videoToDelete);
-            toast.success('Media artifact purged');
+            toast.success('Video deleted successfully');
             setVideoToDelete(null);
             setIsDialogOpen(false);
             fetchInitialData();
         } catch (err: any) {
-            toast.error('Failed to purge media');
+            toast.error('Failed to delete video');
         } finally {
             setLoading(false);
         }
     };
 
-    if (loading && videos.length === 0) return <Preloader isVisible text="Accessing cinematic repository..." />;
+    if (loading && videos.length === 0) return <Preloader isVisible text="Loading media library..." />;
 
     return (
         <div className="space-y-12 pb-24">
-            {/* Cinematic Identity Header */}
+            {/* Premium Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                 <div>
                     <div className="flex items-center gap-3 mb-2">
-                        <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">Media Command</h1>
+                        <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Video Management</h1>
                         <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest italic">Grid: Active</span>
+                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">System: Online</span>
                         </div>
                     </div>
-                    <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Managing cinematic assets, global reels, and promoted stream archives.</p>
+                    <p className="text-zinc-500 text-xs font-semibold ml-1">Manage all music videos, promotional reels, and live stream archives.</p>
                 </div>
                 <button
                     onClick={() => handleOpenForm()}
-                    className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10 italic"
+                    className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
                 >
                     <Plus size={18} />
-                    Deploy Asset
+                    Upload Video
                 </button>
             </div>
 
-            {/* Intelligence Telemetry */}
+            {/* Stats Summary */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {[
-                    { label: 'Artifact Density', value: videos.length, icon: Film, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-                    { label: 'Global Reach', value: videos.reduce((acc, v) => acc + (v.views || 0), 0).toLocaleString(), icon: Globe, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                    { label: 'Active Signals', value: videos.filter(v => v.isActive).length, icon: Zap, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-                    { label: 'Linked Matrices', value: videos.filter(v => v.song).length, icon: Music, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+                    { label: 'Total Videos', value: videos.length, icon: Film, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                    { label: 'Total Views', value: videos.reduce((acc, v) => acc + (v.views || 0), 0).toLocaleString(), icon: Globe, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                    { label: 'Active Videos', value: videos.filter(v => v.isActive).length, icon: Zap, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+                    { label: 'Linked Songs', value: videos.filter(v => v.song).length, icon: Music, color: 'text-purple-500', bg: 'bg-purple-500/10' },
                 ].map((s, i) => (
                     <motion.div 
                         key={i}
@@ -251,51 +251,51 @@ const VideoManagement: React.FC = () => {
                             <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                             <s.icon size={24} className={s.color} />
                         </div>
-                        <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em] mb-2 italic">{s.label}</p>
-                        <p className="text-3xl font-bold text-white tracking-tighter italic tabular-nums">{s.value}</p>
+                        <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{s.label}</p>
+                        <p className="text-3xl font-bold text-white tracking-tighter tabular-nums">{s.value}</p>
                     </motion.div>
                 ))}
             </div>
 
-            {/* Operation matrix HUD */}
+            {/* Filter Bar */}
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
                 <div className="flex bg-zinc-950/40 border border-white/5 rounded-2xl p-1.5 gap-1.5 shadow-inner">
                     <button
                         onClick={() => setActiveTab('uploaded')}
                         className={`px-8 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all duration-300 ${activeTab === 'uploaded' ? 'bg-white/10 text-white shadow-xl border border-white/5' : 'text-zinc-600 hover:text-zinc-300'}`}
                     >
-                        CINEMATIC_REPOSITORY
+                        Uploaded Videos
                     </button>
                     <button
                         onClick={() => setActiveTab('recorded')}
                         className={`px-8 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all duration-300 ${activeTab === 'recorded' ? 'bg-white/10 text-white shadow-xl border border-white/5' : 'text-zinc-600 hover:text-zinc-300'}`}
                     >
-                        STREAM_ARCHIVE (VOD)
+                        Live Stream Archives
                     </button>
                 </div>
                 <div className="relative w-full lg:max-w-md group">
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
                     <input
                         type="text"
-                        placeholder="SCAN MEDIA REGISTRY..."
-                        className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800 italic"
+                        placeholder="Search videos..."
+                        className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
             </div>
 
-            {/* Registry Matrix */}
+            {/* Videos Table */}
             <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl bg-[#0a0a0a]">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="border-b border-white/5 bg-zinc-950/50">
-                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Cinematic Artifact</th>
-                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Primary Entity</th>
-                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Matrix Link</th>
-                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Induction Status</th>
-                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic text-right">Action Protocol</th>
+                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Video Details</th>
+                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Artist</th>
+                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Linked Song</th>
+                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Status</th>
+                                <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
@@ -324,10 +324,10 @@ const VideoManagement: React.FC = () => {
                                                     <div className="absolute inset-0 bg-black/20" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-white uppercase tracking-tight italic group-hover:text-emerald-400 transition-colors leading-none mb-2 line-clamp-1">{video.title}</p>
+                                                    <p className="text-sm font-bold text-white uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2 line-clamp-1">{video.title}</p>
                                                     <div className="flex items-center gap-2">
-                                                       <span className={`text-[8px] font-black uppercase tracking-widest italic px-2 py-0.5 rounded ${video.pushedToFeed ? 'bg-amber-500/10 text-amber-500 border border-amber-500/10' : 'bg-zinc-950 text-zinc-600 border border-white/5'}`}>
-                                                          {video.pushedToFeed ? 'FEATURED_ARTIFACT' : 'REGISTRY_NODE'}
+                                                       <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${video.pushedToFeed ? 'bg-amber-500/10 text-amber-500 border border-amber-500/10' : 'bg-zinc-950 text-zinc-600 border border-white/5'}`}>
+                                                          {video.pushedToFeed ? 'Featured Reel' : 'Standard Video'}
                                                        </span>
                                                     </div>
                                                 </div>
@@ -336,7 +336,7 @@ const VideoManagement: React.FC = () => {
                                         <td className="px-10 py-6">
                                             <div className="flex items-center gap-3">
                                                <User size={14} className="text-zinc-700" />
-                                               <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest italic">{video.artist?.name.toUpperCase()}</span>
+                                               <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{video.artist?.name.toUpperCase()}</span>
                                             </div>
                                         </td>
                                         <td className="px-10 py-6">
@@ -345,19 +345,19 @@ const VideoManagement: React.FC = () => {
                                                     <Music size={14} /> {video.song.name.toUpperCase()}
                                                 </div>
                                             ) : (
-                                                <span className="text-[9px] font-black text-zinc-800 uppercase italic tracking-widest opacity-40">UNLINKED_ARTIFACT</span>
+                                                <span className="text-[9px] font-black text-zinc-800 uppercase tracking-widest opacity-40">No Linked Song</span>
                                             )}
                                         </td>
                                         <td className="px-10 py-6">
                                             <div className="flex items-center gap-3">
                                                <div className={`w-1.5 h-1.5 rounded-full ${video.isActive ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-rose-500 shadow-[0_0_8px_#f43f5e]'}`} />
-                                               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">{video.isActive ? 'DEPLOYED' : 'OFFLINE'}</span>
+                                               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{video.isActive ? 'Active' : 'Inactive'}</span>
                                             </div>
                                         </td>
                                         <td className="px-10 py-6 text-right">
                                             <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                                                <button onClick={() => handleOpenForm(video)} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-white hover:bg-emerald-500/20 transition-all shadow-inner" title="Reconfigure Asset"><Edit size={20} /></button>
-                                                <button onClick={() => { setVideoToDelete(video._id); setIsDialogOpen(true); }} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all shadow-inner" title="Purge Asset"><Trash2 size={20} /></button>
+                                                <button onClick={() => handleOpenForm(video)} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-white hover:bg-emerald-500/20 transition-all shadow-inner" title="Edit Video"><Edit size={20} /></button>
+                                                <button onClick={() => { setVideoToDelete(video._id); setIsDialogOpen(true); }} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all shadow-inner" title="Delete Video"><Trash2 size={20} /></button>
                                             </div>
                                         </td>
                                     </motion.tr>
@@ -387,32 +387,32 @@ const VideoManagement: React.FC = () => {
                                                     <div className="absolute inset-0 bg-black/20" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-white uppercase tracking-tight italic group-hover:text-emerald-400 transition-colors leading-none mb-2 line-clamp-1">{stream.title}</p>
-                                                    <span className="text-[8px] font-black text-zinc-600 border border-white/5 bg-zinc-950 px-2 py-0.5 rounded uppercase tracking-widest italic">STREAM_ARCHIVE (VOD)</span>
+                                                    <p className="text-sm font-bold text-white uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2 line-clamp-1">{stream.title}</p>
+                                                    <span className="text-[8px] font-black text-zinc-600 border border-white/5 bg-zinc-950 px-2 py-0.5 rounded uppercase tracking-widest">Live Stream Archive</span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-10 py-6">
                                             <div className="flex items-center gap-3">
                                                <User size={14} className="text-zinc-700" />
-                                               <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest italic">{stream.host?.name.toUpperCase()}</span>
+                                               <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{stream.host?.name.toUpperCase()}</span>
                                             </div>
                                         </td>
                                         <td className="px-10 py-6">
                                             <div className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-zinc-950 text-zinc-500 border border-white/5 flex items-center gap-2.5 w-fit shadow-inner">
-                                                <Radio size={14} /> LIVEKIT_UPLINK
+                                                <Radio size={14} /> Live Stream VOD
                                             </div>
                                         </td>
                                         <td className="px-10 py-6">
                                             {stream.isRecorded && stream.recordingUrl ? (
                                                 <div className="flex items-center gap-3">
                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
-                                                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">PERSISTED</span>
+                                                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Saved</span>
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center gap-3">
                                                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse" />
-                                                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">SYNCING_METADATA</span>
+                                                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Processing</span>
                                                 </div>
                                             )}
                                         </td>
@@ -420,7 +420,7 @@ const VideoManagement: React.FC = () => {
                                             <button 
                                                 onClick={() => handleOpenForm(stream, true)}
                                                 disabled={!stream.recordingUrl}
-                                                className="h-12 px-6 bg-white text-black text-[9px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10 disabled:opacity-30 disabled:grayscale italic"
+                                                className="h-12 px-6 bg-white text-black text-[9px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10 disabled:opacity-30 disabled:grayscale"
                                             >
                                                 Promote to Reels
                                             </button>
@@ -434,8 +434,8 @@ const VideoManagement: React.FC = () => {
                                         <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl group cursor-default">
                                           <VideoIcon size={36} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                                         </div>
-                                        <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3 italic">Scan Result: NULL_MEDIA</h3>
-                                        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto opacity-60 italic">No cinematic assets detected in this frequency spectrum.</p>
+                                        <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3">No Videos Found</h3>
+                                        <p className="text-[10px] text-zinc-600 font-bold max-w-sm mx-auto opacity-60">No videos found matching your search parameters.</p>
                                     </td>
                                 </tr>
                             )}
@@ -444,7 +444,7 @@ const VideoManagement: React.FC = () => {
                 </div>
             </div>
 
-            {/* Video Modal Console */}
+            {/* Video Upload Form Modal */}
             <AnimatePresence>
                 {isFormOpen && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl" onClick={() => !uploading && setIsFormOpen(false)}>
@@ -455,13 +455,13 @@ const VideoManagement: React.FC = () => {
                         >
                             <div className="flex justify-between items-center mb-10 border-b border-white/5 pb-10">
                                 <div className="flex items-center gap-5">
-                                   <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
-                                      {selectedVideo ? <Edit className="text-emerald-500" size={28} /> : <Upload className="text-emerald-500" size={28} />}
-                                   </div>
-                                   <div>
-                                      <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic leading-none mb-1.5">{selectedVideo ? 'Modify Metadata' : 'Payload Induction'}</h3>
-                                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Cinematic Configuration Matrix</p>
-                                   </div>
+                                    <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                                       {selectedVideo ? <Edit className="text-emerald-500" size={28} /> : <Upload className="text-emerald-500" size={28} />}
+                                    </div>
+                                    <div>
+                                       <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic leading-none mb-1.5">{selectedVideo ? 'Edit Video details' : 'Upload Video'}</h3>
+                                       <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Video Catalog Form</p>
+                                    </div>
                                 </div>
                                 <button disabled={uploading} onClick={() => setIsFormOpen(false)} className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-white/5 text-zinc-500 transition-all border border-white/5 shadow-inner disabled:opacity-50"><X size={24} /></button>
                             </div>
@@ -469,23 +469,23 @@ const VideoManagement: React.FC = () => {
                             <form onSubmit={handleSubmit} className="space-y-10">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                                     <div className="space-y-4">
-                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Asset Identifier <span className="text-emerald-500">*</span></label>
+                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Video Title <span className="text-emerald-500">*</span></label>
                                         <input
-                                            required className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800 italic"
-                                            placeholder="e.g. SONIC_REVELATION_VOD"
+                                            required className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wide uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800"
+                                            placeholder="Enter video title"
                                             value={formData.title}
                                             onChange={e => setFormData({ ...formData, title: e.target.value })}
                                         />
                                     </div>
                                     <div className="space-y-4">
-                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Entity Association</label>
+                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Artist</label>
                                         <div className="relative group/sel">
                                             <select
-                                                required className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                                                required className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wide uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer"
                                                 value={formData.artistId}
                                                 onChange={e => setFormData({ ...formData, artistId: e.target.value, songId: '' })}
                                             >
-                                                <option value="">SELECT_ENTITY</option>
+                                                <option value="">Select Artist</option>
                                                 {artists.map(a => (
                                                     <option key={a._id} value={a._id}>{a.name.toUpperCase()}</option>
                                                 ))}
@@ -496,19 +496,19 @@ const VideoManagement: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Registry Logbook (Description)</label>
+                                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Description</label>
                                     <textarea
-                                        disabled={uploading} className="w-full p-8 bg-zinc-950 border border-white/5 rounded-3xl text-zinc-300 text-[11px] font-bold tracking-[0.1em] focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner resize-none h-32 leading-relaxed placeholder:text-zinc-800"
-                                        placeholder="Provide semantic context metadata for this cinematic artifact..."
+                                        disabled={uploading} className="w-full p-8 bg-zinc-950 border border-white/5 rounded-3xl text-zinc-300 text-[11px] font-bold tracking-wide focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner resize-none h-32 leading-relaxed placeholder:text-zinc-800"
+                                        placeholder="Provide description for this video..."
                                         value={formData.description}
                                         onChange={e => setFormData({ ...formData, description: e.target.value })}
                                     />
                                 </div>
 
-                                {/* Media Source Payload */}
+                                {/* Video Upload Area */}
                                 {!formData.videoUrl && (
                                     <div className="space-y-4">
-                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Payload Source Induction</label>
+                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Upload Video File</label>
                                         <div
                                             onClick={() => !uploading && videoInputRef.current?.click()}
                                             className={`border-2 border-dashed rounded-[2.5rem] p-12 flex flex-col items-center justify-center transition-all cursor-pointer relative overflow-hidden ${videoFile ? 'border-emerald-500 bg-emerald-500/5 shadow-[0_0_30px_rgba(16,185,129,0.1)]' : 'border-white/5 hover:border-emerald-500/20 bg-zinc-950 shadow-inner'} ${uploading ? 'opacity-50 cursor-not-allowed' : ''} group/up`}
@@ -523,8 +523,8 @@ const VideoManagement: React.FC = () => {
                                                        <VideoIcon className="text-emerald-500" size={32} />
                                                     </div>
                                                     <div className="text-left">
-                                                        <p className="text-sm font-bold text-white uppercase tracking-tight italic">{videoFile.name}</p>
-                                                        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-1 italic">{(videoFile.size / (1024 * 1024)).toFixed(2)} MB • READY_FOR_SYNC</p>
+                                                        <p className="text-sm font-bold text-white uppercase tracking-tight">{videoFile.name}</p>
+                                                        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-1">{(videoFile.size / (1024 * 1024)).toFixed(2)} MB • Ready to Upload</p>
                                                     </div>
                                                     {videoProgress === 100 && <CheckCircle2 className="text-emerald-500 ml-4" size={24} />}
                                                 </div>
@@ -533,8 +533,8 @@ const VideoManagement: React.FC = () => {
                                                     <div className="w-20 h-20 bg-zinc-900 rounded-[2rem] flex items-center justify-center mb-6 border border-white/5 shadow-2xl group-hover/up:scale-110 transition-transform duration-700">
                                                        <Upload className="text-zinc-700 group-hover/up:text-emerald-500 transition-colors" size={32} />
                                                     </div>
-                                                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] italic">Induct Video Payload</p>
-                                                    <p className="text-[9px] text-zinc-700 mt-3 font-bold uppercase tracking-widest italic opacity-60">MP4, WEBM, MOV • MAX_TRANS_500MB</p>
+                                                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Select Video File</p>
+                                                    <p className="text-[9px] text-zinc-700 mt-3 font-bold uppercase tracking-widest opacity-60">MP4, WEBM, MOV • Max file size: 500MB</p>
                                                 </div>
                                             )}
                                         </div>
@@ -543,7 +543,7 @@ const VideoManagement: React.FC = () => {
                                                <div className="w-full bg-zinc-950 border border-white/5 rounded-full h-2 overflow-hidden shadow-inner">
                                                   <motion.div initial={{ width: 0 }} animate={{ width: `${videoProgress}%` }} className="bg-emerald-500 h-full shadow-[0_0_15px_#10b981]" />
                                                </div>
-                                               <p className="text-[8px] font-black text-emerald-500/60 uppercase tracking-widest italic mt-2 text-right">Inducting Payload Matrix: {videoProgress}%</p>
+                                               <p className="text-[8px] font-black text-emerald-500/60 uppercase tracking-widest mt-2 text-right">Uploading: {videoProgress}%</p>
                                             </div>
                                         )}
                                     </div>
@@ -551,14 +551,14 @@ const VideoManagement: React.FC = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                                     <div className="space-y-4">
-                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Registry Artifact Link</label>
+                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Link to Song</label>
                                         <div className="relative group/sel">
                                             <select
-                                                disabled={uploading} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                                                disabled={uploading} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wide uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer"
                                                 value={formData.songId}
                                                 onChange={e => setFormData({ ...formData, songId: e.target.value })}
                                             >
-                                                <option value="">NO_ARTIFACT_LINK</option>
+                                                <option value="">No Linked Song</option>
                                                 {filteredSongs.map(s => (
                                                     <option key={s._id} value={s._id}>{s.name.toUpperCase()}</option>
                                                 ))}
@@ -567,7 +567,7 @@ const VideoManagement: React.FC = () => {
                                         </div>
                                     </div>
                                     <div className="space-y-4">
-                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic ml-1">Visual Identity Index</label>
+                                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Thumbnail Image</label>
                                         <div
                                             onClick={() => !uploading && thumbInputRef.current?.click()}
                                             className={`h-16 px-8 border rounded-2xl flex items-center justify-between cursor-pointer transition-all ${thumbnailFile ? 'border-emerald-500/30 bg-emerald-500/5 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'border-white/5 bg-zinc-950 hover:border-emerald-500/20 shadow-inner'} ${uploading ? 'opacity-50' : ''} group/th`}
@@ -582,12 +582,12 @@ const VideoManagement: React.FC = () => {
                                                         <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20">
                                                            <Check className="text-emerald-500" size={18} />
                                                         </div>
-                                                        <span className="text-[10px] font-bold text-white truncate uppercase tracking-widest italic">{thumbnailFile.name}</span>
+                                                        <span className="text-[10px] font-bold text-white truncate uppercase tracking-widest">{thumbnailFile.name}</span>
                                                     </>
                                                 ) : (
                                                     <>
                                                         <Upload size={18} className="text-zinc-700 group-hover/th:text-emerald-500 transition-colors" />
-                                                        <span className="text-[10px] font-bold text-zinc-600 truncate uppercase tracking-widest italic">Induct Visual Node</span>
+                                                        <span className="text-[10px] font-bold text-zinc-600 truncate uppercase tracking-widest">Select Image</span>
                                                     </>
                                                 )}
                                             </div>
@@ -606,15 +606,15 @@ const VideoManagement: React.FC = () => {
                                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all duration-500 ${formData.pushedToFeed ? 'left-8 shadow-[0_0_15px_white]' : 'left-1'}`} />
                                         </button>
                                         <div>
-                                           <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] italic block">Promote to Reels</span>
-                                           <span className="text-[8px] font-bold text-zinc-700 uppercase tracking-widest italic block mt-1">Direct deployment to global feed matrix</span>
+                                           <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] block">Promote to Reels</span>
+                                           <span className="text-[8px] font-bold text-zinc-700 uppercase tracking-widest block mt-1">Directly feature this video in the Reels feed</span>
                                         </div>
                                     </div>
                                     
                                     {uploading && (
                                         <div className="flex items-center gap-3 text-emerald-500">
                                             <RefreshCw className="h-5 w-5 animate-spin" />
-                                            <span className="text-[9px] font-black uppercase tracking-[0.3em] italic">Inducting Payload...</span>
+                                            <span className="text-[9px] font-black uppercase tracking-widest">Uploading Video...</span>
                                         </div>
                                     )}
                                 </div>
@@ -623,17 +623,17 @@ const VideoManagement: React.FC = () => {
                                     <button
                                         type="button" disabled={uploading}
                                         onClick={() => setIsFormOpen(false)}
-                                        className="flex-1 h-16 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] border border-white/5 hover:bg-white/5 transition-all italic"
+                                        className="flex-1 h-16 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all"
                                     >
-                                        Abort Protocol
+                                        Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={uploading || (!selectedVideo && !videoFile && !formData.videoUrl)}
-                                        className="flex-1 h-16 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] shadow-2xl hover:bg-emerald-400 transition-all flex items-center justify-center gap-4 group italic"
+                                        className="flex-1 h-16 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:bg-emerald-400 transition-all flex items-center justify-center gap-4 group"
                                     >
                                         {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={20} className="group-hover:translate-y-1 transition-transform" />}
-                                        {selectedVideo ? 'Commit Sync' : 'Initialize Induction'}
+                                        {selectedVideo ? 'Save Changes' : 'Upload Video'}
                                     </button>
                                 </div>
                             </form>
@@ -646,10 +646,10 @@ const VideoManagement: React.FC = () => {
                 isOpen={isDialogOpen}
                 onCancel={() => setIsDialogOpen(false)}
                 onConfirm={handleDelete}
-                title="Terminate Cinematic Artifact?"
-                message="Confirm the permanent purge of this cinematic asset from the feed and registry matrix. Irreversible protocol."
-                confirmLabel="Execute Purge"
-                cancelLabel="Abort Protocol"
+                title="Delete Video?"
+                message="Are you sure you want to permanently delete this video? This action cannot be undone."
+                confirmLabel="Delete"
+                cancelLabel="Cancel"
             />
         </div>
     );

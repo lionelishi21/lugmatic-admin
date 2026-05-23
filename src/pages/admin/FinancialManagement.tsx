@@ -45,22 +45,22 @@ export default function FinancialManagement() {
 
   return (
     <div className="space-y-12 pb-20">
-      {/* Header */}
+      {/* Premium Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Financial Intelligence</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Financial Management</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500">Live Ledger Active</span>
+              <span className="text-[10px] font-bold text-emerald-500">System: Online</span>
             </div>
           </div>
-          <p className="text-zinc-500 text-xs font-semibold ml-1">Managing high-volume transactional data and artist liquidity.</p>
+          <p className="text-zinc-500 text-xs font-semibold ml-1">Manage platform revenue, artist payouts, subscriptions, and compliance.</p>
         </div>
         <div className="flex items-center gap-4">
           <button className="btn-secondary !px-8 flex items-center gap-2">
             <Download size={18} />
-            <span className="text-[10px] font-bold">Export Registry</span>
+            <span className="text-[10px] font-bold">Export CSV</span>
           </button>
           <button className="btn-primary flex items-center gap-2 !px-10 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
             <Plus size={18} />
@@ -69,7 +69,7 @@ export default function FinancialManagement() {
         </div>
       </div>
 
-      {/* Navigation Matrix */}
+      {/* Navigation Menu */}
       <div className="bg-[#0a0a0a] border border-white/5 rounded-[2rem] p-1.5 flex flex-wrap items-center gap-1.5 w-fit">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -90,7 +90,7 @@ export default function FinancialManagement() {
         })}
       </div>
 
-      {/* Operational Workspace */}
+      {/* Main Workspace */}
       {isLoading ? (
         <div className="premium-card py-32 flex flex-col items-center justify-center text-center">
           <div className="relative mb-8">
@@ -99,7 +99,7 @@ export default function FinancialManagement() {
               <DollarSign size={24} className="text-emerald-500" />
             </div>
           </div>
-          <p className="text-zinc-500 font-bold text-[10px]">Processing Transactional Telemetry...</p>
+          <p className="text-zinc-500 font-bold text-[10px]">Loading financial stats...</p>
         </div>
       ) : (
         <AnimatePresence mode="wait">
@@ -122,19 +122,19 @@ export default function FinancialManagement() {
   );
 }
 
-/* ─── Revenue Hub ─── */
+/* ─── Revenue Section ─── */
 const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
   const displayStats = [
     { label: 'Cumulative Revenue', value: `$${((stats?.totalRevenue || 0) / 100).toLocaleString()}`, trend: '+12.5%', up: true, icon: DollarSign, color: 'text-emerald-500', bgColor: 'bg-emerald-500/5' },
     { label: 'Active Subscriptions', value: (stats?.activeSubscribers || 0).toLocaleString(), trend: '+5.2%', up: true, icon: Zap, color: 'text-blue-500', bgColor: 'bg-blue-500/5' },
-    { label: 'Avg Unit Yield', value: `$${((stats?.avgRevenuePerUser || 0) / 100).toFixed(2)}`, trend: '+2.1%', up: true, icon: TrendingUp, color: 'text-indigo-500', bgColor: 'bg-indigo-500/5' },
-    { label: 'System Throughput', value: stats?.recentTransactions?.length || 0, trend: '-0.3%', up: false, icon: Activity, color: 'text-rose-500', bgColor: 'bg-rose-500/5' },
+    { label: 'Average User Value', value: `$${((stats?.avgRevenuePerUser || 0) / 100).toFixed(2)}`, trend: '+2.1%', up: true, icon: TrendingUp, color: 'text-indigo-500', bgColor: 'bg-indigo-500/5' },
+    { label: 'Total Transactions', value: stats?.recentTransactions?.length || 0, trend: '-0.3%', up: false, icon: Activity, color: 'text-rose-500', bgColor: 'bg-rose-500/5' },
   ];
 
   const breakdown = [
     { label: 'Subscriptions', value: `$${((stats?.revenueBreakdown?.['subscription_payment'] || 0) / 100).toLocaleString()}`, pct: 65, color: 'bg-emerald-500' },
     { label: 'Virtual Gifts', value: `$${((stats?.revenueBreakdown?.['gift_received'] || 0) / 100).toLocaleString()}`, pct: 25, color: 'bg-blue-500' },
-    { label: 'Coin Registry', value: `$${((stats?.revenueBreakdown?.['coin_purchase'] || 0) / 100).toLocaleString()}`, pct: 10, color: 'bg-amber-500' },
+    { label: 'Coin Purchases', value: `$${((stats?.revenueBreakdown?.['coin_purchase'] || 0) / 100).toLocaleString()}`, pct: 10, color: 'bg-amber-500' },
   ];
 
   return (
@@ -153,18 +153,18 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
               </div>
             </div>
             <p className="text-zinc-600 text-[10px] font-bold mb-1.5">{s.label}</p>
-            <p className="text-3xl font-bold text-white tracking-tighter">{s.value}</p>
+            <p className="text-3xl font-bold text-white tracking-tighter tabular-nums">{s.value}</p>
           </div>
         ))}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-10">
-        {/* Advanced Revenue Matrix */}
+        {/* Revenue Analytics */}
         <div className="premium-card lg:col-span-2 space-y-10 border-white/5">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Asset Performance Analytics</h3>
-              <p className="text-[10px] text-zinc-700 font-bold">Revenue categorization and signal strength</p>
+              <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Revenue Analytics</h3>
+              <p className="text-[10px] text-zinc-700 font-bold">Revenue categorization and statistics</p>
             </div>
             <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1 shadow-inner">
               {['30D', '90D', '1Y'].map(t => (
@@ -182,7 +182,7 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
                ))}
             </div>
             <BarChart3 className="w-12 h-12 text-zinc-800 relative z-10" />
-            <p className="text-[10px] font-bold text-zinc-800 relative z-10 mt-4">Telemetry Visualization Active</p>
+            <p className="text-[10px] font-bold text-zinc-800 relative z-10 mt-4">Financial Chart</p>
           </div>
 
           <div className="space-y-8">
@@ -209,10 +209,10 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
           </div>
         </div>
 
-        {/* High-Impact Artist Performance */}
+        {/* Top Earners */}
         <div className="premium-card space-y-10">
           <div className="flex items-center justify-between">
-            <h3 className="text-[10px] font-bold text-zinc-500">Top Liquidity Drivers</h3>
+            <h3 className="text-[10px] font-bold text-zinc-500">Top Earners</h3>
             <button className="text-[10px] font-bold text-emerald-500 hover:text-emerald-400 transition-colors">Global Rank</button>
           </div>
           <div className="space-y-8 flex-1">
@@ -224,7 +224,7 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-zinc-200 group-hover:text-white transition-colors">{a.name}</p>
-                    <p className="text-[9px] text-zinc-600 font-bold mt-0.5">{a.transactions} Transaction Nodes</p>
+                    <p className="text-[9px] text-zinc-600 font-bold mt-0.5">{a.transactions} Transactions</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -245,7 +245,7 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
   );
 };
 
-/* ─── Payout Operations ─── */
+/* ─── Payout Section ─── */
 const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null, payouts: Payout[] }) => {
   const statusStyles: Record<string, string> = {
     completed: 'text-emerald-400 bg-emerald-500/5 border-emerald-500/10',
@@ -256,13 +256,13 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
 
   return (
     <div className="space-y-10">
-      {/* Liquidity Status */}
+      {/* Payout Status */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Pending Liquidity', value: `$${((stats?.payouts?.['pending']?.amount || 0) / 100).toLocaleString()}`, icon: Clock, color: 'text-amber-500' },
-          { label: 'Completed Batches', value: `$${((stats?.payouts?.['completed']?.amount || 0) / 100).toLocaleString()}`, icon: CheckCircle2, color: 'text-emerald-500' },
-          { label: 'Purge / Failed', value: `$${((stats?.payouts?.['failed']?.amount || 0) / 100).toLocaleString()}`, icon: XCircle, color: 'text-rose-500' },
-          { label: 'Next Cycle Index', value: 'FEB 15', icon: Calendar, color: 'text-blue-500' },
+          { label: 'Pending Payouts', value: `$${((stats?.payouts?.['pending']?.amount || 0) / 100).toLocaleString()}`, icon: Clock, color: 'text-amber-500' },
+          { label: 'Completed Payouts', value: `$${((stats?.payouts?.['completed']?.amount || 0) / 100).toLocaleString()}`, icon: CheckCircle2, color: 'text-emerald-500' },
+          { label: 'Failed Payouts', value: `$${((stats?.payouts?.['failed']?.amount || 0) / 100).toLocaleString()}`, icon: XCircle, color: 'text-rose-500' },
+          { label: 'Next Payout Cycle', value: 'FEB 15', icon: Calendar, color: 'text-blue-500' },
         ].map(s => (
           <div key={s.label} className="premium-card hover:border-emerald-500/20 transition-all group">
             <div className={`w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center mb-6 transition-all group-hover:scale-110`}>
@@ -274,17 +274,17 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
         ))}
       </div>
 
-      {/* Transaction Registry */}
-      <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
+      {/* Payout Log Table */}
+      <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl bg-[#0a0a0a]">
         <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 bg-zinc-950/50">
           <div>
-            <h3 className="text-[10px] font-bold text-zinc-500 mb-1">High-Volume Payout Log</h3>
-            <p className="text-[10px] text-zinc-700 font-bold">Audited distribution history for artist entities</p>
+            <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Payout Log</h3>
+            <p className="text-[10px] text-zinc-700 font-bold">History of payments processed for artists</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="relative w-full md:w-80 group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-emerald-500 w-4 h-4 transition-colors" />
-              <input type="text" placeholder="Search entity protocol..." className="input-field pl-12 !py-3 !text-[10px] font-bold" />
+              <input type="text" placeholder="Search artist..." className="input-field pl-12 !py-3 !text-[10px] font-bold" />
             </div>
             <button className="p-3 rounded-2xl bg-white/5 text-zinc-600 hover:text-white transition-all border border-white/5"><Filter size={18} /></button>
           </div>
@@ -293,11 +293,11 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/5 bg-black/20">
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Artist Entity</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Liquidity Amount</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Protocol Method</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Sync Status</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 text-right">Timestamp</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Artist Name</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Amount</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Payment Method</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Status</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 text-right">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -337,12 +337,12 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
   );
 };
 
-/* ─── Service Plan Hierarchy ─── */
+/* ─── Subscriptions Section ─── */
 const SubscriptionsSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
   const plans = [
-    { name: 'Free Protocol', price: '$0', period: '/mo', subscribers: '12,456', features: ['Ad-supported signals', '5 temporal skips/hour', 'Standard telemetry'], icon: Music, color: 'zinc' },
-    { name: 'Premium Tier', price: '$9.99', period: '/mo', subscribers: '5,234', features: ['Ad-free immersion', 'Unlimited temporal skips', 'High-fidelity audio'], icon: Zap, color: 'emerald', popular: true },
-    { name: 'Pro Executive', price: '$14.99', period: '/mo', subscribers: '2,456', features: ['Lossless audio stream', 'Exclusive artist assets', 'Priority administrative support'], icon: Crown, color: 'indigo' },
+    { name: 'Free Tier', price: '$0', period: '/mo', subscribers: '12,456', features: ['Ad-supported streams', '5 skips/hour', 'Standard audio quality'], icon: Music, color: 'zinc' },
+    { name: 'Premium Tier', price: '$9.99', period: '/mo', subscribers: '5,234', features: ['Ad-free experience', 'Unlimited skips', 'High-quality audio'], icon: Zap, color: 'emerald', popular: true },
+    { name: 'Pro Artist', price: '$14.99', period: '/mo', subscribers: '2,456', features: ['Lossless audio quality', 'Exclusive artist content', 'Priority support'], icon: Crown, color: 'indigo' },
   ];
 
   return (
@@ -352,7 +352,7 @@ const SubscriptionsSection = ({ stats }: { stats: AdminFinancialStats | null }) 
           <div key={plan.name} className={`premium-card relative group transition-all duration-500 hover:border-emerald-500/30 ${plan.popular ? 'border-emerald-500/20 bg-emerald-500/5 shadow-[0_0_50px_rgba(16,185,129,0.05)]' : 'border-white/5 bg-zinc-950/30'}`}>
             {plan.popular && (
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 text-[9px] font-bold text-black bg-emerald-500 rounded-full shadow-lg shadow-emerald-500/20">
-                Optimized Tier
+                Most Popular
               </div>
             )}
             <div className={`w-14 h-14 rounded-2xl mb-10 flex items-center justify-center bg-white/5 text-zinc-500 group-hover:text-emerald-500 transition-all duration-500 group-hover:scale-110 border border-white/5`}>
@@ -365,7 +365,7 @@ const SubscriptionsSection = ({ stats }: { stats: AdminFinancialStats | null }) 
             </div>
             <div className="flex items-center gap-3 p-4 bg-black/40 rounded-2xl border border-white/5 text-[10px] font-bold text-zinc-400 mb-10">
               <Users size={16} className="text-emerald-500" />
-              {plan.subscribers} Active Nodes
+              {plan.subscribers} Active Subscribers
             </div>
             <ul className="space-y-6 mb-12">
               {plan.features.map((f) => (
@@ -375,7 +375,7 @@ const SubscriptionsSection = ({ stats }: { stats: AdminFinancialStats | null }) 
                 </li>
               ))}
             </ul>
-            <button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-bold hover:bg-emerald-500 hover:text-black hover:border-emerald-500 transition-all duration-500">Edit Deployment Specs</button>
+            <button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-bold hover:bg-emerald-500 hover:text-black hover:border-emerald-500 transition-all duration-500">Edit Plan Specs</button>
           </div>
         ))}
       </div>
@@ -383,7 +383,7 @@ const SubscriptionsSection = ({ stats }: { stats: AdminFinancialStats | null }) 
   );
 };
 
-/* ─── Compliance Monitor ─── */
+/* ─── Compliance Section ─── */
 const ComplianceSection = () => {
   return (
     <div className="space-y-10">
@@ -393,8 +393,8 @@ const ComplianceSection = () => {
           <AlertCircle className="w-8 h-8 text-amber-500" />
         </div>
         <div className="flex-1 relative z-10">
-          <p className="text-xl font-bold text-white mb-2">Administrative Tax Compliance Critical</p>
-          <p className="text-[11px] font-bold text-zinc-500 leading-loose max-w-2xl">22 artist entities are currently flagged for missing or invalid IRS documentation. Liquidity distribution cycles are suspended for these nodes until resolution.</p>
+          <p className="text-xl font-bold text-white mb-2">Tax Compliance Audits Needed</p>
+          <p className="text-[11px] font-bold text-zinc-500 leading-loose max-w-2xl">22 artists are currently flagged for missing or invalid IRS tax forms. Payout cycles are suspended for these accounts until tax forms are verified.</p>
         </div>
         <button className="btn-primary !bg-amber-500 !text-black hover:!bg-amber-400 !px-12 relative z-10 shadow-2xl shadow-amber-500/20">
            <span className="text-[10px] font-bold">Initiate Audit</span>
@@ -406,15 +406,15 @@ const ComplianceSection = () => {
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-center shadow-xl"><FileText size={22} className="text-emerald-500" /></div>
             <div>
-              <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Tax Documentation Stream</h3>
-              <p className="text-[10px] text-zinc-700 font-bold">Operational W-9/1099 verification status</p>
+              <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Tax Documents</h3>
+              <p className="text-[10px] text-zinc-700 font-bold">W-9/1099 verification status</p>
             </div>
           </div>
           <div className="space-y-8">
             {[
-              { label: 'W-9 Form Collection', value: '234 / 256', trend: 'warning' },
-              { label: '1099 Registry Generation', value: '198 Active', trend: 'ok' },
-              { label: 'INTL / Cross-Border Compliance', value: '45 / 48', trend: 'warning' },
+              { label: 'Completed W-9 Forms', value: '234 / 256', trend: 'warning' },
+              { label: 'Generated 1099 Forms', value: '198 Active', trend: 'ok' },
+              { label: 'International Forms', value: '45 / 48', trend: 'warning' },
             ].map(item => (
               <div key={item.label} className="space-y-3">
                 <div className="flex justify-between items-center px-1">
@@ -432,21 +432,21 @@ const ComplianceSection = () => {
            <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex items-center justify-center shadow-xl"><FileCheck size={22} className="text-blue-500" /></div>
             <div>
-              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">System Audit Protocol</h3>
-              <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Quarterly financial verification results</p>
+              <h3 className="text-[10px] font-bold text-zinc-500 mb-1">System Audits</h3>
+              <p className="text-[10px] text-zinc-700 font-bold">Quarterly financial verification results</p>
             </div>
           </div>
           <div className="space-y-8">
             {[
-              { label: 'Q4 2025 REVENUE TELEMETRY', value: 'SYNC_OK', status: 'ok' },
-              { label: 'ANNUAL SYSTEM AUDIT', value: 'IN_PROGRESS', status: 'warning' },
-              { label: 'ROYALTY DISTRIBUTION ENGINE', value: 'PENDING_SCAN', status: 'warning' },
+              { label: 'Q4 2025 Revenue Audit', value: 'Completed', status: 'ok' },
+              { label: 'Annual Financial Audit', value: 'In Progress', status: 'warning' },
+              { label: 'Royalty Distribution Sync', value: 'Pending Sync', status: 'warning' },
             ].map(item => (
               <div key={item.label} className="flex justify-between items-center p-5 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-white/10 transition-all cursor-default">
-                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">{item.label}</span>
+                <span className="text-[10px] font-bold text-zinc-500">{item.label}</span>
                 <div className="flex items-center gap-3">
                    <div className={`w-1.5 h-1.5 rounded-full ${item.status === 'ok' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-amber-500 shadow-[0_0_8px_#f59e0b]'}`} />
-                   <span className={`text-[10px] font-bold uppercase tracking-widest ${item.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}`}>{item.value}</span>
+                   <span className={`text-[10px] font-bold ${item.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}`}>{item.value}</span>
                 </div>
               </div>
             ))}
@@ -457,43 +457,43 @@ const ComplianceSection = () => {
   );
 };
 
-/* ─── Regional Pricing Matrix ─── */
+/* ─── Regional Pricing Section ─── */
 const PricingSection = () => {
   const tiers = [
     { region: 'UNITED STATES', currency: 'USD', premium: '$9.99', pro: '$14.99' },
     { region: 'EUROPEAN UNION', currency: 'EUR', premium: '€9.49', pro: '€13.99' },
     { region: 'UNITED KINGDOM', currency: 'GBP', premium: '£7.99', pro: '£11.99' },
-    { region: 'JAPAN NIPPON', currency: 'JPY', premium: '¥980', pro: '¥1,480' },
+    { region: 'JAPAN', currency: 'JPY', premium: '¥980', pro: '¥1,480' },
   ];
 
   return (
-    <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
+    <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl bg-[#0a0a0a]">
       <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
         <div>
-          <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Global Economic Tier Matrix</h3>
-          <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Regional currency scaling and pricing protocols</p>
+          <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Global Pricing Tiers</h3>
+          <p className="text-[10px] text-zinc-700 font-bold">Pricing configurations across different regions</p>
         </div>
         <button className="btn-primary flex items-center gap-3 !px-8 !py-3.5 shadow-xl shadow-emerald-500/10">
           <Plus size={16} /> 
-          <span className="text-[10px] font-bold tracking-widest uppercase">Register New Region</span>
+          <span className="text-[10px] font-bold uppercase">Add New Region</span>
         </button>
       </div>
       <table className="w-full text-left">
         <thead>
           <tr className="border-b border-white/5 bg-black/20">
-            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Sovereign Region</th>
-            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Currency Code</th>
-            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Premium Tier</th>
-            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Pro Executive</th>
-            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest text-right">Operational Actions</th>
+            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Region</th>
+            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Currency</th>
+            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Premium Tier</th>
+            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Pro Artist</th>
+            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 text-right">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-white/5">
           {tiers.map((t) => (
             <tr key={t.region} className="hover:bg-white/[0.01] transition-colors group">
-              <td className="px-8 py-6 text-sm font-bold text-zinc-300 group-hover:text-white transition-colors tracking-widest uppercase">{t.region}</td>
+              <td className="px-8 py-6 text-sm font-bold text-zinc-300 group-hover:text-white transition-colors uppercase">{t.region}</td>
               <td className="px-8 py-6">
-                 <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                 <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500">
                     <Globe size={14} className="text-zinc-700" />
                     {t.currency}
                  </div>
@@ -501,7 +501,7 @@ const PricingSection = () => {
               <td className="px-8 py-6 text-sm font-bold text-white tracking-tighter">{t.premium}</td>
               <td className="px-8 py-6 text-sm font-bold text-emerald-500 tracking-tighter">{t.pro}</td>
               <td className="px-8 py-6 text-right">
-                <button className="px-6 py-2.5 rounded-xl bg-white/5 text-[10px] font-bold text-zinc-600 uppercase tracking-widest hover:text-white hover:bg-white/10 transition-all border border-white/5">Modify Logic</button>
+                <button className="px-6 py-2.5 rounded-xl bg-white/5 text-[10px] font-bold text-zinc-600 hover:text-white hover:bg-white/10 transition-all border border-white/5">Edit</button>
               </td>
             </tr>
           ))}
