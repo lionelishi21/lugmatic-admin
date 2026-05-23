@@ -24,6 +24,7 @@ const SongEdit: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const videoInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const [albums, setAlbums] = useState<Album[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
@@ -372,6 +373,52 @@ const SongEdit: React.FC = () => {
                 <div className={`space-y-4 ${song.status !== 'rejected' ? 'opacity-30 pointer-events-none' : ''}`}>
                   <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Replace Audio (Rejected Only)</p>
                   <FileUpload label="Select Audio" fileType="audio" maxSize={50} onFileSelect={file => setAudioFile(file)} onFileRemove={() => setAudioFile(null)} />
+                </div>
+                <div className="space-y-4 md:col-span-2">
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Music Video (Optional)</p>
+                  <div
+                    className={`relative rounded-2xl border-2 border-dashed p-6 transition-all cursor-pointer
+                      ${videoFile ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-white/5 hover:border-emerald-500/20 bg-zinc-950/30'}`}
+                    onClick={() => !videoFile && videoInputRef.current?.click()}
+                  >
+                    {videoFile ? (
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20">
+                          <Film size={18} className="text-emerald-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-white truncate">{videoFile.name}</p>
+                          <p className="text-[10px] text-zinc-500 font-medium mt-0.5">{(videoFile.size / 1024 / 1024).toFixed(1)} MB</p>
+                          {videoUploadProgress > 0 && videoUploadProgress < 100 && (
+                            <div className="mt-2 h-1 bg-zinc-800 rounded-full overflow-hidden">
+                              <div className="h-full bg-emerald-500 transition-all" style={{ width: `${videoUploadProgress}%` }} />
+                            </div>
+                          )}
+                        </div>
+                        <button type="button" onClick={(e) => { e.stopPropagation(); setVideoFile(null); setVideoUploadProgress(0); }} className="text-zinc-600 hover:text-white">
+                          <X size={18} />
+                        </button>
+                      </div>
+                    ) : formData.videoUrl ? (
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-zinc-800 rounded-xl flex items-center justify-center border border-white/5">
+                          <Film size={18} className="text-zinc-400" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-white truncate">Current video linked</p>
+                          <p className="text-[10px] text-zinc-500 font-medium mt-0.5 truncate">{formData.videoUrl}</p>
+                        </div>
+                        <p className="text-[10px] text-zinc-600 uppercase tracking-widest">Click to replace</p>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <Film size={22} className="text-zinc-700 mx-auto mb-2" />
+                        <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Select Video</p>
+                        <p className="text-[10px] text-zinc-700 mt-1">MP4, MOV, WebM</p>
+                      </div>
+                    )}
+                    <input ref={videoInputRef} type="file" className="hidden" accept="video/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) setVideoFile(f); }} />
+                  </div>
                 </div>
               </div>
             </div>
