@@ -12,6 +12,8 @@ import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 import apiService from '../../services/api';
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '../../store';
 
 // ── Validation ────────────────────────────────────────────────────────
 const schema = yup.object({
@@ -115,6 +117,7 @@ const STEPS = ['Details', 'Account', 'Ready'];
 // ── Main ─────────────────────────────────────────────────────────────
 export default function ArtistRegister() {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleGoogleSuccess = async (cred: CredentialResponse) => {
     if (!cred.credential) return;
@@ -122,11 +125,13 @@ export default function ArtistRegister() {
       const res = await apiService.post<any>('/auth/google', {
         idToken: cred.credential,
         deviceType: 'web',
+        role: 'artist',
       });
-      const { accessToken, refreshToken } = (res.data as any).data;
+      const { accessToken, refreshToken, ...u } = (res.data as any).data;
       localStorage.setItem('access_token', accessToken);
       localStorage.setItem('refresh_token', refreshToken);
-      toast.success('Signed in with Google! Complete your artist application.');
+      dispatch({ type: 'auth/login/fulfilled', payload: u });
+      toast.success('Signed in with Google! Complete your artist profile.');
       navigate('/artist/onboarding');
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Google sign-up failed');
