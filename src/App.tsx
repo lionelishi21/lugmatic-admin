@@ -87,7 +87,7 @@ function AppInner() {
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId="952677583974-d5ao7s59okc1r97sjv08np687srrqduc.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''}>
     <ThemeProvider>
       <AppInner />
       <Toaster position="top-center" />
