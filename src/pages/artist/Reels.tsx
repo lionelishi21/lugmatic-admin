@@ -16,7 +16,7 @@ import { giftService } from '../../services/giftService';
 import socketService from '../../services/socketService';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import apiService from '../../services/api';
+import apiService, { getFullImageUrl } from '../../services/api';
 
 interface ReelItemProps {
   stream: LiveStream;
@@ -68,7 +68,7 @@ const ReelItem = ({ stream, isActive, onFollow, onGiftOpen }: ReelItemProps) => 
   }, [stream._id, stream.status, isActive]);
 
   useEffect(() => {
-    if ((stream.status === 'ended' || stream.status === 'recorded') && stream.recordingUrl && videoRef.current) {
+    if (stream.status === 'ended' && stream.recordingUrl && videoRef.current) {
       if (isActive) {
         videoRef.current.play().catch(() => setIsPlaying(false));
       } else {
@@ -96,7 +96,8 @@ const ReelItem = ({ stream, isActive, onFollow, onGiftOpen }: ReelItemProps) => 
       <div className="absolute inset-0 z-0">
         <video
           ref={videoRef}
-          src={(stream.status === 'ended' || stream.status === 'recorded') ? stream.recordingUrl : undefined}
+          src={stream.status === 'ended' && stream.recordingUrl ? getFullImageUrl(stream.recordingUrl) : undefined}
+          poster={stream.coverImage ? getFullImageUrl(stream.coverImage) : undefined}
           className={`h-full w-full object-cover transition-opacity duration-700 ${isActive ? 'opacity-90' : 'opacity-0'}`}
           loop
           muted={isMuted}
@@ -232,11 +233,12 @@ export default function Reels() {
   useEffect(() => {
     const fetchStreams = async () => {
       try {
-        const [active, recorded] = await Promise.all([
+        const [active, recordedRes] = await Promise.all([
           liveStreamService.getActiveStreams(),
-          apiService.get('/live-stream/recorded').then(r => r.data)
+          apiService.get<LiveStream[]>('/live-stream/recorded')
         ]);
-        setStreams([...(active?.data || []), ...(recorded?.data || [])]);
+        const recordedStreams: LiveStream[] = recordedRes.data?.data || [];
+        setStreams([...(active?.data || []), ...recordedStreams]);
       } catch (err) {
         console.error('Failed to load Reels:', err);
       } finally {

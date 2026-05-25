@@ -109,7 +109,7 @@ export default function Landing() {
             <div className="h-10">
               <img src={logo} alt="Lugmatic" className="h-full object-contain" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+            <span className="text-xl font-bold tracking-tight text-white">
               LUGMATIC
             </span>
           </Link>
@@ -245,7 +245,6 @@ export default function Landing() {
 
               <h1
                 className="text-[clamp(3.5rem,8vw,9rem)] font-bold tracking-[-0.04em] leading-[0.85]"
-                style={{ fontFamily: "'Bebas Neue', sans-serif" }}
               >
                 <span className="block italic">LUGMATIC FOR</span>
                 <span className="block text-green-500 drop-shadow-[0_0_60px_rgba(100,220,80,0.4)] italic">ARTISTS</span>
@@ -285,7 +284,7 @@ export default function Landing() {
               ].map((stat) => (
                 <div key={stat.label} className="group">
                   <stat.icon className="w-10 h-10 text-green-500 mx-auto mb-6 opacity-40 group-hover:opacity-100 transition-opacity duration-500" />
-                  <p className="text-7xl md:text-9xl font-bold tracking-tighter italic mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{stat.value}</p>
+                  <p className="text-7xl md:text-9xl font-bold tracking-tighter italic mb-4">{stat.value}</p>
                   <p className="text-zinc-500 text-sm font-bold tracking-[0.2em] uppercase">{stat.label}</p>
                 </div>
               ))}
@@ -306,7 +305,6 @@ export default function Landing() {
             <div className="max-w-4xl mx-auto px-6 flex flex-col items-center text-center">
               <motion.h2
                 className="text-7xl md:text-[10rem] font-bold tracking-tighter italic mb-10 leading-[0.8]"
-                style={{ fontFamily: "'Bebas Neue', sans-serif" }}
               >
                 COMMAND YOUR <br />
                 <span className="text-green-500 drop-shadow-[0_0_80px_rgba(34,197,94,0.3)]">STAGE.</span>
@@ -382,7 +380,7 @@ export default function Landing() {
               <div className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-8 border border-green-500/20">
                 <Zap className="w-8 h-8 text-green-500" />
               </div>
-              <h3 className="text-5xl md:text-7xl font-bold tracking-tighter italic" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+              <h3 className="text-5xl md:text-7xl font-bold tracking-tighter italic">
                 BUILT FOR THE CULTURE
               </h3>
               <p className="text-zinc-400 text-xl mt-6 max-w-md mx-auto leading-relaxed">
@@ -437,7 +435,7 @@ export default function Landing() {
             className="absolute inset-0 flex items-center justify-center z-10 transform-gpu"
           >
             <div className="text-center max-w-2xl px-6">
-              <h3 className="text-5xl md:text-7xl font-bold tracking-tighter italic mb-8" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+              <h3 className="text-5xl md:text-7xl font-bold tracking-tighter italic mb-8">
                 <span className="text-green-500">GO LIVE.</span> GET GIFTED.
               </h3>
               <div className="flex flex-wrap items-center justify-center gap-4">
@@ -467,7 +465,7 @@ export default function Landing() {
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] font-bold tracking-[.2em] uppercase text-green-500 mb-8">
                   Available Now
                 </div>
-                <h2 className="text-6xl md:text-8xl font-bold tracking-tighter italic mb-8 leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                <h2 className="text-6xl md:text-8xl font-bold tracking-tighter italic mb-8 leading-none">
                   LUGMATIC STUDIO <br />
                   <span className="text-zinc-500 italic">IN YOUR POCKET</span>
                 </h2>
@@ -524,7 +522,7 @@ export default function Landing() {
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-10">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-green-500 mb-6">The Infrastructure</p>
-              <h2 className="text-7xl md:text-9xl font-bold tracking-tighter italic leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+              <h2 className="text-7xl md:text-9xl font-bold tracking-tighter italic leading-none">
                 EVERYTHING <span className="text-zinc-500">YOU</span> NEED
               </h2>
             </motion.div>
@@ -575,7 +573,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center mb-20">
             <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-green-500 mb-6">Unified Network</p>
-            <h2 className="text-6xl md:text-7xl font-bold tracking-tighter italic leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+            <h2 className="text-6xl md:text-7xl font-bold tracking-tighter italic leading-none">
               HOW THE <span className="text-green-500">ECOSYSTEM</span> WORKS
             </h2>
             <p className="text-zinc-500 mt-6 max-w-lg mx-auto text-lg font-light">
@@ -637,7 +635,7 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto px-6 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <p className="text-[10px] font-bold tracking-[0.5em] uppercase text-green-500 mb-8">Join the Culture</p>
-            <h2 className="text-7xl md:text-9xl font-bold tracking-tighter italic mb-12" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+            <h2 className="text-7xl md:text-9xl font-bold tracking-tighter italic mb-12">
               READY TO <span className="text-green-500">ASCEND?</span>
             </h2>
             <p className="text-zinc-400 text-xl mb-16 max-w-2xl mx-auto font-light leading-relaxed">
@@ -660,7 +658,7 @@ export default function Landing() {
             <div>
               <div className="flex items-center gap-4 mb-8">
                 <img src={logo} alt="Lugmatic" className="h-12 w-auto" />
-                <span className="text-3xl font-bold italic" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>LUGMATIC</span>
+                <span className="text-3xl font-bold italic">LUGMATIC</span>
               </div>
               <p className="text-zinc-500 max-w-xs text-lg font-light leading-relaxed">Built for the culture, powered by high-performance technology. Empowering the next generation of Caribbean artists.</p>
             </div>

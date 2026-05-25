@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Users, Shield, DollarSign, Settings, BarChart2, Film, Disc, Music, Music2, Tag,
@@ -31,6 +31,18 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (userRoleProp) {
@@ -275,16 +287,82 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                <Bell size={20} />
                <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full" />
              </Link>
-             <Link 
-               to={userRole === 'admin' ? '/admin/system-settings' : '/artist/profile'} 
-               className="w-10 h-10 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 font-bold text-xs flex-shrink-0 hover:border-emerald-500/50 hover:text-white transition-all overflow-hidden"
-             >
-               {user?.name ? (
-                 <span className="uppercase">{user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}</span>
-               ) : (
-                 <User size={18} />
-               )}
-             </Link>
+             <div ref={profileRef} className="relative">
+               <button
+                 onClick={() => setIsProfileOpen(prev => !prev)}
+                 className="w-10 h-10 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 font-bold text-xs flex-shrink-0 hover:border-emerald-500/50 hover:text-white transition-all overflow-hidden focus:outline-none"
+               >
+                 {user?.name ? (
+                   <span className="uppercase">{user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}</span>
+                 ) : (
+                   <User size={18} />
+                 )}
+               </button>
+
+               <AnimatePresence>
+                 {isProfileOpen && (
+                   <motion.div
+                     initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                     animate={{ opacity: 1, scale: 1, y: 0 }}
+                     exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                     transition={{ duration: 0.15, ease: 'easeOut' }}
+                     className="absolute right-0 top-full mt-3 w-60 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden z-50"
+                   >
+                     {/* User info */}
+                     <div className="px-4 py-4 border-b border-white/5">
+                       <div className="flex items-center gap-3">
+                         <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-xs flex-shrink-0">
+                           {user?.name ? (
+                             <span className="uppercase">{user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}</span>
+                           ) : (
+                             <User size={16} />
+                           )}
+                         </div>
+                         <div className="min-w-0">
+                           <p className="text-sm font-semibold text-white truncate">{user?.name || 'Artist'}</p>
+                           <p className="text-xs text-zinc-500 truncate">{user?.email || ''}</p>
+                         </div>
+                       </div>
+                       {userRole !== 'admin' && (
+                         <span className="mt-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                           {userRole === 'contributor' ? 'Contributor' : 'Artist'}
+                         </span>
+                       )}
+                     </div>
+
+                     {/* Menu items */}
+                     <div className="p-1.5 space-y-0.5">
+                       <Link
+                         to={userRole === 'admin' ? '/admin/system-settings' : '/artist/profile'}
+                         onClick={() => setIsProfileOpen(false)}
+                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
+                       >
+                         <UserCheck size={16} className="flex-shrink-0" />
+                         View Profile
+                       </Link>
+                       <Link
+                         to={userRole === 'admin' ? '/admin/system-settings' : '/artist/settings'}
+                         onClick={() => setIsProfileOpen(false)}
+                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
+                       >
+                         <Settings size={16} className="flex-shrink-0" />
+                         Settings
+                       </Link>
+                     </div>
+
+                     <div className="p-1.5 border-t border-white/5">
+                       <button
+                         onClick={() => { setIsProfileOpen(false); handleLogout(); }}
+                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-400 hover:bg-rose-500/10 hover:text-red-400 transition-all"
+                       >
+                         <LogOut size={16} className="flex-shrink-0" />
+                         Sign Out
+                       </button>
+                     </div>
+                   </motion.div>
+                 )}
+               </AnimatePresence>
+             </div>
           </div>
         </header>
 
