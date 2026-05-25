@@ -39,9 +39,10 @@ export interface ShortClip {
 export interface CreateShortClipData {
     title: string;
     description?: string;
-    s3Key: string;
+    videoUrl: string;
     thumbnailUrl?: string;
     duration?: number;
+    songId?: string;
 }
 
 export interface VideoFormData {
