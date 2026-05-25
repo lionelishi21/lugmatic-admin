@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useBlocker } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Room,
@@ -140,6 +141,9 @@ export default function Live() {
   const isLive = phase === 'live';
   const isBusy = ['creating', 'getting_token', 'connecting', 'publishing', 'ending'].includes(phase);
 
+  // Block in-app navigation when live
+  const blocker = useBlocker(isLive);
+
   const [streamSettings, setStreamSettings] = useState({
     title: '',
     description: '',
@@ -154,11 +158,20 @@ export default function Live() {
   const [viewerCount, setViewerCount] = useState(0);
   const [giftCount, setGiftCount] = useState(0);
 
+  const [isEndingToLeave, setIsEndingToLeave] = useState(false);
+
   const roomRef = useRef<Room | null>(null);
   const clashRoomRef = useRef<Room | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
+
+  // Refs used by timers to avoid stale closures
+  const isMicOnRef = useRef(isMicOn);
+  const isCameraOnRef = useRef(isCameraOn);
+  const streamDataRef = useRef(streamData);
+  const inactivityCountRef = useRef(0);
+  const inactivityTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [remoteVideoTrack, setRemoteVideoTrack] = useState<any>(null);
   const [remoteAudioTrack, setRemoteAudioTrack] = useState<any>(null);
   const [isPreviewActive, setIsPreviewActive] = useState(false);
@@ -196,6 +209,66 @@ export default function Live() {
     }, 1000);
     return () => clearInterval(interval);
   }, [liveSince]);
+
+  // Keep refs in sync with state so interval callbacks aren't stale
+  useEffect(() => { isMicOnRef.current = isMicOn; inactivityCountRef.current = 0; }, [isMicOn]);
+  useEffect(() => { isCameraOnRef.current = isCameraOn; inactivityCountRef.current = 0; }, [isCameraOn]);
+  useEffect(() => { streamDataRef.current = streamData; }, [streamData]);
+
+  // 5-minute inactivity auto-end (both mic AND camera must be off to count)
+  useEffect(() => {
+    if (!isLive) {
+      if (inactivityTimerRef.current) clearInterval(inactivityTimerRef.current);
+      inactivityTimerRef.current = null;
+      inactivityCountRef.current = 0;
+      return;
+    }
+    inactivityCountRef.current = 0;
+    inactivityTimerRef.current = setInterval(async () => {
+      if (!isMicOnRef.current && !isCameraOnRef.current) {
+        inactivityCountRef.current++;
+        if (inactivityCountRef.current === 9) {
+          toast('Your stream will auto-end in 30 seconds — mic and camera have been off for 4.5 minutes.', {
+            icon: '⚠️', duration: 28000,
+          });
+        } else if (inactivityCountRef.current >= 10) {
+          clearInterval(inactivityTimerRef.current!);
+          inactivityTimerRef.current = null;
+          toast.error('Stream ended automatically after 5 minutes of inactivity.');
+          const sd = streamDataRef.current;
+          if (sd?._id) {
+            try { await endStreamApi(sd._id); } catch {}
+            roomRef.current?.disconnect();
+            roomRef.current = null;
+            socketService.removeAllStreamListeners();
+            socketService.leaveStream(sd._id);
+            socketService.disconnect();
+          }
+          setPhase('idle');
+          setStreamData(null);
+          setLiveSince(null);
+          setElapsedTime('0:00');
+          setLiveKitConnected(false);
+          setMessages([]);
+          setViewerCount(0);
+        }
+      } else {
+        inactivityCountRef.current = 0;
+      }
+    }, 30_000);
+    return () => {
+      if (inactivityTimerRef.current) clearInterval(inactivityTimerRef.current);
+    };
+  }, [isLive]);
+
+  // Warn on browser tab close / refresh while live
+  useEffect(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isLive) { e.preventDefault(); (e as any).returnValue = ''; }
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [isLive]);
 
   useEffect(() => {
     if (!activeClash || !clashTurn) return;
@@ -528,6 +601,17 @@ export default function Live() {
     } catch (error: unknown) {
       toast.error('Failed to end stream properly.');
       setPhase('idle');
+    }
+  };
+
+  // Called when artist confirms "End Stream & Leave" in the nav-blocker modal
+  const handleEndAndLeave = async () => {
+    setIsEndingToLeave(true);
+    try {
+      await handleEndStream();
+    } finally {
+      setIsEndingToLeave(false);
+      blocker.proceed?.();
     }
   };
 
@@ -881,11 +965,54 @@ export default function Live() {
       </AnimatePresence>
 
       {/* Challenge Modal */}
-      <ChallengeModal 
+      <ChallengeModal
         isOpen={isChallengeModalOpen}
         onClose={() => setIsChallengeModalOpen(false)}
         currentStreamId={streamData?._id || ''}
       />
+
+      {/* Navigation blocker — shown when artist tries to leave the page while live */}
+      <AnimatePresence>
+        {blocker.state === 'blocked' && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              className="w-full max-w-sm bg-zinc-900 border border-white/10 rounded-[2rem] p-8 shadow-2xl text-center"
+            >
+              <div className="w-16 h-16 bg-rose-500/10 border border-rose-500/20 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6">
+                <Radio className="text-rose-500" size={28} />
+              </div>
+              <h2 className="text-xl font-bold text-white mb-2">You're still live!</h2>
+              <p className="text-sm text-zinc-500 mb-8 leading-relaxed">
+                Leaving this page won't end your stream, but you'll lose the control panel.
+                End the stream now or go back and keep broadcasting.
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={handleEndAndLeave}
+                  disabled={isEndingToLeave}
+                  className="w-full h-14 bg-rose-500 hover:bg-rose-400 text-white rounded-2xl text-sm font-bold uppercase tracking-widest transition-all disabled:opacity-60 flex items-center justify-center gap-3"
+                >
+                  {isEndingToLeave ? (
+                    <><Loader2 size={18} className="animate-spin" /> Ending…</>
+                  ) : (
+                    'End Stream & Leave'
+                  )}
+                </button>
+                <button
+                  onClick={() => blocker.reset?.()}
+                  disabled={isEndingToLeave}
+                  className="w-full h-14 bg-zinc-950 hover:bg-zinc-800 text-white border border-white/10 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all disabled:opacity-60"
+                >
+                  Stay Live
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
