@@ -29,9 +29,11 @@ export interface Payout {
 
 export interface ArtistEarningsStats {
     totalEarnings: number;
+    availableBalance: number;
     monthlyEarnings: number;
     breakdown: Record<string, number>;
     history: Transaction[];
+    pagination: { page: number; limit: number; total: number; pages: number };
 }
 
 export interface AdminFinancialStats {
@@ -51,8 +53,8 @@ export interface AdminFinancialStats {
 
 export const financeService = {
     // Artist methods
-    getArtistEarnings: async () => {
-        const response = await apiService.get<ArtistEarningsStats>('/finance/earnings');
+    getArtistEarnings: async (page = 1, limit = 20) => {
+        const response = await apiService.get<ArtistEarningsStats>(`/finance/earnings?page=${page}&limit=${limit}`);
         return response.data.data;
     },
 

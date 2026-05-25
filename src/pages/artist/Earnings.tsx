@@ -1,85 +1,94 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  DollarSign, TrendingUp, BarChart2, Calendar,
-  Download, ChevronDown, ArrowUpRight, Music,
+  DollarSign, TrendingUp, Calendar,
+  Download, ChevronDown,
   Gift, Clock, CheckCircle2,
-  Shield,
-  Activity,
   History,
   Wallet,
-  Zap,
-  ArrowRight,
-  TrendingDown,
-  Activity as ActivityIcon,
-  Layers,
-  ChevronRight,
-  FileText,
-  Search
 } from 'lucide-react';
 import { format, endOfMonth, subMonths } from 'date-fns';
 import financeService from '../../services/financeService';
 
 interface EarningsStats {
   totalEarnings: number;
+  availableBalance: number;
   monthlyEarnings: number;
-  streamEarnings: number;
   giftEarnings: number;
+  totalPages: number;
 }
 
-interface EarningsData {
+interface EarningsRow {
   id: string;
   amount: number;
-  source: 'stream' | 'gift' | 'subscription';
+  source: 'gift';
   source_name: string;
   created_at: string;
   status: 'pending' | 'paid';
   payout_date?: string;
 }
 
+interface PayoutModalState {
+  open: boolean;
+  amount: string;
+  loading: boolean;
+  error: string;
+}
+
 export default function Earnings() {
   const [stats, setStats] = useState<EarningsStats>({
-    totalEarnings: 0, monthlyEarnings: 0, streamEarnings: 0, giftEarnings: 0,
+    totalEarnings: 0, availableBalance: 0, monthlyEarnings: 0, giftEarnings: 0, totalPages: 1,
   });
-  const [earnings, setEarnings]       = useState<EarningsData[]>([]);
-  const [isLoading, setIsLoading]     = useState(true);
+  const [earnings, setEarnings] = useState<EarningsRow[]>([]);
+  const [isLoading, setIsLoading]         = useState(true);
+  const [page, setPage]                   = useState(1);
+  const [hasMore, setHasMore]             = useState(false);
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [statusFilter, setStatusFilter]   = useState<'all' | 'pending' | 'paid'>('all');
+  const [payout, setPayout]               = useState<PayoutModalState>({ open: false, amount: '', loading: false, error: '' });
 
-  const fetchEarningsData = useCallback(async () => {
+  const fetchPage = useCallback(async (p: number, replace: boolean) => {
     try {
-      setIsLoading(true);
-      const data = await financeService.getArtistEarnings();
+      if (replace) setIsLoading(true);
+      const data = await financeService.getArtistEarnings(p, 20);
       setStats({
-        totalEarnings:   data.totalEarnings   / 100,
-        monthlyEarnings: data.monthlyEarnings  / 100,
-        streamEarnings:  (data.breakdown['subscription_revenue'] || 0) / 100,
-        giftEarnings:    (data.breakdown['gift_received']         || 0) / 100,
+        totalEarnings:   (data.totalEarnings   || 0) / 100,
+        availableBalance:(data.availableBalance || 0) / 100,
+        monthlyEarnings: (data.monthlyEarnings  || 0) / 100,
+        giftEarnings:    ((data.breakdown['gift_received'] || 0)) / 100,
+        totalPages:      data.pagination?.pages || 1,
       });
-      setEarnings(data.history.map((t: any) => ({
+      const rows: EarningsRow[] = (data.history || []).map((t: any) => ({
         id:          t._id,
-        amount:      t.amount / 100,
-        source:      t.type === 'gift_received' ? 'gift' : 'subscription',
-        source_name: t.description,
+        amount:      (t.amount || 0) / 100,
+        source:      'gift',
+        source_name: t.description || 'Gift received',
         created_at:  t.createdAt,
         status:      t.status === 'completed' ? 'paid' : 'pending',
         payout_date: t.payout_date,
-      })));
+      }));
+      setEarnings(prev => replace ? rows : [...prev, ...rows]);
+      setHasMore(p < (data.pagination?.pages || 1));
     } catch { /* silently handled */ }
-    finally { setIsLoading(false); }
+    finally { if (replace) setIsLoading(false); }
   }, []);
 
-  useEffect(() => { fetchEarningsData(); }, [fetchEarningsData]);
+  useEffect(() => { fetchPage(1, true); setPage(1); }, [fetchPage]);
+
+  const loadMore = () => {
+    const next = page + 1;
+    setPage(next);
+    fetchPage(next, false);
+  };
 
   const downloadReport = () => {
     const csv = [
-      ['Date', 'Source', 'Amount', 'Status', 'Payout Date'].join(','),
+      ['Date', 'Source', 'Amount', 'Status'].join(','),
       ...earnings.map(e => [
         format(new Date(e.created_at), 'yyyy-MM-dd'),
         e.source_name,
         e.amount.toFixed(2),
         e.status,
-        e.payout_date ? format(new Date(e.payout_date), 'yyyy-MM-dd') : '',
       ].join(',')),
     ].join('\n');
     const a = Object.assign(document.createElement('a'), {
@@ -89,50 +98,60 @@ export default function Earnings() {
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   };
 
-  const filtered = earnings.filter(e =>
-    statusFilter === 'all' || e.status === statusFilter,
-  );
+  const handlePayoutRequest = async () => {
+    const amountCents = Math.round(parseFloat(payout.amount) * 100);
+    if (isNaN(amountCents) || amountCents < 5000) {
+      setPayout(p => ({ ...p, error: 'Minimum payout is $50.00' }));
+      return;
+    }
+    if (amountCents > Math.round(stats.availableBalance * 100)) {
+      setPayout(p => ({ ...p, error: 'Amount exceeds available balance' }));
+      return;
+    }
+    try {
+      setPayout(p => ({ ...p, loading: true, error: '' }));
+      await financeService.requestPayout(amountCents);
+      setPayout({ open: false, amount: '', loading: false, error: '' });
+      fetchPage(1, true);
+    } catch (err: any) {
+      setPayout(p => ({ ...p, loading: false, error: err?.response?.data?.message || 'Payout request failed' }));
+    }
+  };
+
+  const filtered = earnings.filter(e => statusFilter === 'all' || e.status === statusFilter);
 
   const STATS = [
     {
-      label: 'Monthly Yield',
-      value: `$${stats.monthlyEarnings.toLocaleString()}`,
+      label: 'Total Earnings',
+      value: `$${stats.totalEarnings.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
       icon: TrendingUp,
       color: 'text-emerald-500',
       bg: 'bg-emerald-500/5',
-      trend: '+15.3%',
-      trendUp: true,
-      tag: 'Growth'
+      sub: 'All-time',
     },
     {
-      label: 'Stream Revenue',
-      value: `$${stats.streamEarnings.toLocaleString()}`,
-      icon: ActivityIcon,
+      label: 'This Month',
+      value: `$${stats.monthlyEarnings.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+      icon: Calendar,
       color: 'text-indigo-500',
       bg: 'bg-indigo-500/5',
-      trend: 'Standard',
-      trendUp: false,
-      tag: 'Revenue'
+      sub: format(new Date(), 'MMMM yyyy'),
     },
     {
-      label: 'Gift Assets',
-      value: `$${stats.giftEarnings.toLocaleString()}`,
+      label: 'Gift Revenue',
+      value: `$${stats.giftEarnings.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
       icon: Gift,
       color: 'text-rose-500',
       bg: 'bg-rose-500/5',
-      trend: 'Direct',
-      trendUp: false,
-      tag: 'Support'
+      sub: 'From fan gifts',
     },
     {
-      label: 'Payout Target',
-      value: format(endOfMonth(selectedMonth), 'MMM d, yyyy'),
-      icon: Shield,
+      label: 'Available Balance',
+      value: `$${stats.availableBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+      icon: Wallet,
       color: 'text-amber-500',
       bg: 'bg-amber-500/5',
-      trend: 'Secure',
-      trendUp: false,
-      tag: 'Scheduled'
+      sub: 'Ready to withdraw',
     },
   ];
 
@@ -145,14 +164,14 @@ export default function Earnings() {
             <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Financial Overview</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Updates Active</span>
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Live</span>
             </div>
           </div>
-          <p className="text-zinc-500 font-medium">Detailed tracking of your revenue streams and global earnings history.</p>
+          <p className="text-zinc-500 font-medium">Track your revenue streams and request payouts.</p>
         </div>
-        
+
         <div className="flex items-center gap-4">
-          <div className="relative group">
+          <div className="relative">
             <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 pointer-events-none" />
             <select
               value={selectedMonth.toISOString()}
@@ -168,8 +187,16 @@ export default function Earnings() {
             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 pointer-events-none" />
           </div>
           <button
+            onClick={() => setPayout(p => ({ ...p, open: true }))}
+            disabled={stats.availableBalance < 50}
+            className="flex items-center gap-3 px-6 h-12 bg-emerald-500 text-black text-xs font-bold rounded-xl hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xl"
+          >
+            <Wallet className="h-4 w-4" />
+            Request Payout
+          </button>
+          <button
             onClick={downloadReport}
-            className="flex items-center gap-3 px-8 h-12 bg-white text-black text-xs font-bold rounded-xl hover:scale-105 transition-all shadow-xl border border-white/10"
+            className="flex items-center gap-3 px-6 h-12 bg-white text-black text-xs font-bold rounded-xl hover:scale-105 transition-all shadow-xl"
           >
             <Download className="h-4 w-4" />
             Export CSV
@@ -192,17 +219,9 @@ export default function Earnings() {
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${s.bg} border border-white/5 shadow-inner group-hover:scale-110 transition-transform duration-500`}>
                 <s.icon size={20} className={s.color} />
               </div>
-              <div className="flex flex-col items-end">
-                {s.trendUp ? (
-                  <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/5 px-2 py-0.5 rounded border border-emerald-500/10 flex items-center gap-1 mb-1">
-                    <TrendingUp size={10} /> {s.trend}
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-bold text-zinc-500 bg-black/40 border border-white/5 px-2 py-0.5 rounded mb-1">
-                    {s.trend}
-                  </span>
-                )}
-              </div>
+              <span className="text-[10px] font-bold text-zinc-500 bg-black/40 border border-white/5 px-2 py-0.5 rounded">
+                {s.sub}
+              </span>
             </div>
             <p className="text-zinc-500 text-xs font-semibold mb-1.5">{s.label}</p>
             <p className="text-3xl font-bold text-white tracking-tight tabular-nums leading-none group-hover:text-emerald-400 transition-colors">{s.value}</p>
@@ -219,17 +238,11 @@ export default function Earnings() {
             </div>
             <div>
                <h3 className="text-lg font-bold text-white">Earnings Archive</h3>
-               <div className="flex items-center gap-2 mt-1">
-                  <p className="text-xs text-zinc-500 font-medium">Verified historical transaction records</p>
-                  <div className="w-1 h-1 rounded-full bg-zinc-800" />
-                  <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/5 px-2 py-0.5 rounded border border-emerald-500/10">
-                    Synced
-                  </span>
-               </div>
+               <p className="text-xs text-zinc-500 font-medium mt-1">Complete transaction history</p>
             </div>
           </div>
-          
-          <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1 shadow-inner backdrop-blur-3xl">
+
+          <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1 shadow-inner">
             {(['all', 'pending', 'paid'] as const).map(s => (
               <button
                 key={s}
@@ -251,7 +264,7 @@ export default function Earnings() {
             {isLoading ? (
               <div className="py-40 flex flex-col items-center justify-center">
                 <div className="w-12 h-12 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin shadow-2xl" />
-                <p className="text-xs font-semibold text-zinc-600 mt-6 animate-pulse tracking-wide">Syncing earnings...</p>
+                <p className="text-xs font-semibold text-zinc-600 mt-6 animate-pulse tracking-wide">Syncing earnings…</p>
               </div>
             ) : filtered.length === 0 ? (
               <div className="py-32 text-center">
@@ -260,7 +273,7 @@ export default function Earnings() {
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">No transaction records</h3>
                 <p className="text-sm text-zinc-500 max-w-xs mx-auto leading-relaxed">
-                  Your earnings history will appear here once you start generating revenue.
+                  Your earnings history will appear once fans start sending gifts.
                 </p>
               </div>
             ) : (
@@ -281,24 +294,18 @@ export default function Earnings() {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.02 }}
-                      className="group hover:bg-white/[0.01] transition-all cursor-pointer"
+                      className="group hover:bg-white/[0.01] transition-all"
                     >
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
-                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border border-white/5 shadow-inner transition-transform group-hover:scale-105 ${
-                              e.source === 'subscription'
-                                ? 'bg-indigo-500/5 text-indigo-500'
-                                : 'bg-emerald-500/5 text-emerald-500'
-                            }`}>
-                              {e.source === 'subscription'
-                                ? <Music size={20} />
-                                : <Gift size={20} />}
+                           <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border border-white/5 shadow-inner bg-emerald-500/5 text-emerald-500">
+                              <Gift size={20} />
                            </div>
                            <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors leading-none">{e.source_name}</p>
                         </div>
                       </td>
                       <td className="px-8 py-6">
-                        <span className="text-xs font-semibold text-zinc-500 capitalize">{e.source}</span>
+                        <span className="text-xs font-semibold text-zinc-500">Gift</span>
                       </td>
                       <td className="px-8 py-6">
                          <p className="text-base font-bold text-white tracking-tight">
@@ -333,10 +340,77 @@ export default function Earnings() {
             )}
           </AnimatePresence>
         </div>
-        <div className="p-6 bg-[#0a0a0a] border-t border-white/5 text-center">
-            <button className="text-xs font-bold text-zinc-600 hover:text-white transition-all uppercase tracking-widest">Load More Earnings</button>
-        </div>
+
+        {hasMore && (
+          <div className="p-6 bg-[#0a0a0a] border-t border-white/5 text-center">
+            <button
+              onClick={loadMore}
+              className="text-xs font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-widest"
+            >
+              Load More Earnings
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Payout Request Modal */}
+      <AnimatePresence>
+        {payout.open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+            onClick={e => { if (e.target === e.currentTarget) setPayout(p => ({ ...p, open: false })); }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-zinc-900 border border-white/10 rounded-2xl p-8 w-full max-w-md shadow-2xl"
+            >
+              <h2 className="text-xl font-bold text-white mb-1">Request Payout</h2>
+              <p className="text-sm text-zinc-500 mb-6">
+                Available: <span className="text-emerald-400 font-bold">${stats.availableBalance.toFixed(2)}</span> · Min $50.00
+              </p>
+
+              <label className="block text-xs font-semibold text-zinc-400 mb-2">Amount (USD)</label>
+              <div className="relative mb-4">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">$</span>
+                <input
+                  type="number"
+                  min="50"
+                  step="0.01"
+                  value={payout.amount}
+                  onChange={e => setPayout(p => ({ ...p, amount: e.target.value, error: '' }))}
+                  placeholder="0.00"
+                  className="w-full pl-8 pr-4 h-12 bg-zinc-950 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-emerald-500/50"
+                />
+              </div>
+
+              {payout.error && (
+                <p className="text-xs text-red-400 font-medium mb-4">{payout.error}</p>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setPayout(p => ({ ...p, open: false, error: '' }))}
+                  className="flex-1 h-12 rounded-xl border border-white/10 text-zinc-400 text-xs font-bold hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePayoutRequest}
+                  disabled={payout.loading}
+                  className="flex-1 h-12 rounded-xl bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 disabled:opacity-50 transition-all"
+                >
+                  {payout.loading ? 'Submitting…' : 'Confirm Payout'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
