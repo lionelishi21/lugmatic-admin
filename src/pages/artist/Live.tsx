@@ -165,6 +165,7 @@ export default function Live() {
   const roomRef = useRef<Room | null>(null);
   const clashRoomRef = useRef<Room | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
 
@@ -289,6 +290,25 @@ export default function Live() {
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, [isLive]);
+
+  // Attach / detach opponent video track to the split-screen video element
+  useEffect(() => {
+    const el = remoteVideoRef.current;
+    if (!el || !remoteVideoTrack) return;
+    remoteVideoTrack.attach(el);
+    return () => { remoteVideoTrack.detach(el); };
+  }, [remoteVideoTrack]);
+
+  // Attach / detach opponent audio track
+  useEffect(() => {
+    if (!remoteAudioTrack) return;
+    const el = document.createElement('audio');
+    el.autoplay = true;
+    el.style.display = 'none';
+    document.body.appendChild(el);
+    remoteAudioTrack.attach(el);
+    return () => { remoteAudioTrack.detach(el); el.remove(); };
+  }, [remoteAudioTrack]);
 
   useEffect(() => {
     if (!activeClash || !clashTurn) return;
@@ -804,14 +824,71 @@ export default function Live() {
       {/* Main Viewport */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          {/* Video Feed */}
-          <div className="premium-card !p-0 aspect-video rounded-[2.5rem] bg-black border-white/5 overflow-hidden shadow-2xl relative">
-            <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            
-            {/* Overlay Controls */}
+          {/* Video Feed — single view normally, split-screen during a clash */}
+          <div className="premium-card !p-0 rounded-[2.5rem] bg-black border-white/5 overflow-hidden shadow-2xl relative"
+            style={{ aspectRatio: activeClash ? '16/9' : '16/9' }}
+          >
+            {activeClash ? (
+              /* ── Clash split-screen ── */
+              <div className="w-full h-full flex">
+                {/* Left — my feed */}
+                <div className="relative flex-1 overflow-hidden border-r border-purple-500/40">
+                  <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                    <span className="text-white text-[10px] font-black uppercase tracking-widest bg-black/60 px-2 py-1 rounded-lg">You</span>
+                  </div>
+                  <div className="absolute top-4 left-4 text-center bg-black/60 backdrop-blur px-3 py-1.5 rounded-xl">
+                    <p className="text-2xl font-black text-white tabular-nums">{clashScores.challenger}</p>
+                    <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">pts</p>
+                  </div>
+                </div>
+
+                {/* VS divider */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-px h-8 bg-purple-500/50" />
+                    <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/40 border-2 border-purple-400/30">
+                      <Swords size={16} className="text-white" />
+                    </div>
+                    <div className="w-px h-8 bg-purple-500/50" />
+                  </div>
+                </div>
+
+                {/* Right — opponent feed */}
+                <div className="relative flex-1 overflow-hidden">
+                  {remoteVideoTrack ? (
+                    <video ref={remoteVideoRef} className="w-full h-full object-cover" autoPlay playsInline />
+                  ) : (
+                    <div className="w-full h-full bg-zinc-950 flex flex-col items-center justify-center gap-3">
+                      <Loader2 size={28} className="text-purple-500 animate-spin" />
+                      <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Connecting opponent...</p>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <div className="absolute bottom-4 right-4">
+                    <span className="text-white text-[10px] font-black uppercase tracking-widest bg-black/60 px-2 py-1 rounded-lg">
+                      {activeClash.opponent?.name || 'Opponent'}
+                    </span>
+                  </div>
+                  <div className="absolute top-4 right-4 text-center bg-black/60 backdrop-blur px-3 py-1.5 rounded-xl">
+                    <p className="text-2xl font-black text-white tabular-nums">{clashScores.opponent}</p>
+                    <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">pts</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* ── Normal single feed ── */
+              <>
+                <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              </>
+            )}
+
+            {/* Overlay Controls (shown in both modes) */}
             {isLive && (
-              <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between">
+              <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between z-20">
                 <div className="flex items-center gap-4">
                   <button onClick={toggleMic} className={`w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 transition-all ${isMicOn ? 'bg-white/10 text-white' : 'bg-rose-600 text-white'}`}>
                     {isMicOn ? <Mic size={20} /> : <MicOff size={20} />}
@@ -819,7 +896,7 @@ export default function Live() {
                   <button onClick={toggleCamera} className={`w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 transition-all ${isCameraOn ? 'bg-white/10 text-white' : 'bg-rose-600 text-white'}`}>
                     {isCameraOn ? <Video size={20} /> : <VideoOff size={20} />}
                   </button>
-                  <button 
+                  <button
                     onClick={() => setIsChallengeModalOpen(true)}
                     disabled={!!activeClash}
                     className={`w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 transition-all ${activeClash ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' : 'bg-purple-600 text-white shadow-lg shadow-purple-900/20'}`}
@@ -829,48 +906,45 @@ export default function Live() {
                   </button>
                 </div>
                 <div className="px-4 py-2 bg-black/40 backdrop-blur-xl rounded-xl border border-white/5 flex items-center gap-3">
-                   <Users size={16} className="text-white/60" />
-                   <span className="text-xs font-bold text-white">{viewerCount.toLocaleString()}</span>
+                  <Users size={16} className="text-white/60" />
+                  <span className="text-xs font-bold text-white">{viewerCount.toLocaleString()}</span>
                 </div>
               </div>
             )}
 
             {!isLive && phase === 'idle' && !isPreviewActive && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-zinc-950/80 backdrop-blur-sm">
-                 <div className="w-20 h-20 bg-white/5 rounded-[2rem] flex items-center justify-center border border-white/10">
-                    <Camera size={40} className="text-zinc-700" />
-                 </div>
-                 <p className="text-sm font-semibold text-zinc-500">Starting camera preview...</p>
+                <div className="w-20 h-20 bg-white/5 rounded-[2rem] flex items-center justify-center border border-white/10">
+                  <Camera size={40} className="text-zinc-700" />
+                </div>
+                <p className="text-sm font-semibold text-zinc-500">Starting camera preview...</p>
               </div>
             )}
           </div>
 
-          {/* Clash Banner if active */}
+          {/* Clash info bar (shown below video when clash is active) */}
           {activeClash && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="premium-card p-10 bg-purple-600/10 border-purple-500/20 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8"
+            <motion.div
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              className="premium-card px-8 py-5 bg-purple-600/5 border-purple-500/20 flex items-center justify-between gap-6"
             >
-              <div className="flex items-center gap-6">
-                <div className="w-16 h-16 bg-purple-500 rounded-3xl flex items-center justify-center shadow-lg shadow-purple-500/20">
-                   <Swords className="text-black" size={32} />
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-purple-500/20 rounded-xl flex items-center justify-center border border-purple-500/30">
+                  <Swords size={16} className="text-purple-400" />
                 </div>
                 <div>
-                   <h3 className="text-xl font-bold text-white">Live Clash: {activeClash.realmLabel}</h3>
-                   <p className="text-sm text-zinc-400 font-medium">Earn points from fans to win the clash!</p>
+                  <p className="text-xs font-black text-purple-400 uppercase tracking-widest">{activeClash.realmLabel || 'Live Clash'}</p>
+                  <p className="text-[10px] text-zinc-500 font-medium">Earn points from fan gifts to win</p>
                 </div>
               </div>
-              <div className="flex items-center gap-12">
-                 <div className="text-center">
-                    <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Your Score</p>
-                    <p className="text-4xl font-bold text-white tabular-nums">{clashScores.challenger}</p>
-                 </div>
-                 <div className="text-2xl font-bold text-purple-500 italic">VS</div>
-                 <div className="text-center">
-                    <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Opponent</p>
-                    <p className="text-4xl font-bold text-white tabular-nums">{clashScores.opponent}</p>
-                 </div>
-              </div>
+              {clashTurn && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-xl border border-white/5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">
+                    {turnTimeLeft}s remaining
+                  </span>
+                </div>
+              )}
             </motion.div>
           )}
         </div>
