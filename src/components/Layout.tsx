@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { liveGuard } from '../store/liveGuard';
 import {
   Users, Shield, DollarSign, Settings, BarChart2, Film, Disc, Music, Music2, Tag,
   Menu, X, ChevronRight, LayoutGrid, Bell, Search, User, UserCheck, Sun, Moon, LogOut, ChevronDown,
@@ -204,7 +205,10 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                                   <Link
                                     key={sub.path}
                                     to={sub.path}
-                                    onClick={() => { if (isMobile) setIsSidebarOpen(false); }}
+                                    onClick={(e) => {
+                                      if (liveGuard.intercept(sub.path)) { e.preventDefault(); return; }
+                                      if (isMobile) setIsSidebarOpen(false);
+                                    }}
                                     className={`block py-2 text-sm font-medium transition-all ${
                                       location.pathname === sub.path ? 'text-emerald-400' : 'text-zinc-500 hover:text-white'
                                     }`}
@@ -219,7 +223,10 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                       ) : (
                         <Link
                           to={item.path}
-                          onClick={() => { if (isMobile) setIsSidebarOpen(false); }}
+                          onClick={(e) => {
+                            if (liveGuard.intercept(item.path)) { e.preventDefault(); return; }
+                            if (isMobile) setIsSidebarOpen(false);
+                          }}
                           className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group ${
                             isActive(item.path) 
                               ? 'bg-white/10 text-white' 
@@ -243,7 +250,10 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                 <Link
                   key={item.path}
                   to={item.path}
-                  onClick={() => { if (isMobile) setIsSidebarOpen(false); }}
+                  onClick={(e) => {
+                    if (liveGuard.intercept(item.path)) { e.preventDefault(); return; }
+                    if (isMobile) setIsSidebarOpen(false);
+                  }}
                   className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group ${
                     isActive(item.path) 
                       ? 'bg-white/10 text-white' 
@@ -334,7 +344,11 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                      <div className="p-1.5 space-y-0.5">
                        <Link
                          to={userRole === 'admin' ? '/admin/system-settings' : '/artist/profile'}
-                         onClick={() => setIsProfileOpen(false)}
+                         onClick={(e) => {
+                           const path = userRole === 'admin' ? '/admin/system-settings' : '/artist/profile';
+                           if (liveGuard.intercept(path)) { e.preventDefault(); return; }
+                           setIsProfileOpen(false);
+                         }}
                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
                        >
                          <UserCheck size={16} className="flex-shrink-0" />
@@ -342,7 +356,11 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                        </Link>
                        <Link
                          to={userRole === 'admin' ? '/admin/system-settings' : '/artist/settings'}
-                         onClick={() => setIsProfileOpen(false)}
+                         onClick={(e) => {
+                           const path = userRole === 'admin' ? '/admin/system-settings' : '/artist/settings';
+                           if (liveGuard.intercept(path)) { e.preventDefault(); return; }
+                           setIsProfileOpen(false);
+                         }}
                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
                        >
                          <Settings size={16} className="flex-shrink-0" />

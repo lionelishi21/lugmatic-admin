@@ -110,6 +110,11 @@ const videoService = {
         return response.data.data;
     },
 
+    getMyShorts: async (artistId: string, page = 1, limit = 20): Promise<ShortClip[]> => {
+        const response = await apiService.get<ShortClip[]>(`/video/artist/${artistId}?type=short_clip&page=${page}&limit=${limit}`);
+        return response.data.data;
+    },
+
     toggleLike: async (videoId: string): Promise<{ liked: boolean; likesCount: number }> => {
         const response = await apiService.post<{ liked: boolean; likesCount: number }>(`/video/${videoId}/like`);
         return response.data.data;

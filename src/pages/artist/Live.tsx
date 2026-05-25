@@ -74,6 +74,7 @@ import {
   type LiveStream,
   type StreamEndSummary,
 } from '../../services/liveStreamService';
+import { liveGuard } from '../../store/liveGuard';
 import socketService, { type ChatMessage, type StreamState } from '../../services/socketService';
 import apiService from '../../services/api';
 import clashService from '../../services/clashService';
@@ -167,10 +168,11 @@ export default function Live() {
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
 
-  // Refs used by timers to avoid stale closures
+  // Refs used by timers / cleanup to avoid stale closures
   const isMicOnRef = useRef(isMicOn);
   const isCameraOnRef = useRef(isCameraOn);
   const streamDataRef = useRef(streamData);
+  const phaseRef = useRef(phase);
   const inactivityCountRef = useRef(0);
   const inactivityTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [remoteVideoTrack, setRemoteVideoTrack] = useState<any>(null);
@@ -215,6 +217,7 @@ export default function Live() {
   useEffect(() => { isMicOnRef.current = isMicOn; inactivityCountRef.current = 0; }, [isMicOn]);
   useEffect(() => { isCameraOnRef.current = isCameraOn; inactivityCountRef.current = 0; }, [isCameraOn]);
   useEffect(() => { streamDataRef.current = streamData; }, [streamData]);
+  useEffect(() => { phaseRef.current = phase; }, [phase]);
 
   // 5-minute inactivity auto-end (both mic AND camera must be off to count)
   useEffect(() => {
@@ -339,9 +342,18 @@ export default function Live() {
     startPreview();
     return () => {
       stopPreview();
+      liveGuard.clear();
+      const sd = streamDataRef.current;
+      const livePhases: StreamPhase[] = ['live', 'publishing', 'connecting'];
+      if (sd?._id && livePhases.includes(phaseRef.current)) {
+        // Artist navigated away while live — end the stream on the backend so it
+        // doesn't stay visible as "active" indefinitely.
+        endStreamApi(sd._id).catch(() => {});
+      }
       roomRef.current?.disconnect();
+      roomRef.current = null;
       socketService.removeAllStreamListeners();
-      if (streamData?._id) socketService.leaveStream(streamData._id);
+      if (sd?._id) socketService.leaveStream(sd._id);
       socketService.disconnect();
     };
   }, []);
@@ -582,6 +594,11 @@ export default function Live() {
       setPhase('live');
       setIsSettingsOpen(false);
       setLiveSince(Date.now());
+      // Register nav guard so sidebar link clicks show the warning modal
+      liveGuard.register((targetPath) => {
+        pendingNavRef.current = targetPath;
+        setShowNavWarning(true);
+      });
       toast.success('Stream started.');
     } catch (error: unknown) {
       const errMsg = error instanceof Error ? error.message : 'Failed to start stream';
@@ -594,6 +611,7 @@ export default function Live() {
   const handleEndStream = async () => {
     if (!streamData?._id) return;
     setPhase('ending');
+    liveGuard.clear();
     try {
       try {
         const result = await endStreamApi(streamData._id);
