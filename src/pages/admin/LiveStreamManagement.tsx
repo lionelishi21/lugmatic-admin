@@ -7,7 +7,7 @@ import {
   Monitor, BarChart3, HardDrive, RefreshCw, Globe, Target,
   Cpu, ArrowUpRight, Layers, Database, Save, Info,
   Waves, Wifi, LayoutGrid, List, ChevronDown, Lock, Unlock,
-  Shield, Camera, Mic, Volume2
+  Shield, Camera, Mic, Volume2, Loader2
 } from 'lucide-react';
 import {
   LiveKitRoom, VideoTrack, AudioTrack, useTracks,
@@ -18,7 +18,7 @@ import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import {
-  adminGetAllStreams, getStreamToken, deleteRecording, type LiveStream
+  adminGetAllStreams, getStreamToken, deleteRecording, endStream as endStreamApi, type LiveStream
 } from '../../services/liveStreamService';
 import { getFullImageUrl } from '../../services/api';
 import Preloader from '../../components/ui/Preloader';
@@ -178,6 +178,8 @@ const LiveStreamManagement: React.FC = () => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [pagination, setPagination] = useState({ page: 1, limit: 12, total: 0, pages: 1 });
   const [viewingRecording, setViewingRecording] = useState<LiveStream | null>(null);
+  const [endingStream, setEndingStream] = useState<LiveStream | null>(null);
+  const [confirmingEnd, setConfirmingEnd] = useState(false);
 
   const fetchStreams = useCallback(async () => {
     setLoading(true);
@@ -227,6 +229,22 @@ const LiveStreamManagement: React.FC = () => {
       }
     }
     setOpenMenuId(null);
+  };
+
+  const handleConfirmEndStream = async () => {
+    if (!endingStream) return;
+    setConfirmingEnd(true);
+    const loadingId = toast.loading('Ending stream...');
+    try {
+      await endStreamApi(endingStream._id);
+      toast.success(`Stream ended: ${endingStream.title}`, { id: loadingId });
+      setEndingStream(null);
+      fetchStreams();
+    } catch (err) {
+      toast.error('Failed to end stream', { id: loadingId });
+    } finally {
+      setConfirmingEnd(false);
+    }
   };
 
   if (loading && streams.length === 0) return <Preloader isVisible text="Loading live streams..." />;
@@ -370,7 +388,12 @@ const LiveStreamManagement: React.FC = () => {
                     <div className="flex gap-4">
                        {stream.status === 'live' && (
                           <button onClick={() => setMonitoringStream(stream)} className="h-14 px-8 bg-white text-black rounded-2xl text-[9px] font-bold uppercase tracking-widest flex items-center gap-3 shadow-2xl hover:bg-emerald-400 transition-all">
-                            <Activity size={18} /> Monitor Stream
+                            <Activity size={18} /> Monitor
+                          </button>
+                       )}
+                       {stream.status === 'live' && (
+                          <button onClick={() => setEndingStream(stream)} className="h-14 px-8 bg-rose-600 text-white rounded-2xl text-[9px] font-bold uppercase tracking-widest flex items-center gap-3 shadow-2xl hover:bg-rose-500 transition-all">
+                            <Square size={18} /> End Stream
                           </button>
                        )}
                        {stream.isRecorded && stream.recordingUrl && (
@@ -414,8 +437,13 @@ const LiveStreamManagement: React.FC = () => {
                             <button onClick={() => { setSelectedStream(stream); setOpenMenuId(null); }} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-all group/opt">
                               <BarChart3 size={18} className="group-hover/opt:scale-110 transition-transform" /> View Statistics
                             </button>
+                            {stream.status === 'live' && (
+                              <button onClick={() => { setEndingStream(stream); setOpenMenuId(null); }} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-500/10 transition-all group/opt">
+                                <Square size={18} className="group-hover/opt:scale-110 transition-transform" /> End Stream
+                              </button>
+                            )}
                             {stream.isRecorded && (
-                              <button onClick={() => handleStreamAction(stream._id, 'delete-recording')} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-500/10 transition-all group/opt">
+                              <button onClick={() => handleStreamAction(stream._id, 'delete-recording')} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:bg-white/5 hover:text-white transition-all group/opt">
                                 <Trash2 size={18} className="group-hover/opt:scale-110 transition-transform" /> Delete Recording
                               </button>
                             )}
@@ -541,6 +569,52 @@ const LiveStreamManagement: React.FC = () => {
       <AnimatePresence>
         {monitoringStream && (
           <MonitoringModal stream={monitoringStream} onClose={() => setMonitoringStream(null)} />
+        )}
+      </AnimatePresence>
+
+      {/* End Stream Confirmation */}
+      <AnimatePresence>
+        {endingStream && (
+          <div className="fixed inset-0 z-[140] flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl" onClick={() => !confirmingEnd && setEndingStream(null)}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              className="w-full max-w-sm bg-zinc-900 border border-white/10 rounded-[2rem] p-8 shadow-2xl text-center"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="w-16 h-16 bg-rose-500/10 border border-rose-500/20 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6">
+                <Radio className="text-rose-500" size={28} />
+              </div>
+              <h2 className="text-xl font-bold text-white mb-2 uppercase tracking-tight">End This Stream?</h2>
+              <p className="text-sm text-zinc-500 mb-2 leading-relaxed">
+                You are about to force-end
+              </p>
+              <p className="text-sm font-bold text-white mb-6 truncate px-4">"{endingStream.title}"</p>
+              <p className="text-xs text-zinc-600 mb-8">
+                The artist will be disconnected and the stream will be marked as ended. This cannot be undone.
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={handleConfirmEndStream}
+                  disabled={confirmingEnd}
+                  className="w-full h-14 bg-rose-500 hover:bg-rose-400 text-white rounded-2xl text-sm font-bold uppercase tracking-widest transition-all disabled:opacity-60 flex items-center justify-center gap-3"
+                >
+                  {confirmingEnd
+                    ? <><Loader2 size={18} className="animate-spin" /> Ending…</>
+                    : <><Square size={18} /> Confirm End Stream</>
+                  }
+                </button>
+                <button
+                  onClick={() => setEndingStream(null)}
+                  disabled={confirmingEnd}
+                  className="w-full h-14 bg-zinc-950 hover:bg-zinc-800 text-white border border-white/10 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>
