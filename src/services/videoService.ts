@@ -23,6 +23,27 @@ export interface Video {
     updatedAt: string;
 }
 
+export interface ShortClip {
+    _id: string;
+    title: string;
+    description?: string;
+    recordingUrl: string;
+    thumbnailUrl?: string;
+    artist: { _id: string; name: string; image?: string };
+    views: number;
+    likesCount: number;
+    duration?: number;
+    createdAt: string;
+}
+
+export interface CreateShortClipData {
+    title: string;
+    description?: string;
+    s3Key: string;
+    thumbnailUrl?: string;
+    duration?: number;
+}
+
 export interface VideoFormData {
     title: string;
     description?: string;
@@ -75,6 +96,21 @@ const videoService = {
     incrementViews: async (id: string): Promise<number> => {
         const response = await apiService.post<{ views: number }>(`/video/view/${id}`);
         return response.data.data.views;
+    },
+
+    getShorts: async (page = 1, limit = 12): Promise<ShortClip[]> => {
+        const response = await apiService.get<ShortClip[]>(`/video/shorts?page=${page}&limit=${limit}`);
+        return response.data.data;
+    },
+
+    createShortClip: async (data: CreateShortClipData): Promise<ShortClip> => {
+        const response = await apiService.post<ShortClip>('/video/shorts', data);
+        return response.data.data;
+    },
+
+    toggleLike: async (videoId: string): Promise<{ liked: boolean; likesCount: number }> => {
+        const response = await apiService.post<{ liked: boolean; likesCount: number }>(`/video/${videoId}/like`);
+        return response.data.data;
     }
 };
 

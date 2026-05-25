@@ -33,6 +33,17 @@ const uploadService = {
     },
 
     /**
+     * Get a presigned URL for a short clip (TikTok-style reel) upload
+     */
+    presignShortClip: async (filename: string, contentType: string): Promise<PresignedUrlResponse> => {
+        const response = await apiService.post<PresignedUrlResponse>('/upload/presign/short-clip', {
+            filename,
+            contentType
+        });
+        return response.data.data;
+    },
+
+    /**
      * Upload a file directly to S3 using a presigned URL
      */
     uploadToS3: async (

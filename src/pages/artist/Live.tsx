@@ -144,6 +144,7 @@ export default function Live() {
     title: '',
     description: '',
     category: 'music',
+    shouldRecord: false,
   });
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -430,6 +431,7 @@ export default function Live() {
         category: streamSettings.category || 'music',
         chatEnabled: true,
         giftsEnabled: true,
+        shouldRecord: streamSettings.shouldRecord,
       });
       setStreamData(stream);
 
@@ -849,6 +851,23 @@ export default function Live() {
                   />
                 </div>
                 
+                <label className="flex items-center gap-4 cursor-pointer p-5 rounded-2xl bg-zinc-950 border border-white/10 hover:border-white/20 transition-all">
+                  <div className="relative flex-shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={streamSettings.shouldRecord}
+                      onChange={e => setStreamSettings(p => ({ ...p, shouldRecord: e.target.checked }))}
+                      className="sr-only peer"
+                    />
+                    <div className="w-12 h-6 rounded-full bg-zinc-800 peer-checked:bg-emerald-500 transition-colors border border-white/10" />
+                    <div className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-white">Record this stream</p>
+                    <p className="text-xs text-zinc-500 mt-0.5">Saves as a VOD replay for fans after you go offline</p>
+                  </div>
+                </label>
+
                 <button
                   onClick={handleStartStream}
                   className="w-full h-16 bg-white text-black rounded-2xl text-sm font-bold uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl"

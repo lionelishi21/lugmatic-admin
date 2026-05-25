@@ -90,6 +90,7 @@ export interface CreateStreamPayload {
   tags?: string[];
   chatEnabled?: boolean;
   giftsEnabled?: boolean;
+  shouldRecord?: boolean;
 }
 
 // ─── API Calls ───────────────────────────────────────────────────────────────
