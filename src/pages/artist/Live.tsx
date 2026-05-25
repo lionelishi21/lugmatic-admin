@@ -219,7 +219,16 @@ export default function Live() {
       if (videoTrack && videoRef.current) videoTrack.attach(videoRef.current);
       setIsPreviewActive(true);
     } catch {
-      toast.error('Could not access camera or microphone.');
+      // Fallback to VGA for tablets / front cameras that can't do 720p
+      try {
+        const tracks = await createLocalTracks({ audio: true, video: { width: 640, height: 480 } });
+        localTracksRef.current = tracks;
+        const videoTrack = tracks.find((t) => t.kind === 'video');
+        if (videoTrack && videoRef.current) videoTrack.attach(videoRef.current);
+        setIsPreviewActive(true);
+      } catch {
+        toast.error('Could not access camera or microphone.');
+      }
     }
   }, []);
 
@@ -234,7 +243,9 @@ export default function Live() {
     setIsPreviewActive(false);
   }, []);
 
+  // Start camera preview immediately so artist can see themselves before going live
   useEffect(() => {
+    startPreview();
     return () => {
       stopPreview();
       roomRef.current?.disconnect();
@@ -424,13 +435,12 @@ export default function Live() {
 
       setPhase('getting_token');
       const tokenData = await getStreamToken(stream._id);
-      stopPreview();
 
       setPhase('connecting');
+      // No videoCaptureDefaults — let LiveKit negotiate what the device supports
       const room = new Room({
         adaptiveStream: true,
         dynacast: true,
-        videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
       });
       roomRef.current = room;
 
@@ -444,11 +454,36 @@ export default function Live() {
       await room.connect(tokenData.url, tokenData.token);
 
       setPhase('publishing');
-      await room.localParticipant.enableCameraAndMicrophone();
 
-      const camPub = room.localParticipant.getTrackPublication(Track.Source.Camera);
-      if (camPub?.track && videoRef.current) {
-        camPub.track.attach(videoRef.current);
+      if (localTracksRef.current && localTracksRef.current.length > 0) {
+        // Reuse existing preview tracks — avoids the release/reacquire race condition
+        // that causes failures on tablets when the camera is released then immediately
+        // re-requested with different constraints
+        for (const track of localTracksRef.current) {
+          await room.localParticipant.publishTrack(track);
+        }
+        const videoTrack = localTracksRef.current.find(t => t.kind === 'video');
+        if (videoTrack && videoRef.current) videoTrack.attach(videoRef.current);
+        localTracksRef.current = null; // room owns the tracks now
+      } else {
+        // No preview running — acquire fresh tracks with tablet-friendly fallback
+        try {
+          await room.localParticipant.enableCameraAndMicrophone();
+        } catch {
+          // Front cameras on tablets often reject high-res constraints; retry at VGA
+          try {
+            await room.localParticipant.setCameraEnabled(true, {
+              resolution: { width: 640, height: 480, frameRate: 24 },
+            });
+            await room.localParticipant.setMicrophoneEnabled(true);
+          } catch {
+            // Last resort: audio only
+            await room.localParticipant.setMicrophoneEnabled(true);
+            toast('Camera unavailable — broadcasting audio only', { icon: '🎤' });
+          }
+        }
+        const camPub = room.localParticipant.getTrackPublication(Track.Source.Camera);
+        if (camPub?.track && videoRef.current) camPub.track.attach(videoRef.current);
       }
 
       setupSocketListeners(stream._id);
@@ -675,12 +710,12 @@ export default function Live() {
               </div>
             )}
 
-            {!isLive && phase === 'idle' && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-zinc-950/60 backdrop-blur-sm">
+            {!isLive && phase === 'idle' && !isPreviewActive && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-zinc-950/80 backdrop-blur-sm">
                  <div className="w-20 h-20 bg-white/5 rounded-[2rem] flex items-center justify-center border border-white/10">
-                    <Radio size={40} className="text-zinc-700" />
+                    <Camera size={40} className="text-zinc-700" />
                  </div>
-                 <p className="text-sm font-semibold text-zinc-500">Preview active. Ready to broadcast.</p>
+                 <p className="text-sm font-semibold text-zinc-500">Starting camera preview...</p>
               </div>
             )}
           </div>
