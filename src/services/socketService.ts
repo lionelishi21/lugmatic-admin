@@ -239,6 +239,20 @@ class SocketService {
     this.on('error', callback);
   }
 
+  // ─── Clash Room Emits ───────────────────────────────────────────────────
+
+  joinClash(clashId: string): void {
+    this.ensureConnected().emit('clash:join', { clashId });
+  }
+
+  leaveClash(clashId: string): void {
+    this.socket?.emit('clash:leave', { clashId });
+  }
+
+  passTurn(clashId: string): void {
+    this.ensureConnected().emit('clash:pass-turn', { clashId });
+  }
+
   // ─── Clash Events ────────────────────────────────────────────────────────
 
   /**

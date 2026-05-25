@@ -21,6 +21,23 @@ export interface ClashResponse {
   title?: string;
   rsvpCount?: number;
   winner?: { _id: string; name: string; image: string };
+  challengerStream?: string;
+  opponentStream?: string;
+  realm?: string;
+  currentTurn?: string;
+  turnExpiresAt?: string;
+  turnsTaken?: number;
+  maxTurns?: number;
+}
+
+export interface ClashTokenResponse {
+  token: string;
+  url: string;
+  roomName: string;
+  challengerUserId: string;
+  opponentUserId: string;
+  role: string;
+  realm: string;
 }
 
 const clashService = {
@@ -52,7 +69,16 @@ const clashService = {
   getUpcomingClashes: async (limit = 20): Promise<ClashResponse[]> => {
     const response = await apiService.get<ClashResponse[]>(`/clash/upcoming?limit=${limit}`);
     return response.data.data;
-  }
+  },
+
+  getClashToken: async (clashId: string): Promise<ClashTokenResponse> => {
+    const response = await apiService.get<ClashTokenResponse>(`/clash/${clashId}/token`);
+    return response.data.data;
+  },
+
+  passTurn: async (clashId: string): Promise<void> => {
+    await apiService.post(`/clash/${clashId}/pass-turn`, {});
+  },
 };
 
 export default clashService;

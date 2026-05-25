@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Swords,
   Trophy,
@@ -76,6 +77,7 @@ const statusBadge = (status: string) => {
 };
 
 export default function Clashes() {
+  const navigate = useNavigate();
   const [clashes, setClashes] = useState<Clash[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -87,7 +89,7 @@ export default function Clashes() {
       try {
         const res = await api.get('/clash/history');
         if (res.data && res.data.success) {
-          setClashes(res.data.data);
+          setClashes(res.data.data as Clash[]);
         } else {
           setError('Failed to load clash history');
         }
@@ -291,15 +293,25 @@ export default function Clashes() {
                     </AnimatePresence>
                   </div>
 
-                  <a
-                    href={`https://lugmaticmusic.com/clash/${clash._id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="h-14 px-8 bg-zinc-950 text-white border border-white/5 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-3"
-                  >
-                    View Replay
-                    <Play size={16} className="fill-current" />
-                  </a>
+                  {clash.status === 'active' ? (
+                    <button
+                      onClick={() => navigate(`/artist/clashes/live/${clash._id}`)}
+                      className="h-14 px-8 bg-rose-500 text-white rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-rose-400 transition-all flex items-center gap-3 shadow-lg shadow-rose-900/30"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                      Join Live
+                    </button>
+                  ) : (
+                    <a
+                      href={`https://lugmaticmusic.com/clash/${clash._id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="h-14 px-8 bg-zinc-950 text-white border border-white/5 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-3"
+                    >
+                      View Replay
+                      <Play size={16} className="fill-current" />
+                    </a>
+                  )}
                 </div>
               </div>
             </motion.div>
