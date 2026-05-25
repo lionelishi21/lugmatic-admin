@@ -380,6 +380,9 @@ export default function Live() {
 
   const setupSocketListeners = useCallback((streamId: string) => {
     try {
+      // Clear any stale listeners first (handles retry/reconnect scenarios)
+      socketService.removeAllStreamListeners();
+
       socketService.onStreamState((state: StreamState) => {
         setViewerCount(state.currentViewers);
         if (state.recentMessages) setMessages(state.recentMessages);
@@ -646,6 +649,10 @@ export default function Live() {
     setPhase('ending');
     liveGuard.clear();
     try {
+      // Remove listeners BEFORE the API call so the backend's stream:ended
+      // socket broadcast doesn't trigger a duplicate toast alongside our own.
+      socketService.removeAllStreamListeners();
+
       try {
         const result = await endStreamApi(streamData._id);
         setSummary(result);
@@ -653,7 +660,6 @@ export default function Live() {
 
       roomRef.current?.disconnect();
       roomRef.current = null;
-      socketService.removeAllStreamListeners();
       socketService.leaveStream(streamData._id);
       socketService.disconnect();
 

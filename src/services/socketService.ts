@@ -106,8 +106,13 @@ class SocketService {
     if (this.currentStreamId) {
       this.leaveStream(this.currentStreamId);
     }
-    this.socket?.disconnect();
-    this.socket = null;
+    if (this.socket) {
+      // Remove all socket.io listeners before disconnecting so stale callbacks
+      // cannot fire if the server delivers an event before the disconnect ack.
+      this.socket.removeAllListeners();
+      this.socket.disconnect();
+      this.socket = null;
+    }
     this.handlers.clear();
   }
 
