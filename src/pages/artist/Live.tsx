@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useBlocker } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Room,
@@ -138,11 +138,12 @@ export default function Live() {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const navigate = useNavigate();
+  const [showNavWarning, setShowNavWarning] = useState(false);
+  const pendingNavRef = useRef<string | null>(null);
+
   const isLive = phase === 'live';
   const isBusy = ['creating', 'getting_token', 'connecting', 'publishing', 'ending'].includes(phase);
-
-  // Block in-app navigation when live
-  const blocker = useBlocker(isLive);
 
   const [streamSettings, setStreamSettings] = useState({
     title: '',
@@ -268,6 +269,22 @@ export default function Live() {
     };
     window.addEventListener('beforeunload', onBeforeUnload);
     return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [isLive]);
+
+  // Intercept browser back/forward while live — show the warning modal instead
+  useEffect(() => {
+    if (!isLive) return;
+    // Push a dummy state so popstate fires on back press
+    window.history.pushState({ liveGuard: true }, '');
+    const onPopState = () => {
+      if (isLive) {
+        // Push the guard state again so the URL doesn't change
+        window.history.pushState({ liveGuard: true }, '');
+        setShowNavWarning(true);
+      }
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
   }, [isLive]);
 
   useEffect(() => {
@@ -611,7 +628,11 @@ export default function Live() {
       await handleEndStream();
     } finally {
       setIsEndingToLeave(false);
-      blocker.proceed?.();
+      setShowNavWarning(false);
+      if (pendingNavRef.current) {
+        navigate(pendingNavRef.current);
+        pendingNavRef.current = null;
+      }
     }
   };
 
@@ -973,7 +994,7 @@ export default function Live() {
 
       {/* Navigation blocker — shown when artist tries to leave the page while live */}
       <AnimatePresence>
-        {blocker.state === 'blocked' && (
+        {showNavWarning && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-6">
             <motion.div
               initial={{ opacity: 0, scale: 0.92, y: 20 }}
@@ -1002,7 +1023,7 @@ export default function Live() {
                   )}
                 </button>
                 <button
-                  onClick={() => blocker.reset?.()}
+                  onClick={() => setShowNavWarning(false)}
                   disabled={isEndingToLeave}
                   className="w-full h-14 bg-zinc-950 hover:bg-zinc-800 text-white border border-white/10 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all disabled:opacity-60"
                 >
