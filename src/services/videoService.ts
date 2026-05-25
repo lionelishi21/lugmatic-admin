@@ -27,9 +27,10 @@ export interface ShortClip {
     _id: string;
     title: string;
     description?: string;
-    recordingUrl: string;
+    videoUrl: string;
     thumbnailUrl?: string;
     artist: { _id: string; name: string; image?: string };
+    song?: { _id: string; name: string; coverArt?: string; audioUrl?: string };
     views: number;
     likesCount: number;
     duration?: number;
