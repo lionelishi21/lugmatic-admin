@@ -11,6 +11,7 @@ import { RootState } from '../../store';
 import uploadService from '../../services/uploadService';
 import videoService, { ShortClip } from '../../services/videoService';
 import apiService from '../../services/api';
+import rhythmService, { Rhythm } from '../../services/rhythmService';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -37,13 +38,8 @@ function getSupportedMimeType(): string {
   return candidates.find(t => MediaRecorder.isTypeSupported(t)) ?? 'video/webm';
 }
 
-interface Song {
-  _id: string;
-  name: string;
-  artist: { name: string; image?: string };
-  coverArt?: string;
-  audioUrl?: string;
-}
+// Song interface kept for legacy reference only — ShellIt now uses Rhythm
+
 
 // ─── Circular progress ring ───────────────────────────────────────────────────
 
@@ -60,14 +56,14 @@ function RecordRing({ progress }: { progress: number }) {
   );
 }
 
-// ─── Song picker sheet ────────────────────────────────────────────────────────
+// ─── Rhythm picker sheet ──────────────────────────────────────────────────────
 
-function SongPicker({ selected, onSelect, onClose }: {
-  selected: Song | null;
-  onSelect: (s: Song | null) => void;
+function RhythmPicker({ selected, onSelect, onClose }: {
+  selected: Rhythm | null;
+  onSelect: (r: Rhythm | null) => void;
   onClose: () => void;
 }) {
-  const [songs, setSongs] = useState<Song[]>([]);
+  const [rhythms, setRhythms] = useState<Rhythm[]>([]);
   const [q, setQ] = useState('');
   const [loading, setLoading] = useState(true);
   const previewRef = useRef<HTMLAudioElement | null>(null);
@@ -76,31 +72,31 @@ function SongPicker({ selected, onSelect, onClose }: {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await apiService.get<Song[]>('/songs/list?limit=40');
-        setSongs((res.data as any)?.data || []);
-      } catch { toast.error('Could not load songs'); }
+        const data = await rhythmService.getRhythms();
+        setRhythms(data);
+      } catch { toast.error('Could not load rhythms'); }
       finally { setLoading(false); }
     };
     load();
   }, []);
 
   const filtered = q
-    ? songs.filter(s =>
-        s.name.toLowerCase().includes(q.toLowerCase()) ||
-        s.artist?.name?.toLowerCase().includes(q.toLowerCase()))
-    : songs;
+    ? rhythms.filter(r =>
+        r.title.toLowerCase().includes(q.toLowerCase()) ||
+        (r.genre || '').toLowerCase().includes(q.toLowerCase()))
+    : rhythms;
 
-  const togglePreview = (song: Song) => {
-    if (previewId === song._id) {
+  const togglePreview = (rhythm: Rhythm) => {
+    if (previewId === rhythm._id) {
       previewRef.current?.pause();
       setPreviewId(null);
     } else {
       previewRef.current?.pause();
-      if (song.audioUrl) {
-        const audio = new Audio(song.audioUrl);
+      if (rhythm.audioUrl) {
+        const audio = new Audio(rhythm.audioUrl);
         audio.play().catch(() => {});
         previewRef.current = audio;
-        setPreviewId(song._id);
+        setPreviewId(rhythm._id);
         audio.onended = () => setPreviewId(null);
       }
     }
@@ -124,7 +120,7 @@ function SongPicker({ selected, onSelect, onClose }: {
       <div className="px-6 pb-3">
         <div className="flex items-center gap-3 bg-zinc-900 rounded-2xl px-4 h-11 border border-white/10">
           <Search size={14} className="text-zinc-500 flex-shrink-0" />
-          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search songs…"
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search rhythms…"
             className="flex-1 bg-transparent text-sm text-white placeholder-zinc-500 focus:outline-none" />
         </div>
       </div>
@@ -140,25 +136,28 @@ function SongPicker({ selected, onSelect, onClose }: {
         </button>
         {loading
           ? <div className="flex justify-center py-10"><Loader2 className="animate-spin text-zinc-500" size={24} /></div>
-          : filtered.map(song => (
-            <button key={song._id} onClick={() => { onSelect(song); onClose(); }}
-              className={`w-full flex items-center gap-4 px-6 py-3 hover:bg-white/5 transition-colors ${selected?._id === song._id ? 'bg-white/5' : ''}`}
+          : filtered.map(rhythm => (
+            <button key={rhythm._id} onClick={() => { onSelect(rhythm); onClose(); }}
+              className={`w-full flex items-center gap-4 px-6 py-3 hover:bg-white/5 transition-colors ${selected?._id === rhythm._id ? 'bg-white/5' : ''}`}
             >
-              {song.coverArt
-                ? <img src={song.coverArt} alt={song.name} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
+              {rhythm.coverArtUrl
+                ? <img src={rhythm.coverArtUrl} alt={rhythm.title} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
                 : <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center flex-shrink-0"><Music2 size={16} className="text-zinc-500" /></div>
               }
               <div className="flex-1 text-left min-w-0">
-                <p className="text-sm font-bold text-white truncate">{song.name}</p>
-                <p className="text-xs text-zinc-500 truncate">{song.artist?.name}</p>
+                <p className="text-sm font-bold text-white truncate">{rhythm.title}</p>
+                {rhythm.genre
+                  ? <span className="text-xs text-zinc-500">{rhythm.genre}</span>
+                  : null
+                }
               </div>
-              {selected?._id === song._id
+              {selected?._id === rhythm._id
                 ? <Check size={16} className="text-emerald-500 flex-shrink-0" />
-                : song.audioUrl && (
-                  <button onClick={e => { e.stopPropagation(); togglePreview(song); }}
+                : rhythm.audioUrl && (
+                  <button onClick={e => { e.stopPropagation(); togglePreview(rhythm); }}
                     className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0"
                   >
-                    {previewId === song._id
+                    {previewId === rhythm._id
                       ? <div className="w-2 h-2 bg-white rounded-sm" />
                       : <div className="w-0 h-0 border-t-[5px] border-b-[5px] border-l-[9px] border-transparent border-l-white ml-0.5" />
                     }
@@ -278,7 +277,7 @@ export default function ShellIt() {
   const [phase,            setPhase]            = useState<Phase>('splash');
   const [facingMode,       setFacingMode]       = useState<'user' | 'environment'>('user');
   const [selectedFilter,   setSelectedFilter]   = useState('natural');
-  const [selectedSong,     setSelectedSong]     = useState<Song | null>(null);
+  const [selectedRhythm,   setSelectedRhythm]   = useState<Rhythm | null>(null);
   const [showSongPicker,   setShowSongPicker]   = useState(false);
   const [cameraError,      setCameraError]      = useState('');
   const [recordedBlob,     setRecordedBlob]     = useState<Blob | null>(null);
@@ -311,14 +310,14 @@ export default function ShellIt() {
   // ── Auto-play selected rhythm outside recording ────────────────────────────
 
   useEffect(() => {
-    if (!selectedSong?.audioUrl || phase === 'recording') return;
-    const audio = new Audio(selectedSong.audioUrl);
+    if (!selectedRhythm?.audioUrl || phase === 'recording') return;
+    const audio = new Audio(selectedRhythm.audioUrl);
     audio.loop = true;
     audio.volume = 0.35;
     audio.play().catch(() => {});
     audioRef.current = audio;
     return () => { audio.pause(); if (audioRef.current === audio) audioRef.current = null; };
-  }, [selectedSong]);
+  }, [selectedRhythm]);
 
   // ── Camera init ────────────────────────────────────────────────────────────
 
@@ -328,7 +327,7 @@ export default function ShellIt() {
     setCameraError('');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: facing, width: { ideal: 720 }, height: { ideal: 1280 } },
+        video: { facingMode: facing },
         audio: true,
       });
       streamRef.current = stream;
@@ -418,9 +417,9 @@ export default function ShellIt() {
     mediaRecorderRef.current = recorder;
 
     // Swap background audio from preview volume to full
-    if (selectedSong?.audioUrl) {
+    if (selectedRhythm?.audioUrl) {
       audioRef.current?.pause();
-      const audio = new Audio(selectedSong.audioUrl);
+      const audio = new Audio(selectedRhythm.audioUrl);
       audio.loop = true;
       audio.volume = 0.5;
       audio.play().catch(() => {});
@@ -437,7 +436,7 @@ export default function ShellIt() {
     }, 1000);
 
     setPhase('recording');
-  }, [phase, currentFilter, facingMode, selectedSong]);
+  }, [phase, currentFilter, facingMode, selectedRhythm]);
 
   const stopRecordingImmediate = () => {
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
@@ -463,7 +462,7 @@ export default function ShellIt() {
 
   const handleShellIt = async () => {
     if (!recordedBlob) return;
-    const clipTitle = title.trim() || (selectedSong ? `Shell It — ${selectedSong.name}` : 'Shell It');
+    const clipTitle = title.trim() || (selectedRhythm ? `Shell It — ${selectedRhythm.title}` : 'Shell It');
     setPhase('uploading');
     setUploadProgress(0);
     try {
@@ -474,7 +473,7 @@ export default function ShellIt() {
 
       const presigned = await uploadService.presignShortClip(file.name, mime);
       await uploadService.uploadToS3(presigned.uploadUrl, file, setUploadProgress);
-      await videoService.createShortClip({ title: clipTitle, videoUrl: presigned.key, duration: recordSeconds, songId: selectedSong?._id });
+      await videoService.createShortClip({ title: clipTitle, videoUrl: presigned.key, duration: recordSeconds, songId: selectedRhythm?._id });
 
       toast.success('Shelled! 🎵');
       setPhase('done');
@@ -558,10 +557,10 @@ export default function ShellIt() {
               {currentFilter.label}
             </div>
           )}
-          {selectedSong && (
+          {selectedRhythm && (
             <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-black/60 backdrop-blur rounded-full">
               <Music2 size={12} className="text-emerald-400" />
-              <span className="text-xs font-bold text-white truncate max-w-[120px]">{selectedSong.name}</span>
+              <span className="text-xs font-bold text-white truncate max-w-[120px]">{selectedRhythm.title}</span>
             </div>
           )}
           <div className="absolute bottom-4 left-4 px-3 py-1 bg-black/50 backdrop-blur rounded-full text-xs font-bold text-white">
@@ -712,21 +711,21 @@ export default function ShellIt() {
             <RotateCcw size={18} className="text-white" />
           </button>
           <button onClick={() => setShowSongPicker(true)} disabled={phase === 'recording'}
-            className={`w-11 h-11 backdrop-blur rounded-2xl flex items-center justify-center border transition-all disabled:opacity-40 ${selectedSong ? 'bg-emerald-500/20 border-emerald-500/40' : 'bg-black/60 border-white/10'}`}>
-            <Music2 size={18} className={selectedSong ? 'text-emerald-400' : 'text-white'} />
+            className={`w-11 h-11 backdrop-blur rounded-2xl flex items-center justify-center border transition-all disabled:opacity-40 ${selectedRhythm ? 'bg-emerald-500/20 border-emerald-500/40' : 'bg-black/60 border-white/10'}`}>
+            <Music2 size={18} className={selectedRhythm ? 'text-emerald-400' : 'text-white'} />
           </button>
         </div>
 
         {/* Selected rhythm pill — top left */}
-        {selectedSong && (
+        {selectedRhythm && (
           <div className="absolute top-4 left-4 z-10 flex items-center gap-2 max-w-[55%]">
-            {selectedSong.coverArt && (
-              <img src={selectedSong.coverArt} alt="" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
+            {selectedRhythm.coverArtUrl && (
+              <img src={selectedRhythm.coverArtUrl} alt="" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
             )}
             <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur rounded-full px-3 py-1.5 min-w-0">
               <Music2 size={11} className="text-emerald-400 flex-shrink-0 animate-pulse" />
-              <span className="text-xs font-bold text-white truncate">{selectedSong.name}</span>
-              <button onClick={() => setSelectedSong(null)}
+              <span className="text-xs font-bold text-white truncate">{selectedRhythm.title}</span>
+              <button onClick={() => setSelectedRhythm(null)}
                 className="ml-1 flex-shrink-0 w-4 h-4 rounded-full bg-white/10 flex items-center justify-center">
                 <X size={10} className="text-white" />
               </button>
@@ -783,7 +782,7 @@ export default function ShellIt() {
           <>
             <div className="fixed inset-0 z-40 bg-black/60" onClick={() => setShowSongPicker(false)} />
             <div className="fixed inset-x-0 bottom-0 z-50" style={{ maxHeight: '70vh' }}>
-              <SongPicker selected={selectedSong} onSelect={setSelectedSong} onClose={() => setShowSongPicker(false)} />
+              <RhythmPicker selected={selectedRhythm} onSelect={setSelectedRhythm} onClose={() => setShowSongPicker(false)} />
             </div>
           </>
         )}

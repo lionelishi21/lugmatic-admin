@@ -75,6 +75,7 @@ import ContributorDashboard from './pages/contributor/ContributorDashboard';
 import PayoutSettings from './pages/contributor/PayoutSettings';
 import Billboard from './pages/admin/Billboard';
 import ArtistApprovals from './pages/admin/ArtistApprovals';
+import RhythmManagement from './pages/admin/RhythmManagement';
 import GiftEdit from './pages/admin/GiftEdit';
 import { ThemeProvider } from './context/ThemeContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -196,6 +197,7 @@ function App() {
                         <Route path="clash-management" element={<ClashManagement />} />
                         <Route path="billboard" element={<Billboard />} />
                         <Route path="artist-approvals" element={<ArtistApprovals />} />
+                        <Route path="rhythm-management" element={<RhythmManagement />} />
                         <Route path="documentation" element={<Documentation />} />
                       </Routes>
                     </Layout>

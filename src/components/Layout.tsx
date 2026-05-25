@@ -106,6 +106,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     { path: '/admin/clash-management', label: 'Clashes', icon: <Swords size={20} />, section: 'Engagement' },
     { path: '/admin/billboard', label: 'Billboard', icon: <Award size={20} />, section: 'Engagement' },
     { path: '/admin/podcast-management', label: 'Podcasts', icon: <Podcast size={20} />, section: 'Engagement' },
+    { path: '/admin/rhythm-management', label: 'Rhythms', icon: <Music2 size={20} />, section: 'Engagement' },
     { path: '/admin/promotions', label: 'Promotions', icon: <Megaphone size={20} />, section: 'Engagement' },
     { path: '/admin/comment-management', label: 'Comments', icon: <MessageSquare size={20} />, section: 'Engagement' },
     { path: '/admin/gift-management', label: 'Gifts', icon: <Gift size={20} />, section: 'Engagement' },
