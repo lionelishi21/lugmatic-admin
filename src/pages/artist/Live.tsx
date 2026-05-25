@@ -458,10 +458,17 @@ export default function Live() {
             const clashRoom = new Room();
             clashRoomRef.current = clashRoom;
 
-            clashRoom.on(RoomEvent.TrackSubscribed, (track: any, publication: any, participant: any) => {
+            clashRoom.on(RoomEvent.TrackSubscribed, (track: any, _pub: any, participant: any) => {
               if (participant.isLocal) return;
-              if (track.kind === 'video') setRemoteVideoTrack(track);
-              else if (track.kind === 'audio') setRemoteAudioTrack(track);
+              if (track.kind === 'video') {
+                setRemoteVideoTrack(track);
+                // Attach immediately if the ref is already in the DOM
+                // (it is, because the <video> is always rendered during a clash)
+                const el = remoteVideoRef.current;
+                if (el) track.attach(el);
+              } else if (track.kind === 'audio') {
+                setRemoteAudioTrack(track);
+              }
             });
             clashRoom.on(RoomEvent.TrackUnsubscribed, (track: any, publication: any, participant: any) => {
               if (participant.isLocal) return;
@@ -486,11 +493,17 @@ export default function Live() {
               }
             }
 
+            // Catch tracks that were already subscribed before we connected
             clashRoom.remoteParticipants.forEach(p => {
               p.trackPublications.forEach(pub => {
-                if (pub.isSubscribed && pub.track) {
-                  if (pub.track.kind === 'video') setRemoteVideoTrack(pub.track);
-                  else if (pub.track.kind === 'audio') setRemoteAudioTrack(pub.track);
+                const track = pub.track;
+                if (!pub.isSubscribed || !track) return;
+                if (track.kind === 'video') {
+                  setRemoteVideoTrack(track);
+                  const el = remoteVideoRef.current;
+                  if (el) track.attach(el);
+                } else if (track.kind === 'audio') {
+                  setRemoteAudioTrack(track);
                 }
               });
             });
@@ -856,12 +869,20 @@ export default function Live() {
                   </div>
                 </div>
 
-                {/* Right — opponent feed */}
+                {/* Right — opponent feed.
+                    The <video> is ALWAYS in the DOM so remoteVideoRef.current is set
+                    by the time the TrackSubscribed useEffect runs. We toggle visibility
+                    via CSS instead of conditional rendering to avoid the ref timing race. */}
                 <div className="relative flex-1 overflow-hidden">
-                  {remoteVideoTrack ? (
-                    <video ref={remoteVideoRef} className="w-full h-full object-cover" autoPlay playsInline />
-                  ) : (
-                    <div className="w-full h-full bg-zinc-950 flex flex-col items-center justify-center gap-3">
+                  <video
+                    ref={remoteVideoRef}
+                    className="w-full h-full object-cover"
+                    style={{ display: remoteVideoTrack ? 'block' : 'none' }}
+                    autoPlay
+                    playsInline
+                  />
+                  {!remoteVideoTrack && (
+                    <div className="absolute inset-0 bg-zinc-950 flex flex-col items-center justify-center gap-3">
                       <Loader2 size={28} className="text-purple-500 animate-spin" />
                       <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Connecting opponent...</p>
                     </div>
