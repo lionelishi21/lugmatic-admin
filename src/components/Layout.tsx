@@ -132,6 +132,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     { path: '/artist/gifts', label: 'Gifts', icon: <Gift size={20} />, section: 'Engagement' },
     { path: '/artist/messages', label: 'Messages', icon: <MessageSquare size={20} />, section: 'Engagement' },
     { path: '/artist/reels', label: 'Reels', icon: <Film size={20} />, section: 'Engagement' },
+    { path: '/artist/shorts', label: 'Shorts', icon: <Disc size={20} />, section: 'Engagement' },
     { path: '/artist/notifications', label: 'Notifications', icon: <Bell size={20} />, section: 'Engagement' },
     
     // Performance
