@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { Mic2, Trophy, Clock, Star, Upload, CheckCircle2, Loader2, Film } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
 import api from '../../services/api';
 import uploadService from '../../services/uploadService';
+import { RootState } from '../../store';
 
 const ROUND_LABELS: Record<string, string> = {
   open: 'Open Submissions',
@@ -36,6 +38,9 @@ interface ActiveClash {
 const MAX_FILE_SIZE = 200 * 1024 * 1024;
 
 export default function StudioClash() {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const artistId = user?.artistId;
+
   const [clash, setClash] = useState<ActiveClash | null>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [myEntry, setMyEntry] = useState<Entry | null>(null);
@@ -59,11 +64,11 @@ export default function StudioClash() {
   async function loadActive() {
     setLoading(true);
     try {
-      const res = await api.get<{ success: boolean; data: ActiveClash }>('/studio-clash/active');
-      const data = (res.data as any);
-      if (data?.success && data?.data) {
-        setClash(data.data);
-        await loadEntries(data.data._id, 0, true);
+      const res = await api.get<any>('/studio-clash/active');
+      const body = res.data as any;
+      if (body?.success && body?.data) {
+        setClash(body.data);
+        await loadEntries(body.data._id, 0, true);
       } else {
         setNotFound(true);
       }
@@ -78,27 +83,25 @@ export default function StudioClash() {
     if (p > 0) setLoadingMore(true);
     try {
       const res = await api.get<any>(`/studio-clash/${id}/entries?page=${p}`);
-      const data = res.data as any;
-      if (data?.success && data?.data) {
-        const list: Entry[] = data.data;
+      const body = res.data as any;
+      if (body?.success && Array.isArray(body?.data)) {
+        const list: Entry[] = body.data;
         setEntries(prev => replace ? list : [...prev, ...list]);
-        setHasMore(!!data.hasMore);
+        setHasMore(!!body.hasMore);
         setPage(p + 1);
 
-        // Detect my entry
-        const me = (await api.get<any>('/auth/me')).data as any;
-        const artistId = me?.data?.artist?._id;
+        // Detect the current artist's own entry using Redux-stored artistId
         if (artistId) {
           const mine = list.find(e => e.artist?._id === artistId);
           if (mine) setMyEntry(mine);
         }
       }
     } catch {
-      // silent
+      // silent — errors handled by loading state
     } finally {
       setLoadingMore(false);
     }
-  }, []);
+  }, [artistId]);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -119,16 +122,16 @@ export default function StudioClash() {
         videoUrl: presigned.publicUrl,
         title: title.trim() || undefined,
       });
-      const data = (res.data as any);
-      if (data?.success) {
+      const body = res.data as any;
+      if (body?.success) {
         setUploadPhase('done');
         toast.success('Entry submitted! 🎤');
         loadEntries(clash._id, 0, true);
       } else {
-        throw new Error(data?.message ?? 'Submit failed');
+        throw new Error(body?.message ?? 'Submit failed');
       }
     } catch (err: any) {
-      toast.error(err?.message ?? 'Upload failed');
+      toast.error(err?.response?.data?.message ?? err?.message ?? 'Upload failed');
       setUploadPhase('idle');
     }
   }
@@ -175,7 +178,7 @@ export default function StudioClash() {
         )}
       </div>
 
-      {/* Submit form — only in accepting phase and if no entry yet */}
+      {/* Submit form — only in accepting phase, not yet submitted, not done uploading */}
       {clash.status === 'accepting' && !myEntry && uploadPhase !== 'done' && (
         <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-5 space-y-4">
           <h2 className="font-bold text-white">Submit Your Entry</h2>
@@ -210,13 +213,19 @@ export default function StudioClash() {
           {uploadPhase !== 'idle' && (
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs text-zinc-400">
-                <span>{uploadPhase === 'uploading' ? 'Uploading...' : uploadPhase === 'presigning' ? 'Preparing...' : 'Saving...'}</span>
+                <span>
+                  {uploadPhase === 'presigning' ? 'Preparing...' :
+                   uploadPhase === 'uploading' ? 'Uploading...' : 'Saving...'}
+                </span>
                 {uploadPhase === 'uploading' && <span>{uploadProgress}%</span>}
               </div>
               <div className="h-1.5 w-full bg-zinc-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary rounded-full transition-all"
-                  style={{ width: uploadPhase === 'uploading' ? `${uploadProgress}%` : uploadPhase === 'saving' ? '95%' : '10%' }}
+                  style={{
+                    width: uploadPhase === 'uploading' ? `${uploadProgress}%` :
+                           uploadPhase === 'saving' ? '95%' : '10%'
+                  }}
                 />
               </div>
             </div>
@@ -236,7 +245,7 @@ export default function StudioClash() {
         </div>
       )}
 
-      {/* My entry or done state */}
+      {/* My submitted entry */}
       {(myEntry || uploadPhase === 'done') && (
         <div className="bg-green-900/20 border border-green-500/30 rounded-2xl p-4 flex items-center gap-3">
           <CheckCircle2 className="w-5 h-5 text-green-400 flex-none" />
@@ -262,7 +271,9 @@ export default function StudioClash() {
               <motion.div
                 key={entry._id}
                 whileHover={{ x: 2 }}
-                className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 flex items-center gap-3"
+                className={`bg-zinc-900 border rounded-xl px-4 py-3 flex items-center gap-3 ${
+                  entry.artist?._id === artistId ? 'border-primary/40 bg-primary/5' : 'border-zinc-800'
+                }`}
               >
                 <span className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-sm flex-none ${
                   i === 0 ? 'bg-yellow-500 text-black' :
@@ -273,7 +284,10 @@ export default function StudioClash() {
                   {i + 1}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-bold truncate">{entry.artist?.name}</p>
+                  <p className="text-white text-sm font-bold truncate">
+                    {entry.artist?.name}
+                    {entry.artist?._id === artistId && <span className="ml-2 text-primary text-xs">(you)</span>}
+                  </p>
                   {entry.title && <p className="text-zinc-500 text-xs truncate">{entry.title}</p>}
                 </div>
                 <div className="flex items-center gap-3 text-xs text-zinc-400">
