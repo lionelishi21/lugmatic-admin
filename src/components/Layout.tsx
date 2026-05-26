@@ -129,6 +129,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     
     // Engagement
     { path: '/artist/clashes', label: 'Clashes', icon: <Swords size={20} />, section: 'Engagement' },
+    { path: '/artist/studio-clash', label: 'Studio Clash', icon: <Music2 size={20} />, section: 'Engagement' },
     { path: '/artist/billboard', label: 'Billboard', icon: <Award size={20} />, section: 'Engagement' },
     { path: '/artist/podcasts', label: 'Podcasts', icon: <Podcast size={20} />, section: 'Engagement' },
     { path: '/artist/gifts', label: 'Gifts', icon: <Gift size={20} />, section: 'Engagement' },

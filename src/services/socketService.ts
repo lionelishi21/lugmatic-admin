@@ -350,6 +350,7 @@ class SocketService {
       'clash:rejected',
       'clash:score-update',
       'clash:ended',
+      'clash:reload',
       'clash:action',
       'error',
     ];

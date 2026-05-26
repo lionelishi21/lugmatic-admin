@@ -70,6 +70,7 @@ import ClashManagement from './pages/admin/ClashManagement';
 import Landing from './pages/Landing';
 import Clashes from './pages/artist/Clashes';
 import ClashLive from './pages/artist/ClashLive';
+import StudioClash from './pages/artist/StudioClash';
 import ShellIt from './pages/artist/ShellIt';
 import ContributorDashboard from './pages/contributor/ContributorDashboard';
 import PayoutSettings from './pages/contributor/PayoutSettings';
@@ -129,6 +130,7 @@ function App() {
                             <Route path="live" element={<Live />} />
                             <Route path="clashes" element={<Clashes />} />
                             <Route path="clashes/live/:clashId" element={<ClashLive />} />
+                            <Route path="studio-clash" element={<StudioClash />} />
                             <Route path="shell-it" element={<ShellIt />} />
                             <Route path="gifts" element={<Gifts />} />
                             <Route path="earnings" element={<Earnings />} />

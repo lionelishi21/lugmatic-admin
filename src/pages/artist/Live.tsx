@@ -529,6 +529,11 @@ export default function Live() {
         });
       });
 
+      socketService.socket?.on('clash:reload', (data: { bonusSeconds: number; giftName: string; senderUsername: string; newExpiresAt: string }) => {
+        toast(`🔄 RELOAD! ${data.senderUsername} gave you +${data.bonusSeconds}s!`, { duration: 3000 });
+        setClashTurn(prev => prev ? { ...prev, turnExpiresAt: data.newExpiresAt } : prev);
+      });
+
       socketService.onClashEnded((data) => {
         setActiveClash(null);
         setRemoteVideoTrack(null);

@@ -27,11 +27,13 @@ import api from '../../services/api';
 import { Skeleton } from '../../components/ui/skeleton';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import { RankBadge } from '../../components/RankBadge';
 
 interface Artist {
   _id: string;
   name: string;
   image: string;
+  clashRank?: string;
 }
 
 interface Clash {
@@ -213,6 +215,7 @@ export default function Clashes() {
                     </div>
                     <div className="space-y-2">
                       <p className="text-sm font-bold text-white uppercase tracking-tight">{clash.challenger.name}</p>
+                      {clash.challenger.clashRank && <RankBadge rank={clash.challenger.clashRank} />}
                       <p className="text-6xl font-bold text-white tabular-nums tracking-tighter">{clash.challengerScore}</p>
                     </div>
                   </div>
@@ -243,6 +246,7 @@ export default function Clashes() {
                     </div>
                     <div className="space-y-2">
                       <p className="text-sm font-bold text-white uppercase tracking-tight">{clash.opponent.name}</p>
+                      {clash.opponent.clashRank && <RankBadge rank={clash.opponent.clashRank} />}
                       <p className="text-6xl font-bold text-white tabular-nums tracking-tighter">{clash.opponentScore}</p>
                     </div>
                   </div>
