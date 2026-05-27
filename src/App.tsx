@@ -1,21 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './pages/auth/Login'
-import ArtistRegister from './pages/auth/ArtistRegister';
-import ContributorLogin from './pages/auth/ContributorLogin';
-import AcceptInvitation from './pages/auth/AcceptInvitation';
-import VerifyEmail from './pages/auth/VerifyEmail';
-import ResendVerification from './pages/auth/ResendVerification';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/auth/Login';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
-import SetupAccount from './pages/auth/SetupAccount';
-import ArtistDashboard from './pages/artist/ArtistDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Approvals from './pages/admin/Approvals';
-import Upload from './pages/artist/Upload';
-import Live from './pages/artist/Live';
-import Gifts from './pages/artist/Gifts';
-import SongEdit from './pages/artist/SongEdit';
-import Earnings from './pages/artist/Earnings';
 import ArtistManagement from './pages/admin/ArtistManagement';
 import ArtistEdit from './pages/admin/ArtistEdit';
 import UserManagement from './pages/admin/UserManagement';
@@ -34,30 +22,10 @@ import AuthInitializer from './components/AuthInitializer';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 import Documentation from './pages/admin/Documentation';
-
-// Import new pages for comprehensive features
-import Podcasts from './pages/artist/Podcasts';
-import Comments from './pages/artist/Comments';
-import Notifications from './pages/artist/Notifications';
-import Search from './pages/artist/Search';
-import UserProfile from './pages/artist/UserProfile';
-import Settings from './pages/artist/Settings';
-import Support from './pages/artist/Support';
-import MySongs from './pages/artist/MySongs';
-import SongAnalytics from './pages/artist/SongAnalytics';
-import SupportHistory from './pages/artist/SupportHistory';
-import Onboarding from './pages/artist/Onboarding';
-import Reels from './pages/artist/Reels';
-import Messages from './pages/artist/Messages';
-import MessageThread from './pages/artist/MessageThread';
-import Streams from './pages/artist/Streams';
-import Mixer from './pages/artist/Mixer';
-import OnboardingGuard from './components/OnboardingGuard';
-
-// Import new admin pages
 import PodcastManagement from './pages/admin/PodcastManagement';
 import CommentManagement from './pages/admin/CommentManagement';
 import GiftManagement from './pages/admin/GiftManagement';
+import GiftEdit from './pages/admin/GiftEdit';
 import VideoManagement from './pages/admin/VideoManagement';
 import NotificationManagement from './pages/admin/NotificationManagement';
 import ContentModeration from './pages/admin/ContentModeration';
@@ -67,22 +35,12 @@ import Promotions from './pages/admin/Promotions';
 import Reports from './pages/admin/Reports';
 import PlaylistManagement from './pages/admin/PlaylistManagement';
 import ClashManagement from './pages/admin/ClashManagement';
-import Landing from './pages/Landing';
-import Clashes from './pages/artist/Clashes';
-import ClashLive from './pages/artist/ClashLive';
-import StudioClash from './pages/artist/StudioClash';
-import ShellIt from './pages/artist/ShellIt';
-import ContributorDashboard from './pages/contributor/ContributorDashboard';
-import PayoutSettings from './pages/contributor/PayoutSettings';
 import Billboard from './pages/admin/Billboard';
 import ArtistApprovals from './pages/admin/ArtistApprovals';
 import RhythmManagement from './pages/admin/RhythmManagement';
-import GiftEdit from './pages/admin/GiftEdit';
 import { ThemeProvider } from './context/ThemeContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { usePushNotifications } from './hooks/usePushNotifications';
-import SongShare from './pages/public/SongShare';
-import StreamShare from './pages/public/StreamShare';
 
 function AppInner() {
   usePushNotifications();
@@ -92,144 +50,73 @@ function AppInner() {
 function App() {
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''}>
-    <ThemeProvider>
-      <AppInner />
-      <Toaster position="top-center" />
-      <AuthInitializer>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<ArtistRegister />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/contributor/login" element={<ContributorLogin />} />
-            <Route path="/accept-invitation" element={<AcceptInvitation />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route path="/resend-verification" element={<ResendVerification />} />
-            <Route path="/setup-account" element={<SetupAccount />} />
+      <ThemeProvider>
+        <AppInner />
+        <Toaster position="top-center" />
+        <AuthInitializer>
+          <Router>
+            <Routes>
+              {/* Auth */}
+              <Route path="/" element={<Navigate to="/admin" replace />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
-            {/* Public share pages — no auth required */}
-            <Route path="/share/song/:songId" element={<SongShare />} />
-            <Route path="/share/stream/:streamId" element={<StreamShare />} />
+              {/* Admin dashboard */}
+              <Route
+                path="/admin/*"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <ArtistProvider>
+                      <Layout>
+                        <Routes>
+                          <Route index element={<AdminDashboard />} />
+                          <Route path="approvals" element={<Approvals />} />
+                          <Route path="artist-management/*" element={<ArtistManagement />} />
+                          <Route path="artist-details/:id" element={<ArtistDetails />} />
+                          <Route path="artists/:id/edit" element={<ArtistEdit />} />
+                          <Route path="user-management" element={<UserManagement />} />
+                          <Route path="financial-management" element={<FinancialManagement />} />
+                          <Route path="live-stream-management" element={<LiveStreamManagement />} />
+                          <Route path="album-management" element={<AlbumManagement />} />
+                          <Route path="song-management" element={<SongManagement />} />
+                          <Route path="song-management/add" element={<SongCreate />} />
+                          <Route path="song-management/:id" element={<SongDetail />} />
+                          <Route path="playlist-management" element={<PlaylistManagement />} />
+                          <Route path="video-management" element={<VideoManagement />} />
+                          <Route path="genre-management" element={<GenreManagement />} />
+                          <Route path="artist-add" element={<ArtistCreate />} />
+                          <Route path="podcast-management" element={<PodcastManagement />} />
+                          <Route path="comment-management" element={<CommentManagement />} />
+                          <Route path="gift-management" element={<GiftManagement />} />
+                          <Route path="gift-management/add" element={<GiftEdit />} />
+                          <Route path="gift-management/:id" element={<GiftEdit />} />
+                          <Route path="notification-management" element={<NotificationManagement />} />
+                          <Route path="content-moderation" element={<ContentModeration />} />
+                          <Route path="analytics" element={<Analytics />} />
+                          <Route path="system-settings" element={<SystemSettings />} />
+                          <Route path="promotions" element={<Promotions />} />
+                          <Route path="reports" element={<Reports />} />
+                          <Route path="clash-management" element={<ClashManagement />} />
+                          <Route path="billboard" element={<Billboard />} />
+                          <Route path="artist-approvals" element={<ArtistApprovals />} />
+                          <Route path="rhythm-management" element={<RhythmManagement />} />
+                          <Route path="documentation" element={<Documentation />} />
+                        </Routes>
+                      </Layout>
+                    </ArtistProvider>
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route path="/artist/*" element={
-              <ProtectedRoute requiredRole="artist">
-                <ArtistProvider>
-                  <Routes>
-                    {/* Onboarding Route - outside the guard */}
-                    <Route path="onboarding" element={<Onboarding />} />
-                    
-                    {/* Guarded Routes */}
-                    <Route path="*" element={
-                      <OnboardingGuard>
-                        <Layout>
-                          <Routes>
-                            <Route index element={<ArtistDashboard />} />
-                            <Route path="upload" element={<Upload />} />
-                            <Route path="live" element={<Live />} />
-                            <Route path="clashes" element={<Clashes />} />
-                            <Route path="clashes/live/:clashId" element={<ClashLive />} />
-                            <Route path="studio-clash" element={<StudioClash />} />
-                            <Route path="shell-it" element={<ShellIt />} />
-                            <Route path="gifts" element={<Gifts />} />
-                            <Route path="earnings" element={<Earnings />} />
-                      {/* New artist routes */}
-                      <Route path="podcasts" element={<Podcasts />} />
-                      <Route path="comments" element={<Comments />} />
-                      <Route path="notifications" element={<Notifications />} />
-                      <Route path="search" element={<Search />} />
-                      <Route path="profile" element={<UserProfile />} />
-                      <Route path="settings" element={<Settings />} />
-                      <Route path="support" element={<Support />} />
-                      <Route path="reels" element={<Reels />} />
-                      <Route path="support/history" element={<SupportHistory />} />
-                      <Route path="billboard" element={<Billboard />} />
-                      <Route path="songs" element={<MySongs />} />
-                      <Route path="songs/:id/analytics" element={<SongAnalytics />} />
-                      <Route path="song-edit/:id" element={<SongEdit />} />
-                      <Route path="messages" element={<Messages />} />
-                      <Route path="messages/:conversationId" element={<MessageThread />} />
-                      <Route path="streams" element={<Streams />} />
-                      <Route path="mixer" element={<Mixer />} />
-                    </Routes>
-                  </Layout>
-                </OnboardingGuard>
-              } />
+              {/* Catch-all → admin */}
+              <Route path="*" element={<Navigate to="/admin" replace />} />
             </Routes>
-          </ArtistProvider>
-        </ProtectedRoute>
-      } />
-
-      <Route
-              path="/admin/*"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <ArtistProvider>
-                    <Layout>
-                      <Routes>
-                        <Route index element={<AdminDashboard />} />
-                        <Route path="approvals" element={<Approvals />} />
-                        <Route path="artist-management/*" element={<ArtistManagement />} />
-                        <Route path="artist-details/:id" element={<ArtistDetails />} />
-                        <Route path="artists/:id/edit" element={<ArtistEdit />} />
-                        <Route path="user-management" element={<UserManagement />} />
-                        <Route path="financial-management" element={<FinancialManagement />} />
-                        <Route path="live-stream-management" element={<LiveStreamManagement />} />
-                        <Route path="album-management" element={<AlbumManagement />} />
-                        <Route path="song-management" element={<SongManagement />} />
-                        <Route path="song-management/add" element={<SongCreate />} />
-                        <Route path="song-management/:id" element={<SongDetail />} />
-                        <Route path="playlist-management" element={<PlaylistManagement />} />
-                        <Route path="video-management" element={<VideoManagement />} />
-                        <Route path="genre-management" element={<GenreManagement />} />
-                        <Route path="artist-add" element={<ArtistCreate />} />
-                        {/* New admin routes */}
-                        <Route path="podcast-management" element={<PodcastManagement />} />
-                        <Route path="comment-management" element={<CommentManagement />} />
-                        <Route path="gift-management" element={<GiftManagement />} />
-                        <Route path="gift-management/add" element={<GiftEdit />} />
-                        <Route path="gift-management/:id" element={<GiftEdit />} />
-                        <Route path="notification-management" element={<NotificationManagement />} />
-                        <Route path="content-moderation" element={<ContentModeration />} />
-                        <Route path="analytics" element={<Analytics />} />
-                        <Route path="system-settings" element={<SystemSettings />} />
-                        <Route path="promotions" element={<Promotions />} />
-                        <Route path="reports" element={<Reports />} />
-                        <Route path="clash-management" element={<ClashManagement />} />
-                        <Route path="billboard" element={<Billboard />} />
-                        <Route path="artist-approvals" element={<ArtistApprovals />} />
-                        <Route path="rhythm-management" element={<RhythmManagement />} />
-                        <Route path="documentation" element={<Documentation />} />
-                      </Routes>
-                    </Layout>
-                  </ArtistProvider>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route path="/contributor/*" element={
-              <ProtectedRoute requiredRole="contributor">
-                <ArtistProvider>
-                  <Layout>
-                    <Routes>
-                      <Route index element={<ContributorDashboard />} />
-                      <Route path="payouts" element={<PayoutSettings />} />
-                      <Route path="settings" element={<Settings />} />
-                      <Route path="support" element={<Support />} />
-                      <Route path="notifications" element={<Notifications />} />
-                    </Routes>
-                  </Layout>
-                </ArtistProvider>
-              </ProtectedRoute>
-            } />
-
-          </Routes>
-        </Router>
-      </AuthInitializer>
-    </ThemeProvider>
+          </Router>
+        </AuthInitializer>
+      </ThemeProvider>
     </GoogleOAuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { liveGuard } from '../store/liveGuard';
 import {
-  Users, Shield, DollarSign, Settings, BarChart2, Film, Disc, Music, Music2, Tag,
-  Menu, X, ChevronRight, LayoutGrid, Bell, Search, User, UserCheck, Sun, Moon, LogOut, ChevronDown,
-  Swords, Award, Podcast, Megaphone, MessageSquare, Gift, AlertTriangle, Radio as RadioIcon, Upload, HelpCircle
+  Users, Shield, DollarSign, Settings, BarChart2, Film, Disc, Music2,
+  Menu, X, Bell, Search, User, UserCheck, Sun, Moon, LogOut, ChevronDown,
+  Swords, Award, Podcast, Megaphone, MessageSquare, Gift, AlertTriangle, HelpCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
@@ -14,7 +14,6 @@ import Breadcrumb from './Breadcrumb';
 
 interface LayoutProps {
   children: React.ReactNode;
-  userRole?: 'admin' | 'artist' | 'contributor';
 }
 
 type NavItemType = {
@@ -25,10 +24,9 @@ type NavItemType = {
   subItems?: { path: string; label: string }[];
 };
 
-export default function Layout({ children, userRole: userRoleProp }: LayoutProps) {
+export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const { logout, user } = useAuth();
-  const [userRole, setUserRole] = useState(userRoleProp ?? 'admin');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
@@ -44,18 +42,6 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  useEffect(() => {
-    if (userRoleProp) {
-      setUserRole(userRoleProp);
-    } else {
-      if (location.pathname.startsWith('/admin')) {
-        setUserRole('admin');
-      } else {
-        setUserRole('artist');
-      }
-    }
-  }, [location.pathname, userRoleProp]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -82,7 +68,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     return location.pathname.startsWith(path);
   };
 
-  const adminNavItems: NavItemType[] = [
+  const navItems: NavItemType[] = [
     // Core Management
     { path: '/admin', label: 'Overview', icon: <BarChart2 size={20} />, section: 'Management' },
     { path: '/admin/approvals', label: 'Approvals', icon: <Shield size={20} />, section: 'Management' },
@@ -90,9 +76,9 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     { path: '/admin/user-management', label: 'Users', icon: <Users size={20} />, section: 'Management' },
     { path: '/admin/financial-management', label: 'Revenue', icon: <DollarSign size={20} />, section: 'Management' },
     { path: '/admin/live-stream-management', label: 'Streams', icon: <Film size={20} />, section: 'Management' },
-    { 
-      path: '/admin/library', 
-      label: 'Library', 
+    {
+      path: '/admin/library',
+      label: 'Library',
       icon: <Disc size={20} />,
       section: 'Management',
       subItems: [
@@ -102,7 +88,7 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
       ]
     },
 
-    // Advanced Tools
+    // Engagement
     { path: '/admin/clash-management', label: 'Clashes', icon: <Swords size={20} />, section: 'Engagement' },
     { path: '/admin/billboard', label: 'Billboard', icon: <Award size={20} />, section: 'Engagement' },
     { path: '/admin/podcast-management', label: 'Podcasts', icon: <Podcast size={20} />, section: 'Engagement' },
@@ -113,38 +99,11 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
     { path: '/admin/notification-management', label: 'Notifications', icon: <Bell size={20} />, section: 'Engagement' },
     { path: '/admin/content-moderation', label: 'Moderation', icon: <AlertTriangle size={20} />, section: 'Engagement' },
 
+    // System
     { path: '/admin/system-settings', label: 'Settings', icon: <Settings size={20} />, section: 'System' },
     { path: '/admin/documentation', label: 'Documentation', icon: <HelpCircle size={20} />, section: 'System' }
   ];
 
-  const artistNavItems: NavItemType[] = [
-    // Core
-    { path: '/artist', label: 'Overview', icon: <LayoutGrid size={20} />, section: 'General' },
-    { path: '/artist/songs', label: 'Music', icon: <Music size={20} />, section: 'General' },
-    { path: '/artist/upload', label: 'Publish', icon: <Upload size={20} />, section: 'General' },
-    { path: '/artist/live', label: 'Live', icon: <RadioIcon size={20} />, section: 'General' },
-    { path: '/artist/streams', label: 'Past Streams', icon: <Film size={20} />, section: 'General' },
-    { path: '/artist/mixer', label: 'AI Mixer', icon: <Music2 size={20} />, section: 'General' },
-    { path: '/artist/search', label: 'Search', icon: <Search size={20} />, section: 'General' },
-    
-    // Engagement
-    { path: '/artist/clashes', label: 'Clashes', icon: <Swords size={20} />, section: 'Engagement' },
-    { path: '/artist/studio-clash', label: 'Studio Clash', icon: <Music2 size={20} />, section: 'Engagement' },
-    { path: '/artist/billboard', label: 'Billboard', icon: <Award size={20} />, section: 'Engagement' },
-    { path: '/artist/podcasts', label: 'Podcasts', icon: <Podcast size={20} />, section: 'Engagement' },
-    { path: '/artist/gifts', label: 'Gifts', icon: <Gift size={20} />, section: 'Engagement' },
-    { path: '/artist/messages', label: 'Messages', icon: <MessageSquare size={20} />, section: 'Engagement' },
-    { path: '/artist/shell-it', label: 'Shell It', icon: <Disc size={20} />, section: 'Engagement' },
-    { path: '/artist/notifications', label: 'Notifications', icon: <Bell size={20} />, section: 'Engagement' },
-    
-    // Performance
-    { path: '/artist/earnings', label: 'Earnings', icon: <DollarSign size={20} />, section: 'Performance' },
-    { path: '/artist/profile', label: 'Profile', icon: <User size={20} />, section: 'Performance' },
-    { path: '/artist/support', label: 'Support', icon: <Shield size={20} />, section: 'Performance' },
-    { path: '/artist/settings', label: 'Settings', icon: <Settings size={20} />, section: 'Performance' }
-  ];
-
-  const navItems = userRole === 'admin' ? adminNavItems : artistNavItems;
   const sections = Array.from(new Set(navItems.map(i => i.section).filter(Boolean)));
 
   return (
@@ -292,10 +251,10 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
           </button>
           <Breadcrumb />
           <div className="ml-auto flex items-center gap-6">
-             <Link to={userRole === 'admin' ? '/admin' : '/artist/search'} className="text-zinc-500 hover:text-white transition-colors">
+             <Link to="/admin" className="text-zinc-500 hover:text-white transition-colors">
                <Search size={20} />
              </Link>
-             <Link to={userRole === 'admin' ? '/admin/notification-management' : '/artist/notifications'} className="text-zinc-500 hover:text-white transition-colors relative">
+             <Link to="/admin/notification-management" className="text-zinc-500 hover:text-white transition-colors relative">
                <Bell size={20} />
                <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full" />
              </Link>
@@ -335,34 +294,21 @@ export default function Layout({ children, userRole: userRoleProp }: LayoutProps
                            <p className="text-xs text-zinc-500 truncate">{user?.email || ''}</p>
                          </div>
                        </div>
-                       {userRole !== 'admin' && (
-                         <span className="mt-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                           {userRole === 'contributor' ? 'Contributor' : 'Artist'}
-                         </span>
-                       )}
                      </div>
 
                      {/* Menu items */}
                      <div className="p-1.5 space-y-0.5">
                        <Link
-                         to={userRole === 'admin' ? '/admin/system-settings' : '/artist/profile'}
-                         onClick={(e) => {
-                           const path = userRole === 'admin' ? '/admin/system-settings' : '/artist/profile';
-                           if (liveGuard.intercept(path)) { e.preventDefault(); return; }
-                           setIsProfileOpen(false);
-                         }}
+                         to="/admin/system-settings"
+                         onClick={() => setIsProfileOpen(false)}
                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
                        >
                          <UserCheck size={16} className="flex-shrink-0" />
                          View Profile
                        </Link>
                        <Link
-                         to={userRole === 'admin' ? '/admin/system-settings' : '/artist/settings'}
-                         onClick={(e) => {
-                           const path = userRole === 'admin' ? '/admin/system-settings' : '/artist/settings';
-                           if (liveGuard.intercept(path)) { e.preventDefault(); return; }
-                           setIsProfileOpen(false);
-                         }}
+                         to="/admin/system-settings"
+                         onClick={() => setIsProfileOpen(false)}
                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
                        >
                          <Settings size={16} className="flex-shrink-0" />
