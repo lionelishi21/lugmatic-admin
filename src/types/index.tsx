@@ -148,41 +148,60 @@ export function isPopulatedUser(user: string | User): user is User {
 // New types for comprehensive features
 
 // Podcast types
+export interface PodcastEpisode {
+  _id: string;
+  title: string;
+  description?: string;
+  audioFile: { url: string; duration: number; fileSize: number; bitrate: number };
+  coverArt?: string;
+  tags: string[];
+  isExplicit: boolean;
+  isPublished: boolean;
+  publishDate?: Date;
+  playCount: number;
+  episodeNumber?: number;
+  seasonNumber: number;
+  createdAt: Date;
+}
+
 export interface Podcast {
   _id: string;
   title: string;
-  description: string;
+  description?: string;
   artist: string | Artist;
-  coverImage?: string;
-  audioUrl: string;
-  duration: number;
-  category: string;
-  tags: string[];
-  isPublished: boolean;
-  isLive: boolean;
-  listeners: number;
-  likes: number;
+  coverArt?: string;
+  category?: string;
+  language?: string;
+  tags?: string[];
+  explicit?: boolean;
+  isApproved: boolean;
+  isActive: boolean;
+  episodes: PodcastEpisode[];
+  subscribers?: string[];
+  totalPlayCount?: number;
+  totalViews?: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface CreatePodcastRequest {
   title: string;
-  description: string;
-  coverImage?: string;
-  audioUrl: string;
-  category: string;
+  description?: string;
+  coverArt?: string;
+  category?: string;
+  language?: string;
   tags?: string[];
+  explicit?: boolean;
 }
 
 export interface UpdatePodcastRequest {
   title?: string;
   description?: string;
-  coverImage?: string;
-  audioUrl?: string;
+  coverArt?: string;
   category?: string;
+  language?: string;
   tags?: string[];
-  isPublished?: boolean;
+  isActive?: boolean;
 }
 
 // Comment types
