@@ -50,6 +50,8 @@ export default function RegularClashManagement() {
     votingDeadline: '',
   });
   const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [advanceError, setAdvanceError] = useState<string | null>(null);
 
   useEffect(() => {
     getAdminPools()
@@ -72,23 +74,43 @@ export default function RegularClashManagement() {
     if (!NEXT_STATUS[pool.status]) return;
     if (!window.confirm(`Advance "${pool.title}" from ${pool.status} to ${NEXT_STATUS[pool.status]}?`)) return;
     setAdvancing(pool._id);
+    setAdvanceError(null);
     try {
       const updated = await updatePoolStatus(pool._id, NEXT_STATUS[pool.status]);
       setPools(prev => prev.map(p => p._id === pool._id ? { ...p, status: updated.status } : p));
       if (selectedPool?._id === pool._id) setSelectedPool(updated);
-    } catch (_) {}
+    } catch (err: any) {
+      setAdvanceError(err?.response?.data?.message || err?.message || 'Failed to advance pool status');
+    }
     setAdvancing(null);
   }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
+    setCreateError(null);
+
+    // Client-side date order validation
+    const cd = new Date(form.challengeDeadline);
+    const sd = new Date(form.submissionDeadline);
+    const vd = new Date(form.votingDeadline);
+    if (cd >= sd) {
+      setCreateError('Challenge deadline must be before submission deadline.');
+      return;
+    }
+    if (sd >= vd) {
+      setCreateError('Submission deadline must be before voting deadline.');
+      return;
+    }
+
     setCreating(true);
     try {
       const pool = await createPool(form);
       setPools(prev => [pool, ...prev]);
       setShowCreate(false);
       setForm(f => ({ ...f, title: '', description: '' }));
-    } catch (_) {}
+    } catch (err: any) {
+      setCreateError(err?.response?.data?.message || err?.message || 'Failed to create pool. Check the dates are in order.');
+    }
     setCreating(false);
   }
 
@@ -105,7 +127,7 @@ export default function RegularClashManagement() {
           </div>
         </div>
         <button
-          onClick={() => setShowCreate(true)}
+          onClick={() => { setShowCreate(true); setCreateError(null); }}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-sm"
         >
           <Plus className="h-4 w-4" />
@@ -205,9 +227,12 @@ export default function RegularClashManagement() {
                     </div>
                   ))}
                 </div>
+                {advanceError && (
+                  <p className="mt-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">{advanceError}</p>
+                )}
                 {STATUS_ACTION[selectedPool.status] && (
                   <button
-                    onClick={() => handleAdvance(selectedPool)}
+                    onClick={() => { setAdvanceError(null); handleAdvance(selectedPool); }}
                     disabled={advancing === selectedPool._id}
                     className="mt-4 w-full py-2.5 rounded-xl bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-black font-bold text-sm"
                   >
@@ -272,6 +297,11 @@ export default function RegularClashManagement() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowCreate(false)}>
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-lg w-full" onClick={e => e.stopPropagation()}>
             <h2 className="text-xl font-black text-white mb-5">Create Pool</h2>
+            {createError && (
+              <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+                {createError}
+              </div>
+            )}
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
                 <label className="text-xs text-zinc-400 font-semibold uppercase tracking-wider block mb-1">Title *</label>
