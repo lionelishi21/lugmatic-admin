@@ -77,7 +77,11 @@ export default function CreateRegularClashPool() {
     try {
       await createPool({
         ...form,
-        allowedArtists: isInviteOnly ? selectedArtists.map(a => a._id) : [],
+        isInviteOnly,
+        allowedArtists: isInviteOnly ? selectedArtists.map(a => {
+          if (typeof a.user === 'string') return a.user;
+          return (a.user as any)?._id || a._id;
+        }) : [],
       });
       navigate('/admin/regular-clash-management');
     } catch (err: any) {
