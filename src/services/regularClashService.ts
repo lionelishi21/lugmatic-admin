@@ -50,6 +50,7 @@ export const createPool = async (data: {
   challengeDeadline: string;
   submissionDeadline: string;
   votingDeadline: string;
+  allowedArtists?: string[];
 }): Promise<ClashPool> => {
   const res = await apiService.post('/regular-clash/pool', data);
   return res.data?.data;

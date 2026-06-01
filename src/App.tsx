@@ -36,6 +36,7 @@ import Reports from './pages/admin/Reports';
 import PlaylistManagement from './pages/admin/PlaylistManagement';
 import ClashManagement from './pages/admin/ClashManagement';
 import RegularClashManagement from './pages/admin/RegularClashManagement';
+import CreateRegularClashPool from './pages/admin/CreateRegularClashPool';
 import Billboard from './pages/admin/Billboard';
 import ArtistApprovals from './pages/admin/ArtistApprovals';
 import RhythmManagement from './pages/admin/RhythmManagement';
@@ -100,6 +101,7 @@ function App() {
                           <Route path="reports" element={<Reports />} />
                           <Route path="clash-management" element={<ClashManagement />} />
                           <Route path="regular-clash-management" element={<RegularClashManagement />} />
+                          <Route path="regular-clash-management/create" element={<CreateRegularClashPool />} />
                           <Route path="billboard" element={<Billboard />} />
                           <Route path="artist-approvals" element={<ArtistApprovals />} />
                           <Route path="rhythm-management" element={<RhythmManagement />} />

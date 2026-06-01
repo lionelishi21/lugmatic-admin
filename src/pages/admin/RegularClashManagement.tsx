@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Zap, Plus, ChevronRight, Trophy, Clock, ChevronLeft, CheckCircle2, Video } from 'lucide-react';
 import { getAdminPools, createPool, updatePoolStatus, getPool, ClashPool, RegularClashItem, REALMS } from '../../services/regularClashService';
 import { format } from 'date-fns';
@@ -36,26 +37,13 @@ export default function RegularClashManagement() {
   const [poolClashes, setPoolClashes] = useState<RegularClashItem[]>([]);
   const [loadingPools, setLoadingPools] = useState(true);
   const [loadingClashes, setLoadingClashes] = useState(false);
-  const [showCreate, setShowCreate] = useState(false);
   const [advancing, setAdvancing] = useState<string | null>(null);
-
-  // Create form state
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    season: 1,
-    realm: 'dancehall',
-    challengeDeadline: '',
-    submissionDeadline: '',
-    votingDeadline: '',
-  });
-  const [creating, setCreating] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
   const [advanceError, setAdvanceError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getAdminPools()
-      .then(data => { setPools(data); setForm(f => ({ ...f, season: (data[0]?.season ?? 0) + 1 })); })
+      .then(data => { setPools(data); })
       .catch(() => {})
       .finally(() => setLoadingPools(false));
   }, []);
@@ -85,34 +73,7 @@ export default function RegularClashManagement() {
     setAdvancing(null);
   }
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    setCreateError(null);
 
-    // Client-side date order validation
-    const cd = new Date(form.challengeDeadline);
-    const sd = new Date(form.submissionDeadline);
-    const vd = new Date(form.votingDeadline);
-    if (cd >= sd) {
-      setCreateError('Challenge deadline must be before submission deadline.');
-      return;
-    }
-    if (sd >= vd) {
-      setCreateError('Submission deadline must be before voting deadline.');
-      return;
-    }
-
-    setCreating(true);
-    try {
-      const pool = await createPool(form);
-      setPools(prev => [pool, ...prev]);
-      setShowCreate(false);
-      setForm(f => ({ ...f, title: '', description: '' }));
-    } catch (err: any) {
-      setCreateError(err?.response?.data?.message || err?.message || 'Failed to create pool. Check the dates are in order.');
-    }
-    setCreating(false);
-  }
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -127,7 +88,7 @@ export default function RegularClashManagement() {
           </div>
         </div>
         <button
-          onClick={() => { setShowCreate(true); setCreateError(null); }}
+          onClick={() => navigate('/admin/regular-clash-management/create')}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-sm"
         >
           <Plus className="h-4 w-4" />
@@ -292,84 +253,7 @@ export default function RegularClashManagement() {
         </div>
       </div>
 
-      {/* Create pool modal */}
-      {showCreate && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowCreate(false)}>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-lg w-full" onClick={e => e.stopPropagation()}>
-            <h2 className="text-xl font-black text-white mb-5">Create Pool</h2>
-            {createError && (
-              <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-                {createError}
-              </div>
-            )}
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <label className="text-xs text-zinc-400 font-semibold uppercase tracking-wider block mb-1">Title *</label>
-                <input
-                  required
-                  value={form.title}
-                  onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-500/50"
-                  placeholder="Season 1 Clash Pool"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-zinc-400 font-semibold uppercase tracking-wider block mb-1">Season</label>
-                  <input
-                    type="number"
-                    min={1}
-                    value={form.season}
-                    onChange={e => setForm(f => ({ ...f, season: Number(e.target.value) }))}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-500/50"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-zinc-400 font-semibold uppercase tracking-wider block mb-1">Realm</label>
-                  <select
-                    value={form.realm}
-                    onChange={e => setForm(f => ({ ...f, realm: e.target.value }))}
-                    className="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none"
-                  >
-                    {REALMS.map(r => <option key={r} value={r}>{r}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="text-xs text-zinc-400 font-semibold uppercase tracking-wider block mb-1">Challenge Deadline *</label>
-                <input type="datetime-local" required value={form.challengeDeadline}
-                  onChange={e => setForm(f => ({ ...f, challengeDeadline: e.target.value }))}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-500/50"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-zinc-400 font-semibold uppercase tracking-wider block mb-1">Submission Deadline *</label>
-                <input type="datetime-local" required value={form.submissionDeadline}
-                  onChange={e => setForm(f => ({ ...f, submissionDeadline: e.target.value }))}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-500/50"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-zinc-400 font-semibold uppercase tracking-wider block mb-1">Voting Deadline *</label>
-                <input type="datetime-local" required value={form.votingDeadline}
-                  onChange={e => setForm(f => ({ ...f, votingDeadline: e.target.value }))}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-500/50"
-                />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowCreate(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-white/10 text-zinc-400 font-bold text-sm">
-                  Cancel
-                </button>
-                <button type="submit" disabled={creating}
-                  className="flex-1 py-2.5 rounded-xl bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-black font-bold text-sm">
-                  {creating ? 'Creating...' : 'Create Pool'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }
