@@ -46,7 +46,7 @@ const AlbumManagement: React.FC = () => {
     return (
       <button 
         onClick={() => handleSort(field)}
-        className="flex items-center gap-1.5 hover:text-white transition-colors group/btn text-[10px] font-bold text-zinc-500 uppercase tracking-widest"
+        className="flex items-center gap-1.5 hover:text-zinc-900 dark:text-white transition-colors group/btn text-[10px] font-bold text-zinc-500 uppercase tracking-widest"
       >
         <span>{label}</span>
         {isSorted ? (
@@ -211,7 +211,7 @@ const AlbumManagement: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Album Management</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">Album Management</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-500 tracking-wide">System: Online</span>
@@ -221,7 +221,7 @@ const AlbumManagement: React.FC = () => {
         </div>
         <button
           onClick={() => handleOpenDialog()}
-          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-black/10 dark:border-white/10"
         >
           <Plus size={18} />
           Create Album
@@ -241,15 +241,15 @@ const AlbumManagement: React.FC = () => {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="premium-card group border-white/5 hover:border-emerald-500/20 transition-all cursor-default relative overflow-hidden"
+            className="premium-card group border-black/5 dark:border-white/5 hover:border-emerald-500/20 transition-all cursor-default relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.02] rounded-bl-full pointer-events-none" />
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 ${s.bg} border border-white/5 shadow-inner relative overflow-hidden group-hover:scale-110 transition-transform duration-500`}>
-              <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 ${s.bg} border border-black/5 dark:border-white/5 shadow-inner relative overflow-hidden group-hover:scale-110 transition-transform duration-500`}>
+              <div className="absolute inset-0 bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <s.icon size={24} className={s.color} />
             </div>
             <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{s.label}</p>
-            <p className="text-3xl font-bold text-white tracking-tighter tabular-nums">{s.value}</p>
+            <p className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tighter tabular-nums">{s.value}</p>
           </motion.div>
         ))}
       </div>
@@ -264,7 +264,7 @@ const AlbumManagement: React.FC = () => {
               placeholder="Search albums..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
+              className="w-full pl-14 pr-12 h-14 bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
             />
           </div>
           <div className="relative w-full md:w-80 group">
@@ -272,7 +272,7 @@ const AlbumManagement: React.FC = () => {
             <select
               value={genreFilter}
               onChange={(e) => setGenreFilter(e.target.value)}
-              className="w-full h-14 pl-14 pr-12 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer"
+              className="w-full h-14 pl-14 pr-12 bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer"
             >
               <option value="all">All Genres</option>
               {genres.map(g => <option key={g._id} value={g._id}>{g.name.toUpperCase()}</option>)}
@@ -281,7 +281,7 @@ const AlbumManagement: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex bg-zinc-950/40 border border-white/5 rounded-2xl p-1.5 gap-1.5 shadow-inner">
+        <div className="flex bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl p-1.5 gap-1.5 shadow-inner">
           <button onClick={() => setViewMode('grid')} className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-white/10 text-white shadow-xl border border-white/5' : 'text-zinc-600 hover:text-zinc-300'}`}>
             <LayoutGrid size={18} />
           </button>
@@ -301,11 +301,11 @@ const AlbumManagement: React.FC = () => {
           className="min-h-[400px]"
         >
           {sortedAlbums.length === 0 ? (
-            <div className="premium-card py-40 text-center border-white/5 shadow-2xl group">
-              <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl group-hover:border-emerald-500/20 transition-all">
+            <div className="premium-card py-40 text-center border-black/5 dark:border-white/5 shadow-2xl group">
+              <div className="w-24 h-24 bg-zinc-50 dark:bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-black/5 dark:border-white/5 shadow-2xl group-hover:border-emerald-500/20 transition-all">
                 <Disc size={36} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />
               </div>
-              <h3 className="text-[10px] font-bold text-white uppercase tracking-widest mb-3">No Albums Found</h3>
+              <h3 className="text-[10px] font-bold text-zinc-900 dark:text-white uppercase tracking-widest mb-3">No Albums Found</h3>
               <p className="text-[10px] text-zinc-600 font-bold max-w-sm mx-auto opacity-60">Try adjusting your search filters or create a new album.</p>
             </div>
           ) : viewMode === 'grid' ? (
@@ -316,9 +316,9 @@ const AlbumManagement: React.FC = () => {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.02 }}
-                  className="premium-card group !p-0 overflow-hidden hover:border-emerald-500/30 transition-all duration-700 bg-zinc-950/40 border-white/5 shadow-2xl relative"
+                  className="premium-card group !p-0 overflow-hidden hover:border-emerald-500/30 transition-all duration-700 bg-zinc-100 dark:bg-zinc-950/40 border-black/5 dark:border-white/5 shadow-2xl relative"
                 >
-                  <div className="relative aspect-square bg-zinc-950 flex items-center justify-center overflow-hidden">
+                  <div className="relative aspect-square bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center overflow-hidden">
                     {album.coverArt ? (
                       <img 
                         src={getFullImageUrl(album.coverArt)} 
@@ -334,13 +334,13 @@ const AlbumManagement: React.FC = () => {
                       <div className="flex gap-3">
                         <button 
                           onClick={() => handleOpenDialog(album)} 
-                          className="w-12 h-12 rounded-2xl bg-black/80 backdrop-blur-xl text-white border border-white/10 hover:bg-emerald-500/20 hover:border-emerald-500/30 transition-all shadow-2xl flex items-center justify-center"
+                          className="w-12 h-12 rounded-2xl bg-black/80 backdrop-blur-xl text-zinc-900 dark:text-white border border-black/10 dark:border-white/10 hover:bg-emerald-500/20 hover:border-emerald-500/30 transition-all shadow-2xl flex items-center justify-center"
                         >
                           <Edit size={18} />
                         </button>
                         <button 
                           onClick={() => setAlbumToDelete(album._id)} 
-                          className="w-12 h-12 rounded-2xl bg-black/80 backdrop-blur-xl text-rose-500/60 hover:text-rose-500 border border-white/10 hover:bg-rose-500/10 hover:border-rose-500/30 transition-all shadow-2xl flex items-center justify-center"
+                          className="w-12 h-12 rounded-2xl bg-black/80 backdrop-blur-xl text-rose-500/60 hover:text-rose-500 border border-black/10 dark:border-white/10 hover:bg-rose-500/10 hover:border-rose-500/30 transition-all shadow-2xl flex items-center justify-center"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -356,15 +356,15 @@ const AlbumManagement: React.FC = () => {
                       <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] mb-2 truncate">
                         {typeof album.artist === 'string' ? 'Unknown Artist' : (album.artist as any)?.name.toUpperCase()}
                       </p>
-                      <h3 className="text-white font-bold tracking-tighter text-2xl truncate group-hover:text-emerald-400 transition-colors leading-none uppercase">
+                      <h3 className="text-zinc-900 dark:text-white font-bold tracking-tighter text-2xl truncate group-hover:text-emerald-400 transition-colors leading-none uppercase">
                         {album.name}
                       </h3>
                     </div>
                   </div>
-                  <div className="p-8 flex items-center justify-between border-t border-white/5 bg-[#0a0a0a] relative overflow-hidden">
+                  <div className="p-8 flex items-center justify-between border-t border-black/5 dark:border-white/5 bg-white dark:bg-[#0a0a0a] relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-zinc-950 rounded-xl flex items-center justify-center border border-white/5 shadow-inner">
+                      <div className="w-8 h-8 bg-zinc-50 dark:bg-zinc-950 rounded-xl flex items-center justify-center border border-black/5 dark:border-white/5 shadow-inner">
                          <Music2 size={14} className="text-emerald-500" />
                       </div>
                       <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 tabular-nums">{album.songs?.length || 0} Tracks</span>
@@ -382,12 +382,12 @@ const AlbumManagement: React.FC = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl"
+              className="premium-card !p-0 overflow-hidden border-black/5 dark:border-white/5 shadow-2xl"
             >
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="border-b border-white/5 bg-zinc-950/50">
+                    <tr className="border-b border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/50">
                       <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">{renderSortHeader('Album Name', 'name')}</th>
                       <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">{renderSortHeader('Artist', 'artist')}</th>
                       <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">{renderSortHeader('Release Date', 'releaseDate')}</th>
@@ -406,7 +406,7 @@ const AlbumManagement: React.FC = () => {
                       >
                         <td className="px-10 py-6">
                           <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 rounded-2xl bg-zinc-950 border border-white/5 overflow-hidden flex items-center justify-center shadow-inner relative group-hover:scale-110 transition-all duration-500">
+                            <div className="w-16 h-16 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 overflow-hidden flex items-center justify-center shadow-inner relative group-hover:scale-110 transition-all duration-500">
                               {album.coverArt ? (
                                 <img src={getFullImageUrl(album.coverArt)} className="w-full h-full object-cover" />
                               ) : (
@@ -415,7 +415,7 @@ const AlbumManagement: React.FC = () => {
                               <div className="absolute inset-0 bg-black/20" />
                             </div>
                             <div>
-                              <p className="text-sm font-bold text-white uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2">{album.name}</p>
+                              <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2">{album.name}</p>
                               <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{album.songs?.length || 0} Tracks</p>
                             </div>
                           </div>
@@ -423,7 +423,7 @@ const AlbumManagement: React.FC = () => {
                         <td className="px-10 py-6">
                           <div className="flex items-center gap-3">
                              <User size={14} className="text-zinc-700" />
-                             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{typeof album.artist === 'string' ? 'Unknown' : (album.artist as any)?.name.toUpperCase()}</span>
+                             <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">{typeof album.artist === 'string' ? 'Unknown' : (album.artist as any)?.name.toUpperCase()}</span>
                           </div>
                         </td>
                         <td className="px-10 py-6 text-[10px] font-bold text-zinc-600 uppercase tracking-widest font-mono">
@@ -431,8 +431,8 @@ const AlbumManagement: React.FC = () => {
                         </td>
                         <td className="px-10 py-6 text-right">
                           <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                            <button onClick={() => handleOpenDialog(album)} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-white hover:bg-emerald-500/20 transition-all shadow-inner"><Edit size={20} /></button>
-                            <button onClick={() => setAlbumToDelete(album._id)} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all shadow-inner"><Trash2 size={20} /></button>
+                            <button onClick={() => handleOpenDialog(album)} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-zinc-600 hover:text-zinc-900 dark:text-white hover:bg-emerald-500/20 transition-all shadow-inner"><Edit size={20} /></button>
+                            <button onClick={() => setAlbumToDelete(album._id)} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-zinc-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all shadow-inner"><Trash2 size={20} /></button>
                           </div>
                         </td>
                       </motion.tr>
@@ -451,25 +451,25 @@ const AlbumManagement: React.FC = () => {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl" onClick={() => !submitting && setIsDialogOpen(false)}>
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="premium-card w-full max-w-xl shadow-[0_30px_100px_rgba(0,0,0,1)] border-emerald-500/10 p-12 bg-[#0a0a0a]" onClick={e => e.stopPropagation()}
+              className="premium-card w-full max-w-xl shadow-[0_30px_100px_rgba(0,0,0,1)] border-emerald-500/10 p-12 bg-white dark:bg-[#0a0a0a]" onClick={e => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-10 border-b border-white/5 pb-10">
+              <div className="flex justify-between items-center mb-10 border-b border-black/5 dark:border-white/5 pb-10">
                 <div className="flex items-center gap-5">
-                   <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                   <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-950 rounded-2xl flex items-center justify-center border border-black/5 dark:border-white/5 shadow-inner">
                       {selectedAlbum ? <Edit className="text-emerald-500" size={28} /> : <Plus className="text-emerald-500" size={28} />}
                    </div>
                    <div>
-                      <h3 className="text-2xl font-bold text-white uppercase tracking-tighter leading-none mb-1.5">{selectedAlbum ? 'Modify Album' : 'Create Album'}</h3>
+                      <h3 className="text-2xl font-bold text-zinc-900 dark:text-white uppercase tracking-tighter leading-none mb-1.5">{selectedAlbum ? 'Modify Album' : 'Create Album'}</h3>
                       <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Album Configuration</p>
                    </div>
                 </div>
-                <button onClick={() => !submitting && setIsDialogOpen(false)} className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-white/5 text-zinc-500 transition-all border border-white/5 shadow-inner"><X size={24} /></button>
+                <button onClick={() => !submitting && setIsDialogOpen(false)} className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-black/5 dark:bg-white/5 text-zinc-500 transition-all border border-black/5 dark:border-white/5 shadow-inner"><X size={24} /></button>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-10">
                 <div className="space-y-4">
                   <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Album Cover Image</label>
-                  <div className="bg-zinc-950 rounded-[2.5rem] border border-white/5 p-8 shadow-inner group/upload">
+                  <div className="bg-zinc-50 dark:bg-zinc-950 rounded-[2.5rem] border border-black/5 dark:border-white/5 p-8 shadow-inner group/upload">
                     <FileUpload
                       label="Upload Cover Artwork"
                       currentFile={coverArtFile ? URL.createObjectURL(coverArtFile) : (formData.coverArt ? getFullImageUrl(formData.coverArt) : undefined)}
@@ -482,14 +482,14 @@ const AlbumManagement: React.FC = () => {
                 <div className="space-y-10">
                   <div className="space-y-4">
                     <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Album Title <span className="text-emerald-500">*</span></label>
-                    <input name="name" value={formData.name} onChange={handleInputChange as any} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wider uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800" placeholder="e.g. Midnight Memories" required />
+                    <input name="name" value={formData.name} onChange={handleInputChange as any} className="w-full h-16 px-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-wider uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800" placeholder="e.g. Midnight Memories" required />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                     <div className="space-y-4">
                       <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Artist</label>
                       <div className="relative group/sel">
-                        <select name="artist" value={formData.artist} onChange={handleInputChange as any} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wider uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer" required>
+                        <select name="artist" value={formData.artist} onChange={handleInputChange as any} className="w-full h-16 px-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-wider uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer" required>
                           <option value="">Select Artist</option>
                           {artists.map(a => <option key={a._id} value={a._id}>{a.name.toUpperCase()}</option>)}
                         </select>
@@ -499,7 +499,7 @@ const AlbumManagement: React.FC = () => {
                     <div className="space-y-4">
                       <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Genre</label>
                       <div className="relative group/sel">
-                        <select name="genre" value={formData.genre} onChange={handleInputChange as any} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wider uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer">
+                        <select name="genre" value={formData.genre} onChange={handleInputChange as any} className="w-full h-16 px-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-wider uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer">
                           <option value="">Select Genre</option>
                           {genres.map(g => <option key={g._id} value={g._id}>{g.name.toUpperCase()}</option>)}
                         </select>
@@ -512,13 +512,13 @@ const AlbumManagement: React.FC = () => {
                     <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Release Date</label>
                     <div className="relative group">
                       <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-emerald-500 transition-all" size={20} />
-                      <input type="date" name="releaseDate" value={formData.releaseDate} onChange={handleInputChange as any} className="w-full h-16 pl-16 pr-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wider focus:outline-none focus:border-emerald-500/30 shadow-inner" />
+                      <input type="date" name="releaseDate" value={formData.releaseDate} onChange={handleInputChange as any} className="w-full h-16 pl-16 pr-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-wider focus:outline-none focus:border-emerald-500/30 shadow-inner" />
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-12 border-t border-white/5 flex justify-end gap-6">
-                  <button type="button" onClick={() => setIsDialogOpen(false)} className="h-16 px-10 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all">Cancel</button>
+                <div className="pt-12 border-t border-black/5 dark:border-white/5 flex justify-end gap-6">
+                  <button type="button" onClick={() => setIsDialogOpen(false)} className="h-16 px-10 bg-zinc-50 dark:bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-black/5 dark:border-white/5 hover:bg-black/5 dark:bg-white/5 transition-all">Cancel</button>
                   <button type="submit" disabled={submitting} className="h-16 px-12 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:bg-emerald-400 transition-all flex items-center gap-4 group">
                     {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={20} className="group-hover:translate-y-1 transition-transform" />}
                     {selectedAlbum ? 'Save Changes' : 'Create Album'}

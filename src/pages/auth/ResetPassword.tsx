@@ -29,7 +29,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-zinc-300 text-xs font-semibold uppercase tracking-wider mb-2">
+      <label className="block text-zinc-700 dark:text-zinc-300 text-xs font-semibold uppercase tracking-wider mb-2">
         {label}
       </label>
       <motion.div
@@ -78,7 +78,7 @@ export default function ResetPassword() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-[#080810] flex items-center justify-center text-white">
+      <div className="min-h-screen bg-[#080810] flex items-center justify-center text-zinc-900 dark:text-white">
         <div className="text-center space-y-4">
           <p className="text-xl">Invalid or missing reset token.</p>
           <button onClick={() => navigate('/forgot-password')} className="text-emerald-400 hover:underline">
@@ -132,12 +132,12 @@ export default function ResetPassword() {
           <div className="p-8">
             <div className="flex items-center gap-2 mb-8">
               <Music2 className="w-6 h-6 text-emerald-400" />
-              <span className="text-white font-bold text-xl tracking-tight">Lugmatic Studio</span>
+              <span className="text-zinc-900 dark:text-white font-bold text-xl tracking-tight">Lugmatic Studio</span>
             </div>
 
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white tracking-tight">Create New Password</h2>
-              <p className="text-zinc-400 text-sm mt-1">
+              <h2 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">Create New Password</h2>
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm mt-1">
                 Please enter your new password below.
               </p>
             </div>
@@ -155,12 +155,12 @@ export default function ResetPassword() {
                   onFocus={() => setPasswordFocused(true)}
                   onBlur={() => setPasswordFocused(false)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-3 bg-transparent text-white placeholder:text-zinc-600 text-sm focus:outline-none"
+                  className="w-full pl-10 pr-10 py-3 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-600 text-sm focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3.5 text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="absolute right-3.5 text-zinc-500 hover:text-zinc-700 dark:text-zinc-300 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -178,12 +178,12 @@ export default function ResetPassword() {
                   onFocus={() => setConfirmPasswordFocused(true)}
                   onBlur={() => setConfirmPasswordFocused(false)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-3 bg-transparent text-white placeholder:text-zinc-600 text-sm focus:outline-none"
+                  className="w-full pl-10 pr-10 py-3 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-600 text-sm focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(v => !v)}
-                  className="absolute right-3.5 text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="absolute right-3.5 text-zinc-500 hover:text-zinc-700 dark:text-zinc-300 transition-colors"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>

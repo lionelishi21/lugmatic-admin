@@ -117,12 +117,12 @@ function AddRhythmModal({ onClose, onCreated }: AddModalProps) {
         initial={{ scale: 0.95, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
-        className="w-full max-w-lg bg-zinc-950 border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+        className="w-full max-w-lg bg-zinc-50 dark:bg-zinc-950 border border-black/10 dark:border-white/10 rounded-3xl overflow-hidden shadow-2xl"
       >
-        <div className="flex items-center justify-between px-8 pt-8 pb-6 border-b border-white/5">
-          <h2 className="text-xl font-bold text-white">Add Rhythm</h2>
+        <div className="flex items-center justify-between px-8 pt-8 pb-6 border-b border-black/5 dark:border-white/5">
+          <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Add Rhythm</h2>
           <button onClick={onClose} disabled={uploading}
-            className="w-9 h-9 bg-zinc-900 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white transition-colors disabled:opacity-40">
+            className="w-9 h-9 bg-zinc-900 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors disabled:opacity-40">
             <X size={16} />
           </button>
         </div>
@@ -130,31 +130,31 @@ function AddRhythmModal({ onClose, onCreated }: AddModalProps) {
         <form onSubmit={handleSubmit} className="px-8 py-6 space-y-5">
           {/* Title */}
           <div>
-            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Title *</label>
+            <label className="block text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2">Title *</label>
             <input value={title} onChange={e => setTitle(e.target.value)} required
-              className="w-full h-12 bg-zinc-900 border border-white/10 rounded-2xl px-4 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-emerald-500/40 transition-colors"
+              className="w-full h-12 bg-zinc-900 border border-black/10 dark:border-white/10 rounded-2xl px-4 text-zinc-900 dark:text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-emerald-500/40 transition-colors"
               placeholder="e.g. Roots & Culture Riddim" />
           </div>
 
           {/* Genre + BPM */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Genre</label>
+              <label className="block text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2">Genre</label>
               <input value={genre} onChange={e => setGenre(e.target.value)}
-                className="w-full h-12 bg-zinc-900 border border-white/10 rounded-2xl px-4 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-emerald-500/40 transition-colors"
+                className="w-full h-12 bg-zinc-900 border border-black/10 dark:border-white/10 rounded-2xl px-4 text-zinc-900 dark:text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-emerald-500/40 transition-colors"
                 placeholder="e.g. Dancehall" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">BPM</label>
+              <label className="block text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2">BPM</label>
               <input value={bpm} onChange={e => setBpm(e.target.value)} type="number" min="1" max="300"
-                className="w-full h-12 bg-zinc-900 border border-white/10 rounded-2xl px-4 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-emerald-500/40 transition-colors"
+                className="w-full h-12 bg-zinc-900 border border-black/10 dark:border-white/10 rounded-2xl px-4 text-zinc-900 dark:text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-emerald-500/40 transition-colors"
                 placeholder="e.g. 90" />
             </div>
           </div>
 
           {/* Audio file */}
           <div>
-            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Audio File * (MP3 / WAV / M4A)</label>
+            <label className="block text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2">Audio File * (MP3 / WAV / M4A)</label>
             <input ref={audioInputRef} type="file" accept="audio/*" className="hidden" onChange={handleAudioPick} />
             <button type="button" onClick={() => audioInputRef.current?.click()}
               className={`w-full h-14 rounded-2xl border-2 border-dashed flex items-center justify-center gap-3 text-sm font-medium transition-all ${
@@ -170,17 +170,17 @@ function AddRhythmModal({ onClose, onCreated }: AddModalProps) {
 
           {/* Cover art */}
           <div>
-            <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Cover Art (optional)</label>
+            <label className="block text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2">Cover Art (optional)</label>
             <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={handleCoverPick} />
             <div className="flex items-center gap-4">
               {coverPreview
-                ? <img src={coverPreview} alt="" className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-white/10" />
-                : <div className="w-14 h-14 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center flex-shrink-0">
+                ? <img src={coverPreview} alt="" className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-black/10 dark:border-white/10" />
+                : <div className="w-14 h-14 rounded-xl bg-zinc-900 border border-black/10 dark:border-white/10 flex items-center justify-center flex-shrink-0">
                     <Music2 size={20} className="text-zinc-600" />
                   </div>
               }
               <button type="button" onClick={() => coverInputRef.current?.click()}
-                className="flex-1 h-12 rounded-2xl border border-white/10 bg-zinc-900 text-zinc-400 text-sm font-medium hover:text-white transition-colors flex items-center justify-center gap-2">
+                className="flex-1 h-12 rounded-2xl border border-black/10 dark:border-white/10 bg-zinc-900 text-zinc-600 dark:text-zinc-400 text-sm font-medium hover:text-zinc-900 dark:text-white transition-colors flex items-center justify-center gap-2">
                 <Upload size={14} /> {coverFile ? 'Change image' : 'Upload cover art'}
               </button>
             </div>
@@ -190,7 +190,7 @@ function AddRhythmModal({ onClose, onCreated }: AddModalProps) {
           {uploading && audioProgress > 0 && audioProgress < 100 && (
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs text-zinc-400">Uploading audio…</span>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400">Uploading audio…</span>
                 <span className="text-xs font-bold text-emerald-400">{audioProgress}%</span>
               </div>
               <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
@@ -202,7 +202,7 @@ function AddRhythmModal({ onClose, onCreated }: AddModalProps) {
           {/* Actions */}
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} disabled={uploading}
-              className="flex-1 h-12 bg-zinc-900 border border-white/10 text-white rounded-2xl text-sm font-bold hover:bg-zinc-800 transition-all disabled:opacity-40">
+              className="flex-1 h-12 bg-zinc-900 border border-black/10 dark:border-white/10 text-zinc-900 dark:text-white rounded-2xl text-sm font-bold hover:bg-zinc-800 transition-all disabled:opacity-40">
               Cancel
             </button>
             <button type="submit" disabled={uploading || !audioFile || !title.trim()}
@@ -288,7 +288,7 @@ const RhythmManagement: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Rhythm Library</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">Rhythm Library</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-500 tracking-wider">{stats.total} Track{stats.total !== 1 ? 's' : ''}</span>
@@ -298,7 +298,7 @@ const RhythmManagement: React.FC = () => {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 border border-white/10"
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 border border-black/10 dark:border-white/10"
         >
           <Plus size={18} />
           Add Rhythm
@@ -312,12 +312,12 @@ const RhythmManagement: React.FC = () => {
           { label: 'Genres',         value: stats.genres,  icon: <Activity size={18} /> },
           { label: 'With BPM',       value: stats.withBpm, icon: <Clock size={18} /> },
         ].map(s => (
-          <div key={s.label} className="bg-zinc-950 border border-white/5 rounded-3xl p-6 flex items-center gap-4">
+          <div key={s.label} className="bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-3xl p-6 flex items-center gap-4">
             <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/10 flex items-center justify-center text-emerald-500 flex-shrink-0">
               {s.icon}
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{s.value}</p>
+              <p className="text-2xl font-bold text-zinc-900 dark:text-white">{s.value}</p>
               <p className="text-[11px] text-zinc-500 font-semibold">{s.label}</p>
             </div>
           </div>
@@ -325,15 +325,15 @@ const RhythmManagement: React.FC = () => {
       </div>
 
       {/* Search */}
-      <div className="flex items-center gap-3 bg-zinc-950 border border-white/5 rounded-2xl px-4 h-12 max-w-sm">
+      <div className="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl px-4 h-12 max-w-sm">
         <Search size={16} className="text-zinc-500 flex-shrink-0" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search rhythms…"
-          className="flex-1 bg-transparent text-sm text-white placeholder-zinc-600 focus:outline-none" />
-        {search && <button onClick={() => setSearch('')}><X size={14} className="text-zinc-500 hover:text-white" /></button>}
+          className="flex-1 bg-transparent text-sm text-zinc-900 dark:text-white placeholder-zinc-600 focus:outline-none" />
+        {search && <button onClick={() => setSearch('')}><X size={14} className="text-zinc-500 hover:text-zinc-900 dark:text-white" /></button>}
       </div>
 
       {/* Table */}
-      <div className="bg-zinc-950 border border-white/5 rounded-3xl overflow-hidden">
+      <div className="bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-3xl overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 size={28} className="animate-spin text-zinc-500" />
@@ -343,7 +343,7 @@ const RhythmManagement: React.FC = () => {
             <div className="w-16 h-16 bg-zinc-900 rounded-3xl flex items-center justify-center">
               <Music2 size={28} className="text-zinc-600" />
             </div>
-            <p className="text-zinc-400 font-semibold">
+            <p className="text-zinc-600 dark:text-zinc-400 font-semibold">
               {search ? 'No rhythms match your search' : 'No rhythms yet — add one above'}
             </p>
           </div>
@@ -368,26 +368,26 @@ const RhythmManagement: React.FC = () => {
                 {/* Cover art */}
                 {rhythm.coverArtUrl
                   ? <img src={rhythm.coverArtUrl} alt={rhythm.title}
-                      className="w-11 h-11 rounded-xl object-cover flex-shrink-0 border border-white/10" />
-                  : <div className="w-11 h-11 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center flex-shrink-0">
+                      className="w-11 h-11 rounded-xl object-cover flex-shrink-0 border border-black/10 dark:border-white/10" />
+                  : <div className="w-11 h-11 rounded-xl bg-zinc-900 border border-black/5 dark:border-white/5 flex items-center justify-center flex-shrink-0">
                       <Music2 size={16} className="text-zinc-600" />
                     </div>
                 }
                 {/* Title + genre */}
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-white truncate">{rhythm.title}</p>
+                  <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">{rhythm.title}</p>
                   {rhythm.genre && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-white/5 mt-1">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-black/5 dark:border-white/5 mt-1">
                       {rhythm.genre}
                     </span>
                   )}
                 </div>
                 {/* BPM */}
-                <span className="w-20 text-center text-sm font-semibold text-zinc-400">
+                <span className="w-20 text-center text-sm font-semibold text-zinc-600 dark:text-zinc-400">
                   {rhythm.bpm ? `${rhythm.bpm}` : '—'}
                 </span>
                 {/* Duration */}
-                <span className="w-20 text-center text-sm font-semibold text-zinc-400">
+                <span className="w-20 text-center text-sm font-semibold text-zinc-600 dark:text-zinc-400">
                   {formatDuration(rhythm.duration)}
                 </span>
                 {/* Preview */}
@@ -411,7 +411,7 @@ const RhythmManagement: React.FC = () => {
                   <button
                     onClick={() => handleDelete(rhythm._id)}
                     disabled={deletingId === rhythm._id}
-                    className="w-9 h-9 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-500 hover:text-rose-400 hover:border-rose-500/20 transition-all disabled:opacity-40"
+                    className="w-9 h-9 rounded-full bg-zinc-900 border border-black/10 dark:border-white/10 flex items-center justify-center text-zinc-500 hover:text-rose-400 hover:border-rose-500/20 transition-all disabled:opacity-40"
                   >
                     {deletingId === rhythm._id
                       ? <Loader2 size={12} className="animate-spin" />

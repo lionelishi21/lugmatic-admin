@@ -80,7 +80,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-zinc-400 text-[10px] font-bold uppercase tracking-widest mb-1.5">
+      <label className="block text-zinc-600 dark:text-zinc-400 text-[10px] font-bold uppercase tracking-widest mb-1.5">
         {label}
       </label>
       <motion.div
@@ -225,7 +225,7 @@ export default function ArtistRegister() {
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
               <Mic2 className="w-5 h-5 text-emerald-400" />
             </div>
-            <span className="text-white font-bold text-xl tracking-tight">Lugmatic</span>
+            <span className="text-zinc-900 dark:text-white font-bold text-xl tracking-tight">Lugmatic</span>
             <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 border border-emerald-500/30 rounded-full px-2 py-0.5">
               Studio
             </span>
@@ -236,7 +236,7 @@ export default function ArtistRegister() {
             <motion.h1
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.7 }}
-              className="text-5xl font-black text-white leading-[1.05] tracking-tight"
+              className="text-5xl font-black text-zinc-900 dark:text-white leading-[1.05] tracking-tight"
             >
               Join the<br />
               <span className="text-transparent bg-clip-text"
@@ -247,7 +247,7 @@ export default function ArtistRegister() {
             <motion.p
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.6 }}
-              className="text-zinc-400 text-base leading-relaxed max-w-sm"
+              className="text-zinc-600 dark:text-zinc-400 text-base leading-relaxed max-w-sm"
             >
               Create your artist account and start sharing your sound with the Caribbean and beyond.
             </motion.p>
@@ -274,7 +274,7 @@ export default function ArtistRegister() {
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-none">
                   <Icon className="w-3.5 h-3.5 text-emerald-400" />
                 </div>
-                <span className="text-zinc-300 text-sm">{text}</span>
+                <span className="text-zinc-700 dark:text-zinc-300 text-sm">{text}</span>
               </motion.div>
             ))}
           </motion.div>
@@ -340,18 +340,18 @@ export default function ArtistRegister() {
               {/* Mobile logo */}
               <div className="flex items-center gap-2 mb-6 lg:hidden">
                 <Mic2 className="w-5 h-5 text-emerald-400" />
-                <span className="text-white font-bold tracking-tight">Lugmatic Studio</span>
+                <span className="text-zinc-900 dark:text-white font-bold tracking-tight">Lugmatic Studio</span>
               </div>
 
               {/* Back link */}
-              <Link to="/login" className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors mb-6 group">
+              <Link to="/login" className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-300 transition-colors mb-6 group">
                 <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
                 Back to sign in
               </Link>
 
               {/* Heading */}
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-white tracking-tight">Create your account</h2>
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">Create your account</h2>
                 <p className="text-zinc-500 text-sm mt-1">Artist & creator accounts only</p>
               </div>
 
@@ -367,7 +367,7 @@ export default function ArtistRegister() {
                       type="text" placeholder="John"
                       onFocus={() => { focus('firstName'); setStep(1); }}
                       onBlur={unfocus}
-                      className="w-full pl-9 pr-3 py-2.5 bg-transparent text-white placeholder:text-zinc-600 text-sm focus:outline-none"
+                      className="w-full pl-9 pr-3 py-2.5 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-600 text-sm focus:outline-none"
                     />
                   </Field>
                   <Field label="Last name" icon={User}
@@ -378,7 +378,7 @@ export default function ArtistRegister() {
                       type="text" placeholder="Doe"
                       onFocus={() => { focus('lastName'); setStep(1); }}
                       onBlur={unfocus}
-                      className="w-full pl-9 pr-3 py-2.5 bg-transparent text-white placeholder:text-zinc-600 text-sm focus:outline-none"
+                      className="w-full pl-9 pr-3 py-2.5 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-600 text-sm focus:outline-none"
                     />
                   </Field>
                 </div>
@@ -392,7 +392,7 @@ export default function ArtistRegister() {
                     type="email" placeholder="artist@example.com"
                     onFocus={() => { focus('email'); setStep(1); }}
                     onBlur={unfocus}
-                    className="w-full pl-10 pr-4 py-2.5 bg-transparent text-white placeholder:text-zinc-600 text-sm focus:outline-none"
+                    className="w-full pl-10 pr-4 py-2.5 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-600 text-sm focus:outline-none"
                   />
                 </Field>
 
@@ -406,10 +406,10 @@ export default function ArtistRegister() {
                       type={showPassword ? 'text' : 'password'} placeholder="••••••••"
                       onFocus={() => { focus('password'); setStep(1); }}
                       onBlur={unfocus}
-                      className="w-full pl-10 pr-10 py-2.5 bg-transparent text-white placeholder:text-zinc-600 text-sm focus:outline-none"
+                      className="w-full pl-10 pr-10 py-2.5 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-600 text-sm focus:outline-none"
                     />
                     <button type="button" onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-3.5 text-zinc-500 hover:text-zinc-300 transition-colors">
+                      className="absolute right-3.5 text-zinc-500 hover:text-zinc-700 dark:text-zinc-300 transition-colors">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </Field>
@@ -446,10 +446,10 @@ export default function ArtistRegister() {
                     type={showConfirm ? 'text' : 'password'} placeholder="••••••••"
                     onFocus={() => { focus('confirm'); setStep(1); }}
                     onBlur={unfocus}
-                    className="w-full pl-10 pr-10 py-2.5 bg-transparent text-white placeholder:text-zinc-600 text-sm focus:outline-none"
+                    className="w-full pl-10 pr-10 py-2.5 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-600 text-sm focus:outline-none"
                   />
                   <button type="button" onClick={() => setShowConfirm(v => !v)}
-                    className="absolute right-3.5 text-zinc-500 hover:text-zinc-300 transition-colors">
+                    className="absolute right-3.5 text-zinc-500 hover:text-zinc-700 dark:text-zinc-300 transition-colors">
                     {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </Field>
@@ -461,11 +461,11 @@ export default function ArtistRegister() {
                       <input
                         {...register('agreeToTerms')}
                         id="terms" type="checkbox"
-                        className="peer h-4 w-4 cursor-pointer appearance-none rounded border border-white/10 bg-zinc-800 checked:bg-emerald-500 checked:border-emerald-500 transition-all focus:outline-none"
+                        className="peer h-4 w-4 cursor-pointer appearance-none rounded border border-black/10 dark:border-white/10 bg-zinc-800 checked:bg-emerald-500 checked:border-emerald-500 transition-all focus:outline-none"
                       />
                       <CheckCircle2 className="absolute inset-0 h-4 w-4 pointer-events-none hidden peer-checked:block text-black" />
                     </div>
-                    <span className="text-[11px] text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors">
+                    <span className="text-[11px] text-zinc-500 leading-relaxed group-hover:text-zinc-600 dark:text-zinc-400 transition-colors">
                       I agree to the{' '}
                       <span className="text-emerald-400 hover:text-emerald-300 cursor-pointer">Terms of Service</span>
                       {' '}and{' '}

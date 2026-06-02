@@ -48,7 +48,7 @@ export default function StreamShare() {
   }, [streamId]);
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.05]">
         <span className="text-emerald-400 font-bold text-sm tracking-tight">Lugmatic</span>
@@ -77,13 +77,13 @@ export default function StreamShare() {
               <div className="w-16 h-16 rounded-lg bg-zinc-800 flex items-center justify-center mx-auto">
                 <WifiOff className="h-8 w-8 text-zinc-600" />
               </div>
-              <h2 className="text-white font-bold text-lg">Stream is Offline</h2>
+              <h2 className="text-zinc-900 dark:text-white font-bold text-lg">Stream is Offline</h2>
               <p className="text-zinc-500 text-sm leading-relaxed">
                 This stream isn't live right now. The artist may start streaming soon — try refreshing this page.
               </p>
               <button
                 onClick={() => window.location.reload()}
-                className="px-5 py-2.5 bg-emerald-600 text-white rounded text-sm font-semibold hover:bg-emerald-700 transition-colors"
+                className="px-5 py-2.5 bg-emerald-600 text-zinc-900 dark:text-white rounded text-sm font-semibold hover:bg-emerald-700 transition-colors"
               >
                 Refresh
               </button>
@@ -97,7 +97,7 @@ export default function StreamShare() {
               <div className="w-16 h-16 rounded-lg bg-zinc-800 flex items-center justify-center mx-auto">
                 <Radio className="h-8 w-8 text-zinc-600" />
               </div>
-              <h2 className="text-white font-bold text-lg">Unavailable</h2>
+              <h2 className="text-zinc-900 dark:text-white font-bold text-lg">Unavailable</h2>
               <p className="text-zinc-500 text-sm">{errorMsg || 'This stream could not be loaded.'}</p>
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function StreamShare() {
           <div className="flex-1 flex flex-col">
             {/* Stream info bar */}
             <div className="px-5 py-3 bg-zinc-900 border-b border-white/[0.05]">
-              <h1 className="text-white font-semibold text-sm truncate">{tokenData.stream.title}</h1>
+              <h1 className="text-zinc-900 dark:text-white font-semibold text-sm truncate">{tokenData.stream.title}</h1>
               <p className="text-zinc-500 text-xs mt-0.5">{tokenData.stream.host}</p>
             </div>
 

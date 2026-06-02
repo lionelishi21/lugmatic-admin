@@ -89,12 +89,12 @@ export default function AcceptInvitation() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white/5 border border-white/10 p-8 rounded-[32px] max-w-sm text-center"
+          className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 p-8 rounded-[32px] max-w-sm text-center"
         >
           <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <AlertCircle className="h-8 w-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-black text-white mb-2">Invite Error</h2>
+          <h2 className="text-xl font-black text-zinc-900 dark:text-white mb-2">Invite Error</h2>
           <p className="text-gray-400 text-sm mb-8 leading-relaxed">{error}</p>
           <button 
             onClick={() => navigate('/login')}
@@ -116,14 +116,14 @@ export default function AcceptInvitation() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-lg relative"
       >
-        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[40px] p-8 md:p-12 shadow-2xl">
+        <div className="bg-black/5 dark:bg-white/5 backdrop-blur-2xl border border-black/10 dark:border-white/10 rounded-[40px] p-8 md:p-12 shadow-2xl">
           <div className="flex flex-col items-center mb-10 text-center">
             <div className="w-16 h-16 bg-green-500/20 rounded-2xl flex items-center justify-center mb-6">
               <ShieldCheck className="h-8 w-8 text-green-500" />
             </div>
-            <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Complete Setup</h1>
+            <h1 className="text-3xl font-black text-zinc-900 dark:text-white mb-2 tracking-tight">Complete Setup</h1>
             <p className="text-gray-400 text-sm font-medium">
-              You've been invited as a <span className="text-white font-bold">Contributor</span> for <span className="text-white font-bold">{inviteData.email}</span>
+              You've been invited as a <span className="text-zinc-900 dark:text-white font-bold">Contributor</span> for <span className="text-zinc-900 dark:text-white font-bold">{inviteData.email}</span>
             </p>
           </div>
 
@@ -134,7 +134,7 @@ export default function AcceptInvitation() {
                 <div className="relative">
                   <input
                     {...register('firstName')}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-5 text-white placeholder:text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all text-sm font-bold"
+                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-5 text-zinc-900 dark:text-white placeholder:text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all text-sm font-bold"
                     placeholder="John"
                   />
                 </div>
@@ -145,7 +145,7 @@ export default function AcceptInvitation() {
                 <div className="relative">
                   <input
                     {...register('lastName')}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-5 text-white placeholder:text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all text-sm font-bold"
+                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-5 text-zinc-900 dark:text-white placeholder:text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all text-sm font-bold"
                     placeholder="Doe"
                   />
                 </div>
@@ -159,7 +159,7 @@ export default function AcceptInvitation() {
                 <input
                   {...register('password')}
                   type="password"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-12 text-white placeholder:text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all text-sm font-bold"
+                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-12 text-zinc-900 dark:text-white placeholder:text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all text-sm font-bold"
                   placeholder="••••••••••••"
                 />
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-600" />
@@ -173,7 +173,7 @@ export default function AcceptInvitation() {
                 <input
                   {...register('confirmPassword')}
                   type="password"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-12 text-white placeholder:text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all text-sm font-bold"
+                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-12 text-zinc-900 dark:text-white placeholder:text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all text-sm font-bold"
                   placeholder="••••••••••••"
                 />
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-600" />
@@ -184,14 +184,14 @@ export default function AcceptInvitation() {
             <div className="bg-green-500/5 border border-green-500/10 rounded-2xl p-4 flex gap-4">
               <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
               <p className="text-[10px] text-gray-400 leading-relaxed font-medium">
-                By completing this setup, you agree to the <span className="text-white">Lugmatic Contributor Terms</span> and authorize the platform to manage revenue distribution on your behalf.
+                By completing this setup, you agree to the <span className="text-zinc-900 dark:text-white">Lugmatic Contributor Terms</span> and authorize the platform to manage revenue distribution on your behalf.
               </p>
             </div>
 
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-white text-black py-4.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all transform active:scale-[0.98] shadow-2xl disabled:opacity-50 flex items-center justify-center gap-3"
+              className="w-full bg-white text-black py-4.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-500 hover:text-zinc-900 dark:text-white transition-all transform active:scale-[0.98] shadow-2xl disabled:opacity-50 flex items-center justify-center gap-3"
             >
               {submitting ? (
                 <Loader2 className="h-5 w-5 animate-spin" />

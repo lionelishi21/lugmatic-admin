@@ -25,7 +25,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-zinc-300 text-xs font-semibold uppercase tracking-wider mb-2">
+      <label className="block text-zinc-700 dark:text-zinc-300 text-xs font-semibold uppercase tracking-wider mb-2">
         {label}
       </label>
       <motion.div
@@ -111,12 +111,12 @@ export default function ForgotPassword() {
           <div className="p-8">
             <div className="flex items-center gap-2 mb-8">
               <Music2 className="w-6 h-6 text-emerald-400" />
-              <span className="text-white font-bold text-xl tracking-tight">Lugmatic Studio</span>
+              <span className="text-zinc-900 dark:text-white font-bold text-xl tracking-tight">Lugmatic Studio</span>
             </div>
 
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white tracking-tight">Reset Password</h2>
-              <p className="text-zinc-400 text-sm mt-1">
+              <h2 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">Reset Password</h2>
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm mt-1">
                 Enter your email address and we'll send you a link to reset your password.
               </p>
             </div>
@@ -130,7 +130,7 @@ export default function ForgotPassword() {
                 </div>
                 <button
                   onClick={() => navigate('/login')}
-                  className="w-full py-3 rounded-xl font-bold text-sm text-white bg-zinc-800 hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-xl font-bold text-sm text-zinc-900 dark:text-white bg-zinc-800 hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back to login
@@ -150,7 +150,7 @@ export default function ForgotPassword() {
                     onFocus={() => setEmailFocused(true)}
                     onBlur={() => setEmailFocused(false)}
                     placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 bg-transparent text-white placeholder:text-zinc-600 text-sm focus:outline-none"
+                    className="w-full pl-10 pr-4 py-3 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-600 text-sm focus:outline-none"
                   />
                 </Field>
 
@@ -178,7 +178,7 @@ export default function ForgotPassword() {
                   <button
                     type="button"
                     onClick={() => navigate('/login')}
-                    className="text-zinc-400 text-sm hover:text-emerald-400 transition-colors"
+                    className="text-zinc-600 dark:text-zinc-400 text-sm hover:text-emerald-400 transition-colors"
                   >
                     Back to login
                   </button>

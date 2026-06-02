@@ -69,7 +69,7 @@ export default function UserManagement() {
     return (
       <button 
         onClick={() => handleSort(field)}
-        className="flex items-center gap-1.5 hover:text-white transition-colors group/btn font-bold uppercase tracking-wider text-xs"
+        className="flex items-center gap-1.5 hover:text-zinc-900 dark:text-white transition-colors group/btn font-bold uppercase tracking-wider text-xs"
       >
         <span>{label}</span>
         {isSorted ? (
@@ -177,7 +177,7 @@ export default function UserManagement() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="premium-card !p-12 relative overflow-hidden group shadow-2xl border-white/5"
+        className="premium-card !p-12 relative overflow-hidden group shadow-2xl border-black/5 dark:border-white/5"
       >
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/[0.03] blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
         
@@ -187,7 +187,7 @@ export default function UserManagement() {
                 <Users className="w-10 h-10 text-indigo-500" />
              </div>
              <div>
-                <h2 className="text-4xl font-bold text-white tracking-tight mb-2">
+                <h2 className="text-4xl font-bold text-zinc-900 dark:text-white tracking-tight mb-2">
                   User Management
                 </h2>
                 <p className="text-zinc-500 font-medium max-w-md leading-relaxed">
@@ -197,12 +197,12 @@ export default function UserManagement() {
           </div>
           <div className="flex items-center gap-4">
              <div className="flex flex-col items-end mr-4">
-               <span className="text-3xl font-bold text-white tabular-nums leading-none">{totalUsers}</span>
+               <span className="text-3xl font-bold text-zinc-900 dark:text-white tabular-nums leading-none">{totalUsers}</span>
                <span className="text-xs text-zinc-500 font-medium mt-1">Total Users</span>
              </div>
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="h-14 px-8 bg-white text-black rounded-2xl text-sm font-semibold hover:scale-105 transition-all shadow-xl flex items-center justify-center gap-3 border border-white/10"
+              className="h-14 px-8 bg-white text-black rounded-2xl text-sm font-semibold hover:scale-105 transition-all shadow-xl flex items-center justify-center gap-3 border border-black/10 dark:border-white/10"
             >
               <UserPlus size={18} />
               Add User
@@ -212,7 +212,7 @@ export default function UserManagement() {
       </motion.div>
 
       {/* Control HUD */}
-      <div className="premium-card !p-4 flex flex-col lg:flex-row items-center gap-6 border-white/5 shadow-md">
+      <div className="premium-card !p-4 flex flex-col lg:flex-row items-center gap-6 border-black/5 dark:border-white/5 shadow-md">
         <div className="relative flex-1 group w-full">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500 h-5 w-5 group-focus-within:text-indigo-500 transition-colors" />
           <input
@@ -220,12 +220,12 @@ export default function UserManagement() {
             placeholder="Search users by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-14 pr-12 h-14 bg-zinc-900/50 border border-white/5 rounded-2xl text-white text-sm focus:outline-none focus:border-indigo-500/30 focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-zinc-600"
+            className="w-full pl-14 pr-12 h-14 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-zinc-600"
           />
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-white transition-colors"
+              className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-900 dark:text-white transition-colors"
             >
               <X size={18} />
             </button>
@@ -235,7 +235,7 @@ export default function UserManagement() {
         <div className="flex flex-wrap items-center gap-8 px-4">
           <div className="flex items-center gap-3">
             <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Role</span>
-            <div className="flex bg-zinc-900/50 border border-white/5 rounded-xl p-1 gap-1">
+            <div className="flex bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl p-1 gap-1">
               {['all', 'admin', 'artist', 'user'].map(role => (
                 <button
                   key={role}
@@ -252,7 +252,7 @@ export default function UserManagement() {
 
           <div className="flex items-center gap-3">
             <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Status</span>
-            <div className="flex bg-zinc-900/50 border border-white/5 rounded-xl p-1 gap-1">
+            <div className="flex bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl p-1 gap-1">
               {['all', 'active', 'inactive', 'suspended'].map(status => (
                 <button
                   key={status}
@@ -270,11 +270,11 @@ export default function UserManagement() {
       </div>
 
       {/* Node Table Grid */}
-      <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-xl flex flex-col">
+      <div className="premium-card !p-0 overflow-hidden border-black/5 dark:border-white/5 shadow-xl flex flex-col">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-white/5 bg-zinc-950/20">
+              <tr className="border-b border-black/5 dark:border-white/5 bg-zinc-950/20">
                 <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">{renderSortHeader('User', 'name')}</th>
                 <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">{renderSortHeader('Role', 'role')}</th>
                 <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">{renderSortHeader('Status', 'status')}</th>
@@ -294,10 +294,10 @@ export default function UserManagement() {
               ) : users.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-10 py-32 text-center">
-                    <div className="w-20 h-20 bg-zinc-900/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5">
+                    <div className="w-20 h-20 bg-zinc-900/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-black/5 dark:border-white/5">
                       <Users size={32} className="text-zinc-600" />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">No users found</h3>
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">No users found</h3>
                     <p className="text-sm text-zinc-500 max-w-sm mx-auto">
                        Try adjusting your search or filters to find what you're looking for.
                     </p>
@@ -317,11 +317,11 @@ export default function UserManagement() {
                     >
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-sm font-bold text-zinc-500 shadow-sm">
+                          <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-black/5 dark:border-white/5 flex items-center justify-center text-sm font-bold text-zinc-500 shadow-sm">
                             {getInitials(user)}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-bold text-white leading-snug">
+                            <p className="text-sm font-bold text-zinc-900 dark:text-white leading-snug">
                               {user.firstName || 'Unknown'} {user.lastName || ''}
                             </p>
                             <p className="text-xs text-zinc-500 mt-0.5">{user.email}</p>
@@ -337,21 +337,21 @@ export default function UserManagement() {
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-2.5">
                           <div className={`w-2 h-2 rounded-full ${status.dot} ${status.shadow}`} />
-                          <span className="text-xs font-medium text-zinc-400">{status.label}</span>
+                          <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">{status.label}</span>
                         </div>
                       </td>
                       <td className="px-8 py-5 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => { setTargetUser(user); setNewRole(user.role); setIsRoleModalOpen(true); }}
-                            className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent text-zinc-500 hover:text-indigo-400 hover:bg-white/5 transition-colors"
+                            className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent text-zinc-500 hover:text-indigo-400 hover:bg-black/5 dark:bg-white/5 transition-colors"
                             title="Edit Role"
                           >
                             <Shield size={18} />
                           </button>
                           <button
                             onClick={() => { setTargetUser(user); setIsResetModalOpen(true); setTempPassword(''); }}
-                            className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent text-zinc-500 hover:text-amber-400 hover:bg-white/5 transition-colors"
+                            className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent text-zinc-500 hover:text-amber-400 hover:bg-black/5 dark:bg-white/5 transition-colors"
                             title="Reset Password"
                           >
                             <Key size={18} />
@@ -369,12 +369,12 @@ export default function UserManagement() {
                                   initial={{ opacity: 0, scale: 0.95, y: 10 }}
                                   animate={{ opacity: 1, scale: 1, y: 0 }}
                                   exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                                  className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-white/10 rounded-xl shadow-xl z-50 p-2 overflow-hidden backdrop-blur-xl"
+                                  className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl shadow-xl z-50 p-2 overflow-hidden backdrop-blur-xl"
                                 >
-                                  <button onClick={() => handleStatusChange(user._id, 'active')} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-emerald-500/10 transition-colors text-left group/opt">
+                                  <button onClick={() => handleStatusChange(user._id, 'active')} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:text-white hover:bg-emerald-500/10 transition-colors text-left group/opt">
                                     <UserCheck size={16} className="text-emerald-500" /> Activate
                                   </button>
-                                  <button onClick={() => handleStatusChange(user._id, 'suspended')} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-300 hover:text-rose-500 hover:bg-rose-500/10 transition-colors text-left group/opt">
+                                  <button onClick={() => handleStatusChange(user._id, 'suspended')} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-rose-500/10 transition-colors text-left group/opt">
                                     <Ban size={16} className="text-rose-500" /> Suspend
                                   </button>
                                 </motion.div>
@@ -392,15 +392,15 @@ export default function UserManagement() {
         </div>
 
         {/* Pagination */}
-        <div className="px-8 py-5 border-t border-white/5 bg-zinc-950/20 flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto">
+        <div className="px-8 py-5 border-t border-black/5 dark:border-white/5 bg-zinc-950/20 flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto">
           <p className="text-xs font-medium text-zinc-500">
-            Showing <span className="text-white">{users.length}</span> of <span className="text-white">{totalUsers}</span> users
+            Showing <span className="text-zinc-900 dark:text-white">{users.length}</span> of <span className="text-zinc-900 dark:text-white">{totalUsers}</span> users
           </p>
           <div className="flex gap-2">
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 rounded-lg text-xs font-semibold border border-white/5 text-zinc-400 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              className="px-4 py-2 rounded-lg text-xs font-semibold border border-black/5 dark:border-white/5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
             >
               Previous
             </button>
@@ -422,7 +422,7 @@ export default function UserManagement() {
             <button
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 rounded-lg text-xs font-semibold border border-white/5 text-zinc-400 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              className="px-4 py-2 rounded-lg text-xs font-semibold border border-black/5 dark:border-white/5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
             >
               Next
             </button>
@@ -436,7 +436,7 @@ export default function UserManagement() {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" onClick={() => setIsAddModalOpen(false)}>
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="premium-card w-full max-w-lg shadow-2xl border-white/10 p-8" onClick={e => e.stopPropagation()}
+              className="premium-card w-full max-w-lg shadow-2xl border-black/10 dark:border-white/10 p-8" onClick={e => e.stopPropagation()}
             >
               <div className="flex justify-between items-start mb-8">
                 <div className="flex items-center gap-4">
@@ -444,31 +444,31 @@ export default function UserManagement() {
                       <UserPlus className="text-indigo-500" size={24} />
                    </div>
                    <div>
-                      <h3 className="text-xl font-bold text-white">Add User</h3>
+                      <h3 className="text-xl font-bold text-zinc-900 dark:text-white">Add User</h3>
                       <p className="text-sm text-zinc-500 font-medium">Create a new user account.</p>
                    </div>
                 </div>
-                <button onClick={() => setIsAddModalOpen(false)} className="p-2 rounded-lg hover:bg-white/5 text-zinc-500 hover:text-white transition-colors"><X size={20} /></button>
+                <button onClick={() => setIsAddModalOpen(false)} className="p-2 rounded-lg hover:bg-black/5 dark:bg-white/5 text-zinc-500 hover:text-zinc-900 dark:text-white transition-colors"><X size={20} /></button>
               </div>
               <form onSubmit={handleAddUser} className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-zinc-400">First Name</label>
-                    <input type="text" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} className="w-full px-4 h-12 bg-zinc-900/50 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-600" placeholder="John" required />
+                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">First Name</label>
+                    <input type="text" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} className="w-full px-4 h-12 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-600" placeholder="John" required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-zinc-400">Last Name</label>
-                    <input type="text" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} className="w-full px-4 h-12 bg-zinc-900/50 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-600" placeholder="Doe" required />
+                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Last Name</label>
+                    <input type="text" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} className="w-full px-4 h-12 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-600" placeholder="Doe" required />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-400">Email Address</label>
-                  <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full px-4 h-12 bg-zinc-900/50 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-600" placeholder="john@example.com" required />
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Email Address</label>
+                  <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full px-4 h-12 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-600" placeholder="john@example.com" required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-400">Role</label>
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Role</label>
                   <div className="relative group/sel">
-                    <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value as any})} className="w-full h-12 px-4 pr-10 bg-zinc-900/50 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
+                    <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value as any})} className="w-full h-12 px-4 pr-10 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
                       <option value="user">User</option>
                       <option value="artist">Artist</option>
                       <option value="admin">Admin</option>
@@ -476,8 +476,8 @@ export default function UserManagement() {
                     <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none group-focus-within/sel:text-indigo-400 transition-colors" />
                   </div>
                 </div>
-                <div className="pt-6 flex justify-end gap-3 border-t border-white/5 mt-8">
-                  <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-6 py-2.5 text-sm font-semibold text-zinc-400 hover:text-white transition-colors">Cancel</button>
+                <div className="pt-6 flex justify-end gap-3 border-t border-black/5 dark:border-white/5 mt-8">
+                  <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-6 py-2.5 text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors">Cancel</button>
                   <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-white text-black rounded-xl text-sm font-bold shadow-lg hover:bg-zinc-200 transition-colors flex items-center gap-2">
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck size={18} />}
                     Create User
@@ -497,15 +497,15 @@ export default function UserManagement() {
               <div className="mx-auto w-16 h-16 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 flex items-center justify-center mb-6">
                  <Shield className="h-8 w-8 text-indigo-500" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Update Role</h3>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Update Role</h3>
               <p className="text-sm text-zinc-500 mb-8">
                 Change the access level for <br/>
-                <span className="text-white font-medium">{targetUser.email}</span>
+                <span className="text-zinc-900 dark:text-white font-medium">{targetUser.email}</span>
               </p>
               
               <div className="space-y-6">
                 <div className="relative text-left group/sel">
-                  <select value={newRole} onChange={e => setNewRole(e.target.value)} className="w-full h-12 px-4 pr-10 bg-zinc-900/50 border border-white/5 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
+                  <select value={newRole} onChange={e => setNewRole(e.target.value)} className="w-full h-12 px-4 pr-10 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
                     <option value="user">User</option>
                     <option value="artist">Artist</option>
                     <option value="admin">Admin</option>
@@ -514,7 +514,7 @@ export default function UserManagement() {
                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none group-focus-within/sel:text-indigo-400 transition-colors" />
                 </div>
                 <div className="flex gap-3">
-                  <button onClick={() => setIsRoleModalOpen(false)} className="flex-1 py-2.5 text-sm font-semibold text-zinc-400 hover:text-white transition-colors">Cancel</button>
+                  <button onClick={() => setIsRoleModalOpen(false)} className="flex-1 py-2.5 text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors">Cancel</button>
                   <button onClick={handleRoleChange} disabled={isSubmitting} className="flex-1 py-2.5 bg-white text-black rounded-xl text-sm font-bold shadow-lg hover:bg-zinc-200 transition-colors">Update Role</button>
                 </div>
               </div>
@@ -531,15 +531,15 @@ export default function UserManagement() {
               <div className="mx-auto w-16 h-16 rounded-2xl bg-amber-500/5 border border-amber-500/10 flex items-center justify-center mb-6">
                  <Key className="h-8 w-8 text-amber-500" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Reset Password</h3>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Reset Password</h3>
               <p className="text-sm text-zinc-500 mb-8">
                 Generate a new temporary password for this user.
               </p>
               
               {tempPassword ? (
-                <div className="bg-zinc-900/50 border border-white/5 p-6 rounded-2xl mb-8">
-                  <p className="text-xs text-zinc-400 font-semibold uppercase tracking-wider mb-2">Temporary Password</p>
-                  <code className="text-2xl font-mono text-white tracking-widest">{tempPassword}</code>
+                <div className="bg-zinc-900/50 border border-black/5 dark:border-white/5 p-6 rounded-2xl mb-8">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 font-semibold uppercase tracking-wider mb-2">Temporary Password</p>
+                  <code className="text-2xl font-mono text-zinc-900 dark:text-white tracking-widest">{tempPassword}</code>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -547,7 +547,7 @@ export default function UserManagement() {
                      {isResetting ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw size={18} />}
                      Reset Password
                    </button>
-                   <button onClick={() => setIsResetModalOpen(false)} className="w-full py-3 text-sm font-semibold text-zinc-400 hover:text-white transition-colors">Cancel</button>
+                   <button onClick={() => setIsResetModalOpen(false)} className="w-full py-3 text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors">Cancel</button>
                 </div>
               )}
             </motion.div>

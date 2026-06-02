@@ -110,7 +110,7 @@ const ArtistDetails: React.FC = () => {
         </div>
         <button
           onClick={handleBack}
-          className="px-6 py-3 bg-zinc-800 text-white rounded text-[10px] font-black uppercase tracking-widest italic border border-white/5 hover:bg-zinc-700 transition-all"
+          className="px-6 py-3 bg-zinc-800 text-zinc-900 dark:text-white rounded text-[10px] font-black uppercase tracking-widest italic border border-black/5 dark:border-white/5 hover:bg-zinc-700 transition-all"
         >
           Abort Protocol
         </button>
@@ -128,7 +128,7 @@ const ArtistDetails: React.FC = () => {
         </div>
         <button
           onClick={handleBack}
-          className="px-6 py-3 bg-zinc-800 text-white rounded text-[10px] font-black uppercase tracking-widest italic border border-white/5 hover:bg-zinc-700 transition-all"
+          className="px-6 py-3 bg-zinc-800 text-zinc-900 dark:text-white rounded text-[10px] font-black uppercase tracking-widest italic border border-black/5 dark:border-white/5 hover:bg-zinc-700 transition-all"
         >
           Return to Registry
         </button>
@@ -199,13 +199,13 @@ const ArtistDetails: React.FC = () => {
           <div className="flex items-center gap-6">
              <button
                onClick={handleBack}
-               className="w-12 h-12 bg-zinc-950 border border-white/10 rounded flex items-center justify-center text-zinc-400 hover:text-emerald-500 hover:border-emerald-500/30 transition-all group/back"
+               className="w-12 h-12 bg-zinc-50 dark:bg-zinc-950 border border-black/10 dark:border-white/10 rounded flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 hover:border-emerald-500/30 transition-all group/back"
              >
                <ArrowLeft className="h-5 w-5 group-hover/back:-translate-x-1 transition-transform" />
              </button>
              <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Artist Profile Registry</p>
-                <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">
+                <h1 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tighter uppercase italic">
                   {displayName}
                 </h1>
                 <p className="text-xs font-bold text-zinc-500 mt-1 uppercase tracking-widest">
@@ -216,7 +216,7 @@ const ArtistDetails: React.FC = () => {
           <div className="flex gap-3">
              <button
                onClick={handleEdit}
-               className="px-6 py-3 bg-zinc-800 text-white text-[10px] font-black uppercase tracking-widest rounded border border-white/5 hover:bg-zinc-700 transition-all italic"
+               className="px-6 py-3 bg-zinc-800 text-zinc-900 dark:text-white text-[10px] font-black uppercase tracking-widest rounded border border-black/5 dark:border-white/5 hover:bg-zinc-700 transition-all italic"
              >
                Modify Profile
              </button>
@@ -245,16 +245,16 @@ const ArtistDetails: React.FC = () => {
                   <img
                     src={avatarSrc}
                     alt={displayName}
-                    className="relative w-48 h-48 rounded-full object-cover border-2 border-white/10 p-1 bg-zinc-950"
+                    className="relative w-48 h-48 rounded-full object-cover border-2 border-black/10 dark:border-white/10 p-1 bg-zinc-50 dark:bg-zinc-950"
                   />
                 ) : (
-                  <div className="relative w-48 h-48 rounded-full bg-zinc-950 border-2 border-white/10 flex items-center justify-center">
+                  <div className="relative w-48 h-48 rounded-full bg-zinc-50 dark:bg-zinc-950 border-2 border-black/10 dark:border-white/10 flex items-center justify-center">
                     <Users className="w-16 h-16 text-zinc-800" />
                   </div>
                 )}
               </div>
               
-              <div className="w-full space-y-6 pt-4 border-t border-white/5">
+              <div className="w-full space-y-6 pt-4 border-t border-black/5 dark:border-white/5">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass}>Registry Status</label>
@@ -282,7 +282,7 @@ const ArtistDetails: React.FC = () => {
                 </div>
 
                 {canReviewArtist && (
-                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/5">
+                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-black/5 dark:border-white/5">
                     <button
                       onClick={handleApprove}
                       className="w-full py-3 bg-emerald-500 text-black text-[10px] font-black uppercase tracking-widest rounded hover:bg-emerald-400 transition-all italic"
@@ -291,7 +291,7 @@ const ArtistDetails: React.FC = () => {
                     </button>
                     <button
                       onClick={handleReject}
-                      className="w-full py-3 bg-zinc-800 text-rose-500 text-[10px] font-black uppercase tracking-widest rounded hover:bg-rose-500/10 transition-all italic border border-white/5"
+                      className="w-full py-3 bg-zinc-800 text-rose-500 text-[10px] font-black uppercase tracking-widest rounded hover:bg-rose-500/10 transition-all italic border border-black/5 dark:border-white/5"
                     >
                       Reject
                     </button>
@@ -315,7 +315,7 @@ const ArtistDetails: React.FC = () => {
                  <div className="w-8 h-8 bg-blue-500/10 rounded flex items-center justify-center">
                     <Music className="h-4 w-4 text-blue-500" />
                  </div>
-                 <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Album Repositories</h2>
+                 <h2 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Album Repositories</h2>
               </div>
               {albumsLoading && <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />}
             </div>
@@ -327,7 +327,7 @@ const ArtistDetails: React.FC = () => {
             )}
             
             {!albumsLoading && !albumsError && albums.length === 0 && (
-              <div className="py-12 text-center border border-dashed border-white/5 rounded">
+              <div className="py-12 text-center border border-dashed border-black/5 dark:border-white/5 rounded">
                 <p className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">No album archives detected.</p>
               </div>
             )}
@@ -335,9 +335,9 @@ const ArtistDetails: React.FC = () => {
             {!albumsLoading && !albumsError && albums.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {albums.map((album) => (
-                  <div key={album._id} className="bg-zinc-950 border border-white/5 rounded-lg p-4 hover:border-emerald-500/30 transition-all group/album">
+                  <div key={album._id} className="bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-lg p-4 hover:border-emerald-500/30 transition-all group/album">
                     <div className="flex items-center gap-4">
-                      <div className="relative w-16 h-16 rounded overflow-hidden flex-shrink-0 bg-zinc-900 border border-white/10">
+                      <div className="relative w-16 h-16 rounded overflow-hidden flex-shrink-0 bg-zinc-900 border border-black/10 dark:border-white/10">
                         {(album.cover || (album as any).coverArt) ? (
                           <img
                             src={album.cover || (album as any).coverArt}
@@ -351,7 +351,7 @@ const ArtistDetails: React.FC = () => {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-[11px] font-black text-white uppercase tracking-tight truncate italic">{album.title}</h3>
+                        <h3 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-tight truncate italic">{album.title}</h3>
                         <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
                           RELEASE: {album.releaseDate ? new Date(album.releaseDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : '—'}
                         </p>
@@ -377,7 +377,7 @@ const ArtistDetails: React.FC = () => {
                  <div className="w-8 h-8 bg-emerald-500/10 rounded flex items-center justify-center">
                     <Music2 className="h-4 w-4 text-emerald-500" />
                  </div>
-                 <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Signal Transmission (Songs)</h2>
+                 <h2 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Signal Transmission (Songs)</h2>
               </div>
               {songsLoading && <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />}
             </div>
@@ -389,7 +389,7 @@ const ArtistDetails: React.FC = () => {
             )}
 
             {!songsLoading && !songsError && songs.length === 0 && (
-              <div className="py-12 text-center border border-dashed border-white/5 rounded">
+              <div className="py-12 text-center border border-dashed border-black/5 dark:border-white/5 rounded">
                 <p className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">No active signals detected.</p>
               </div>
             )}
@@ -397,9 +397,9 @@ const ArtistDetails: React.FC = () => {
             {!songsLoading && !songsError && songs.length > 0 && (
               <div className="space-y-3">
                 {songs.map((song) => (
-                  <div key={song._id} className="flex items-center justify-between bg-zinc-950 border border-white/5 rounded p-4 hover:bg-white/[0.02] transition-all group/song">
+                  <div key={song._id} className="flex items-center justify-between bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded p-4 hover:bg-white/[0.02] transition-all group/song">
                     <div className="flex items-center gap-4">
-                      <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-zinc-900 border border-white/10">
+                      <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-zinc-900 border border-black/10 dark:border-white/10">
                         {(song.coverArt || (song as any).cover) ? (
                           <img
                             src={song.coverArt || (song as any).cover}
@@ -413,7 +413,7 @@ const ArtistDetails: React.FC = () => {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-xs font-black text-white uppercase italic tracking-tight truncate">{song.title}</h3>
+                        <h3 className="text-xs font-black text-zinc-900 dark:text-white uppercase italic tracking-tight truncate">{song.title}</h3>
                         <div className="flex items-center gap-3 mt-1.5">
                           <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest italic">
                             {song.duration
@@ -435,7 +435,7 @@ const ArtistDetails: React.FC = () => {
                       </span>
                       <button 
                         onClick={() => navigate(`/admin/song-management/${song._id}`)}
-                        className="w-10 h-10 bg-zinc-900 border border-white/10 rounded flex items-center justify-center text-zinc-600 hover:text-emerald-500 hover:border-emerald-500/30 transition-all"
+                        className="w-10 h-10 bg-zinc-900 border border-black/10 dark:border-white/10 rounded flex items-center justify-center text-zinc-600 hover:text-emerald-500 hover:border-emerald-500/30 transition-all"
                       >
                         <ChevronRight className="w-5 h-5" />
                       </button>
@@ -457,11 +457,11 @@ const ArtistDetails: React.FC = () => {
                  <div className="w-8 h-8 bg-purple-500/10 rounded flex items-center justify-center">
                     <Users className="h-4 w-4 text-purple-500" />
                  </div>
-                 <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Contribution Graph</h2>
+                 <h2 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Contribution Graph</h2>
               </div>
               {loadingContributions && <div className="w-2 h-2 bg-purple-500 rounded-full animate-ping" />}
             </div>
-            <div className="bg-zinc-950/50 border border-white/5 rounded p-1">
+            <div className="bg-zinc-100 dark:bg-zinc-950/50 border border-black/5 dark:border-white/5 rounded p-1">
               <ContributionList contributions={contributions} loading={loadingContributions} />
             </div>
           </motion.div>

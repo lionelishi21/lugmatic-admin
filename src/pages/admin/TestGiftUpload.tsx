@@ -25,7 +25,7 @@ const TestGiftUpload: React.FC = () => {
         <div className="text-center">
           <button
             onClick={() => setShowUpload(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 mx-auto"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-zinc-900 dark:text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 mx-auto"
           >
             <Plus className="h-5 w-5" />
             Test Gift Upload
@@ -35,7 +35,7 @@ const TestGiftUpload: React.FC = () => {
         <div className="relative">
           <button
             onClick={() => setShowUpload(false)}
-            className="absolute top-4 right-4 p-2 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors z-10"
+            className="absolute top-4 right-4 p-2 bg-gray-500 text-zinc-900 dark:text-white rounded-full hover:bg-gray-600 transition-colors z-10"
           >
             <X className="h-5 w-5" />
           </button>

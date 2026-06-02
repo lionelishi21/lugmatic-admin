@@ -106,7 +106,7 @@ const PodcastManagement: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white mb-2 flex items-center gap-3">
             <Mic className="text-purple-500" size={32} />
             Podcast Management
           </h1>
@@ -131,7 +131,7 @@ const PodcastManagement: React.FC = () => {
               <s.icon size={20} className={s.color} />
             </div>
             <p className="text-zinc-500 text-xs font-medium mb-1">{s.label}</p>
-            <p className="text-2xl font-bold text-white tracking-tight">{s.value}</p>
+            <p className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">{s.value}</p>
           </div>
         ))}
       </div>
@@ -172,7 +172,7 @@ const PodcastManagement: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-white/5">
+              <tr className="border-b border-black/5 dark:border-white/5">
                 <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Series</th>
                 <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Artist</th>
                 <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Episodes</th>
@@ -200,11 +200,11 @@ const PodcastManagement: React.FC = () => {
                   <tr key={podcast._id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-white/5 overflow-hidden flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-black/5 dark:border-white/5 overflow-hidden flex items-center justify-center">
                           <img src={podcast.coverArt} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-white group-hover:text-purple-400 transition-colors">{podcast.title}</p>
+                          <p className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-purple-400 transition-colors">{podcast.title}</p>
                           <div className="flex items-center gap-2 mt-0.5">
                             <span className="text-[10px] font-bold text-zinc-600 uppercase">{podcast.category}</span>
                             <span className="w-1 h-1 rounded-full bg-zinc-800" />
@@ -214,7 +214,7 @@ const PodcastManagement: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-xs font-medium text-zinc-400">{(podcast.artist as any)?.name || 'Unknown'}</span>
+                      <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">{(podcast.artist as any)?.name || 'Unknown'}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 text-xs font-bold text-zinc-500">
@@ -246,7 +246,7 @@ const PodcastManagement: React.FC = () => {
                             <XCircle size={18} />
                           </button>
                         )}
-                        <button className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/5 transition-all"><Edit size={18} /></button>
+                        <button className="p-2 rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 transition-all"><Edit size={18} /></button>
                         <button onClick={() => setPodcastToDelete(podcast._id)} className="p-2 rounded-lg text-zinc-500 hover:text-rose-500 hover:bg-rose-500/5 transition-all"><Trash2 size={18} /></button>
                       </div>
                     </td>
@@ -257,7 +257,7 @@ const PodcastManagement: React.FC = () => {
           </table>
         </div>
         {totalPages > 1 && (
-          <div className="px-6 py-4 border-t border-white/5 flex items-center justify-between">
+          <div className="px-6 py-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Page {page} of {totalPages}</span>
             <div className="flex gap-2">
               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="btn-secondary !py-1 !px-3 disabled:opacity-30">Prev</button>

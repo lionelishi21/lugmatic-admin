@@ -63,7 +63,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-zinc-300 text-xs font-semibold uppercase tracking-wider mb-2">
+      <label className="block text-zinc-700 dark:text-zinc-300 text-xs font-semibold uppercase tracking-wider mb-2">
         {label}
       </label>
       <motion.div
@@ -203,7 +203,7 @@ export default function Login() {
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
               <Music2 className="w-5 h-5 text-emerald-400" />
             </div>
-            <span className="text-white font-bold text-xl tracking-tight">Lugmatic</span>
+            <span className="text-zinc-900 dark:text-white font-bold text-xl tracking-tight">Lugmatic</span>
             <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 border border-emerald-500/30 rounded-full px-2 py-0.5">
               Studio
             </span>
@@ -214,7 +214,7 @@ export default function Login() {
             <motion.h1
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.7 }}
-              className="text-5xl font-black text-white leading-[1.05] tracking-tight"
+              className="text-5xl font-black text-zinc-900 dark:text-white leading-[1.05] tracking-tight"
             >
               Your stage.<br />
               <span className="text-transparent bg-clip-text"
@@ -225,7 +225,7 @@ export default function Login() {
             <motion.p
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.6 }}
-              className="text-zinc-400 text-base leading-relaxed max-w-sm"
+              className="text-zinc-600 dark:text-zinc-400 text-base leading-relaxed max-w-sm"
             >
               Manage your music, connect with fans in real-time, and grow your career — all from one dashboard.
             </motion.p>
@@ -242,7 +242,7 @@ export default function Login() {
               { icon: Zap,   label: 'Clash Mode' },
               { icon: Music2, label: 'Upload Tracks' },
             ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-800/60 border border-white/[0.07] text-zinc-300 text-xs font-medium">
+              <div key={label} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-800/60 border border-white/[0.07] text-zinc-700 dark:text-zinc-300 text-xs font-medium">
                 <Icon className="w-3.5 h-3.5 text-emerald-400" />
                 {label}
               </div>
@@ -290,13 +290,13 @@ export default function Login() {
               {/* Mobile logo */}
               <div className="flex items-center gap-2 mb-8 lg:hidden">
                 <Music2 className="w-5 h-5 text-emerald-400" />
-                <span className="text-white font-bold tracking-tight">Lugmatic Studio</span>
+                <span className="text-zinc-900 dark:text-white font-bold tracking-tight">Lugmatic Studio</span>
               </div>
 
               {/* Heading */}
               <div className="mb-8">
-                <h2 className="text-2xl font-bold text-white tracking-tight">Welcome back</h2>
-                <p className="text-zinc-400 text-sm mt-1">Sign in to your artist dashboard</p>
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">Welcome back</h2>
+                <p className="text-zinc-600 dark:text-zinc-400 text-sm mt-1">Sign in to your artist dashboard</p>
               </div>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -314,7 +314,7 @@ export default function Login() {
                     onFocus={() => setEmailFocused(true)}
                     onBlur={() => setEmailFocused(false)}
                     placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 bg-transparent text-white placeholder:text-zinc-600 text-sm focus:outline-none"
+                    className="w-full pl-10 pr-4 py-3 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-600 text-sm focus:outline-none"
                   />
                 </Field>
 
@@ -331,12 +331,12 @@ export default function Login() {
                     onFocus={() => setPasswordFocused(true)}
                     onBlur={() => setPasswordFocused(false)}
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-10 py-3 bg-transparent text-white placeholder:text-zinc-600 text-sm focus:outline-none"
+                    className="w-full pl-10 pr-10 py-3 bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-600 text-sm focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
-                    className="absolute right-3.5 text-zinc-500 hover:text-zinc-300 transition-colors"
+                    className="absolute right-3.5 text-zinc-500 hover:text-zinc-700 dark:text-zinc-300 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -417,7 +417,7 @@ export default function Login() {
                   Didn't get a verification email?{' '}
                   <button
                     onClick={() => navigate('/resend-verification')}
-                    className="text-zinc-400 hover:text-zinc-200 transition-colors"
+                    className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-200 transition-colors"
                   >
                     Resend
                   </button>
@@ -437,7 +437,7 @@ export default function Login() {
         className="absolute bottom-6 left-0 right-0 text-center text-zinc-600 text-xs"
       >
         Not an artist?{' '}
-        <a href="https://lugmaticmusic.com" className="text-zinc-400 hover:text-emerald-400 transition-colors">
+        <a href="https://lugmaticmusic.com" className="text-zinc-600 dark:text-zinc-400 hover:text-emerald-400 transition-colors">
           Go to the fan platform →
         </a>
       </motion.p>

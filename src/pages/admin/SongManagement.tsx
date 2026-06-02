@@ -43,7 +43,7 @@ const SongManagement: React.FC = () => {
     return (
       <button 
         onClick={() => handleSort(field)}
-        className="flex items-center gap-1.5 hover:text-white transition-colors group/btn text-[10px] font-bold text-zinc-500"
+        className="flex items-center gap-1.5 hover:text-zinc-900 dark:text-white transition-colors group/btn text-[10px] font-bold text-zinc-500"
       >
         <span>{label}</span>
         {isSorted ? (
@@ -145,7 +145,7 @@ const SongManagement: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Song Management</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">Song Management</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-500">System: Online</span>
@@ -155,7 +155,7 @@ const SongManagement: React.FC = () => {
         </div>
         <button 
           onClick={() => navigate('/admin/song-management/add')} 
-          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex-shrink-0 flex items-center justify-center gap-4 group border border-white/10"
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex-shrink-0 flex items-center justify-center gap-4 group border border-black/10 dark:border-white/10"
         >
           <Plus size={18} />
           Add New Song
@@ -171,27 +171,27 @@ const SongManagement: React.FC = () => {
             placeholder="Search songs..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
+            className="w-full pl-14 pr-12 h-14 bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
           />
         </div>
         <div className="flex items-center gap-6">
-           <div className="px-5 py-3 bg-zinc-950/40 border border-white/5 rounded-2xl shadow-inner flex items-center gap-4">
+           <div className="px-5 py-3 bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl shadow-inner flex items-center gap-4">
               <Activity size={14} className="text-emerald-500" />
-              <span className="text-[10px] font-bold text-zinc-500 leading-none">Found <span className="text-white">{filteredSongs.length}</span> Results</span>
+              <span className="text-[10px] font-bold text-zinc-500 leading-none">Found <span className="text-zinc-900 dark:text-white">{filteredSongs.length}</span> Results</span>
            </div>
-           <div className="flex bg-zinc-950/40 border border-white/5 rounded-2xl p-1.5 gap-1.5 shadow-inner">
-              <button className="px-5 py-2.5 rounded-xl text-[9px] font-bold text-white bg-white/10 border border-white/5 shadow-xl">All Songs</button>
-              <button className="px-5 py-2.5 rounded-xl text-[9px] font-bold text-zinc-600 hover:text-zinc-300 transition-all">Needs Review</button>
+           <div className="flex bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl p-1.5 gap-1.5 shadow-inner">
+              <button className="px-5 py-2.5 rounded-xl text-[9px] font-bold text-zinc-900 dark:text-white bg-black/10 dark:bg-white/10 border border-black/5 dark:border-white/5 shadow-xl">All Songs</button>
+              <button className="px-5 py-2.5 rounded-xl text-[9px] font-bold text-zinc-600 hover:text-zinc-700 dark:text-zinc-300 transition-all">Needs Review</button>
            </div>
         </div>
       </div>
 
       {/* Songs Table */}
-      <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl bg-[#0a0a0a]">
+      <div className="premium-card !p-0 overflow-hidden border-black/5 dark:border-white/5 shadow-2xl bg-white dark:bg-[#0a0a0a]">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-white/5 bg-zinc-950/50">
+              <tr className="border-b border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/50">
                 <th className="px-10 py-8 text-[10px] font-bold text-zinc-500">{renderSortHeader('Song Details', 'name')}</th>
                 <th className="px-10 py-8 text-[10px] font-bold text-zinc-500">{renderSortHeader('Artist / Album', 'artist')}</th>
                 <th className="px-10 py-8 text-[10px] font-bold text-zinc-500">{renderSortHeader('Duration / Genre', 'duration')}</th>
@@ -203,10 +203,10 @@ const SongManagement: React.FC = () => {
               {sortedSongs.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-10 py-40 text-center">
-                    <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl group cursor-default">
+                    <div className="w-24 h-24 bg-zinc-50 dark:bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-black/5 dark:border-white/5 shadow-2xl group cursor-default">
                       <Music2 size={36} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                     </div>
-                    <h3 className="text-[10px] font-bold text-white mb-3">No Songs Found</h3>
+                    <h3 className="text-[10px] font-bold text-zinc-900 dark:text-white mb-3">No Songs Found</h3>
                     <p className="text-[10px] text-zinc-600 font-bold max-w-sm mx-auto opacity-60">Adjust your search parameters or register a new song.</p>
                   </td>
                 </tr>
@@ -221,7 +221,7 @@ const SongManagement: React.FC = () => {
                   >
                     <td className="px-10 py-6">
                       <div className="flex items-center gap-6">
-                        <div className="w-14 h-14 rounded-2xl bg-zinc-950 border border-white/5 overflow-hidden flex items-center justify-center shadow-inner relative group-hover:scale-110 transition-all duration-500">
+                        <div className="w-14 h-14 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 overflow-hidden flex items-center justify-center shadow-inner relative group-hover:scale-110 transition-all duration-500">
                           <img
                             src={song.coverArtUrl || song.coverArt || '/assets/images/lugmaticIcon.png'}
                             alt={song.name}
@@ -231,7 +231,7 @@ const SongManagement: React.FC = () => {
                           <div className="absolute inset-0 bg-black/20" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-white tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2">{song.name}</p>
+                          <p className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2">{song.name}</p>
                           {!song.isApproved && (
                             <div className="flex items-center gap-2 bg-amber-500/5 px-2 py-1 rounded-lg border border-amber-500/10 w-fit">
                               <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse" />
@@ -245,7 +245,7 @@ const SongManagement: React.FC = () => {
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
                            <User size={12} className="text-zinc-700" />
-                           <span className="text-[10px] font-bold text-zinc-400 leading-none">{typeof song.artist === 'string' ? 'Unknown Artist' : (song.artist as any)?.name}</span>
+                           <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 leading-none">{typeof song.artist === 'string' ? 'Unknown Artist' : (song.artist as any)?.name}</span>
                         </div>
                         <div className="flex items-center gap-2">
                            <Disc size={12} className="text-zinc-700" />
@@ -261,7 +261,7 @@ const SongManagement: React.FC = () => {
                            <Clock size={12} className="text-zinc-700" />
                            <span className="text-[10px] font-bold tabular-nums">{formatDuration(song.duration)} <span className="opacity-40 ml-1">minutes</span></span>
                         </div>
-                        <div className="px-2 py-1 bg-zinc-950 border border-white/5 rounded-lg w-fit">
+                        <div className="px-2 py-1 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-lg w-fit">
                            <span className="text-[8px] font-black text-zinc-600">
                              {typeof song.genre === 'string' ? 'Genre Mix' : (song.genre as any)?.name || 'Genre Mix'}
                            </span>
@@ -274,7 +274,7 @@ const SongManagement: React.FC = () => {
                             <Zap size={16} className="text-emerald-500" />
                          </div>
                          <div className="flex flex-col">
-                            <span className="text-lg font-bold text-white tracking-tighter tabular-nums leading-none">{(song.playCount || 0).toLocaleString()}</span>
+                            <span className="text-lg font-bold text-zinc-900 dark:text-white tracking-tighter tabular-nums leading-none">{(song.playCount || 0).toLocaleString()}</span>
                             <span className="text-[8px] font-black text-zinc-700 mt-1">plays</span>
                          </div>
                       </div>
@@ -284,7 +284,7 @@ const SongManagement: React.FC = () => {
                         {!song.isApproved && (
                           <button 
                             onClick={() => handleApprove(song._id)} 
-                            className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-emerald-500/60 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all shadow-inner" 
+                            className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-emerald-500/60 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all shadow-inner" 
                             title="Approve Song"
                           >
                             <ShieldCheck size={20} />
@@ -292,14 +292,14 @@ const SongManagement: React.FC = () => {
                         )}
                         <button 
                           onClick={() => navigate(`/admin/song-management/${song._id}`)} 
-                          className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-white hover:bg-white/5 transition-all shadow-inner" 
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-zinc-600 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 transition-all shadow-inner" 
                           title="View Details"
                         >
                           <Eye size={20} />
                         </button>
                         <button 
                           onClick={() => setSongToDelete(song._id)} 
-                          className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all shadow-inner" 
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-zinc-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all shadow-inner" 
                           title="Delete Song"
                         >
                           <Trash2 size={20} />

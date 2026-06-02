@@ -93,7 +93,7 @@ const Promotions: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Promotions</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white mb-2">Promotions</h1>
           <p className="text-zinc-500">Manage marketing campaigns, seasonal offers, and rewards.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -122,14 +122,14 @@ const Promotions: React.FC = () => {
               </span>
             </div>
             <p className="text-zinc-500 text-xs font-medium mb-1">{s.label}</p>
-            <p className="text-2xl font-bold text-white tracking-tight">{s.value}</p>
+            <p className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">{s.value}</p>
           </div>
         ))}
       </div>
 
       {/* Toolbar */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="bg-[#0a0a0a] border border-white/5 rounded-3xl p-1 flex items-center gap-1 w-fit overflow-x-auto no-scrollbar">
+        <div className="bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-3xl p-1 flex items-center gap-1 w-fit overflow-x-auto no-scrollbar">
           {['all', 'active', 'scheduled', 'inactive'].map(tab => (
             <button
               key={tab}
@@ -162,7 +162,7 @@ const Promotions: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-white/5">
+              <tr className="border-b border-black/5 dark:border-white/5">
                 <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Campaign</th>
                 <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Timeline</th>
                 <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Utilization</th>
@@ -192,14 +192,14 @@ const Promotions: React.FC = () => {
                     <tr key={promo.id} className="hover:bg-white/[0.02] transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-zinc-900 border border-white/5`}>
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-zinc-900 border border-black/5 dark:border-white/5`}>
                             {promo.type === 'discount' && <Percent size={18} className="text-emerald-500" />}
                             {promo.type === 'featured' && <Star size={18} className="text-amber-500" />}
                             {promo.type === 'referral' && <Users size={18} className="text-blue-500" />}
                             {promo.type === 'bonus' && <Gift size={18} className="text-purple-500" />}
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">{promo.name}</p>
+                            <p className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-emerald-400 transition-colors">{promo.name}</p>
                             <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{promo.type}</p>
                           </div>
                         </div>
@@ -228,7 +228,7 @@ const Promotions: React.FC = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="text-sm font-bold text-white">${promo.revenue.toLocaleString()}</span>
+                          <span className="text-sm font-bold text-zinc-900 dark:text-white">${promo.revenue.toLocaleString()}</span>
                           <span className="text-[10px] text-zinc-600 font-bold uppercase">Impact Revenue</span>
                         </div>
                       </td>
@@ -243,7 +243,7 @@ const Promotions: React.FC = () => {
                           </span>
                           <button 
                             onClick={(e) => { e.stopPropagation(); setOpenMenu(openMenu === promo.id ? null : promo.id); }}
-                            className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-all"
+                            className="p-2 rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-all"
                           >
                             <MoreVertical size={18} />
                           </button>
@@ -273,7 +273,7 @@ const Promotions: React.FC = () => {
               <action.icon size={24} className={action.color} />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-white mb-0.5">{action.title}</p>
+              <p className="text-sm font-bold text-zinc-900 dark:text-white mb-0.5">{action.title}</p>
               <p className="text-xs text-zinc-500">{action.desc}</p>
             </div>
             <ChevronRight size={20} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />

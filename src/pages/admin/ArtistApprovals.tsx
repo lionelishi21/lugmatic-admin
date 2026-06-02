@@ -115,8 +115,8 @@ export default function ArtistApprovals() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Artist Applications</h1>
-          <p className="text-zinc-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Artist Applications</h1>
+          <p className="text-zinc-600 dark:text-zinc-400 text-sm mt-1">
             {pagination.total} pending application{pagination.total !== 1 ? 's' : ''} awaiting review
           </p>
         </div>
@@ -128,12 +128,12 @@ export default function ArtistApprovals() {
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-64"
+              className="pl-9 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-900 dark:text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-64"
             />
           </div>
           <button
             onClick={() => fetchPending(pagination.page)}
-            className="p-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-400 hover:text-white transition-colors"
+            className="p-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors"
           >
             <RefreshCw className="h-4 w-4" />
           </button>
@@ -158,7 +158,7 @@ export default function ArtistApprovals() {
       ) : filtered.length === 0 ? (
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center">
           <UserCheck className="h-10 w-10 text-zinc-600 mx-auto mb-3" />
-          <p className="text-zinc-400 font-medium">No pending applications</p>
+          <p className="text-zinc-600 dark:text-zinc-400 font-medium">No pending applications</p>
           <p className="text-zinc-600 text-sm mt-1">All artist submissions have been reviewed</p>
         </div>
       ) : (
@@ -208,14 +208,14 @@ export default function ArtistApprovals() {
                 <XCircle className="h-5 w-5 text-red-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">Reject Application</h3>
-                <p className="text-zinc-400 text-sm">{rejectModal.name}</p>
+                <h3 className="font-semibold text-zinc-900 dark:text-white">Reject Application</h3>
+                <p className="text-zinc-600 dark:text-zinc-400 text-sm">{rejectModal.name}</p>
               </div>
             </div>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-sm text-zinc-400 mb-1">
+                <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">
                   Reason for rejection <span className="text-red-400">*</span>
                 </label>
                 <textarea
@@ -223,17 +223,17 @@ export default function ArtistApprovals() {
                   value={rejectReason}
                   onChange={e => setRejectReason(e.target.value)}
                   placeholder="e.g. ID document unclear, bio too short, missing agreement signature..."
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-red-500 resize-none"
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-red-500 resize-none"
                 />
               </div>
               <div>
-                <label className="block text-sm text-zinc-400 mb-1">Admin notes (internal only)</label>
+                <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">Admin notes (internal only)</label>
                 <input
                   type="text"
                   value={adminNotes}
                   onChange={e => setAdminNotes(e.target.value)}
                   placeholder="Optional internal notes..."
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
                 />
               </div>
             </div>
@@ -241,14 +241,14 @@ export default function ArtistApprovals() {
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => { setRejectModal(null); setRejectReason(''); }}
-                className="flex-1 px-4 py-2 bg-zinc-800 text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors text-sm"
+                className="flex-1 px-4 py-2 bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={handleReject}
                 disabled={!!processing || !rejectReason.trim()}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                className="flex-1 px-4 py-2 bg-red-600 text-zinc-900 dark:text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
               >
                 {processing ? 'Rejecting...' : 'Reject Application'}
               </button>
@@ -283,14 +283,14 @@ function ArtistCard({ artist, isExpanded, isProcessing, onToggle, onApprove, onR
         />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-white truncate">{artist.name}</span>
+            <span className="font-semibold text-zinc-900 dark:text-white truncate">{artist.name}</span>
             {artist.artistType && (
               <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full capitalize">
                 {artist.artistType}
               </span>
             )}
           </div>
-          <p className="text-zinc-400 text-sm truncate">
+          <p className="text-zinc-600 dark:text-zinc-400 text-sm truncate">
             {artist.user?.email} · {artist.user?.firstName} {artist.user?.lastName}
           </p>
           <div className="flex items-center gap-3 mt-1">
@@ -307,7 +307,7 @@ function ArtistCard({ artist, isExpanded, isProcessing, onToggle, onApprove, onR
           <button
             onClick={onApprove}
             disabled={isProcessing}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-zinc-900 dark:text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
           >
             <CheckCircle2 className="h-4 w-4" />
             Approve
@@ -322,7 +322,7 @@ function ArtistCard({ artist, isExpanded, isProcessing, onToggle, onApprove, onR
           </button>
           <button
             onClick={onToggle}
-            className="p-1.5 bg-zinc-800 rounded-lg text-zinc-400 hover:text-white transition-colors"
+            className="p-1.5 bg-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors"
           >
             {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
@@ -335,7 +335,7 @@ function ArtistCard({ artist, isExpanded, isProcessing, onToggle, onApprove, onR
           {/* Bio */}
           <div>
             <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Bio</h4>
-            <p className="text-zinc-300 text-sm leading-relaxed">{artist.bio || '—'}</p>
+            <p className="text-zinc-700 dark:text-zinc-300 text-sm leading-relaxed">{artist.bio || '—'}</p>
           </div>
 
           {/* Identity */}
@@ -349,7 +349,7 @@ function ArtistCard({ artist, isExpanded, isProcessing, onToggle, onApprove, onR
               <InfoRow label="ID Number" value={
                 <span className="flex items-center gap-2">
                   {showId ? artist.idNumber : '•'.repeat(Math.min(artist.idNumber?.length || 8, 8))}
-                  <button onClick={() => setShowId(v => !v)} className="text-zinc-500 hover:text-zinc-300">
+                  <button onClick={() => setShowId(v => !v)} className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-300">
                     {showId ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                   </button>
                 </span>
@@ -387,8 +387,8 @@ function ArtistCard({ artist, isExpanded, isProcessing, onToggle, onApprove, onR
             {artist.platformAgreementSigned ? (
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-4 w-4 text-emerald-400 flex-shrink-0" />
-                <span className="text-zinc-300 text-sm">
-                  Signed digitally as <strong className="text-white italic">"{artist.platformAgreementSignature}"</strong>
+                <span className="text-zinc-700 dark:text-zinc-300 text-sm">
+                  Signed digitally as <strong className="text-zinc-900 dark:text-white italic">"{artist.platformAgreementSignature}"</strong>
                 </span>
               </div>
             ) : (

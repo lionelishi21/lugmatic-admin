@@ -186,7 +186,7 @@ const PlaylistManagement: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Content Curation Protocol</p>
-           <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">
+           <h1 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tighter uppercase italic">
              Playlist Management
            </h1>
            <p className="text-xs text-zinc-500 mt-1 uppercase font-bold tracking-widest">
@@ -212,13 +212,13 @@ const PlaylistManagement: React.FC = () => {
         ].map(({ label, value, icon: Icon, color, bg }) => (
           <div key={label} className={cardClass}>
             <div className="flex items-center justify-between mb-4">
-               <div className={`w-10 h-10 rounded flex items-center justify-center ${bg} border border-white/5`}>
+               <div className={`w-10 h-10 rounded flex items-center justify-center ${bg} border border-black/5 dark:border-white/5`}>
                  <Icon className={`w-5 h-5 ${color}`} />
                </div>
                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             </div>
             <p className={labelClass}>{label}</p>
-            <p className="text-2xl font-black text-white italic uppercase tracking-tighter tabular-nums">{value}</p>
+            <p className="text-2xl font-black text-zinc-900 dark:text-white italic uppercase tracking-tighter tabular-nums">{value}</p>
           </div>
         ))}
       </div>
@@ -236,7 +236,7 @@ const PlaylistManagement: React.FC = () => {
               className={`${inputClass} pl-11 py-2.5`}
             />
             {searchTerm && (
-              <button onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-white transition-colors">
+              <button onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-900 dark:text-white transition-colors">
                 <X className="w-4 h-4" />
               </button>
             )}
@@ -244,7 +244,7 @@ const PlaylistManagement: React.FC = () => {
 
           <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
             <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest italic">{filteredPlaylists.length} NODES DETECTED</span>
-            <div className="flex bg-zinc-950 border border-white/5 rounded p-1 gap-1">
+            <div className="flex bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded p-1 gap-1">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 rounded transition-all ${viewMode === 'grid' ? 'bg-zinc-800 text-emerald-500' : 'text-zinc-600 hover:text-zinc-400'}`}
@@ -266,7 +266,7 @@ const PlaylistManagement: React.FC = () => {
       <div className="min-h-[400px]">
         {filteredPlaylists.length === 0 ? (
           <div className={`${cardClass} flex flex-col items-center justify-center py-24 text-center border-dashed`}>
-            <div className="w-16 h-16 rounded bg-zinc-950 border border-white/10 flex items-center justify-center mb-6">
+            <div className="w-16 h-16 rounded bg-zinc-50 dark:bg-zinc-950 border border-black/10 dark:border-white/10 flex items-center justify-center mb-6">
               <ListMusic className="w-8 h-8 text-zinc-800" />
             </div>
             <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">NO PLAYLIST DATA MATCHES CURRENT FILTERS</p>
@@ -281,7 +281,7 @@ const PlaylistManagement: React.FC = () => {
                 className={`${cardClass} p-0 flex flex-col hover:border-emerald-500/30 transition-all cursor-pointer overflow-hidden`}
               >
                 {/* Cover / Icon */}
-                <div className="relative aspect-square bg-zinc-950 overflow-hidden">
+                <div className="relative aspect-square bg-zinc-50 dark:bg-zinc-950 overflow-hidden">
                   {playlist.artwork?.full || playlist.artwork?.thumbnail ? (
                     <img
                       src={playlist.artwork.full || playlist.artwork.thumbnail}
@@ -315,7 +315,7 @@ const PlaylistManagement: React.FC = () => {
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); setPlaylistToDelete(playlist._id); }}
-                      className="w-10 h-10 bg-zinc-900/80 backdrop-blur-md text-rose-500 border border-white/10 rounded flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-xl"
+                      className="w-10 h-10 bg-zinc-900/80 backdrop-blur-md text-rose-500 border border-black/10 dark:border-white/10 rounded flex items-center justify-center hover:bg-rose-500 hover:text-zinc-900 dark:text-white transition-all shadow-xl"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -324,8 +324,8 @@ const PlaylistManagement: React.FC = () => {
 
                 {/* Card body */}
                 <div className="p-5">
-                  <h3 className="text-sm font-black text-white uppercase italic tracking-tight truncate group-hover:text-emerald-500 transition-colors">{playlist.name}</h3>
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
+                  <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase italic tracking-tight truncate group-hover:text-emerald-500 transition-colors">{playlist.name}</h3>
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-black/5 dark:border-white/5">
                     <div className="flex items-center gap-2 text-zinc-500 italic">
                        <Music className="w-3 h-3 text-emerald-500" />
                        <span className="text-[10px] font-black uppercase tracking-widest">{(playlist.songs?.length || 0)} UNITS</span>
@@ -355,14 +355,14 @@ const PlaylistManagement: React.FC = () => {
                     <tr key={playlist._id} className="hover:bg-white/[0.02] transition-colors group">
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded bg-zinc-950 border border-white/10 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                          <div className="w-12 h-12 rounded bg-zinc-50 dark:bg-zinc-950 border border-black/10 dark:border-white/10 flex-shrink-0 overflow-hidden flex items-center justify-center">
                             {playlist.artwork?.thumbnail ? (
                               <img src={playlist.artwork.thumbnail} alt={playlist.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100" />
                             ) : (
                               <ListMusic className="w-6 h-6 text-zinc-800" />
                             )}
                           </div>
-                          <p className="text-sm font-black text-white uppercase italic tracking-tight">{playlist.name}</p>
+                          <p className="text-sm font-black text-zinc-900 dark:text-white uppercase italic tracking-tight">{playlist.name}</p>
                         </div>
                       </td>
                       <td className="px-6 py-5 hidden md:table-cell">
@@ -382,13 +382,13 @@ const PlaylistManagement: React.FC = () => {
                         <div className="flex items-center justify-end gap-3">
                           <button
                             onClick={() => handleOpenDialog(playlist)}
-                            className="w-9 h-9 bg-zinc-800 text-white rounded border border-white/5 flex items-center justify-center hover:bg-emerald-500 hover:text-black transition-all"
+                            className="w-9 h-9 bg-zinc-800 text-zinc-900 dark:text-white rounded border border-black/5 dark:border-white/5 flex items-center justify-center hover:bg-emerald-500 hover:text-black transition-all"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => setPlaylistToDelete(playlist._id)}
-                            className="w-9 h-9 bg-zinc-800 text-rose-500 rounded border border-white/5 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"
+                            className="w-9 h-9 bg-zinc-800 text-rose-500 rounded border border-black/5 dark:border-white/5 flex items-center justify-center hover:bg-rose-500 hover:text-zinc-900 dark:text-white transition-all"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -411,21 +411,21 @@ const PlaylistManagement: React.FC = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-zinc-900 border border-white/10 rounded-lg shadow-2xl w-full max-w-2xl overflow-hidden relative"
+              className="bg-zinc-900 border border-black/10 dark:border-white/10 rounded-lg shadow-2xl w-full max-w-2xl overflow-hidden relative"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[60px] rounded-full" />
               
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-8 py-6 border-b border-white/5 relative bg-zinc-800/30">
+              <div className="flex items-center justify-between px-8 py-6 border-b border-black/5 dark:border-white/5 relative bg-zinc-800/30">
                 <div>
                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-1 italic">Protocol Initialization</p>
-                   <h2 className="text-xl font-black text-white uppercase italic tracking-tighter">
+                   <h2 className="text-xl font-black text-zinc-900 dark:text-white uppercase italic tracking-tighter">
                      {selectedPlaylist ? 'Modify Playlist' : 'Initialize Playlist'}
                    </h2>
                 </div>
                 <button
                   onClick={handleCloseDialog}
-                  className="w-10 h-10 bg-zinc-950 border border-white/10 rounded flex items-center justify-center text-zinc-500 hover:text-emerald-500 transition-colors"
+                  className="w-10 h-10 bg-zinc-50 dark:bg-zinc-950 border border-black/10 dark:border-white/10 rounded flex items-center justify-center text-zinc-500 hover:text-emerald-500 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -478,7 +478,7 @@ const PlaylistManagement: React.FC = () => {
                       />
                     </div>
 
-                    <div className="bg-zinc-950 border border-white/5 rounded overflow-hidden max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800">
+                    <div className="bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded overflow-hidden max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800">
                       {songs.length === 0 ? (
                         <div className="py-12 text-center text-zinc-700 italic text-[10px] font-black uppercase">NO SIGNALS AVAILABLE</div>
                       ) : filteredSongs.length === 0 ? (
@@ -497,7 +497,7 @@ const PlaylistManagement: React.FC = () => {
                                 <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isChecked ? 'bg-emerald-500 border-emerald-500' : 'bg-zinc-900 border-white/10'}`}>
                                   {isChecked && <CheckSquare className="w-3 h-3 text-black" />}
                                 </div>
-                                <div className="w-10 h-10 rounded bg-zinc-900 border border-white/5 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                                <div className="w-10 h-10 rounded bg-zinc-900 border border-black/5 dark:border-white/5 flex-shrink-0 flex items-center justify-center overflow-hidden">
                                   {song.coverArt ? (
                                     <img src={song.coverArt} alt={song.name} className="w-full h-full object-cover opacity-60" />
                                   ) : (
@@ -505,7 +505,7 @@ const PlaylistManagement: React.FC = () => {
                                   )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-black text-white uppercase italic tracking-tight truncate">{song.name}</p>
+                                  <p className="text-xs font-black text-zinc-900 dark:text-white uppercase italic tracking-tight truncate">{song.name}</p>
                                   <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest truncate">{artistName}</p>
                                 </div>
                               </div>
@@ -518,12 +518,12 @@ const PlaylistManagement: React.FC = () => {
                 </div>
 
                 {/* Footer */}
-                <div className="flex justify-end gap-4 pt-6 border-t border-white/5">
+                <div className="flex justify-end gap-4 pt-6 border-t border-black/5 dark:border-white/5">
                   <button
                     type="button"
                     onClick={handleCloseDialog}
                     disabled={submitting}
-                    className="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest italic hover:text-white transition-colors"
+                    className="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest italic hover:text-zinc-900 dark:text-white transition-colors"
                   >
                     Cancel
                   </button>

@@ -108,12 +108,12 @@ export default function Layout({ children }: LayoutProps) {
   const sections = Array.from(new Set(navItems.map(i => i.section).filter(Boolean)));
 
   return (
-    <div className="flex h-screen bg-black text-white selection:bg-emerald-500/30 font-inter">
+    <div className="flex h-screen bg-zinc-50 text-zinc-900 dark:bg-black dark:text-white selection:bg-emerald-500/30 font-inter">
       {/* Sidebar */}
       <motion.aside 
         initial={false}
         animate={{ width: isSidebarOpen ? (isMobile ? '100%' : '280px') : (isMobile ? '0px' : '88px') }}
-        className={`fixed lg:relative z-50 h-full bg-[#050505] border-r border-white/5 flex flex-col overflow-hidden ${!isSidebarOpen && isMobile ? 'hidden' : ''}`}
+        className={`fixed lg:relative z-50 h-full bg-white dark:bg-[#050505] border-r border-black/5 dark:border-white/5 flex flex-col overflow-hidden ${!isSidebarOpen && isMobile ? 'hidden' : ''}`}
       >
         <div className={`p-8 mb-4 flex items-center ${!isSidebarOpen && !isMobile ? 'justify-center p-4' : 'justify-between'}`}>
           <div className="flex items-center gap-3">
@@ -144,11 +144,11 @@ export default function Layout({ children }: LayoutProps) {
                             }}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group ${
                               isActive(item.path) || expandedItem === item.path
-                                ? 'bg-white/10 text-white' 
-                                : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]'
+                                ? 'bg-black/5 dark:bg-white/10 text-zinc-900 dark:text-white' 
+                                : 'text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.03]'
                             } ${!isSidebarOpen && !isMobile ? 'justify-center px-0' : ''}`}
                           >
-                            <div className={`flex-shrink-0 ${isActive(item.path) || expandedItem === item.path ? 'text-emerald-500' : 'text-zinc-600 group-hover:text-zinc-400'}`}>
+                            <div className={`flex-shrink-0 ${isActive(item.path) || expandedItem === item.path ? 'text-emerald-600 dark:text-emerald-500' : 'text-zinc-500 dark:text-zinc-600 group-hover:text-zinc-700 dark:group-hover:text-zinc-400'}`}>
                               {item.icon}
                             </div>
                             <span className={`font-semibold text-[14px] whitespace-nowrap transition-all duration-300 ${!isSidebarOpen && !isMobile ? 'opacity-0 w-0 overflow-hidden' : ''}`}>{item.label}</span>
@@ -172,7 +172,7 @@ export default function Layout({ children }: LayoutProps) {
                                       if (isMobile) setIsSidebarOpen(false);
                                     }}
                                     className={`block py-2 text-sm font-medium transition-all ${
-                                      location.pathname === sub.path ? 'text-emerald-400' : 'text-zinc-500 hover:text-white'
+                                      location.pathname === sub.path ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
                                     }`}
                                   >
                                     {sub.label}
@@ -191,11 +191,11 @@ export default function Layout({ children }: LayoutProps) {
                           }}
                           className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group ${
                             isActive(item.path) 
-                              ? 'bg-white/10 text-white' 
-                              : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]'
+                              ? 'bg-black/5 dark:bg-white/10 text-zinc-900 dark:text-white' 
+                              : 'text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.03]'
                           } ${!isSidebarOpen && !isMobile ? 'justify-center px-0' : ''}`}
                         >
-                          <div className={`flex-shrink-0 ${isActive(item.path) ? 'text-emerald-500' : 'text-zinc-600 group-hover:text-zinc-400'}`}>
+                          <div className={`flex-shrink-0 ${isActive(item.path) ? 'text-emerald-600 dark:text-emerald-500' : 'text-zinc-500 dark:text-zinc-600 group-hover:text-zinc-700 dark:group-hover:text-zinc-400'}`}>
                             {item.icon}
                           </div>
                           <span className={`font-semibold text-[14px] whitespace-nowrap transition-all duration-300 ${!isSidebarOpen && !isMobile ? 'opacity-0 w-0 overflow-hidden' : ''}`}>{item.label}</span>
@@ -218,11 +218,11 @@ export default function Layout({ children }: LayoutProps) {
                   }}
                   className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group ${
                     isActive(item.path) 
-                      ? 'bg-white/10 text-white' 
-                      : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]'
+                      ? 'bg-black/5 dark:bg-white/10 text-zinc-900 dark:text-white' 
+                      : 'text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.03]'
                   } ${!isSidebarOpen && !isMobile ? 'justify-center px-0' : ''}`}
                 >
-                  <div className={`flex-shrink-0 ${isActive(item.path) ? 'text-emerald-500' : 'text-zinc-600 group-hover:text-zinc-400'}`}>
+                  <div className={`flex-shrink-0 ${isActive(item.path) ? 'text-emerald-600 dark:text-emerald-500' : 'text-zinc-500 dark:text-zinc-600 group-hover:text-zinc-700 dark:group-hover:text-zinc-400'}`}>
                     {item.icon}
                   </div>
                   <span className={`font-semibold text-[14px] whitespace-nowrap transition-all duration-300 ${!isSidebarOpen && !isMobile ? 'opacity-0 w-0 overflow-hidden' : ''}`}>{item.label}</span>
@@ -232,12 +232,12 @@ export default function Layout({ children }: LayoutProps) {
           )}
         </nav>
 
-        <div className="p-6 border-t border-white/5 space-y-2 bg-[#050505]">
-          <button onClick={toggleTheme} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-zinc-500 hover:bg-white/[0.03] transition-all ${!isSidebarOpen && !isMobile ? 'justify-center px-0' : ''}`}>
+        <div className="p-6 border-t border-black/5 dark:border-white/5 space-y-2 bg-white dark:bg-[#050505]">
+          <button onClick={toggleTheme} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-zinc-600 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.03] transition-all ${!isSidebarOpen && !isMobile ? 'justify-center px-0' : ''}`}>
             <div className="flex-shrink-0">{theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}</div>
             <span className={`text-sm font-semibold whitespace-nowrap transition-all duration-300 ${!isSidebarOpen && !isMobile ? 'opacity-0 w-0 overflow-hidden' : ''}`}>Appearance</span>
           </button>
-          <button onClick={handleLogout} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-zinc-500 hover:bg-rose-500/10 hover:text-red-500 transition-all ${!isSidebarOpen && !isMobile ? 'justify-center px-0' : ''}`}>
+          <button onClick={handleLogout} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-zinc-600 dark:text-zinc-500 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-red-500 transition-all ${!isSidebarOpen && !isMobile ? 'justify-center px-0' : ''}`}>
             <div className="flex-shrink-0"><LogOut size={18} /></div>
             <span className={`text-sm font-semibold whitespace-nowrap transition-all duration-300 ${!isSidebarOpen && !isMobile ? 'opacity-0 w-0 overflow-hidden' : ''}`}>Sign Out</span>
           </button>
@@ -245,24 +245,24 @@ export default function Layout({ children }: LayoutProps) {
       </motion.aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 bg-black overflow-hidden relative">
-        <header className="h-20 border-b border-white/5 flex items-center px-8 gap-4 bg-black/50 backdrop-blur-md sticky top-0 z-40">
-          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-zinc-500 hover:text-white transition-colors">
+      <div className="flex-1 flex flex-col min-w-0 bg-zinc-50 dark:bg-black overflow-hidden relative">
+        <header className="h-20 border-b border-black/5 dark:border-white/5 flex items-center px-8 gap-4 bg-white/80 dark:bg-black/50 backdrop-blur-md sticky top-0 z-40">
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <Menu size={24} />
           </button>
           <Breadcrumb />
           <div className="ml-auto flex items-center gap-6">
-             <Link to="/admin" className="text-zinc-500 hover:text-white transition-colors">
+             <Link to="/admin" className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
                <Search size={20} />
              </Link>
-             <Link to="/admin/notification-management" className="text-zinc-500 hover:text-white transition-colors relative">
+             <Link to="/admin/notification-management" className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors relative">
                <Bell size={20} />
                <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full" />
              </Link>
              <div ref={profileRef} className="relative">
                <button
                  onClick={() => setIsProfileOpen(prev => !prev)}
-                 className="w-10 h-10 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 font-bold text-xs flex-shrink-0 hover:border-emerald-500/50 hover:text-white transition-all overflow-hidden focus:outline-none"
+                 className="w-10 h-10 rounded-2xl bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 flex items-center justify-center text-zinc-600 dark:text-zinc-400 font-bold text-xs flex-shrink-0 hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-white transition-all overflow-hidden focus:outline-none"
                >
                  {user?.name ? (
                    <span className="uppercase">{user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}</span>
@@ -278,12 +278,12 @@ export default function Layout({ children }: LayoutProps) {
                      animate={{ opacity: 1, scale: 1, y: 0 }}
                      exit={{ opacity: 0, scale: 0.95, y: -8 }}
                      transition={{ duration: 0.15, ease: 'easeOut' }}
-                     className="absolute right-0 top-full mt-3 w-60 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden z-50"
+                     className="absolute right-0 top-full mt-3 w-60 bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-2xl shadow-xl dark:shadow-2xl dark:shadow-black/60 overflow-hidden z-50"
                    >
                      {/* User info */}
-                     <div className="px-4 py-4 border-b border-white/5">
+                     <div className="px-4 py-4 border-b border-black/5 dark:border-white/5">
                        <div className="flex items-center gap-3">
-                         <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-xs flex-shrink-0">
+                         <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-xs flex-shrink-0">
                            {user?.name ? (
                              <span className="uppercase">{user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}</span>
                            ) : (
@@ -291,7 +291,7 @@ export default function Layout({ children }: LayoutProps) {
                            )}
                          </div>
                          <div className="min-w-0">
-                           <p className="text-sm font-semibold text-white truncate">{user?.name || 'Artist'}</p>
+                           <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">{user?.name || 'Artist'}</p>
                            <p className="text-xs text-zinc-500 truncate">{user?.email || ''}</p>
                          </div>
                        </div>
@@ -302,7 +302,7 @@ export default function Layout({ children }: LayoutProps) {
                        <Link
                          to="/admin/system-settings"
                          onClick={() => setIsProfileOpen(false)}
-                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
+                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white transition-all"
                        >
                          <UserCheck size={16} className="flex-shrink-0" />
                          View Profile
@@ -310,17 +310,17 @@ export default function Layout({ children }: LayoutProps) {
                        <Link
                          to="/admin/system-settings"
                          onClick={() => setIsProfileOpen(false)}
-                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
+                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white transition-all"
                        >
                          <Settings size={16} className="flex-shrink-0" />
                          Settings
                        </Link>
                      </div>
 
-                     <div className="p-1.5 border-t border-white/5">
+                     <div className="p-1.5 border-t border-black/5 dark:border-white/5">
                        <button
                          onClick={() => { setIsProfileOpen(false); handleLogout(); }}
-                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-400 hover:bg-rose-500/10 hover:text-red-400 transition-all"
+                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-600 dark:text-zinc-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-red-400 transition-all"
                        >
                          <LogOut size={16} className="flex-shrink-0" />
                          Sign Out

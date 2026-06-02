@@ -84,7 +84,7 @@ const ArtistRow = React.memo(({
     >
       <td className="px-10 py-6">
         <div className="flex items-center gap-6">
-          <div className="w-14 h-14 rounded-2xl bg-zinc-950 border border-white/5 overflow-hidden flex items-center justify-center shadow-inner relative group-hover:scale-110 transition-all duration-500">
+          <div className="w-14 h-14 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 overflow-hidden flex items-center justify-center shadow-inner relative group-hover:scale-110 transition-all duration-500">
             {avatarSrc ? (
               <img className="h-full w-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" src={avatarSrc} alt={displayName} loading="lazy" />
             ) : (
@@ -94,7 +94,7 @@ const ArtistRow = React.memo(({
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <p className="text-sm font-bold text-white uppercase tracking-tight italic group-hover:text-emerald-400 transition-colors leading-none">{displayName}</p>
+              <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight italic group-hover:text-emerald-400 transition-colors leading-none">{displayName}</p>
               {artist.isVerified && (
                 <BadgeCheck className="h-4 w-4 text-emerald-500 shadow-[0_0_8px_#10b981]" />
               )}
@@ -106,7 +106,7 @@ const ArtistRow = React.memo(({
       <td className="px-10 py-6">
         <div className="flex flex-wrap gap-2">
           {displayGenres.length > 0 ? displayGenres.slice(0, 2).map((g, i) => (
-            <div key={i} className="px-3 py-1 bg-zinc-950 border border-white/5 rounded-lg shadow-inner">
+            <div key={i} className="px-3 py-1 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-lg shadow-inner">
               <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 italic">
                 {g.toUpperCase()}
               </span>
@@ -136,7 +136,7 @@ const ArtistRow = React.memo(({
             </button>
             <button
               onClick={onReject}
-              className="h-10 px-5 bg-zinc-950 text-zinc-400 rounded-xl text-[9px] font-black uppercase tracking-widest italic hover:text-white hover:bg-rose-500/10 hover:border-rose-500/20 transition-all border border-white/5 shadow-inner flex items-center gap-2"
+              className="h-10 px-5 bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 rounded-xl text-[9px] font-black uppercase tracking-widest italic hover:text-zinc-900 dark:text-white hover:bg-rose-500/10 hover:border-rose-500/20 transition-all border border-black/5 dark:border-white/5 shadow-inner flex items-center gap-2"
             >
               <XCircle size={14} /> REJECT
             </button>
@@ -145,14 +145,14 @@ const ArtistRow = React.memo(({
           <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
              <button 
                 onClick={onView} 
-                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-white hover:bg-white/5 transition-all shadow-inner"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-zinc-600 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 transition-all shadow-inner"
                 title="View Profile"
              >
                <Eye size={20} />
              </button>
              <button 
                 onClick={onEdit} 
-                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-white hover:bg-white/5 transition-all shadow-inner"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-zinc-600 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 transition-all shadow-inner"
                 title="Modify Profile"
              >
                <Pencil size={20} />
@@ -172,9 +172,9 @@ const ArtistRow = React.memo(({
                           initial={{ opacity: 0, scale: 0.95, y: 15 }} 
                           animate={{ opacity: 1, scale: 1, y: 0 }} 
                           exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                          className="absolute right-0 top-14 z-20 w-64 bg-zinc-900 rounded-[2rem] border border-white/10 p-3 shadow-[0_30px_60px_rgba(0,0,0,0.9)] backdrop-blur-2xl"
+                          className="absolute right-0 top-14 z-20 w-64 bg-zinc-900 rounded-[2rem] border border-black/10 dark:border-white/10 p-3 shadow-[0_30px_60px_rgba(0,0,0,0.9)] backdrop-blur-2xl"
                         >
-                           <div className="px-6 py-4 border-b border-white/5 mb-2">
+                           <div className="px-6 py-4 border-b border-black/5 dark:border-white/5 mb-2">
                               <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Artist Options</p>
                            </div>
                            {onVerify && (
@@ -189,7 +189,7 @@ const ArtistRow = React.memo(({
                                 )}
                               </button>
                            )}
-                           <div className="h-px bg-white/5 my-2" />
+                           <div className="h-px bg-black/5 dark:bg-white/5 my-2" />
                            <button 
                              onClick={() => { onDelete(); setShowActions(false); }} 
                              className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-500/10 transition-all group/opt"
@@ -245,7 +245,7 @@ const ArtistManagement: React.FC = () => {
     return (
       <button 
         onClick={() => handleSort(field)}
-        className="flex items-center gap-1.5 hover:text-white transition-colors group/btn text-[10px] font-bold uppercase tracking-widest text-zinc-500"
+        className="flex items-center gap-1.5 hover:text-zinc-900 dark:text-white transition-colors group/btn text-[10px] font-bold uppercase tracking-widest text-zinc-500"
       >
         <span>{label}</span>
         {isSorted ? (
@@ -400,7 +400,7 @@ const ArtistManagement: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Artists</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">Artists</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">System: Online</span>
@@ -410,7 +410,7 @@ const ArtistManagement: React.FC = () => {
         </div>
         <Link
           to="/admin/artist-add"
-          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-black/10 dark:border-white/10"
         >
           <UserPlus size={18} />
           Add Artist
@@ -430,15 +430,15 @@ const ArtistManagement: React.FC = () => {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="premium-card group border-white/5 hover:border-emerald-500/20 transition-all cursor-default relative overflow-hidden"
+            className="premium-card group border-black/5 dark:border-white/5 hover:border-emerald-500/20 transition-all cursor-default relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.02] rounded-bl-full pointer-events-none" />
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 ${s.bg} border border-white/5 shadow-inner relative overflow-hidden group-hover:scale-110 transition-transform duration-500`}>
-              <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 ${s.bg} border border-black/5 dark:border-white/5 shadow-inner relative overflow-hidden group-hover:scale-110 transition-transform duration-500`}>
+              <div className="absolute inset-0 bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <s.icon size={24} className={s.color} />
             </div>
             <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{s.label}</p>
-            <p className="text-3xl font-bold text-white tracking-tighter tabular-nums">{s.value}</p>
+            <p className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tighter tabular-nums">{s.value}</p>
           </motion.div>
         ))}
       </div>
@@ -453,7 +453,7 @@ const ArtistManagement: React.FC = () => {
               placeholder="Search artists..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
+              className="w-full pl-14 pr-12 h-14 bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
             />
           </div>
           <div className="relative w-full md:w-80 group">
@@ -461,7 +461,7 @@ const ArtistManagement: React.FC = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full h-14 pl-14 pr-12 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer"
+              className="w-full h-14 pl-14 pr-12 bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer"
             >
               <option value="all">All Statuses</option>
               <option value="active">Active</option>
@@ -477,11 +477,11 @@ const ArtistManagement: React.FC = () => {
       </div>
 
       {/* Artists Table */}
-      <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl bg-[#0a0a0a]">
+      <div className="premium-card !p-0 overflow-hidden border-black/5 dark:border-white/5 shadow-2xl bg-white dark:bg-[#0a0a0a]">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-white/5 bg-zinc-950/50">
+              <tr className="border-b border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/50">
                 <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{renderSortHeader('Artist', 'name')}</th>
                 <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{renderSortHeader('Genres', 'genres')}</th>
                 <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{renderSortHeader('Status', 'status')}</th>
@@ -506,10 +506,10 @@ const ArtistManagement: React.FC = () => {
               ) : (
                 <tr>
                   <td colSpan={5} className="px-10 py-40 text-center">
-                    <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl group cursor-default">
+                    <div className="w-24 h-24 bg-zinc-50 dark:bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-black/5 dark:border-white/5 shadow-2xl group cursor-default">
                       <Users size={36} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />
                     </div>
-                    <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.3em] mb-3">No Artists Found</h3>
+                    <h3 className="text-[10px] font-bold text-zinc-900 dark:text-white uppercase tracking-[0.3em] mb-3">No Artists Found</h3>
                     <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] max-w-sm mx-auto opacity-60">Adjust search filters or add a new artist.</p>
                   </td>
                 </tr>
@@ -525,26 +525,26 @@ const ArtistManagement: React.FC = () => {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl" onClick={handleCloseModal}>
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="premium-card w-full max-w-md text-center p-12 border-rose-500/10 shadow-[0_30px_100px_rgba(0,0,0,1)] bg-[#0a0a0a]" onClick={e => e.stopPropagation()}
+              className="premium-card w-full max-w-md text-center p-12 border-rose-500/10 shadow-[0_30px_100px_rgba(0,0,0,1)] bg-white dark:bg-[#0a0a0a]" onClick={e => e.stopPropagation()}
             >
               <div className="mx-auto w-20 h-20 rounded-[2.5rem] bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-10 shadow-2xl relative overflow-hidden group">
                 <div className="absolute inset-0 bg-rose-500/10 animate-pulse" />
                 <Trash2 className="text-rose-500 relative z-10" size={36} />
               </div>
-              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter mb-4">Delete Artist?</h3>
+              <h3 className="text-2xl font-bold text-zinc-900 dark:text-white uppercase tracking-tighter mb-4">Delete Artist?</h3>
               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-12 leading-relaxed px-6">
-                Are you sure you want to permanently delete <span className="text-white">"{selectedArtist.name}"</span>? This action cannot be undone.
+                Are you sure you want to permanently delete <span className="text-zinc-900 dark:text-white">"{selectedArtist.name}"</span>? This action cannot be undone.
               </p>
               <div className="grid grid-cols-2 gap-6">
                 <button
                   onClick={handleCloseModal}
-                  className="h-16 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all"
+                  className="h-16 bg-zinc-50 dark:bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-black/5 dark:border-white/5 hover:bg-black/5 dark:bg-white/5 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDeleteArtist}
-                  className="h-16 bg-rose-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl shadow-rose-900/20 hover:bg-rose-500 transition-all"
+                  className="h-16 bg-rose-600 text-zinc-900 dark:text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl shadow-rose-900/20 hover:bg-rose-500 transition-all"
                 >
                   Delete
                 </button>

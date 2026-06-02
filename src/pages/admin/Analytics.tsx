@@ -96,7 +96,7 @@ const Analytics: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none italic uppercase">Signal Intelligence</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none italic uppercase">Signal Intelligence</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest italic">Neural Link Active</span>
@@ -105,7 +105,7 @@ const Analytics: React.FC = () => {
           <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Comprehensive telemetry and behavior analysis for global infrastructure.</p>
         </div>
         <div className="flex items-center gap-4">
-          <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-1 flex gap-1 shadow-inner">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-2xl p-1 flex gap-1 shadow-inner">
             {['week', 'month', 'year'].map((range) => (
               <button
                 key={range}
@@ -149,7 +149,7 @@ const Analytics: React.FC = () => {
                 </div>
               </div>
               <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest mb-1.5 italic">{card.label}</p>
-              <p className="text-2xl font-bold text-white tracking-tighter tabular-nums leading-none italic uppercase">{card.value}</p>
+              <p className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tighter tabular-nums leading-none italic uppercase">{card.value}</p>
             </motion.div>
           );
         })}
@@ -158,13 +158,13 @@ const Analytics: React.FC = () => {
       {/* Primary Analytics Layers */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Signal Propagation Matrix */}
-        <div className="premium-card lg:col-span-2 !p-0 overflow-hidden flex flex-col border-white/5">
-          <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
+        <div className="premium-card lg:col-span-2 !p-0 overflow-hidden flex flex-col border-black/5 dark:border-white/5">
+          <div className="p-8 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-zinc-100 dark:bg-zinc-950/50">
             <div>
               <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">Signal Propagation Matrix</h3>
               <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest italic">Growth trajectories and transmission velocity</p>
             </div>
-            <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1">
+            <div className="flex bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-2xl p-1">
               {[
                 { key: 'users', label: 'NODES' },
                 { key: 'revenue', label: 'CREDITS' },
@@ -207,7 +207,7 @@ const Analytics: React.FC = () => {
                       transition={{ delay: i * 0.05, duration: 1, ease: [0.23, 1, 0.32, 1] }}
                       className="w-full bg-gradient-to-t from-emerald-500/5 via-emerald-500/20 to-emerald-500 rounded-xl relative overflow-hidden group/shine shadow-[0_0_30px_rgba(16,185,129,0.1)]"
                     >
-                       <div className="absolute inset-0 bg-white/20 -translate-y-full group-hover/shine:translate-y-full transition-transform duration-1000" />
+                       <div className="absolute inset-0 bg-black/20 dark:bg-white/20 -translate-y-full group-hover/shine:translate-y-full transition-transform duration-1000" />
                     </motion.div>
                   </div>
                   <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest tabular-nums">{d.month}</span>
@@ -218,8 +218,8 @@ const Analytics: React.FC = () => {
         </div>
 
         {/* Semantic Distribution */}
-        <div className="premium-card !p-0 overflow-hidden flex flex-col border-white/5">
-          <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
+        <div className="premium-card !p-0 overflow-hidden flex flex-col border-black/5 dark:border-white/5">
+          <div className="p-8 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-zinc-100 dark:bg-zinc-950/50">
             <div>
               <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">Semantic Distribution</h3>
               <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest italic">Asset categorization and metadata density</p>
@@ -230,7 +230,7 @@ const Analytics: React.FC = () => {
           <div className="p-10 flex flex-col items-center flex-1">
             <div className="relative w-56 h-56 group mb-12">
                {/* Orbital Rings */}
-               <div className="absolute inset-0 border border-white/5 rounded-full scale-110" />
+               <div className="absolute inset-0 border border-black/5 dark:border-white/5 rounded-full scale-110" />
                <div className="absolute inset-0 border border-white/[0.02] rounded-full scale-[1.25]" />
                
                <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90 drop-shadow-[0_0_20px_rgba(16,185,129,0.1)]">
@@ -259,7 +259,7 @@ const Analytics: React.FC = () => {
                 })()}
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-3xl font-bold text-white tracking-tighter leading-none">
+                <p className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tighter leading-none">
                   {analyticsData.topGenres.reduce((s: number, g: any) => s + g.count, 0).toLocaleString()}
                 </p>
                 <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mt-2">Analyzed Units</p>
@@ -272,9 +272,9 @@ const Analytics: React.FC = () => {
                 return (
                   <div key={genre.name} className="flex items-center gap-4 group cursor-pointer hover:translate-x-1 transition-all">
                     <div className={`w-2 h-2 rounded-full ${colors[i % colors.length]} shadow-[0_0_8px_currentColor] transition-transform group-hover:scale-150`} />
-                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest group-hover:text-white transition-colors flex-1">{genre.name}</span>
+                    <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest group-hover:text-zinc-900 dark:text-white transition-colors flex-1">{genre.name}</span>
                     <div className="text-right">
-                       <span className="text-[10px] font-bold text-white tabular-nums tracking-tighter">{genre.count.toLocaleString()}</span>
+                       <span className="text-[10px] font-bold text-zinc-900 dark:text-white tabular-nums tracking-tighter">{genre.count.toLocaleString()}</span>
                        <span className="text-[9px] font-bold text-zinc-700 ml-2 uppercase">{genre.percentage}%</span>
                     </div>
                   </div>
@@ -288,8 +288,8 @@ const Analytics: React.FC = () => {
       {/* Secondary Operational Layers */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* High-Impact Signal Source */}
-        <div className="premium-card !p-0 overflow-hidden flex flex-col border-white/5 shadow-2xl">
-          <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
+        <div className="premium-card !p-0 overflow-hidden flex flex-col border-black/5 dark:border-white/5 shadow-2xl">
+          <div className="p-8 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-zinc-100 dark:bg-zinc-950/50">
             <div>
               <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">High-Impact Asset Analysis</h3>
               <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest italic">Peak transmission leaders and engagement spikes</p>
@@ -304,20 +304,20 @@ const Analytics: React.FC = () => {
             {(analyticsData?.topTracks || []).map((track, i) => (
               <div
                 key={track.title}
-                className="flex items-center gap-5 p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-emerald-500/30 transition-all group cursor-pointer"
+                className="flex items-center gap-5 p-5 rounded-2xl bg-white/[0.02] border border-black/5 dark:border-white/5 hover:border-emerald-500/30 transition-all group cursor-pointer"
               >
                 <span className="text-[10px] font-bold text-zinc-800 w-4 tabular-nums">0{i + 1}</span>
-                <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center relative overflow-hidden group-hover:border-emerald-500/20 transition-all">
+                <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-black/5 dark:border-white/5 flex items-center justify-center relative overflow-hidden group-hover:border-emerald-500/20 transition-all">
                   <div className="absolute inset-0 bg-emerald-500/5 group-hover:bg-emerald-500/10" />
                   <Music2 size={20} className="text-zinc-600 group-hover:text-emerald-500 transition-colors" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-zinc-200 group-hover:text-white transition-colors truncate tracking-tight">{track.title}</p>
+                  <p className="text-sm font-bold text-zinc-200 group-hover:text-zinc-900 dark:text-white transition-colors truncate tracking-tight">{track.title}</p>
                   <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-1">{track.artist}</p>
                 </div>
                 <div className="text-right">
                   <div className="flex items-center gap-2 justify-end mb-1">
-                    <p className="text-sm font-bold text-white tracking-tighter tabular-nums">
+                    <p className="text-sm font-bold text-zinc-900 dark:text-white tracking-tighter tabular-nums">
                       {track.plays >= 1000000 ? `${(track.plays / 1000000).toFixed(1)}M` : `${(track.plays / 1000).toFixed(1)}K`}
                     </p>
                   </div>
@@ -328,14 +328,14 @@ const Analytics: React.FC = () => {
               </div>
             ))}
           </div>
-          <div className="p-6 bg-[#0a0a0a] border-t border-white/5 text-center">
-             <button className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest hover:text-white transition-all">Analyze Global Performance Spectrum</button>
+          <div className="p-6 bg-white dark:bg-[#0a0a0a] border-t border-black/5 dark:border-white/5 text-center">
+             <button className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest hover:text-zinc-900 dark:text-white transition-all">Analyze Global Performance Spectrum</button>
           </div>
         </div>
 
         {/* Live Operational Stream */}
-        <div className="premium-card !p-0 overflow-hidden flex flex-col border-white/5 shadow-2xl">
-          <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
+        <div className="premium-card !p-0 overflow-hidden flex flex-col border-black/5 dark:border-white/5 shadow-2xl">
+          <div className="p-8 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-zinc-100 dark:bg-zinc-950/50">
             <div className="flex items-center gap-6">
               <div>
                 <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">Live Operational Stream</h3>
@@ -352,19 +352,19 @@ const Analytics: React.FC = () => {
             {(analyticsData?.recentActivity || []).map((activity, index) => (
               <div
                 key={index}
-                className="flex items-center gap-5 p-5 rounded-2xl bg-white/[0.01] border border-white/5 hover:border-blue-500/20 transition-all group cursor-default"
+                className="flex items-center gap-5 p-5 rounded-2xl bg-white/[0.01] border border-black/5 dark:border-white/5 hover:border-blue-500/20 transition-all group cursor-default"
               >
-                <div className="p-3 rounded-xl bg-zinc-900 border border-white/5 group-hover:scale-110 transition-transform">
+                <div className="p-3 rounded-xl bg-zinc-900 border border-black/5 dark:border-white/5 group-hover:scale-110 transition-transform">
                   {getActivityIcon(activity.type)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-zinc-300 group-hover:text-white transition-colors leading-relaxed tracking-tight">{activity.description}</p>
+                  <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:text-white transition-colors leading-relaxed tracking-tight">{activity.description}</p>
                   <div className="flex items-center gap-3 mt-1.5">
                      <Clock size={12} className="text-zinc-700" />
                      <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">{activity.time.toUpperCase()}</p>
                   </div>
                 </div>
-                <div className="px-4 py-2 bg-black/40 rounded-xl border border-white/5">
+                <div className="px-4 py-2 bg-white/40 dark:bg-black/40 rounded-xl border border-black/5 dark:border-white/5">
                   <span className="text-[11px] font-bold text-emerald-500 tabular-nums tracking-tighter">
                     {activity.value}
                   </span>
@@ -372,8 +372,8 @@ const Analytics: React.FC = () => {
               </div>
             ))}
           </div>
-          <div className="p-6 bg-[#0a0a0a] border-t border-white/5 text-center">
-             <button className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest hover:text-white transition-all">Intercept Entire Telemetry Stream</button>
+          <div className="p-6 bg-white dark:bg-[#0a0a0a] border-t border-black/5 dark:border-white/5 text-center">
+             <button className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest hover:text-zinc-900 dark:text-white transition-all">Intercept Entire Telemetry Stream</button>
           </div>
         </div>
       </div>
@@ -381,8 +381,8 @@ const Analytics: React.FC = () => {
       {/* Global Distribution & Hardware Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Geographic Signal Strength */}
-        <div className="premium-card lg:col-span-2 !p-0 overflow-hidden border-white/5">
-          <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
+        <div className="premium-card lg:col-span-2 !p-0 overflow-hidden border-black/5 dark:border-white/5">
+          <div className="p-8 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-zinc-100 dark:bg-zinc-950/50">
             <div>
               <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">Geographic Signal Strength</h3>
               <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest italic">Regional node density and credit throughput</p>
@@ -392,7 +392,7 @@ const Analytics: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest border-b border-white/5 bg-black/20">
+                <tr className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest border-b border-black/5 dark:border-white/5 bg-black/20">
                   <th className="text-left py-6 px-8">Sovereign Region</th>
                   <th className="text-right py-6 px-8">Active Nodes</th>
                   <th className="text-right py-6 px-8">Net Share</th>
@@ -406,7 +406,7 @@ const Analytics: React.FC = () => {
                     <td className="py-5 px-8">
                       <div className="flex items-center gap-4">
                         <span className="text-xl filter grayscale group-hover:grayscale-0 transition-all duration-500">{region.flag}</span>
-                        <span className="text-sm font-bold text-zinc-300 group-hover:text-white transition-colors tracking-tight uppercase">{region.name}</span>
+                        <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:text-white transition-colors tracking-tight uppercase">{region.name}</span>
                       </div>
                     </td>
                     <td className="py-5 px-8 text-right text-[11px] font-bold text-zinc-500 tabular-nums">
@@ -415,11 +415,11 @@ const Analytics: React.FC = () => {
                     <td className="py-5 px-8 text-right text-[11px] font-bold text-emerald-500 tabular-nums tracking-widest">
                       {region.percentage}%
                     </td>
-                    <td className="py-5 px-8 text-right text-[11px] font-bold text-zinc-400 tabular-nums">
+                    <td className="py-5 px-8 text-right text-[11px] font-bold text-zinc-600 dark:text-zinc-400 tabular-nums">
                       ${region.revenue.toLocaleString()}
                     </td>
                     <td className="py-5 px-8">
-                      <div className="w-full bg-zinc-900 border border-white/5 rounded-full h-1.5 overflow-hidden">
+                      <div className="w-full bg-zinc-900 border border-black/5 dark:border-white/5 rounded-full h-1.5 overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${region.percentage}%` }}
@@ -437,7 +437,7 @@ const Analytics: React.FC = () => {
 
         {/* Neural Node Grid */}
         <div className="space-y-10">
-          <div className="premium-card space-y-10 border-white/5">
+          <div className="premium-card space-y-10 border-black/5 dark:border-white/5">
             <div className="flex items-center justify-between">
                <div>
                   <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">Neural Node Grid</h3>
@@ -449,15 +449,15 @@ const Analytics: React.FC = () => {
               {(analyticsData?.devices || []).map((device) => (
                 <div key={device.name} className="group">
                   <div className="flex items-center gap-5 mb-4">
-                    <div className="p-3 bg-zinc-950 border border-white/5 rounded-2xl group-hover:border-emerald-500/30 transition-all group-hover:scale-110">
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl group-hover:border-emerald-500/30 transition-all group-hover:scale-110">
                       {React.cloneElement(getDeviceIcon(device.icon) as React.ReactElement, { className: "text-zinc-600 group-hover:text-emerald-500 transition-colors" })}
                     </div>
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{device.name}</span>
-                        <span className="text-[10px] font-bold text-white tabular-nums tracking-tighter">{device.percentage}%</span>
+                        <span className="text-[10px] font-bold text-zinc-900 dark:text-white tabular-nums tracking-tighter">{device.percentage}%</span>
                       </div>
-                      <div className="w-full bg-zinc-950 border border-white/5 rounded-full h-1.5 overflow-hidden p-0.5">
+                      <div className="w-full bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-full h-1.5 overflow-hidden p-0.5">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${device.percentage}%` }}
@@ -472,7 +472,7 @@ const Analytics: React.FC = () => {
             </div>
           </div>
 
-          <div className="premium-card space-y-8 border-white/5">
+          <div className="premium-card space-y-8 border-black/5 dark:border-white/5">
              <div>
                 <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1 italic">System Protocols</h3>
                 <p className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest italic">Executive operational shortcuts</p>
@@ -488,13 +488,13 @@ const Analytics: React.FC = () => {
                  return (
                   <button
                     key={action.label}
-                    className="w-full flex items-center gap-5 p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all text-left group"
+                    className="w-full flex items-center gap-5 p-5 rounded-2xl bg-white/[0.02] border border-black/5 dark:border-white/5 hover:border-black/10 dark:border-white/10 transition-all text-left group"
                   >
-                    <div className={`p-3 rounded-xl bg-zinc-900 border border-white/5 transition-all group-hover:scale-110`}>
+                    <div className={`p-3 rounded-xl bg-zinc-900 border border-black/5 dark:border-white/5 transition-all group-hover:scale-110`}>
                       <Icon size={18} className={`${c.icon}`} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold text-white uppercase tracking-widest">{action.label}</p>
+                      <p className="text-[10px] font-bold text-zinc-900 dark:text-white uppercase tracking-widest">{action.label}</p>
                       <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mt-1 truncate">{action.desc}</p>
                     </div>
                     <ArrowUpRight size={16} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />

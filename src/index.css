@@ -16,38 +16,38 @@
 
 @layer base {
   body {
-    @apply bg-black text-white antialiased;
+    @apply bg-zinc-50 text-zinc-900 dark:bg-black dark:text-white antialiased transition-colors duration-300;
     font-family: 'Inter', sans-serif;
   }
 }
 
 @layer components {
   .premium-card {
-    @apply bg-[#0a0a0a] border border-white/[0.06] rounded-2xl p-6 transition-all duration-200;
+    @apply bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/[0.06] rounded-2xl p-6 transition-all duration-200 shadow-sm dark:shadow-none;
   }
 
   .premium-card-hover {
-    @apply hover:border-white/[0.1] hover:bg-[#0c0c0c];
+    @apply hover:border-black/10 dark:hover:border-white/[0.1] hover:bg-zinc-50 dark:hover:bg-[#0c0c0c] hover:shadow-md dark:hover:shadow-none;
   }
 
   .btn-primary {
-    @apply px-6 py-2.5 bg-emerald-500 text-black font-semibold rounded-lg hover:bg-emerald-400 transition-all duration-200;
+    @apply px-6 py-2.5 bg-emerald-500 text-white dark:text-black font-semibold rounded-lg hover:bg-emerald-600 dark:hover:bg-emerald-400 transition-all duration-200;
   }
 
   .btn-secondary {
-    @apply px-6 py-2.5 bg-white/5 border border-white/10 text-white font-semibold rounded-lg hover:bg-white/10 transition-all duration-200;
+    @apply px-6 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-zinc-900 dark:text-white font-semibold rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-all duration-200;
   }
 
   .input-field {
-    @apply w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-all;
+    @apply w-full bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/[0.08] rounded-lg px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-500/50 transition-all;
   }
 
   .nav-link {
-    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.03] transition-all;
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all;
   }
 
   .nav-link-active {
-    @apply text-emerald-400 bg-emerald-500/5 font-medium;
+    @apply text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/5 font-medium;
   }
 }
 
@@ -61,5 +61,5 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-zinc-800 rounded-full hover:bg-zinc-700;
+  @apply bg-zinc-300 dark:bg-zinc-800 rounded-full hover:bg-zinc-400 dark:hover:bg-zinc-700;
 }

@@ -81,13 +81,13 @@ const ContentModeration: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white mb-2 flex items-center gap-3">
             <ShieldAlert className="text-emerald-500" size={32} />
             Content Moderation
           </h1>
           <p className="text-zinc-500">Review and verify pending transmissions for platform integrity.</p>
         </div>
-        <div className="flex bg-[#0a0a0a] border border-white/5 rounded-3xl p-1 gap-1 overflow-x-auto no-scrollbar">
+        <div className="flex bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-3xl p-1 gap-1 overflow-x-auto no-scrollbar">
           {tabConfigs.map((tab, index) => (
             <button
               key={index}
@@ -140,15 +140,15 @@ const ContentModeration: React.FC = () => {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors truncate">{title}</h3>
+                        <h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-emerald-400 transition-colors truncate">{title}</h3>
                         <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest truncate">{subtitle}</p>
                       </div>
                     </div>
 
                     <div className="flex-grow space-y-4 mb-8">
                       {isComment && (
-                        <div className="bg-white/5 border border-white/5 p-4 rounded-2xl italic">
-                          <p className="text-xs text-zinc-400 leading-relaxed">"{item.content}"</p>
+                        <div className="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 p-4 rounded-2xl italic">
+                          <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">"{item.content}"</p>
                         </div>
                       )}
                       <div className="flex items-center justify-between">
@@ -215,7 +215,7 @@ const ContentModeration: React.FC = () => {
             >
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold">Reject Content</h3>
-                <button onClick={() => setRejectDialogOpen(false)} className="p-2 rounded-full hover:bg-white/5 text-zinc-500"><X size={20} /></button>
+                <button onClick={() => setRejectDialogOpen(false)} className="p-2 rounded-full hover:bg-black/5 dark:bg-white/5 text-zinc-500"><X size={20} /></button>
               </div>
               <div className="space-y-6">
                 <div className="space-y-2">
@@ -226,7 +226,7 @@ const ContentModeration: React.FC = () => {
                     value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
                   />
                 </div>
-                <div className="flex justify-end gap-4 pt-4 border-t border-white/5">
+                <div className="flex justify-end gap-4 pt-4 border-t border-black/5 dark:border-white/5">
                   <button onClick={() => setRejectDialogOpen(false)} className="btn-secondary">Cancel</button>
                   <button 
                     onClick={() => { if (selectedItem) handleAction(selectedItem._id, 'reject', rejectReason); setRejectDialogOpen(false); }}

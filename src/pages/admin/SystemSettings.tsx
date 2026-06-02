@@ -117,7 +117,7 @@ const SystemSettings: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">System Configuration</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">System Configuration</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-500 tracking-wide">Core Access Active</span>
@@ -128,7 +128,7 @@ const SystemSettings: React.FC = () => {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => window.location.reload()} 
-            className="h-14 px-8 bg-zinc-950 text-zinc-500 rounded-2xl text-[10px] font-bold border border-white/5 hover:text-white hover:bg-white/5 transition-all"
+            className="h-14 px-8 bg-zinc-50 dark:bg-zinc-950 text-zinc-500 rounded-2xl text-[10px] font-bold border border-black/5 dark:border-white/5 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 transition-all"
           >
             Reset Engine
           </button>
@@ -146,7 +146,7 @@ const SystemSettings: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
         {/* Navigation Matrix Sidebar */}
         <div className="lg:col-span-1 space-y-8">
-          <div className="premium-card !p-3 bg-zinc-950/40 border-white/5 shadow-inner">
+          <div className="premium-card !p-3 bg-zinc-100 dark:bg-zinc-950/40 border-black/5 dark:border-white/5 shadow-inner">
             <nav className="space-y-2">
               {categories.map((category) => {
                 const Icon = category.icon;
@@ -178,7 +178,7 @@ const SystemSettings: React.FC = () => {
           </div>
 
           {/* Real-time Infrastructure Telemetry */}
-          <div className="premium-card space-y-8 border-white/5 bg-zinc-950/20 shadow-2xl">
+          <div className="premium-card space-y-8 border-black/5 dark:border-white/5 bg-zinc-950/20 shadow-2xl">
             <div className="flex items-center justify-between">
               <h3 className="text-[10px] font-bold text-zinc-500 flex items-center gap-3">
                 <Activity size={14} className="text-emerald-500" /> Infrastructure Health
@@ -197,10 +197,10 @@ const SystemSettings: React.FC = () => {
                 <div key={s.name} className="flex items-center justify-between group cursor-default">
                   <div className="flex items-center gap-4">
                     <div className={`w-1.5 h-1.5 rounded-full ${s.ok ? 'bg-emerald-500' : 'bg-rose-500'} shadow-[0_0_8px_#10b981] group-hover:scale-150 transition-transform`} />
-                    <span className="text-[10px] font-bold text-zinc-600 group-hover:text-zinc-300 transition-colors">{s.name}</span>
+                    <span className="text-[10px] font-bold text-zinc-600 group-hover:text-zinc-700 dark:text-zinc-300 transition-colors">{s.name}</span>
                   </div>
-                  <div className="px-3 py-1 bg-black/40 rounded-lg border border-white/5">
-                    <span className="text-[9px] font-bold text-zinc-400 tabular-nums">{s.lat}</span>
+                  <div className="px-3 py-1 bg-white/40 dark:bg-black/40 rounded-lg border border-black/5 dark:border-white/5">
+                    <span className="text-[9px] font-bold text-zinc-600 dark:text-zinc-400 tabular-nums">{s.lat}</span>
                   </div>
                 </div>
               ))}
@@ -210,16 +210,16 @@ const SystemSettings: React.FC = () => {
 
         {/* Global Protocol Bay */}
         <div className="lg:col-span-3">
-          <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
-            <div className="p-10 border-b border-white/5 bg-zinc-950/50 flex items-center justify-between relative overflow-hidden">
+          <div className="premium-card !p-0 overflow-hidden border-black/5 dark:border-white/5 shadow-2xl">
+            <div className="p-10 border-b border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/50 flex items-center justify-between relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/[0.02] blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
               <div className="flex items-center gap-8 relative z-10">
-                <div className="w-16 h-16 rounded-[1.5rem] bg-zinc-900 flex items-center justify-center border border-white/5 shadow-2xl relative overflow-hidden">
+                <div className="w-16 h-16 rounded-[1.5rem] bg-zinc-900 flex items-center justify-center border border-black/5 dark:border-white/5 shadow-2xl relative overflow-hidden">
                   <div className="absolute inset-0 bg-emerald-500/5" />
                   {activeCategory && <activeCategory.icon size={28} className="text-emerald-500 relative z-10" />}
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white leading-none mb-3">{activeCategory?.name} Protocol</h2>
+                  <h2 className="text-2xl font-bold text-zinc-900 dark:text-white leading-none mb-3">{activeCategory?.name} Protocol</h2>
                   <p className="text-zinc-500 text-xs font-semibold ml-1">Executing parameters for {activeCategory?.description.toLowerCase()}</p>
                 </div>
               </div>
@@ -237,12 +237,12 @@ const SystemSettings: React.FC = () => {
                 return (
                   <div key={setting.id} className="p-10 hover:bg-emerald-500/[0.01] transition-all group">
                     <div className="flex flex-col xl:flex-row xl:items-start gap-12">
-                      <div className="w-14 h-14 rounded-2xl bg-[#0a0a0a] border border-white/5 flex items-center justify-center shrink-0 group-hover:border-emerald-500/30 transition-all shadow-inner">
+                      <div className="w-14 h-14 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 flex items-center justify-center shrink-0 group-hover:border-emerald-500/30 transition-all shadow-inner">
                         <Icon size={24} className="text-zinc-800 group-hover:text-emerald-500 transition-all" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-5 mb-3">
-                          <h3 className="text-sm font-bold text-white uppercase tracking-tight italic">{setting.name}</h3>
+                          <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight italic">{setting.name}</h3>
                           {setting.required && (
                             <span className="text-[9px] font-bold px-3 py-1 bg-rose-500/5 text-rose-500 border border-rose-500/10 rounded-lg uppercase tracking-widest italic">Critical</span>
                           )}
@@ -260,21 +260,21 @@ const SystemSettings: React.FC = () => {
                               <div className={`absolute top-1.5 w-5 h-5 rounded-full transition-all duration-500 ${
                                 setting.value ? 'left-9 bg-black shadow-[0_0_15px_rgba(0,0,0,0.5)]' : 'left-2 bg-zinc-700'
                               }`} />
-                              <div className="absolute inset-0 bg-white/10 translate-y-full group-hover/toggle:translate-y-0 transition-transform" />
+                              <div className="absolute inset-0 bg-black/10 dark:bg-white/10 translate-y-full group-hover/toggle:translate-y-0 transition-transform" />
                             </button>
                           ) : setting.type === 'textarea' ? (
                             <textarea
                               value={String(setting.value)}
                               onChange={(e) => handleSettingChange(setting.id, e.target.value)}
                               rows={5}
-                              className="w-full px-8 py-6 bg-[#0a0a0a] border border-white/5 rounded-3xl text-zinc-300 text-[11px] font-bold tracking-[0.1em] focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner resize-none leading-relaxed placeholder:text-zinc-800"
+                              className="w-full px-8 py-6 bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-3xl text-zinc-700 dark:text-zinc-300 text-[11px] font-bold tracking-[0.1em] focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner resize-none leading-relaxed placeholder:text-zinc-800"
                             />
                           ) : setting.type === 'select' ? (
                             <div className="relative group/sel">
                               <select
                                 value={String(setting.value)}
                                 onChange={(e) => handleSettingChange(setting.id, e.target.value)}
-                                className="w-full h-16 px-8 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                                className="w-full h-16 px-8 bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
                               >
                                 {setting.options?.map(opt => (
                                   <option key={opt.value} value={opt.value}>{opt.label.toUpperCase()}</option>
@@ -288,7 +288,7 @@ const SystemSettings: React.FC = () => {
                                 type={typeof setting.value === 'number' ? 'number' : setting.id === 'api_key' ? (showApiKey ? 'text' : 'password') : 'text'}
                                 value={String(setting.value)}
                                 onChange={(e) => handleSettingChange(setting.id, typeof setting.value === 'number' ? Number(e.target.value) : e.target.value)}
-                                className="w-full h-16 px-8 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-[0.3em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner italic"
+                                className="w-full h-16 px-8 bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-[0.3em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner italic"
                               />
                               {setting.id === 'api_key' && (
                                 <button

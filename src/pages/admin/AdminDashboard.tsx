@@ -125,7 +125,7 @@ export default function AdminDashboard() {
         </div>
         
         <div className="flex items-end justify-between">
-          <h3 className="text-3xl font-bold text-white tracking-tight leading-none">
+          <h3 className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tight leading-none">
             {value}
           </h3>
           {trend && (
@@ -142,13 +142,13 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="space-y-10 animate-pulse">
-        <div className="flex justify-between items-end h-16 bg-white/5 rounded-3xl" />
+        <div className="flex justify-between items-end h-16 bg-black/5 dark:bg-white/5 rounded-3xl" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-white/5 border border-white/5 rounded-3xl" />)}
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-3xl" />)}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="h-96 bg-white/5 border border-white/5 rounded-3xl" />
-          <div className="h-96 bg-white/5 border border-white/5 rounded-3xl" />
+          <div className="h-96 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-3xl" />
+          <div className="h-96 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-3xl" />
         </div>
       </div>
     );
@@ -160,7 +160,7 @@ export default function AdminDashboard() {
         <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center mb-6">
           <AlertCircle className="h-8 w-8 text-rose-500" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">Registry Connection Failure</h2>
+        <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Registry Connection Failure</h2>
         <p className="text-zinc-500 text-sm mb-8 leading-relaxed uppercase tracking-widest font-medium">Failed to synchronize with the intelligence server. Error protocol: {error || 'UNKNOWN_EXCEPTION'}</p>
         <button onClick={() => window.location.reload()} className="btn-primary !px-12 !py-4 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
           Reconnect System
@@ -180,8 +180,8 @@ export default function AdminDashboard() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">
-              {user?.role === 'super admin' ? 'Executive Intelligence' : 'Admin Intelligence'}
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">
+              {user?.role === 'super admin' ? 'Overview' : 'Admin Intelligence'}
             </h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
@@ -191,7 +191,7 @@ export default function AdminDashboard() {
           <p className="text-zinc-500 text-xs font-semibold tracking-wide ml-1">Platform-wide executive overview and signal analysis.</p>
         </div>
         <div className="flex items-center gap-6">
-          <div className="text-right px-6 py-3 bg-[#0a0a0a] border border-white/5 rounded-2xl">
+          <div className="text-right px-6 py-3 bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-2xl">
             <p className="text-[11px] font-bold text-emerald-500 tracking-wide">{user?.role?.toUpperCase() || 'ADMIN_NODE'}</p>
           </div>
         </div>
@@ -235,14 +235,14 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Leaderboard: High Fidelity Artist Monitoring */}
         <div className="premium-card !p-0 overflow-hidden flex flex-col border-emerald-500/5">
-          <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
+          <div className="p-8 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-zinc-50 dark:bg-zinc-950/50">
             <div>
               <h2 className="text-[10px] font-bold text-zinc-500 tracking-wide flex items-center gap-2">
                 <Star size={14} className="text-amber-500" /> Elite Artist Roster
               </h2>
               <p className="text-[10px] text-zinc-700 font-bold tracking-wide mt-1">Ranking by engagement & follower density</p>
             </div>
-            <button className="p-2.5 rounded-xl bg-white/5 text-zinc-500 hover:text-white hover:bg-white/10 transition-all border border-white/5">
+            <button className="p-2.5 rounded-xl bg-black/5 dark:bg-white/5 text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-all border border-black/5 dark:border-white/5">
               <ChevronRight size={18} />
             </button>
           </div>
@@ -259,14 +259,14 @@ export default function AdminDashboard() {
                       <img
                         src={artist.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&background=10b981&color=fff`}
                         alt={artist.name}
-                        className="w-12 h-12 rounded-xl object-cover border border-white/5 group-hover:border-emerald-500/40 transition-all shadow-xl"
+                        className="w-12 h-12 rounded-xl object-cover border border-black/5 dark:border-white/5 group-hover:border-emerald-500/40 transition-all shadow-xl"
                       />
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#0a0a0a] rounded-full border border-white/5 flex items-center justify-center">
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white dark:bg-[#0a0a0a] rounded-full border border-black/5 dark:border-white/5 flex items-center justify-center">
                         <CheckCircle2 size={10} className="text-emerald-500" />
                       </div>
                     </div>
                     <div>
-                      <h4 className="font-bold text-zinc-200 group-hover:text-emerald-400 transition-colors text-sm">{artist.name}</h4>
+                      <h4 className="font-bold text-zinc-900 dark:text-zinc-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors text-sm">{artist.name}</h4>
                       <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mt-0.5">
                         {(artist.followerCount ?? 0).toLocaleString()} <span className="opacity-50">Fans</span>
                       </p>
@@ -280,14 +280,14 @@ export default function AdminDashboard() {
               ))
             )}
           </div>
-          <div className="p-6 bg-[#0a0a0a] border-t border-white/5 text-center">
-             <button className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest hover:text-white transition-all">View Extended Catalog</button>
+          <div className="p-6 bg-white dark:bg-[#0a0a0a] border-t border-black/5 dark:border-white/5 text-center">
+             <button className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest hover:text-zinc-900 dark:hover:text-white transition-all">View Extended Catalog</button>
           </div>
         </div>
 
         {/* Intelligence Stream: Activity Analysis */}
         <div className="premium-card !p-0 overflow-hidden flex flex-col">
-          <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
+          <div className="p-8 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-zinc-50 dark:bg-zinc-950/50">
             <div>
               <h2 className="text-[10px] font-bold text-zinc-500 tracking-wide flex items-center gap-2">
                 <Activity size={14} className="text-emerald-500" /> Operational Stream
@@ -318,15 +318,15 @@ export default function AdminDashboard() {
                      <UserPlus size={16} />}
                   </div>
                   <div className="flex-1 min-w-0 pt-0.5">
-                    <p className="text-xs text-zinc-300 leading-relaxed font-medium">
-                      <span className="font-bold text-white group-hover:text-emerald-400 transition-colors uppercase text-[11px]">{activity.artistName}</span>
+                    <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed font-medium">
+                      <span className="font-bold text-zinc-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors uppercase text-[11px]">{activity.artistName}</span>
                       <span className="text-zinc-600 font-bold text-[10px] uppercase tracking-widest mx-1.5">
                         {activity.type === 'track_upload' ? 'INITIATED UPLOAD' : 
                          activity.type === 'live_stream' ? 'ESTABLISHED STREAM' : 
                          'REGISTERED ACCOUNT'}
                       </span>
                       {activity.title && (
-                        <span className="text-zinc-400 font-bold block mt-1 text-[11px]">[{activity.title.toUpperCase()}]</span>
+                        <span className="text-zinc-600 dark:text-zinc-400 font-bold block mt-1 text-[11px]">[{activity.title.toUpperCase()}]</span>
                       )}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
@@ -337,14 +337,14 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-1.5 rounded-lg bg-white/5 text-zinc-600 hover:text-white transition-all"><ChevronRight size={14} /></button>
+                    <button className="p-1.5 rounded-lg bg-black/5 dark:bg-white/5 text-zinc-600 hover:text-zinc-900 dark:hover:text-white transition-all"><ChevronRight size={14} /></button>
                   </div>
                 </div>
               ))
             )}
           </div>
-          <div className="p-6 bg-[#0a0a0a] border-t border-white/5 text-center">
-             <button className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest hover:text-white transition-all">Intercept All Telemetry</button>
+          <div className="p-6 bg-white dark:bg-[#0a0a0a] border-t border-black/5 dark:border-white/5 text-center">
+             <button className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest hover:text-zinc-900 dark:hover:text-white transition-all">Intercept All Telemetry</button>
           </div>
         </div>
       </div>

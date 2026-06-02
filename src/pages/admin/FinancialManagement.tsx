@@ -49,7 +49,7 @@ export default function FinancialManagement() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Financial Management</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">Financial Management</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-500">System: Online</span>
@@ -70,7 +70,7 @@ export default function FinancialManagement() {
       </div>
 
       {/* Navigation Menu */}
-      <div className="bg-[#0a0a0a] border border-white/5 rounded-[2rem] p-1.5 flex flex-wrap items-center gap-1.5 w-fit">
+      <div className="bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-[2rem] p-1.5 flex flex-wrap items-center gap-1.5 w-fit">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
@@ -144,7 +144,7 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
         {displayStats.map((s, i) => (
           <div key={s.label} className="premium-card group hover:border-emerald-500/20 transition-all cursor-default">
             <div className="flex items-center justify-between mb-8">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${s.bgColor} border border-white/5 transition-all group-hover:scale-110`}>
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${s.bgColor} border border-black/5 dark:border-white/5 transition-all group-hover:scale-110`}>
                 <s.icon size={20} className={s.color} />
               </div>
               <div className={`flex items-center gap-1 text-[10px] font-bold ${s.up ? 'text-emerald-500' : 'text-rose-500'} bg-black/40 px-2 py-1 rounded-lg border border-white/5`}>
@@ -153,29 +153,29 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
               </div>
             </div>
             <p className="text-zinc-600 text-[10px] font-bold mb-1.5">{s.label}</p>
-            <p className="text-3xl font-bold text-white tracking-tighter tabular-nums">{s.value}</p>
+            <p className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tighter tabular-nums">{s.value}</p>
           </div>
         ))}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-10">
         {/* Revenue Analytics */}
-        <div className="premium-card lg:col-span-2 space-y-10 border-white/5">
+        <div className="premium-card lg:col-span-2 space-y-10 border-black/5 dark:border-white/5">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Revenue Analytics</h3>
               <p className="text-[10px] text-zinc-700 font-bold">Revenue categorization and statistics</p>
             </div>
-            <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1 shadow-inner">
+            <div className="flex bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-2xl p-1 shadow-inner">
               {['30D', '90D', '1Y'].map(t => (
-                <button key={t} className="px-5 py-2 text-[10px] font-bold text-zinc-600 hover:text-white transition-all rounded-xl hover:bg-white/5">
+                <button key={t} className="px-5 py-2 text-[10px] font-bold text-zinc-600 hover:text-zinc-900 dark:text-white transition-all rounded-xl hover:bg-black/5 dark:bg-white/5">
                   {t}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="h-64 bg-zinc-950/50 border border-white/5 rounded-3xl mb-8 flex flex-col items-center justify-center relative overflow-hidden group">
+          <div className="h-64 bg-zinc-100 dark:bg-zinc-950/50 border border-black/5 dark:border-white/5 rounded-3xl mb-8 flex flex-col items-center justify-center relative overflow-hidden group">
             <div className="absolute inset-0 flex items-end justify-between px-10 pb-10">
                {[...Array(12)].map((_, i) => (
                  <div key={i} className="w-8 bg-emerald-500/10 rounded-t-lg transition-all group-hover:bg-emerald-500/20" style={{ height: `${20 + Math.random() * 60}%` }} />
@@ -186,7 +186,7 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
           </div>
 
           <div className="space-y-8">
-            <div className="flex rounded-full overflow-hidden h-3 bg-white/5 p-0.5 border border-white/5">
+            <div className="flex rounded-full overflow-hidden h-3 bg-black/5 dark:bg-white/5 p-0.5 border border-black/5 dark:border-white/5">
               {breakdown.map((b) => (
                 <div key={b.label} className={`${b.color} h-full first:rounded-l-full last:rounded-r-full shadow-[0_0_10px_rgba(0,0,0,0.5)]`} style={{ width: `${b.pct}%` }} />
               ))}
@@ -194,13 +194,13 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 pt-4">
               {breakdown.map((b) => (
-                <div key={b.label} className="space-y-3 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all group">
+                <div key={b.label} className="space-y-3 p-4 rounded-2xl bg-white/[0.02] border border-black/5 dark:border-white/5 hover:border-black/10 dark:border-white/10 transition-all group">
                   <div className="flex items-center gap-3">
                     <div className={`w-2.5 h-2.5 rounded-full ${b.color} shadow-[0_0_8px_currentColor]`} />
                     <span className="text-[9px] font-bold text-zinc-500">{b.label}</span>
                   </div>
                   <div className="flex items-end justify-between">
-                    <p className="text-xl font-bold text-white tracking-tight leading-none group-hover:text-emerald-400 transition-colors">{b.value}</p>
+                    <p className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight leading-none group-hover:text-emerald-400 transition-colors">{b.value}</p>
                     <span className="text-[10px] font-bold text-zinc-700">{b.pct}%</span>
                   </div>
                 </div>
@@ -219,25 +219,25 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
             {(stats?.topEarners || []).slice(0, 6).map((a, i) => (
               <div key={a.name} className="flex items-center justify-between group cursor-pointer hover:translate-x-1 transition-all">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-[10px] font-bold text-zinc-600 transition-all group-hover:border-emerald-500/30 group-hover:text-emerald-500">
+                  <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-black/5 dark:border-white/5 flex items-center justify-center text-[10px] font-bold text-zinc-600 transition-all group-hover:border-emerald-500/30 group-hover:text-emerald-500">
                     {a.name.substring(0, 2).toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-zinc-200 group-hover:text-white transition-colors">{a.name}</p>
+                    <p className="text-sm font-bold text-zinc-200 group-hover:text-zinc-900 dark:text-white transition-colors">{a.name}</p>
                     <p className="text-[9px] text-zinc-600 font-bold mt-0.5">{a.transactions} Transactions</p>
                   </div>
                 </div>
                 <div className="text-right">
                    <p className="text-sm font-bold text-emerald-500 tracking-tight">${(a.revenue / 100).toLocaleString()}</p>
-                   <div className="w-full h-1 bg-white/5 rounded-full mt-1 overflow-hidden">
+                   <div className="w-full h-1 bg-black/5 dark:bg-white/5 rounded-full mt-1 overflow-hidden">
                       <div className="h-full bg-emerald-500/30" style={{ width: '70%' }} />
                    </div>
                 </div>
               </div>
             ))}
           </div>
-          <div className="pt-6 border-t border-white/5">
-             <button className="w-full py-3.5 rounded-2xl bg-white/5 text-[10px] font-bold text-zinc-600 hover:text-white hover:bg-white/10 transition-all border border-white/5">Analyze Full Payout Spectrum</button>
+          <div className="pt-6 border-t border-black/5 dark:border-white/5">
+             <button className="w-full py-3.5 rounded-2xl bg-black/5 dark:bg-white/5 text-[10px] font-bold text-zinc-600 hover:text-zinc-900 dark:text-white hover:bg-black/10 dark:bg-white/10 transition-all border border-black/5 dark:border-white/5">Analyze Full Payout Spectrum</button>
           </div>
         </div>
       </div>
@@ -265,18 +265,18 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
           { label: 'Next Payout Cycle', value: 'FEB 15', icon: Calendar, color: 'text-blue-500' },
         ].map(s => (
           <div key={s.label} className="premium-card hover:border-emerald-500/20 transition-all group">
-            <div className={`w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center mb-6 transition-all group-hover:scale-110`}>
+            <div className={`w-12 h-12 rounded-2xl bg-white/[0.03] border border-black/5 dark:border-white/5 flex items-center justify-center mb-6 transition-all group-hover:scale-110`}>
               <s.icon size={20} className={`${s.color}`} />
             </div>
             <p className="text-zinc-600 text-[10px] font-bold mb-1.5">{s.label}</p>
-            <p className="text-2xl font-bold text-white tracking-tighter leading-none">{s.value}</p>
+            <p className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tighter leading-none">{s.value}</p>
           </div>
         ))}
       </div>
 
       {/* Payout Log Table */}
-      <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl bg-[#0a0a0a]">
-        <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 bg-zinc-950/50">
+      <div className="premium-card !p-0 overflow-hidden border-black/5 dark:border-white/5 shadow-2xl bg-white dark:bg-[#0a0a0a]">
+        <div className="p-8 border-b border-black/5 dark:border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 bg-zinc-100 dark:bg-zinc-950/50">
           <div>
             <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Payout Log</h3>
             <p className="text-[10px] text-zinc-700 font-bold">History of payments processed for artists</p>
@@ -286,13 +286,13 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-emerald-500 w-4 h-4 transition-colors" />
               <input type="text" placeholder="Search artist..." className="input-field pl-12 !py-3 !text-[10px] font-bold" />
             </div>
-            <button className="p-3 rounded-2xl bg-white/5 text-zinc-600 hover:text-white transition-all border border-white/5"><Filter size={18} /></button>
+            <button className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-600 hover:text-zinc-900 dark:text-white transition-all border border-black/5 dark:border-white/5"><Filter size={18} /></button>
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-white/5 bg-black/20">
+              <tr className="border-b border-black/5 dark:border-white/5 bg-black/20">
                 <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Artist Name</th>
                 <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Amount</th>
                 <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Payment Method</th>
@@ -305,10 +305,10 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
                 <tr key={p._id} className="hover:bg-white/[0.01] transition-colors group">
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-4">
-                      <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-[10px] font-bold text-zinc-600 group-hover:border-emerald-500/30 group-hover:text-emerald-500 transition-all">
+                      <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-black/5 dark:border-white/5 flex items-center justify-center text-[10px] font-bold text-zinc-600 group-hover:border-emerald-500/30 group-hover:text-emerald-500 transition-all">
                         {p.artist?.name?.substring(0, 2) || 'AT'}
                       </div>
-                      <span className="text-sm font-bold text-zinc-300 group-hover:text-white transition-colors">{p.artist?.name || 'Unknown Artist'}</span>
+                      <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:text-white transition-colors">{p.artist?.name || 'Unknown Artist'}</span>
                     </div>
                   </td>
                   <td className="px-8 py-5 text-sm font-bold text-emerald-500">${(p.amount / 100).toLocaleString()}</td>
@@ -329,8 +329,8 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
             </tbody>
           </table>
         </div>
-        <div className="p-8 bg-[#0a0a0a] border-t border-white/5 text-center">
-            <button className="text-[10px] font-bold text-zinc-700 hover:text-white transition-all">Load Extended Archive</button>
+        <div className="p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/5 dark:border-white/5 text-center">
+            <button className="text-[10px] font-bold text-zinc-700 hover:text-zinc-900 dark:text-white transition-all">Load Extended Archive</button>
         </div>
       </div>
     </div>
@@ -355,27 +355,27 @@ const SubscriptionsSection = ({ stats }: { stats: AdminFinancialStats | null }) 
                 Most Popular
               </div>
             )}
-            <div className={`w-14 h-14 rounded-2xl mb-10 flex items-center justify-center bg-white/5 text-zinc-500 group-hover:text-emerald-500 transition-all duration-500 group-hover:scale-110 border border-white/5`}>
+            <div className={`w-14 h-14 rounded-2xl mb-10 flex items-center justify-center bg-black/5 dark:bg-white/5 text-zinc-500 group-hover:text-emerald-500 transition-all duration-500 group-hover:scale-110 border border-black/5 dark:border-white/5`}>
               <plan.icon size={28} />
             </div>
             <h4 className="text-[10px] font-bold text-zinc-500 mb-4">{plan.name}</h4>
             <div className="mb-10 flex items-end gap-1">
-              <span className="text-5xl font-bold text-white tracking-tighter leading-none">{plan.price}</span>
+              <span className="text-5xl font-bold text-zinc-900 dark:text-white tracking-tighter leading-none">{plan.price}</span>
               <span className="text-zinc-600 text-xs font-bold mb-1">{plan.period}</span>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-black/40 rounded-2xl border border-white/5 text-[10px] font-bold text-zinc-400 mb-10">
+            <div className="flex items-center gap-3 p-4 bg-white/40 dark:bg-black/40 rounded-2xl border border-black/5 dark:border-white/5 text-[10px] font-bold text-zinc-600 dark:text-zinc-400 mb-10">
               <Users size={16} className="text-emerald-500" />
               {plan.subscribers} Active Subscribers
             </div>
             <ul className="space-y-6 mb-12">
               {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-4 text-xs font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                <li key={f} className="flex items-start gap-4 text-xs font-medium text-zinc-500 group-hover:text-zinc-700 dark:text-zinc-300 transition-colors">
                   <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
                   <span className="leading-relaxed text-[10px] font-bold">{f}</span>
                 </li>
               ))}
             </ul>
-            <button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-bold hover:bg-emerald-500 hover:text-black hover:border-emerald-500 transition-all duration-500">Edit Plan Specs</button>
+            <button className="w-full py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[10px] font-bold hover:bg-emerald-500 hover:text-black hover:border-emerald-500 transition-all duration-500">Edit Plan Specs</button>
           </div>
         ))}
       </div>
@@ -393,7 +393,7 @@ const ComplianceSection = () => {
           <AlertCircle className="w-8 h-8 text-amber-500" />
         </div>
         <div className="flex-1 relative z-10">
-          <p className="text-xl font-bold text-white mb-2">Tax Compliance Audits Needed</p>
+          <p className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Tax Compliance Audits Needed</p>
           <p className="text-[11px] font-bold text-zinc-500 leading-loose max-w-2xl">22 artists are currently flagged for missing or invalid IRS tax forms. Payout cycles are suspended for these accounts until tax forms are verified.</p>
         </div>
         <button className="btn-primary !bg-amber-500 !text-black hover:!bg-amber-400 !px-12 relative z-10 shadow-2xl shadow-amber-500/20">
@@ -421,7 +421,7 @@ const ComplianceSection = () => {
                   <span className="text-[10px] font-bold text-zinc-600">{item.label}</span>
                   <span className={`text-[10px] font-bold ${item.trend === 'ok' ? 'text-emerald-500' : 'text-amber-500'}`}>{item.value}</span>
                 </div>
-                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
                    <div className={`h-full ${item.trend === 'ok' ? 'bg-emerald-500' : 'bg-amber-500'} shadow-[0_0_8px_currentColor]`} style={{ width: item.trend === 'ok' ? '80%' : '92%' }} />
                 </div>
               </div>
@@ -442,7 +442,7 @@ const ComplianceSection = () => {
               { label: 'Annual Financial Audit', value: 'In Progress', status: 'warning' },
               { label: 'Royalty Distribution Sync', value: 'Pending Sync', status: 'warning' },
             ].map(item => (
-              <div key={item.label} className="flex justify-between items-center p-5 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-white/10 transition-all cursor-default">
+              <div key={item.label} className="flex justify-between items-center p-5 bg-white/[0.02] border border-black/5 dark:border-white/5 rounded-2xl group hover:border-black/10 dark:border-white/10 transition-all cursor-default">
                 <span className="text-[10px] font-bold text-zinc-500">{item.label}</span>
                 <div className="flex items-center gap-3">
                    <div className={`w-1.5 h-1.5 rounded-full ${item.status === 'ok' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-amber-500 shadow-[0_0_8px_#f59e0b]'}`} />
@@ -467,8 +467,8 @@ const PricingSection = () => {
   ];
 
   return (
-    <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl bg-[#0a0a0a]">
-      <div className="p-8 border-b border-white/5 flex items-center justify-between bg-zinc-950/50">
+    <div className="premium-card !p-0 overflow-hidden border-black/5 dark:border-white/5 shadow-2xl bg-white dark:bg-[#0a0a0a]">
+      <div className="p-8 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-zinc-100 dark:bg-zinc-950/50">
         <div>
           <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Global Pricing Tiers</h3>
           <p className="text-[10px] text-zinc-700 font-bold">Pricing configurations across different regions</p>
@@ -480,7 +480,7 @@ const PricingSection = () => {
       </div>
       <table className="w-full text-left">
         <thead>
-          <tr className="border-b border-white/5 bg-black/20">
+          <tr className="border-b border-black/5 dark:border-white/5 bg-black/20">
             <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Region</th>
             <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Currency</th>
             <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Premium Tier</th>
@@ -491,17 +491,17 @@ const PricingSection = () => {
         <tbody className="divide-y divide-white/5">
           {tiers.map((t) => (
             <tr key={t.region} className="hover:bg-white/[0.01] transition-colors group">
-              <td className="px-8 py-6 text-sm font-bold text-zinc-300 group-hover:text-white transition-colors uppercase">{t.region}</td>
+              <td className="px-8 py-6 text-sm font-bold text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:text-white transition-colors uppercase">{t.region}</td>
               <td className="px-8 py-6">
                  <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500">
                     <Globe size={14} className="text-zinc-700" />
                     {t.currency}
                  </div>
               </td>
-              <td className="px-8 py-6 text-sm font-bold text-white tracking-tighter">{t.premium}</td>
+              <td className="px-8 py-6 text-sm font-bold text-zinc-900 dark:text-white tracking-tighter">{t.premium}</td>
               <td className="px-8 py-6 text-sm font-bold text-emerald-500 tracking-tighter">{t.pro}</td>
               <td className="px-8 py-6 text-right">
-                <button className="px-6 py-2.5 rounded-xl bg-white/5 text-[10px] font-bold text-zinc-600 hover:text-white hover:bg-white/10 transition-all border border-white/5">Edit</button>
+                <button className="px-6 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 text-[10px] font-bold text-zinc-600 hover:text-zinc-900 dark:text-white hover:bg-black/10 dark:bg-white/10 transition-all border border-black/5 dark:border-white/5">Edit</button>
               </td>
             </tr>
           ))}

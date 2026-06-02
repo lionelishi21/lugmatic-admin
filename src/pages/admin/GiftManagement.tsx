@@ -82,7 +82,7 @@ const GiftManagement: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Virtual Economy</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">Virtual Economy</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-500 tracking-wider">System: Online</span>
@@ -92,7 +92,7 @@ const GiftManagement: React.FC = () => {
         </div>
         <button
           onClick={() => navigate('/admin/gift-management/add')}
-          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-black/10 dark:border-white/10"
         >
           <Plus size={18} />
           Create Gift
@@ -112,21 +112,21 @@ const GiftManagement: React.FC = () => {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="premium-card group border-white/5 hover:border-emerald-500/20 transition-all cursor-default relative overflow-hidden"
+            className="premium-card group border-black/5 dark:border-white/5 hover:border-emerald-500/20 transition-all cursor-default relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.02] rounded-bl-full pointer-events-none" />
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 ${s.bg} border border-white/5 shadow-inner relative overflow-hidden group-hover:scale-110 transition-transform duration-500`}>
-              <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 ${s.bg} border border-black/5 dark:border-white/5 shadow-inner relative overflow-hidden group-hover:scale-110 transition-transform duration-500`}>
+              <div className="absolute inset-0 bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <s.icon size={24} className={s.color} />
             </div>
             <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{s.label}</p>
-            <p className="text-3xl font-bold text-white tracking-tighter tabular-nums">{s.value}</p>
+            <p className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tighter tabular-nums">{s.value}</p>
           </motion.div>
         ))}
       </div>
 
       {/* Tabs bar */}
-      <div className="premium-card !p-3 bg-zinc-950/40 border-white/5 flex flex-wrap items-center gap-3 w-fit shadow-inner">
+      <div className="premium-card !p-3 bg-zinc-100 dark:bg-zinc-950/40 border-black/5 dark:border-white/5 flex flex-wrap items-center gap-3 w-fit shadow-inner">
         {['All Gifts', 'Active', 'Categories', 'Settings'].map((label, i) => (
           <button
             key={label}
@@ -139,7 +139,7 @@ const GiftManagement: React.FC = () => {
               {label}
               {i < 3 && <span className="ml-3 opacity-40 font-mono">[{i === 2 ? categories.length : (i === 1 ? stats.active : stats.total)}]</span>}
             </span>
-            {tabValue === i && <motion.div layoutId="activeTab" className="absolute inset-0 bg-white/5" />}
+            {tabValue === i && <motion.div layoutId="activeTab" className="absolute inset-0 bg-black/5 dark:bg-white/5" />}
           </button>
         ))}
       </div>
@@ -153,7 +153,7 @@ const GiftManagement: React.FC = () => {
               placeholder="Search gifts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-14 pr-12 h-14 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800"
+              className="w-full pl-14 pr-12 h-14 bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800"
             />
           </div>
           <div className="relative group">
@@ -161,7 +161,7 @@ const GiftManagement: React.FC = () => {
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="w-full lg:w-72 h-14 pl-14 pr-12 bg-[#0a0a0a] border border-white/5 rounded-2xl text-white text-[10px] font-bold uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer"
+              className="w-full lg:w-72 h-14 pl-14 pr-12 bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer"
             >
               <option value="all">All Categories</option>
               {categories.map(cat => <option key={cat} value={cat}>{cat.toUpperCase()}</option>)}
@@ -191,9 +191,9 @@ const GiftManagement: React.FC = () => {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.02 }}
-                    className="premium-card group !p-0 overflow-hidden hover:border-emerald-500/30 transition-all duration-700 bg-[#0a0a0a] border-white/5 shadow-2xl"
+                    className="premium-card group !p-0 overflow-hidden hover:border-emerald-500/30 transition-all duration-700 bg-white dark:bg-[#0a0a0a] border-black/5 dark:border-white/5 shadow-2xl"
                   >
-                    <div className="relative h-64 bg-zinc-950 flex items-center justify-center p-12 group-hover:bg-zinc-900/50 transition-all duration-700 overflow-hidden">
+                    <div className="relative h-64 bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center p-12 group-hover:bg-zinc-900/50 transition-all duration-700 overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 z-10" />
                       
                       {/* Rarity Glow Effect */}
@@ -226,7 +226,7 @@ const GiftManagement: React.FC = () => {
                       <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all z-30 translate-x-4 group-hover:translate-x-0">
                         <button 
                           onClick={() => setActiveMenu(activeMenu === gift._id ? null : gift._id)} 
-                          className="w-12 h-12 rounded-2xl bg-black/80 backdrop-blur-xl text-white border border-white/10 hover:bg-emerald-500/20 hover:border-emerald-500/30 transition-all shadow-2xl flex items-center justify-center"
+                          className="w-12 h-12 rounded-2xl bg-black/80 backdrop-blur-xl text-zinc-900 dark:text-white border border-black/10 dark:border-white/10 hover:bg-emerald-500/20 hover:border-emerald-500/30 transition-all shadow-2xl flex items-center justify-center"
                         >
                           <MoreHorizontal size={20} />
                         </button>
@@ -238,18 +238,18 @@ const GiftManagement: React.FC = () => {
                             initial={{ opacity: 0, x: 20, scale: 0.95 }} 
                             animate={{ opacity: 1, x: 0, scale: 1 }} 
                             exit={{ opacity: 0, x: 20, scale: 0.95 }}
-                            className="absolute top-20 right-6 w-56 bg-zinc-900 border border-white/10 rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.9)] z-50 p-3 backdrop-blur-2xl"
+                            className="absolute top-20 right-6 w-56 bg-zinc-900 border border-black/10 dark:border-white/10 rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.9)] z-50 p-3 backdrop-blur-2xl"
                           >
-                            <div className="px-6 py-4 border-b border-white/5 mb-2">
+                            <div className="px-6 py-4 border-b border-black/5 dark:border-white/5 mb-2">
                                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Gift Settings</p>
                             </div>
-                            <button onClick={() => navigate(`/admin/gift-management/${gift._id}`)} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-emerald-500/10 transition-all text-left group/opt">
+                            <button onClick={() => navigate(`/admin/gift-management/${gift._id}`)} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white hover:bg-emerald-500/10 transition-all text-left group/opt">
                                <Edit size={18} className="text-emerald-500 group-hover/opt:scale-110 transition-transform" /> Edit Gift
                             </button>
-                            <button onClick={() => { handleToggleActive(gift._id, gift.isActive); setActiveMenu(null); }} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-all text-left group/opt">
+                            <button onClick={() => { handleToggleActive(gift._id, gift.isActive); setActiveMenu(null); }} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 transition-all text-left group/opt">
                                <Power size={18} className={gift.isActive ? 'text-zinc-600' : 'text-emerald-500'} /> {gift.isActive ? 'Suspend' : 'Activate'}
                             </button>
-                            <div className="h-px bg-white/5 my-2" />
+                            <div className="h-px bg-black/5 dark:bg-white/5 my-2" />
                             <button onClick={() => { setGiftToDelete(gift._id); setActiveMenu(null); }} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-rose-500/60 hover:text-rose-500 hover:bg-rose-500/10 transition-all text-left group/opt">
                                <Trash2 size={18} className="group-hover/opt:scale-110 transition-transform" /> Delete
                             </button>
@@ -261,17 +261,17 @@ const GiftManagement: React.FC = () => {
                     <div className="p-8 space-y-6 relative overflow-hidden">
                       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
                       <div>
-                        <h3 className="text-white font-bold tracking-tight text-xl mb-2 uppercase">{gift.name}</h3>
+                        <h3 className="text-zinc-900 dark:text-white font-bold tracking-tight text-xl mb-2 uppercase">{gift.name}</h3>
                         <div className="flex items-center gap-3">
-                           <div className="px-3 py-1 bg-zinc-950 rounded-lg border border-white/5 shadow-inner">
+                           <div className="px-3 py-1 bg-zinc-50 dark:bg-zinc-950 rounded-lg border border-black/5 dark:border-white/5 shadow-inner">
                               <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-[0.2em] leading-none">{gift.category}</p>
                            </div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                      <div className="flex items-center justify-between pt-6 border-t border-black/5 dark:border-white/5">
                         <div className="flex flex-col gap-1.5">
                           <span className="text-[8px] font-bold text-zinc-700 uppercase tracking-wider">Cash Value</span>
-                          <span className="text-base font-bold text-white tracking-tighter">${gift.value.toFixed(2)}</span>
+                          <span className="text-base font-bold text-zinc-900 dark:text-white tracking-tighter">${gift.value.toFixed(2)}</span>
                         </div>
                         <div className="flex flex-col items-end gap-1.5">
                           <span className="text-[8px] font-bold text-zinc-700 uppercase tracking-wider">Coin Cost</span>
@@ -290,11 +290,11 @@ const GiftManagement: React.FC = () => {
 
           {/* Categories Management Grid */}
           {tabValue === 2 && (
-            <div className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl">
+            <div className="premium-card !p-0 overflow-hidden border-black/5 dark:border-white/5 shadow-2xl">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="border-b border-white/5 bg-zinc-950/50">
+                    <tr className="border-b border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/50">
                       <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Category</th>
                       <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Total Items</th>
                       <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Total Value</th>
@@ -316,10 +316,10 @@ const GiftManagement: React.FC = () => {
                         >
                           <td className="px-10 py-8">
                             <div className="flex items-center gap-6">
-                               <div className="w-12 h-12 bg-zinc-950 rounded-2xl border border-white/5 flex items-center justify-center shadow-inner group-hover:border-emerald-500/30 transition-all">
+                               <div className="w-12 h-12 bg-zinc-50 dark:bg-zinc-950 rounded-2xl border border-black/5 dark:border-white/5 flex items-center justify-center shadow-inner group-hover:border-emerald-500/30 transition-all">
                                   <Layers size={20} className="text-zinc-700 group-hover:text-emerald-500 transition-colors" />
                                 </div>
-                               <span className="text-sm font-bold text-white uppercase tracking-widest">{category}</span>
+                               <span className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-widest">{category}</span>
                             </div>
                           </td>
                           <td className="px-10 py-8">
@@ -331,11 +331,11 @@ const GiftManagement: React.FC = () => {
                           <td className="px-10 py-8">
                             <div className="flex items-center gap-3">
                                <DollarSign size={14} className="text-emerald-500" />
-                               <span className="text-lg font-bold text-white tracking-tighter tabular-nums">${totalValue.toFixed(2)}</span>
+                               <span className="text-lg font-bold text-zinc-900 dark:text-white tracking-tighter tabular-nums">${totalValue.toFixed(2)}</span>
                             </div>
                           </td>
                           <td className="px-10 py-8 text-right">
-                            <div className="inline-flex items-center gap-3 px-4 py-2 bg-black/40 rounded-xl border border-white/5">
+                            <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/40 dark:bg-black/40 rounded-xl border border-black/5 dark:border-white/5">
                                <span className="text-[10px] font-bold text-emerald-500 tabular-nums">{activeCount}</span>
                                <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">/ {catGifts.length} Active</span>
                             </div>
@@ -355,15 +355,15 @@ const GiftManagement: React.FC = () => {
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="premium-card space-y-10 border-white/5 shadow-2xl relative overflow-hidden"
+                className="premium-card space-y-10 border-black/5 dark:border-white/5 shadow-2xl relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/[0.02] blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-                <div className="flex items-center gap-5 border-b border-white/5 pb-8 relative z-10">
-                   <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                <div className="flex items-center gap-5 border-b border-black/5 dark:border-white/5 pb-8 relative z-10">
+                   <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-950 rounded-2xl flex items-center justify-center border border-black/5 dark:border-white/5 shadow-inner">
                       <ShieldCheck size={28} className="text-indigo-500" />
                    </div>
                    <div>
-                      <h3 className="text-xl font-bold text-white uppercase tracking-tighter leading-none mb-2">Gift Policy Settings</h3>
+                      <h3 className="text-xl font-bold text-zinc-900 dark:text-white uppercase tracking-tighter leading-none mb-2">Gift Policy Settings</h3>
                       <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Configure rules and policies for sending gifts.</p>
                    </div>
                 </div>
@@ -375,12 +375,12 @@ const GiftManagement: React.FC = () => {
                   ].map(rule => {
                     const RuleIcon = rule.icon as any;
                     return (
-                      <div key={rule.label} className="flex items-center justify-between p-6 bg-[#0a0a0a] rounded-[2rem] border border-white/5 group hover:border-indigo-500/20 transition-all shadow-inner">
+                      <div key={rule.label} className="flex items-center justify-between p-6 bg-white dark:bg-[#0a0a0a] rounded-[2rem] border border-black/5 dark:border-white/5 group hover:border-indigo-500/20 transition-all shadow-inner">
                         <div className="flex items-center gap-5">
-                           <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center border border-white/5 shadow-inner group-hover:bg-indigo-500/5 transition-all">
+                           <div className="w-10 h-10 bg-zinc-50 dark:bg-zinc-950 rounded-xl flex items-center justify-center border border-black/5 dark:border-white/5 shadow-inner group-hover:bg-indigo-500/5 transition-all">
                               <RuleIcon size={18} className="text-zinc-700 group-hover:text-indigo-500 transition-colors" />
                            </div>
-                           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{rule.label}</span>
+                           <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">{rule.label}</span>
                         </div>
                         <button className={`w-14 h-7 rounded-full relative transition-all duration-500 shadow-inner group/toggle ${rule.active ? 'bg-indigo-500' : 'bg-zinc-900 border border-white/5'}`}>
                            <div className={`absolute top-1.5 w-4 h-4 rounded-full transition-all duration-500 ${rule.active ? 'left-8 bg-black shadow-[0_0_10px_white]' : 'left-1.5 bg-zinc-700'}`} />
@@ -394,15 +394,15 @@ const GiftManagement: React.FC = () => {
               <motion.div 
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="premium-card space-y-10 border-white/5 shadow-2xl relative overflow-hidden"
+                className="premium-card space-y-10 border-black/5 dark:border-white/5 shadow-2xl relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/[0.02] blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-                <div className="flex items-center gap-5 border-b border-white/5 pb-8 relative z-10">
-                   <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                <div className="flex items-center gap-5 border-b border-black/5 dark:border-white/5 pb-8 relative z-10">
+                   <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-950 rounded-2xl flex items-center justify-center border border-black/5 dark:border-white/5 shadow-inner">
                       <Sparkles size={28} className="text-amber-500" />
                    </div>
                    <div>
-                      <h3 className="text-xl font-bold text-white uppercase tracking-tighter leading-none mb-2">Display Preferences</h3>
+                      <h3 className="text-xl font-bold text-zinc-900 dark:text-white uppercase tracking-tighter leading-none mb-2">Display Preferences</h3>
                       <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Configure premium visual feedback and effects.</p>
                    </div>
                 </div>
@@ -414,12 +414,12 @@ const GiftManagement: React.FC = () => {
                   ].map(rule => {
                     const RuleIcon = rule.icon as any;
                     return (
-                      <div key={rule.label} className="flex items-center justify-between p-6 bg-[#0a0a0a] rounded-[2rem] border border-white/5 group hover:border-amber-500/20 transition-all shadow-inner">
+                      <div key={rule.label} className="flex items-center justify-between p-6 bg-white dark:bg-[#0a0a0a] rounded-[2rem] border border-black/5 dark:border-white/5 group hover:border-amber-500/20 transition-all shadow-inner">
                         <div className="flex items-center gap-5">
-                           <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center border border-white/5 shadow-inner group-hover:bg-amber-500/5 transition-all">
+                           <div className="w-10 h-10 bg-zinc-50 dark:bg-zinc-950 rounded-xl flex items-center justify-center border border-black/5 dark:border-white/5 shadow-inner group-hover:bg-amber-500/5 transition-all">
                               <RuleIcon size={18} className="text-zinc-700 group-hover:text-amber-500 transition-colors" />
                            </div>
-                           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{rule.label}</span>
+                           <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">{rule.label}</span>
                         </div>
                         <button className={`w-14 h-7 rounded-full relative transition-all duration-500 shadow-inner group/toggle ${rule.active ? 'bg-amber-500' : 'bg-zinc-900 border border-white/5'}`}>
                            <div className={`absolute top-1.5 w-4 h-4 rounded-full transition-all duration-500 ${rule.active ? 'left-8 bg-black shadow-[0_0_10px_white]' : 'left-1.5 bg-zinc-700'}`} />

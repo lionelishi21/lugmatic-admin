@@ -139,7 +139,7 @@ const GenreManagement: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-none">Genre Catalog</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">Genre Catalog</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">System: Online</span>
@@ -149,7 +149,7 @@ const GenreManagement: React.FC = () => {
         </div>
         <button
           onClick={() => handleOpenDialog()}
-          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-white/10"
+          className="h-16 px-10 bg-white text-black rounded-2xl text-[10px] font-bold hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 group border border-black/10 dark:border-white/10"
         >
           <Plus size={18} />
           Add New Genre
@@ -168,15 +168,15 @@ const GenreManagement: React.FC = () => {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="premium-card group border-white/5 hover:border-emerald-500/20 transition-all cursor-default relative overflow-hidden"
+            className="premium-card group border-black/5 dark:border-white/5 hover:border-emerald-500/20 transition-all cursor-default relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.02] rounded-bl-full pointer-events-none" />
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 ${s.bg} border border-white/5 shadow-inner relative overflow-hidden group-hover:scale-110 transition-transform duration-500`}>
-              <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 ${s.bg} border border-black/5 dark:border-white/5 shadow-inner relative overflow-hidden group-hover:scale-110 transition-transform duration-500`}>
+              <div className="absolute inset-0 bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <s.icon size={24} className={s.color} />
             </div>
             <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{s.label}</p>
-            <p className="text-3xl font-bold text-white tracking-tighter">{s.value}</p>
+            <p className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tighter">{s.value}</p>
           </motion.div>
         ))}
       </div>
@@ -190,12 +190,12 @@ const GenreManagement: React.FC = () => {
             placeholder="Search genres..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-14 pr-12 h-14 bg-zinc-950/40 border border-white/5 rounded-2xl text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
+            className="w-full pl-14 pr-12 h-14 bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-800"
           />
         </div>
         
         <div className="flex flex-wrap items-center gap-8">
-          <div className="flex bg-zinc-950/40 border border-white/5 rounded-2xl p-1.5 gap-1.5 shadow-inner">
+          <div className="flex bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl p-1.5 gap-1.5 shadow-inner">
             {['all', 'active', 'inactive'].map(filter => (
               <button
                 key={filter}
@@ -209,7 +209,7 @@ const GenreManagement: React.FC = () => {
             ))}
           </div>
           
-          <div className="flex bg-zinc-950/40 border border-white/5 rounded-2xl p-1.5 gap-1.5 shadow-inner">
+          <div className="flex bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl p-1.5 gap-1.5 shadow-inner">
             <button onClick={() => setViewMode('grid')} className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-white/10 text-white shadow-xl border border-white/5' : 'text-zinc-600 hover:text-zinc-300'}`}>
               <LayoutGrid size={18} />
             </button>
@@ -226,7 +226,7 @@ const GenreManagement: React.FC = () => {
           <motion.div 
             key="loading"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="premium-card py-40 text-center border-white/5 shadow-2xl"
+            className="premium-card py-40 text-center border-black/5 dark:border-white/5 shadow-2xl"
           >
             <div className="relative inline-block mb-8">
               <div className="w-20 h-20 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin" />
@@ -238,12 +238,12 @@ const GenreManagement: React.FC = () => {
           <motion.div 
             key="empty"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="premium-card py-40 text-center border-white/5 shadow-2xl group"
+            className="premium-card py-40 text-center border-black/5 dark:border-white/5 shadow-2xl group"
           >
-            <div className="w-24 h-24 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/5 shadow-2xl group-hover:border-emerald-500/20 transition-all">
+            <div className="w-24 h-24 bg-zinc-50 dark:bg-zinc-950 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-black/5 dark:border-white/5 shadow-2xl group-hover:border-emerald-500/20 transition-all">
               <AlertTriangle size={36} className="text-zinc-800 group-hover:text-amber-500 transition-colors" />
             </div>
-            <h3 className="text-[10px] font-bold text-white uppercase tracking-widest mb-3">No Genres Found</h3>
+            <h3 className="text-[10px] font-bold text-zinc-900 dark:text-white uppercase tracking-widest mb-3">No Genres Found</h3>
             <p className="text-[10px] text-zinc-600 font-bold max-w-sm mx-auto opacity-60">Adjust your search parameters or register a new genre classification.</p>
           </motion.div>
         ) : viewMode === 'grid' ? (
@@ -263,44 +263,44 @@ const GenreManagement: React.FC = () => {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.02 }}
-                  className="premium-card group relative hover:border-emerald-500/30 transition-all duration-700 bg-zinc-950/40 border-white/5 overflow-hidden"
+                  className="premium-card group relative hover:border-emerald-500/30 transition-all duration-700 bg-zinc-100 dark:bg-zinc-950/40 border-black/5 dark:border-white/5 overflow-hidden"
                 >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] rounded-bl-full pointer-events-none group-hover:bg-white/[0.03] transition-all" />
                   
                   <div className="flex items-start justify-between mb-10 relative z-10">
                     <div className={`w-16 h-16 rounded-2xl ${config.bg} ${config.border} border flex items-center justify-center text-2xl shadow-inner relative overflow-hidden group-hover:scale-110 transition-transform duration-700 ${config.glow}`}>
-                       <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                       <div className="absolute inset-0 bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                        <span className="relative z-10">{genre.icon || genre.name[0].toUpperCase()}</span>
                     </div>
-                    <div className="flex items-center gap-3 bg-zinc-950/80 px-3 py-1.5 rounded-xl border border-white/5 shadow-inner">
+                    <div className="flex items-center gap-3 bg-zinc-950/80 px-3 py-1.5 rounded-xl border border-black/5 dark:border-white/5 shadow-inner">
                        <div className={`w-1.5 h-1.5 rounded-full ${genre.isActive ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-zinc-700'}`} />
                        <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{genre.isActive ? 'Active' : 'Inactive'}</span>
                     </div>
                   </div>
 
-                  <h3 className="text-xl font-bold text-white mb-3 uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none">{genre.name}</h3>
+                  <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-3 uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none">{genre.name}</h3>
                   <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.1em] line-clamp-2 leading-relaxed mb-10 h-10 opacity-60 group-hover:opacity-100 transition-opacity">
                     {genre.description || 'No description provided for this genre.'}
                   </p>
 
                   <div className="grid grid-cols-3 gap-4 mb-10 relative z-10">
-                    <div className="bg-zinc-950 border border-white/5 rounded-2xl p-4 text-center shadow-inner group-hover:border-emerald-500/20 transition-all">
-                      <p className="text-lg font-bold text-white tabular-nums leading-none mb-1.5">{genre.songCount}</p>
+                    <div className="bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl p-4 text-center shadow-inner group-hover:border-emerald-500/20 transition-all">
+                      <p className="text-lg font-bold text-zinc-900 dark:text-white tabular-nums leading-none mb-1.5">{genre.songCount}</p>
                       <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Songs</p>
                     </div>
-                    <div className="bg-zinc-950 border border-white/5 rounded-2xl p-4 text-center shadow-inner group-hover:border-emerald-500/20 transition-all">
-                      <p className="text-lg font-bold text-white tabular-nums leading-none mb-1.5">{genre.albumCount}</p>
+                    <div className="bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl p-4 text-center shadow-inner group-hover:border-emerald-500/20 transition-all">
+                      <p className="text-lg font-bold text-zinc-900 dark:text-white tabular-nums leading-none mb-1.5">{genre.albumCount}</p>
                       <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Albums</p>
                     </div>
-                    <div className="bg-zinc-950 border border-white/5 rounded-2xl p-4 text-center shadow-inner group-hover:border-emerald-500/20 transition-all">
-                      <p className="text-lg font-bold text-white tabular-nums leading-none mb-1.5">{genre.artistCount}</p>
+                    <div className="bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl p-4 text-center shadow-inner group-hover:border-emerald-500/20 transition-all">
+                      <p className="text-lg font-bold text-zinc-900 dark:text-white tabular-nums leading-none mb-1.5">{genre.artistCount}</p>
                       <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Artists</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 pt-6 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
-                    <button onClick={() => handleOpenDialog(genre)} className="flex-1 h-12 bg-white/5 text-zinc-400 hover:text-white hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all">Edit</button>
-                    <button onClick={() => setDeleteDialog(genre)} className="flex-1 h-12 bg-zinc-950 text-rose-500/60 hover:text-rose-500 hover:bg-rose-500/10 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all">Delete</button>
+                  <div className="flex items-center gap-4 pt-6 border-t border-black/5 dark:border-white/5 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
+                    <button onClick={() => handleOpenDialog(genre)} className="flex-1 h-12 bg-black/5 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white hover:bg-emerald-500/20 hover:border-emerald-500/30 border border-black/5 dark:border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all">Edit</button>
+                    <button onClick={() => setDeleteDialog(genre)} className="flex-1 h-12 bg-zinc-50 dark:bg-zinc-950 text-rose-500/60 hover:text-rose-500 hover:bg-rose-500/10 border border-black/5 dark:border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all">Delete</button>
                   </div>
                 </motion.div>
               );
@@ -312,11 +312,11 @@ const GenreManagement: React.FC = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="premium-card !p-0 overflow-hidden border-white/5 shadow-2xl"
+            className="premium-card !p-0 overflow-hidden border-black/5 dark:border-white/5 shadow-2xl"
           >
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-white/5 bg-zinc-950/50">
+                <tr className="border-b border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/50">
                   <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Genre Details</th>
                   <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Item Counts</th>
                   <th className="px-10 py-8 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Status</th>
@@ -337,11 +337,11 @@ const GenreManagement: React.FC = () => {
                       <td className="px-10 py-6">
                         <div className="flex items-center gap-6">
                           <div className={`w-14 h-14 rounded-2xl ${config.bg} border ${config.border} flex items-center justify-center text-xl font-bold shadow-inner group-hover:scale-110 transition-all duration-500 relative overflow-hidden`}>
-                            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="absolute inset-0 bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                             <span className="relative z-10">{genre.name[0].toUpperCase()}</span>
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-bold text-white uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2">{genre.name}</p>
+                            <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2">{genre.name}</p>
                             <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest line-clamp-1">{genre.description || 'No description'}</p>
                           </div>
                         </div>
@@ -350,11 +350,11 @@ const GenreManagement: React.FC = () => {
                         <div className="flex items-center gap-6">
                           <div className="flex items-center gap-2.5">
                              <Music size={14} className="text-zinc-700" />
-                             <span className="text-[10px] font-bold text-zinc-400 tabular-nums uppercase tracking-widest">{genre.songCount} <span className="opacity-40 ml-1">Songs</span></span>
+                             <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 tabular-nums uppercase tracking-widest">{genre.songCount} <span className="opacity-40 ml-1">Songs</span></span>
                           </div>
                           <div className="flex items-center gap-2.5">
                              <Disc size={14} className="text-zinc-700" />
-                             <span className="text-[10px] font-bold text-zinc-400 tabular-nums uppercase tracking-widest">{genre.albumCount} <span className="opacity-40 ml-1">Albums</span></span>
+                             <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 tabular-nums uppercase tracking-widest">{genre.albumCount} <span className="opacity-40 ml-1">Albums</span></span>
                           </div>
                         </div>
                       </td>
@@ -366,8 +366,8 @@ const GenreManagement: React.FC = () => {
                       </td>
                       <td className="px-10 py-6 text-right">
                         <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                          <button onClick={() => handleOpenDialog(genre)} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-white hover:bg-emerald-500/20 transition-all shadow-inner"><Pencil size={20} /></button>
-                          <button onClick={() => setDeleteDialog(genre)} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-950 border border-white/5 text-zinc-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all shadow-inner"><Trash2 size={20} /></button>
+                          <button onClick={() => handleOpenDialog(genre)} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-zinc-600 hover:text-zinc-900 dark:text-white hover:bg-emerald-500/20 transition-all shadow-inner"><Pencil size={20} /></button>
+                          <button onClick={() => setDeleteDialog(genre)} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-zinc-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all shadow-inner"><Trash2 size={20} /></button>
                         </div>
                       </td>
                     </motion.tr>
@@ -387,34 +387,34 @@ const GenreManagement: React.FC = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="premium-card w-full max-w-xl shadow-[0_30px_100px_rgba(0,0,0,1)] border-emerald-500/10 p-12" onClick={e => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-10 border-b border-white/5 pb-10">
+              <div className="flex justify-between items-center mb-10 border-b border-black/5 dark:border-white/5 pb-10">
                 <div className="flex items-center gap-5">
-                   <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-white/5 shadow-inner">
+                   <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-950 rounded-2xl flex items-center justify-center border border-black/5 dark:border-white/5 shadow-inner">
                       {selectedGenre ? <Pencil className="text-emerald-500" size={28} /> : <Plus className="text-emerald-500" size={28} />}
                    </div>
                    <div>
-                      <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic leading-none mb-1.5">{selectedGenre ? 'Edit Genre' : 'Add New Genre'}</h3>
+                      <h3 className="text-2xl font-bold text-zinc-900 dark:text-white uppercase tracking-tighter italic leading-none mb-1.5">{selectedGenre ? 'Edit Genre' : 'Add New Genre'}</h3>
                       <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Genre Configuration</p>
                    </div>
                 </div>
-                <button onClick={handleCloseDialog} className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-white/5 text-zinc-500 transition-all border border-white/5 shadow-inner"><X size={24} /></button>
+                <button onClick={handleCloseDialog} className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-black/5 dark:bg-white/5 text-zinc-500 transition-all border border-black/5 dark:border-white/5 shadow-inner"><X size={24} /></button>
               </div>
               
               <form ref={formRef} onSubmit={handleSubmit} className="space-y-10">
                 <div className="space-y-4">
                   <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Genre Name <span className="text-emerald-500">*</span></label>
-                  <input name="name" defaultValue={selectedGenre?.name} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-widest uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800" placeholder="e.g. Afrobeat" required />
+                  <input name="name" defaultValue={selectedGenre?.name} className="w-full h-16 px-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-widest uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800" placeholder="e.g. Afrobeat" required />
                 </div>
                 <div className="space-y-4">
                   <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Description</label>
-                  <textarea name="description" defaultValue={selectedGenre?.description} className="w-full p-8 bg-zinc-950 border border-white/5 rounded-3xl text-zinc-300 text-[11px] font-bold tracking-wide focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner resize-none h-32 leading-relaxed placeholder:text-zinc-800" placeholder="Provide background description for this genre..." />
+                  <textarea name="description" defaultValue={selectedGenre?.description} className="w-full p-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-3xl text-zinc-700 dark:text-zinc-300 text-[11px] font-bold tracking-wide focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner resize-none h-32 leading-relaxed placeholder:text-zinc-800" placeholder="Provide background description for this genre..." />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-10">
                   <div className="space-y-4">
                     <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Theme Color</label>
                     <div className="relative group/sel">
-                      <select name="color" defaultValue={selectedGenre?.color || 'emerald'} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-widest uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer">
+                      <select name="color" defaultValue={selectedGenre?.color || 'emerald'} className="w-full h-16 px-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-widest uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer">
                         {Object.keys(colorMap).map(c => <option key={c} value={c}>{c.toUpperCase()}</option>)}
                       </select>
                       <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-emerald-500" />
@@ -423,7 +423,7 @@ const GenreManagement: React.FC = () => {
                   <div className="space-y-4">
                     <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Visibility</label>
                     <div className="relative group/sel">
-                      <select name="status" defaultValue={selectedGenre?.isActive ? 'active' : 'inactive'} className="w-full h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-widest uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer">
+                      <select name="status" defaultValue={selectedGenre?.isActive ? 'active' : 'inactive'} className="w-full h-16 px-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-widest uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                       </select>
@@ -435,15 +435,15 @@ const GenreManagement: React.FC = () => {
                 <div className="space-y-4">
                   <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Background Image URL</label>
                   <div className="flex gap-4">
-                    <input name="image" defaultValue={selectedGenre?.image} className="flex-1 h-16 px-8 bg-zinc-950 border border-white/5 rounded-2xl text-white text-[11px] font-bold tracking-wide focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800" placeholder="https://example.com/genre.jpg" />
-                    <button type="button" onClick={() => toast.success('Image generation coming soon')} className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-emerald-400 hover:text-white hover:bg-emerald-500/20 border border-white/5 shadow-inner transition-all group/spark">
+                    <input name="image" defaultValue={selectedGenre?.image} className="flex-1 h-16 px-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-wide focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800" placeholder="https://example.com/genre.jpg" />
+                    <button type="button" onClick={() => toast.success('Image generation coming soon')} className="w-16 h-16 bg-black/5 dark:bg-white/5 rounded-2xl flex items-center justify-center text-emerald-400 hover:text-zinc-900 dark:text-white hover:bg-emerald-500/20 border border-black/5 dark:border-white/5 shadow-inner transition-all group/spark">
                        <Sparkles size={24} className="group-hover/spark:rotate-180 transition-transform duration-700" />
                     </button>
                   </div>
                 </div>
 
-                <div className="pt-12 border-t border-white/5 flex justify-end gap-6">
-                  <button type="button" onClick={handleCloseDialog} className="h-16 px-10 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all">Cancel</button>
+                <div className="pt-12 border-t border-black/5 dark:border-white/5 flex justify-end gap-6">
+                  <button type="button" onClick={handleCloseDialog} className="h-16 px-10 bg-zinc-50 dark:bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-black/5 dark:border-white/5 hover:bg-black/5 dark:bg-white/5 transition-all">Cancel</button>
                   <button type="submit" disabled={submitting} className="h-16 px-12 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:bg-emerald-400 transition-all flex items-center gap-4 group">
                     {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={20} className="group-hover:translate-y-1 transition-transform" />}
                     Save Genre
@@ -464,13 +464,13 @@ const GenreManagement: React.FC = () => {
                 <div className="absolute inset-0 bg-rose-500/10 animate-pulse" />
                 <AlertTriangle className="text-rose-500 relative z-10" size={36} />
               </div>
-              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter italic mb-3">Delete Genre?</h3>
+              <h3 className="text-2xl font-bold text-zinc-900 dark:text-white uppercase tracking-tighter italic mb-3">Delete Genre?</h3>
               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-10 leading-relaxed px-6">
-                Are you sure you want to permanently delete <span className="text-white">{deleteDialog.name.toUpperCase()}</span>? This action cannot be undone.
+                Are you sure you want to permanently delete <span className="text-zinc-900 dark:text-white">{deleteDialog.name.toUpperCase()}</span>? This action cannot be undone.
               </p>
               <div className="flex gap-4">
-                <button onClick={() => setDeleteDialog(null)} className="h-16 flex-1 bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-white/5 transition-all">Cancel</button>
-                <button onClick={handleDelete} className="h-16 flex-1 bg-rose-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl shadow-rose-900/20 hover:bg-rose-500 transition-all">Delete</button>
+                <button onClick={() => setDeleteDialog(null)} className="h-16 flex-1 bg-zinc-50 dark:bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-black/5 dark:border-white/5 hover:bg-black/5 dark:bg-white/5 transition-all">Cancel</button>
+                <button onClick={handleDelete} className="h-16 flex-1 bg-rose-600 text-zinc-900 dark:text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl shadow-rose-900/20 hover:bg-rose-500 transition-all">Delete</button>
               </div>
             </motion.div>
           </div>

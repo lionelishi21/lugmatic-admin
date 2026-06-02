@@ -94,7 +94,7 @@ export default function CreateRegularClashPool() {
     <div className="p-6 max-w-4xl mx-auto">
       <button 
         onClick={() => navigate('/admin/regular-clash-management')}
-        className="flex items-center gap-2 text-zinc-400 hover:text-white mb-6 text-sm font-semibold"
+        className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white mb-6 text-sm font-semibold"
       >
         <ChevronLeft className="h-4 w-4" />
         Back to Clash Management
@@ -105,8 +105,8 @@ export default function CreateRegularClashPool() {
           <Zap className="h-6 w-6 text-yellow-400" />
         </div>
         <div>
-          <h1 className="text-3xl font-black text-white">Create New Clash Pool</h1>
-          <p className="text-zinc-400">Set up a new regular clash tournament bracket</p>
+          <h1 className="text-3xl font-black text-zinc-900 dark:text-white">Create New Clash Pool</h1>
+          <p className="text-zinc-600 dark:text-zinc-400">Set up a new regular clash tournament bracket</p>
         </div>
       </div>
 
@@ -119,35 +119,35 @@ export default function CreateRegularClashPool() {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Details */}
         <div className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-5">
-          <h2 className="text-lg font-bold text-white mb-4">1. Pool Details</h2>
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-4">1. Pool Details</h2>
           <div>
-            <label className="text-xs text-zinc-400 font-semibold uppercase tracking-wider block mb-1.5">Title *</label>
+            <label className="text-xs text-zinc-600 dark:text-zinc-400 font-semibold uppercase tracking-wider block mb-1.5">Title *</label>
             <input
               required
               value={form.title}
               onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-              className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-yellow-500/50 transition-colors"
+              className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-yellow-500/50 transition-colors"
               placeholder="e.g. Summer Dancehall Showdown"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="text-xs text-zinc-400 font-semibold uppercase tracking-wider block mb-1.5">Season</label>
+              <label className="text-xs text-zinc-600 dark:text-zinc-400 font-semibold uppercase tracking-wider block mb-1.5">Season</label>
               <input
                 type="number"
                 min={1}
                 value={form.season}
                 onChange={e => setForm(f => ({ ...f, season: Number(e.target.value) }))}
-                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-yellow-500/50 transition-colors"
+                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-yellow-500/50 transition-colors"
               />
             </div>
             <div>
-              <label className="text-xs text-zinc-400 font-semibold uppercase tracking-wider block mb-1.5">Realm</label>
+              <label className="text-xs text-zinc-600 dark:text-zinc-400 font-semibold uppercase tracking-wider block mb-1.5">Realm</label>
               <select
                 value={form.realm}
                 onChange={e => setForm(f => ({ ...f, realm: e.target.value }))}
-                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-yellow-500/50 transition-colors appearance-none"
+                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-yellow-500/50 transition-colors appearance-none"
               >
                 {REALMS.map(r => <option key={r} value={r} className="capitalize">{r}</option>)}
               </select>
@@ -157,13 +157,13 @@ export default function CreateRegularClashPool() {
 
         {/* Phase Deadlines */}
         <div className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800">
-          <h2 className="text-lg font-bold text-white mb-2">2. Phase Deadlines</h2>
-          <p className="text-sm text-zinc-400 mb-6">
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">2. Phase Deadlines</h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6">
             A regular clash runs in three phases. Set the deadline for when each phase strictly ends.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-black/30 p-5 rounded-xl border border-white/5">
+            <div className="bg-black/30 p-5 rounded-xl border border-black/5 dark:border-white/5">
               <div className="flex items-center gap-2 text-yellow-400 mb-2">
                 <Clock className="h-4 w-4" />
                 <h3 className="font-bold text-sm">Challenge Deadline</h3>
@@ -176,11 +176,11 @@ export default function CreateRegularClashPool() {
                 required 
                 value={form.challengeDeadline}
                 onChange={e => setForm(f => ({ ...f, challengeDeadline: e.target.value }))}
-                className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-500/50"
+                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-yellow-500/50"
               />
             </div>
 
-            <div className="bg-black/30 p-5 rounded-xl border border-white/5">
+            <div className="bg-black/30 p-5 rounded-xl border border-black/5 dark:border-white/5">
               <div className="flex items-center gap-2 text-emerald-400 mb-2">
                 <Clock className="h-4 w-4" />
                 <h3 className="font-bold text-sm">Submission Deadline</h3>
@@ -193,11 +193,11 @@ export default function CreateRegularClashPool() {
                 required 
                 value={form.submissionDeadline}
                 onChange={e => setForm(f => ({ ...f, submissionDeadline: e.target.value }))}
-                className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500/50"
+                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500/50"
               />
             </div>
 
-            <div className="bg-black/30 p-5 rounded-xl border border-white/5">
+            <div className="bg-black/30 p-5 rounded-xl border border-black/5 dark:border-white/5">
               <div className="flex items-center gap-2 text-purple-400 mb-2">
                 <Clock className="h-4 w-4" />
                 <h3 className="font-bold text-sm">Voting Deadline</h3>
@@ -210,7 +210,7 @@ export default function CreateRegularClashPool() {
                 required 
                 value={form.votingDeadline}
                 onChange={e => setForm(f => ({ ...f, votingDeadline: e.target.value }))}
-                className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/50"
               />
             </div>
           </div>
@@ -218,12 +218,12 @@ export default function CreateRegularClashPool() {
 
         {/* Artist Eligibility */}
         <div className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800">
-          <h2 className="text-lg font-bold text-white mb-2">3. Eligibility</h2>
-          <p className="text-sm text-zinc-400 mb-6">
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">3. Eligibility</h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6">
             Determine who is allowed to participate in this clash pool.
           </p>
 
-          <div className="flex bg-black/50 p-1 rounded-xl w-fit mb-6 border border-white/5">
+          <div className="flex bg-black/50 p-1 rounded-xl w-fit mb-6 border border-black/5 dark:border-white/5">
             <button
               type="button"
               onClick={() => setIsInviteOnly(false)}
@@ -249,12 +249,12 @@ export default function CreateRegularClashPool() {
                   placeholder="Search and select artists..."
                   value={searchQuery}
                   onChange={e => handleSearch(e.target.value)}
-                  className="w-full bg-black/50 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-yellow-500/50"
+                  className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-xl pl-11 pr-4 py-3 text-zinc-900 dark:text-white focus:outline-none focus:border-yellow-500/50"
                 />
                 
                 {/* Search Dropdown */}
                 {searchQuery && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-zinc-800 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-20 max-h-60 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-zinc-800 border border-black/10 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden z-20 max-h-60 overflow-y-auto">
                     {isSearching ? (
                       <div className="p-4 text-center text-sm text-zinc-500">Searching...</div>
                     ) : searchResults.length === 0 ? (
@@ -265,16 +265,16 @@ export default function CreateRegularClashPool() {
                           key={artist._id}
                           type="button"
                           onClick={() => addArtist(artist)}
-                          className="w-full flex items-center gap-3 p-3 hover:bg-white/5 transition-colors text-left"
+                          className="w-full flex items-center gap-3 p-3 hover:bg-black/5 dark:bg-white/5 transition-colors text-left"
                         >
                           {artist.image ? (
                             <img src={artist.image} alt="" className="w-8 h-8 rounded-full object-cover bg-zinc-900" />
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center">
-                              <Users className="h-4 w-4 text-zinc-400" />
+                              <Users className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
                             </div>
                           )}
-                          <span className="text-sm font-bold text-white">{artist.name}</span>
+                          <span className="text-sm font-bold text-zinc-900 dark:text-white">{artist.name}</span>
                         </button>
                       ))
                     )}
@@ -284,21 +284,21 @@ export default function CreateRegularClashPool() {
 
               {/* Selected Artists Pills */}
               {selectedArtists.length > 0 && (
-                <div className="bg-black/30 rounded-xl p-4 border border-white/5">
+                <div className="bg-black/30 rounded-xl p-4 border border-black/5 dark:border-white/5">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3">
                     Allowed Artists ({selectedArtists.length})
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedArtists.map(artist => (
-                      <div key={artist._id} className="flex items-center gap-2 bg-zinc-800 border border-white/10 rounded-full pl-1 pr-3 py-1">
+                      <div key={artist._id} className="flex items-center gap-2 bg-zinc-800 border border-black/10 dark:border-white/10 rounded-full pl-1 pr-3 py-1">
                         {artist.image ? (
                           <img src={artist.image} alt="" className="w-5 h-5 rounded-full object-cover bg-zinc-900" />
                         ) : (
                           <div className="w-5 h-5 rounded-full bg-zinc-700 flex items-center justify-center">
-                            <Users className="h-3 w-3 text-zinc-400" />
+                            <Users className="h-3 w-3 text-zinc-600 dark:text-zinc-400" />
                           </div>
                         )}
-                        <span className="text-xs font-bold text-white">{artist.name}</span>
+                        <span className="text-xs font-bold text-zinc-900 dark:text-white">{artist.name}</span>
                         <button 
                           type="button" 
                           onClick={() => removeArtist(artist._id)}
@@ -321,11 +321,11 @@ export default function CreateRegularClashPool() {
         </div>
 
         {/* Submit Actions */}
-        <div className="flex items-center justify-end gap-4 pt-4 border-t border-white/10">
+        <div className="flex items-center justify-end gap-4 pt-4 border-t border-black/10 dark:border-white/10">
           <button 
             type="button" 
             onClick={() => navigate('/admin/regular-clash-management')}
-            className="px-6 py-3 rounded-xl font-bold text-sm text-zinc-400 hover:text-white transition-colors"
+            className="px-6 py-3 rounded-xl font-bold text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors"
           >
             Cancel
           </button>

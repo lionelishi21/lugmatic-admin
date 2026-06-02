@@ -219,12 +219,12 @@ const SongDetail: React.FC = () => {
         <div>
           <button
             onClick={() => navigate('/admin/song-management')}
-            className="flex items-center gap-2 text-zinc-500 hover:text-white mb-6 transition-colors group"
+            className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 dark:text-white mb-6 transition-colors group"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
             <span className="text-xs font-bold uppercase tracking-widest">Back to Catalog</span>
           </button>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white mb-2 flex items-center gap-3">
             <Music className="text-emerald-500" size={32} />
             {isEditing ? 'Edit Song Details' : song.name}
           </h1>
@@ -241,7 +241,7 @@ const SongDetail: React.FC = () => {
                 <Trash2 size={16} /> Delete
               </button>
               {song.status === 'pending' && (
-                <div className="flex items-center gap-2 pl-3 border-l border-white/10 ml-3">
+                <div className="flex items-center gap-2 pl-3 border-l border-black/10 dark:border-white/10 ml-3">
                   <button onClick={() => handleModerate('approve')} className="btn-primary !bg-emerald-500 !text-black flex items-center gap-2 !px-6">
                     <CheckCircle2 size={16} /> Approve
                   </button>
@@ -269,13 +269,13 @@ const SongDetail: React.FC = () => {
         {/* Left: Overview */}
         <div className="lg:col-span-1 space-y-8">
           <div className="premium-card !p-0 overflow-hidden group">
-            <div className="aspect-square relative bg-zinc-950">
+            <div className="aspect-square relative bg-zinc-50 dark:bg-zinc-950">
               <img src={coverUrl} alt={song.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               
               <div className="absolute bottom-6 left-6 right-6">
-                <p className="text-white text-2xl font-bold tracking-tight mb-1">{song.name}</p>
-                <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest">{artistName}</p>
+                <p className="text-zinc-900 dark:text-white text-2xl font-bold tracking-tight mb-1">{song.name}</p>
+                <p className="text-zinc-600 dark:text-zinc-400 text-xs font-bold uppercase tracking-widest">{artistName}</p>
               </div>
 
               {/* Status Badge */}
@@ -298,10 +298,10 @@ const SongDetail: React.FC = () => {
                     {isPlaying ? <Pause size={20} fill="black" /> : <Play size={20} fill="black" className="ml-1" />}
                   </button>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-white truncate">{song.name}</p>
+                    <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">{song.name}</p>
                     <p className="text-[10px] text-zinc-500 font-mono tracking-widest mt-1">{formatDuration(song.duration)} / TRACK AUDIO</p>
                   </div>
-                  <a href={audioUrl} target="_blank" rel="noreferrer" className="p-2 text-zinc-600 hover:text-white transition-colors">
+                  <a href={audioUrl} target="_blank" rel="noreferrer" className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-white transition-colors">
                     <ExternalLink size={18} />
                   </a>
                 </div>
@@ -318,9 +318,9 @@ const SongDetail: React.FC = () => {
                 { label: 'Total Plays', value: (song as any).playCount || 0, icon: Play, color: 'text-blue-500' },
                 { label: 'Favorites', value: (song as any).favoriteCount || 0, icon: Heart, color: 'text-rose-500' },
               ].map(stat => (
-                <div key={stat.label} className="bg-white/5 p-4 rounded-2xl text-center border border-white/5">
+                <div key={stat.label} className="bg-black/5 dark:bg-white/5 p-4 rounded-2xl text-center border border-black/5 dark:border-white/5">
                   <stat.icon size={16} className={`${stat.color} mx-auto mb-2`} />
-                  <p className="text-lg font-bold text-white">{stat.value.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-zinc-900 dark:text-white">{stat.value.toLocaleString()}</p>
                   <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">{stat.label}</p>
                 </div>
               ))}
@@ -333,7 +333,7 @@ const SongDetail: React.FC = () => {
                 <ShieldAlert size={18} />
                 <h4 className="text-xs font-bold uppercase tracking-widest">Rejection Reason</h4>
               </div>
-              <p className="text-sm text-zinc-400 italic">"{song.rejectionReason || 'No details provided'}"</p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400 italic">"{song.rejectionReason || 'No details provided'}"</p>
             </div>
           )}
         </div>
@@ -408,7 +408,7 @@ const SongDetail: React.FC = () => {
             ) : (
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-8">
                 <div className="premium-card">
-                  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-4 mb-8">
+                  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2 border-b border-black/5 dark:border-white/5 pb-4 mb-8">
                     <FileText size={14} /> Song Information
                   </h3>
                   
@@ -420,25 +420,25 @@ const SongDetail: React.FC = () => {
                       { label: 'Release Date', value: song.releaseDate ? new Date(song.releaseDate).toLocaleDateString() : 'Pending', icon: Calendar, color: 'text-rose-500' },
                     ].map(item => (
                       <div key={item.label} className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center">
                           <item.icon size={18} className={item.color} />
                         </div>
                         <div>
                           <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{item.label}</p>
-                          <p className="text-sm font-bold text-white">{item.value}</p>
+                          <p className="text-sm font-bold text-zinc-900 dark:text-white">{item.value}</p>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="space-y-4 pt-8 border-t border-white/5">
+                  <div className="space-y-4 pt-8 border-t border-black/5 dark:border-white/5">
                     <div className="flex items-center gap-2 mb-4">
                       <FileText size={14} className="text-zinc-600" />
                       <h4 className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Lyrics</h4>
                     </div>
-                    <div className="bg-zinc-950/50 rounded-3xl p-8 border border-white/5">
+                    <div className="bg-zinc-100 dark:bg-zinc-950/50 rounded-3xl p-8 border border-black/5 dark:border-white/5">
                       {song.lyrics ? (
-                        <pre className="text-sm text-zinc-400 whitespace-pre-wrap font-sans leading-relaxed max-h-[400px] overflow-y-auto no-scrollbar">{song.lyrics}</pre>
+                        <pre className="text-sm text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap font-sans leading-relaxed max-h-[400px] overflow-y-auto no-scrollbar">{song.lyrics}</pre>
                       ) : (
                         <p className="text-xs text-zinc-700 italic text-center py-10 uppercase tracking-widest font-bold">No lyrics provided</p>
                       )}
@@ -448,14 +448,14 @@ const SongDetail: React.FC = () => {
 
                 {song.splitSheet && song.splitSheet.length > 0 && (
                   <div className="premium-card">
-                    <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-4 mb-6">
+                    <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2 border-b border-black/5 dark:border-white/5 pb-4 mb-6">
                       <ShieldCheck size={14} className="text-emerald-500" /> Splits & Ownership
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {song.splitSheet.map((item, idx) => (
-                        <div key={idx} className="flex justify-between items-center p-5 bg-white/[0.02] rounded-[1.5rem] border border-white/5 hover:border-emerald-500/20 transition-all group">
+                        <div key={idx} className="flex justify-between items-center p-5 bg-white/[0.02] rounded-[1.5rem] border border-black/5 dark:border-white/5 hover:border-emerald-500/20 transition-all group">
                           <div>
-                            <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">{item.contributor}</p>
+                            <p className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-emerald-400 transition-colors">{item.contributor}</p>
                             <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-0.5">{item.role}</p>
                           </div>
                           <div className="text-right">
@@ -469,7 +469,7 @@ const SongDetail: React.FC = () => {
 
                 {linkedVideo && (
                   <div className="premium-card">
-                    <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
+                    <div className="flex items-center justify-between mb-6 pb-4 border-b border-black/5 dark:border-white/5">
                       <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
                         <Video size={14} className="text-blue-500" /> Music Video Integration
                       </h3>
@@ -477,7 +477,7 @@ const SongDetail: React.FC = () => {
                         Manage Videos
                       </button>
                     </div>
-                    <div className="aspect-video rounded-[2rem] overflow-hidden bg-black border border-white/5 group relative shadow-2xl">
+                    <div className="aspect-video rounded-[2rem] overflow-hidden bg-black border border-black/5 dark:border-white/5 group relative shadow-2xl">
                       <video src={getFullImageUrl(linkedVideo.videoUrl)} controls className="w-full h-full object-contain" />
                     </div>
                   </div>

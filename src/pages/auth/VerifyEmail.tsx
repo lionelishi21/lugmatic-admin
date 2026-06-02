@@ -79,7 +79,7 @@ export default function VerifyEmail() {
             <p className="text-gray-700 font-medium">{message}</p>
             <Link
               to="/resend-verification"
-              className="mt-2 w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold rounded-xl hover:opacity-90 transition-opacity block"
+              className="mt-2 w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-zinc-900 dark:text-white font-semibold rounded-xl hover:opacity-90 transition-opacity block"
             >
               Resend Verification Email
             </Link>

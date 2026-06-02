@@ -86,7 +86,7 @@ const TracksSection = () => (
   <div>
     <div className="flex justify-between mb-4">
       <h2 className="text-lg font-semibold">Track Management</h2>
-      <button className="bg-purple-600 text-white px-4 py-2 rounded-lg">
+      <button className="bg-purple-600 text-zinc-900 dark:text-white px-4 py-2 rounded-lg">
         Upload New Track
       </button>
     </div>
@@ -151,7 +151,7 @@ const GenresSection = () => (
   <div>
     <div className="flex justify-between mb-4">
       <h2 className="text-lg font-semibold">Genres & Categories</h2>
-      <button className="bg-purple-600 text-white px-4 py-2 rounded-lg">
+      <button className="bg-purple-600 text-zinc-900 dark:text-white px-4 py-2 rounded-lg">
         Add New Genre
       </button>
     </div>

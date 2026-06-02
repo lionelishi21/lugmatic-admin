@@ -71,7 +71,7 @@ export default function SongShare() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center justify-center p-6">
       {/* Lugmatic branding */}
       <div className="mb-8 text-center">
         <span className="text-emerald-400 font-bold text-lg tracking-tight">Lugmatic</span>
@@ -86,7 +86,7 @@ export default function SongShare() {
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
             <Music2 className="h-10 w-10 text-zinc-700 mb-3" />
-            <p className="text-zinc-400 text-sm">{error}</p>
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm">{error}</p>
           </div>
         ) : song ? (
           <>
@@ -104,10 +104,10 @@ export default function SongShare() {
                 onClick={togglePlay}
                 className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 hover:opacity-100 transition-opacity"
               >
-                <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-black/20 dark:bg-white/20 backdrop-blur flex items-center justify-center">
                   {playing
-                    ? <Pause className="h-7 w-7 text-white" />
-                    : <Play className="h-7 w-7 text-white ml-1" />}
+                    ? <Pause className="h-7 w-7 text-zinc-900 dark:text-white" />
+                    : <Play className="h-7 w-7 text-zinc-900 dark:text-white ml-1" />}
                 </div>
               </button>
             </div>
@@ -115,8 +115,8 @@ export default function SongShare() {
             {/* Info + controls */}
             <div className="p-5 space-y-4">
               <div>
-                <h1 className="font-bold text-white text-base truncate">{song.name}</h1>
-                <p className="text-zinc-400 text-sm truncate">
+                <h1 className="font-bold text-zinc-900 dark:text-white text-base truncate">{song.name}</h1>
+                <p className="text-zinc-600 dark:text-zinc-400 text-sm truncate">
                   {song.artist?.name ?? 'Unknown Artist'}
                   {song.genre?.name ? ` · ${song.genre.name}` : ''}
                 </p>
@@ -141,14 +141,14 @@ export default function SongShare() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={togglePlay}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-emerald-600 text-white rounded text-sm font-semibold hover:bg-emerald-700 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-emerald-600 text-zinc-900 dark:text-white rounded text-sm font-semibold hover:bg-emerald-700 transition-colors"
                 >
                   {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                   {playing ? 'Pause' : 'Play'}
                 </button>
                 <button
                   onClick={() => { setMuted(m => !m); if (audioRef.current) audioRef.current.muted = !muted; }}
-                  className="p-2.5 bg-zinc-800 text-zinc-400 rounded hover:text-white transition-colors"
+                  className="p-2.5 bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded hover:text-zinc-900 dark:text-white transition-colors"
                 >
                   {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                 </button>

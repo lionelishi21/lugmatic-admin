@@ -129,13 +129,13 @@ const AddArtist = () => {
           <div className="flex items-center gap-6">
              <button
                onClick={handleCancel}
-               className="w-12 h-12 bg-zinc-950 border border-white/10 rounded flex items-center justify-center text-zinc-400 hover:text-emerald-500 hover:border-emerald-500/30 transition-all group/back"
+               className="w-12 h-12 bg-zinc-50 dark:bg-zinc-950 border border-black/10 dark:border-white/10 rounded flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 hover:border-emerald-500/30 transition-all group/back"
              >
                <ArrowLeft className="h-5 w-5 group-hover/back:-translate-x-1 transition-transform" />
              </button>
              <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-1.5 italic">Ecosystem Registry</p>
-                <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">
+                <h1 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tighter uppercase italic">
                   Initialize Artist
                 </h1>
                 <p className="text-sm text-zinc-500 mt-1 max-w-md">
@@ -163,7 +163,7 @@ const AddArtist = () => {
                 <div className="w-8 h-8 bg-emerald-500/10 rounded flex items-center justify-center">
                    <ImageIcon className="h-4 w-4 text-emerald-500" />
                 </div>
-                <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Visual Identity</h2>
+                <h2 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Visual Identity</h2>
               </div>
               
               <div className="flex flex-col items-center gap-6">
@@ -173,25 +173,25 @@ const AddArtist = () => {
                     <img
                       src={imagePreview}
                       alt="Artist preview"
-                      className="relative h-48 w-48 rounded object-cover border border-white/20"
+                      className="relative h-48 w-48 rounded object-cover border border-black/20 dark:border-white/20"
                     />
                     <button
                       type="button"
                       onClick={clearImage}
-                      className="absolute -top-3 -right-3 w-8 h-8 bg-rose-500 text-white rounded flex items-center justify-center shadow-lg hover:bg-rose-600 transition-colors z-10"
+                      className="absolute -top-3 -right-3 w-8 h-8 bg-rose-500 text-zinc-900 dark:text-white rounded flex items-center justify-center shadow-lg hover:bg-rose-600 transition-colors z-10"
                     >
                       <X className="h-4 w-4" />
                     </button>
                   </div>
                 ) : (
-                  <div className="h-48 w-48 rounded bg-zinc-950 border border-dashed border-white/10 flex flex-col items-center justify-center gap-3 group-hover:border-emerald-500/30 transition-all">
+                  <div className="h-48 w-48 rounded bg-zinc-50 dark:bg-zinc-950 border border-dashed border-black/10 dark:border-white/10 flex flex-col items-center justify-center gap-3 group-hover:border-emerald-500/30 transition-all">
                     <User className="h-10 w-10 text-zinc-800" />
                     <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">No Signature</p>
                   </div>
                 )}
                 
                 <div className="w-full">
-                  <label className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-zinc-950 border border-white/10 rounded text-[10px] font-black text-white uppercase tracking-widest cursor-pointer hover:bg-white/5 hover:border-emerald-500/30 transition-all">
+                  <label className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-black/10 dark:border-white/10 rounded text-[10px] font-black text-zinc-900 dark:text-white uppercase tracking-widest cursor-pointer hover:bg-black/5 dark:bg-white/5 hover:border-emerald-500/30 transition-all">
                     <Upload className="h-4 w-4 text-emerald-500" />
                     {imagePreview ? 'Change Avatar' : 'Upload Avatar'}
                     <input type="file" accept="image/*" hidden onChange={handleImageChange} />
@@ -210,7 +210,7 @@ const AddArtist = () => {
                 <div className="w-8 h-8 bg-blue-500/10 rounded flex items-center justify-center">
                    <User className="h-4 w-4 text-blue-500" />
                 </div>
-                <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Core Credentials</h2>
+                <h2 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Core Credentials</h2>
               </div>
               
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -262,7 +262,7 @@ const AddArtist = () => {
                 <div className="w-8 h-8 bg-emerald-500/10 rounded flex items-center justify-center">
                    <Music className="h-4 w-4 text-emerald-500" />
                 </div>
-                <h2 className="text-[11px] font-black text-white uppercase tracking-widest italic">Sonic Intelligence</h2>
+                <h2 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-widest italic">Sonic Intelligence</h2>
               </div>
               
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -314,7 +314,7 @@ const AddArtist = () => {
                 type="button"
                 onClick={handleCancel}
                 disabled={isLoading}
-                className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors disabled:opacity-50 italic"
+                className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-900 dark:text-white transition-colors disabled:opacity-50 italic"
               >
                 Abort Protocol
               </button>

@@ -56,12 +56,12 @@ export default function ContributorLogin() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md relative"
       >
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl">
+        <div className="bg-black/5 dark:bg-white/5 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl">
           <div className="flex flex-col items-center mb-10 text-center">
             <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-green-500/20">
-              <ShieldCheck className="h-10 w-10 text-white" />
+              <ShieldCheck className="h-10 w-10 text-zinc-900 dark:text-white" />
             </div>
-            <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Contributor Portal</h1>
+            <h1 className="text-3xl font-black text-zinc-900 dark:text-white mb-2 tracking-tight">Contributor Portal</h1>
             <p className="text-gray-400 text-sm font-medium">Manage your rights, credits, and earnings.</p>
           </div>
 
@@ -72,7 +72,7 @@ export default function ContributorLogin() {
                 <input
                   {...register('email')}
                   type="email"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-12 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all font-medium"
+                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-12 text-zinc-900 dark:text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all font-medium"
                   placeholder="name@example.com"
                 />
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
@@ -86,7 +86,7 @@ export default function ContributorLogin() {
                 <input
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-12 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all font-medium"
+                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-12 text-zinc-900 dark:text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all font-medium"
                   placeholder="••••••••"
                 />
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
@@ -96,7 +96,7 @@ export default function ContributorLogin() {
 
             <div className="flex items-center justify-between py-2">
               <label className="flex items-center gap-2 cursor-pointer group">
-                <input type="checkbox" className="w-4 h-4 bg-white/5 border-white/10 rounded focus:ring-green-500 text-green-500 transition-all" />
+                <input type="checkbox" className="w-4 h-4 bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 rounded focus:ring-green-500 text-green-500 transition-all" />
                 <span className="text-xs font-bold text-gray-400 group-hover:text-gray-300 transition-colors">Remember me</span>
               </label>
               <Link to="/forgot-password" size="sm" className="text-xs font-bold text-green-500 hover:text-green-400 transition-colors">Forgot Password?</Link>
@@ -105,7 +105,7 @@ export default function ContributorLogin() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-white text-black py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all transform active:scale-[0.98] shadow-xl disabled:opacity-50 flex items-center justify-center gap-3"
+              className="w-full bg-white text-black py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-green-500 hover:text-zinc-900 dark:text-white transition-all transform active:scale-[0.98] shadow-xl disabled:opacity-50 flex items-center justify-center gap-3"
             >
               {isLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -118,9 +118,9 @@ export default function ContributorLogin() {
             </button>
           </form>
 
-          <div className="mt-10 pt-8 border-t border-white/5 text-center">
+          <div className="mt-10 pt-8 border-t border-black/5 dark:border-white/5 text-center">
             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-              Are you an artist? <Link to="/login" className="text-white hover:text-green-500 transition-colors ml-1">Go to Artist Login</Link>
+              Are you an artist? <Link to="/login" className="text-zinc-900 dark:text-white hover:text-green-500 transition-colors ml-1">Go to Artist Login</Link>
             </p>
           </div>
         </div>
@@ -128,12 +128,12 @@ export default function ContributorLogin() {
         {/* Support Info */}
         <div className="mt-8 flex items-center justify-center gap-6 opacity-30">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-white" />
-            <span className="text-[10px] font-black text-white uppercase tracking-tighter">Secure Access</span>
+            <ShieldCheck className="h-4 w-4 text-zinc-900 dark:text-white" />
+            <span className="text-[10px] font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Secure Access</span>
           </div>
           <div className="flex items-center gap-2">
-            <Music className="h-4 w-4 text-white" />
-            <span className="text-[10px] font-black text-white uppercase tracking-tighter">Contributor Rights</span>
+            <Music className="h-4 w-4 text-zinc-900 dark:text-white" />
+            <span className="text-[10px] font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Contributor Rights</span>
           </div>
         </div>
       </motion.div>

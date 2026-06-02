@@ -156,12 +156,12 @@ const ArtistCreate: React.FC = () => {
         <div>
           <button
             onClick={() => navigate('/admin/artist-management')}
-            className="flex items-center gap-2 text-zinc-500 hover:text-white mb-6 transition-colors group"
+            className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 dark:text-white mb-6 transition-colors group"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
             <span className="text-xs font-bold uppercase tracking-widest">Back to Directory</span>
           </button>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white mb-2 flex items-center gap-3">
             <UserPlus className="text-emerald-500" size={32} />
             Register New Artist
           </h1>
@@ -179,14 +179,14 @@ const ArtistCreate: React.FC = () => {
             
             <div className="flex flex-col items-center">
               <div className="relative group">
-                <div className="w-32 h-32 rounded-[2.5rem] bg-zinc-900 border border-white/5 overflow-hidden flex items-center justify-center transition-all group-hover:border-emerald-500/20">
+                <div className="w-32 h-32 rounded-[2.5rem] bg-zinc-900 border border-black/5 dark:border-white/5 overflow-hidden flex items-center justify-center transition-all group-hover:border-emerald-500/20">
                   {imagePreview ? (
                     <img src={imagePreview} className="w-full h-full object-cover opacity-80" />
                   ) : (
                     <User size={40} className="text-zinc-700" />
                   )}
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Camera size={24} className="text-white" />
+                  <div className="absolute inset-0 bg-white/40 dark:bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera size={24} className="text-zinc-900 dark:text-white" />
                   </div>
                 </div>
                 <input
@@ -198,7 +198,7 @@ const ArtistCreate: React.FC = () => {
               <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-4">Avatar Payload</p>
             </div>
 
-            <div className="space-y-4 pt-6 border-t border-white/5">
+            <div className="space-y-4 pt-6 border-t border-black/5 dark:border-white/5">
               <h4 className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Public Details</h4>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Stage Name</label>
@@ -235,7 +235,7 @@ const ArtistCreate: React.FC = () => {
                 { label: 'Genre Mapping', ok: formData.genres.length > 0 },
               ].map((check, i) => (
                 <li key={i} className="flex items-center justify-between">
-                  <span className="text-[11px] text-zinc-400">{check.label}</span>
+                  <span className="text-[11px] text-zinc-600 dark:text-zinc-400">{check.label}</span>
                   <div className={`w-2 h-2 rounded-full ${check.ok ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-zinc-800'}`} />
                 </li>
               ))}
@@ -246,7 +246,7 @@ const ArtistCreate: React.FC = () => {
         {/* Right: Personal & Genre Details */}
         <div className="lg:col-span-2 space-y-6">
           <div className="premium-card space-y-8">
-            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-4">
+            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2 border-b border-black/5 dark:border-white/5 pb-4">
               <User size={14} /> Profile Parameters
             </h3>
 
@@ -301,7 +301,7 @@ const ArtistCreate: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-4 pt-8 border-t border-white/5">
+            <div className="space-y-4 pt-8 border-t border-black/5 dark:border-white/5">
               <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
                 <Music size={14} /> Genre Mapping
               </h3>
@@ -346,7 +346,7 @@ const ArtistCreate: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-4 pt-8 border-t border-white/5">
+            <div className="space-y-4 pt-8 border-t border-black/5 dark:border-white/5">
               <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
                 <Globe size={14} /> Social Signals
               </h3>
@@ -371,7 +371,7 @@ const ArtistCreate: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-end gap-4 pt-8 border-t border-white/5">
+            <div className="flex justify-end gap-4 pt-8 border-t border-black/5 dark:border-white/5">
               <button type="button" onClick={() => navigate('/admin/artist-management')} className="btn-secondary !px-10">Abort</button>
               <button type="submit" disabled={isSubmitting} className="btn-primary !px-12 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />}

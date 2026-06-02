@@ -122,12 +122,12 @@ const SongCreate: React.FC = () => {
                 <div>
                     <button
                         onClick={() => navigate('/admin/song-management')}
-                        className="flex items-center gap-2 text-zinc-500 hover:text-white mb-6 transition-colors group"
+                        className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 dark:text-white mb-6 transition-colors group"
                     >
                         <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                         <span className="text-xs font-bold uppercase tracking-widest">Back to Library</span>
                     </button>
-                    <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+                    <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white mb-2 flex items-center gap-3">
                         <Music className="text-emerald-500" size={32} />
                         Register New Track
                     </h1>
@@ -178,7 +178,7 @@ const SongCreate: React.FC = () => {
                                 { label: 'Genre Assignment', ok: !!formData.genre },
                             ].map((check, i) => (
                                 <li key={i} className="flex items-center justify-between">
-                                    <span className="text-[11px] text-zinc-400">{check.label}</span>
+                                    <span className="text-[11px] text-zinc-600 dark:text-zinc-400">{check.label}</span>
                                     <div className={`w-2 h-2 rounded-full ${check.ok ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-zinc-800'}`} />
                                 </li>
                             ))}
@@ -189,7 +189,7 @@ const SongCreate: React.FC = () => {
                 {/* Right: Metadata Matrix */}
                 <div className="lg:col-span-2 space-y-6">
                     <div className="premium-card space-y-8">
-                        <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-4">
+                        <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2 border-b border-black/5 dark:border-white/5 pb-4">
                             <FileText size={14} /> Metadata Matrix
                         </h3>
 
@@ -303,7 +303,7 @@ const SongCreate: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-4 pt-8 border-t border-white/5">
+                        <div className="flex justify-end gap-4 pt-8 border-t border-black/5 dark:border-white/5">
                             <button
                                 type="button"
                                 onClick={() => navigate('/admin/song-management')}

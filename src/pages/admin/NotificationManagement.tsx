@@ -61,16 +61,16 @@ const NotificationManagement: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3 italic uppercase">
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white mb-2 flex items-center gap-3 italic uppercase">
             <Bell className="text-indigo-500" size={32} />
-            Signal Broadcast
+            Settings
           </h1>
           <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] ml-1 italic">Broadcast system-wide transmissions and push alerts.</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="premium-card !py-2 !px-4 flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">~1,240 Active Targets</span>
+            <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest">~1,240 Active Targets</span>
           </div>
         </div>
       </div>
@@ -83,7 +83,7 @@ const NotificationManagement: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-indigo-500/5 flex items-center justify-center">
                 <Send size={20} className="text-indigo-500" />
               </div>
-              <h2 className="text-lg font-bold text-white">Compose Broadcast</h2>
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Compose Broadcast</h2>
             </div>
 
             <form onSubmit={handleSend} className="space-y-6">
@@ -98,7 +98,7 @@ const NotificationManagement: React.FC = () => {
                       <p className="text-sm font-bold text-emerald-400">Transmission Complete</p>
                       <p className="text-xs text-emerald-500/80">Notification delivered to {sentCount} nodes successfully.</p>
                     </div>
-                    <button onClick={() => setSentCount(null)} className="ml-auto text-emerald-500 hover:text-white transition-colors">×</button>
+                    <button onClick={() => setSentCount(null)} className="ml-auto text-emerald-500 hover:text-zinc-900 dark:text-white transition-colors">×</button>
                   </motion.div>
                 )}
 
@@ -166,7 +166,7 @@ const NotificationManagement: React.FC = () => {
                 />
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-white/5">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-black/5 dark:border-white/5">
                 <p className="text-[10px] font-medium text-zinc-500 flex items-center gap-2">
                   <Info size={14} className="text-indigo-500" />
                   Payload will be delivered via Push and In-App feeds.
@@ -188,24 +188,24 @@ const NotificationManagement: React.FC = () => {
           <div className="premium-card">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
-                  <History size={18} className="text-zinc-400" />
+                <div className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                  <History size={18} className="text-zinc-600 dark:text-zinc-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white">History</h3>
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-white">History</h3>
               </div>
               <button className="text-[10px] font-bold text-indigo-500 hover:text-indigo-400 uppercase tracking-widest">Archive</button>
             </div>
             
-            <div className="space-y-1 divide-y divide-white/5">
+            <div className="space-y-1 divide-y divide-black/5 dark:divide-white/5">
               {[
                 { id: '1', title: 'Welcome to Lugmatic!', date: '2h ago', count: 1242, tag: 'Marketing' },
                 { id: '2', title: 'Scheduled Maintenance', date: 'Yesterday', count: 1238, tag: 'System' },
                 { id: '3', title: 'Artist Contest Winners', date: '2d ago', count: 1190, tag: 'Event' },
               ].map(item => (
-                <div key={item.id} className="py-4 hover:bg-white/[0.02] transition-all cursor-pointer group rounded-xl px-2 -mx-2">
+                <div key={item.id} className="py-4 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-all cursor-pointer group rounded-xl px-2 -mx-2">
                   <div className="flex items-start justify-between mb-2">
-                    <h4 className="text-sm font-bold text-zinc-300 group-hover:text-indigo-400 transition-colors">{item.title}</h4>
-                    <span className="text-[9px] px-2 py-0.5 bg-white/5 text-zinc-500 rounded-lg font-bold uppercase tracking-widest border border-white/5">{item.tag}</span>
+                    <h4 className="text-sm font-bold text-zinc-600 dark:text-zinc-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{item.title}</h4>
+                    <span className="text-[9px] px-2 py-0.5 bg-black/5 dark:bg-white/5 text-zinc-500 rounded-lg font-bold uppercase tracking-widest border border-black/5 dark:border-white/5">{item.tag}</span>
                   </div>
                   <div className="flex items-center gap-4 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
                     <span className="flex items-center gap-1.5"><Clock size={12} /> {item.date}</span>

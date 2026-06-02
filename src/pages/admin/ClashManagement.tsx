@@ -58,7 +58,7 @@ const ClashManagement: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white mb-2 flex items-center gap-3">
             <Swords className="text-indigo-500" size={32} />
             Clashes
           </h1>
@@ -82,13 +82,13 @@ const ClashManagement: React.FC = () => {
               <s.icon size={20} className={s.color} />
             </div>
             <p className="text-zinc-500 text-xs font-medium mb-1">{s.label}</p>
-            <p className="text-2xl font-bold text-white tracking-tight">{s.value}</p>
+            <p className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">{s.value}</p>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="bg-[#0a0a0a] border border-white/5 rounded-3xl p-1 flex items-center gap-1 w-fit">
+      <div className="bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-3xl p-1 flex items-center gap-1 w-fit">
         {[
           { id: 'scheduled', label: 'Schedule', icon: Clock },
           { id: 'rankings', label: 'Leaderboard', icon: Trophy }
@@ -119,7 +119,7 @@ const ClashManagement: React.FC = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="border-b border-white/5">
+                    <tr className="border-b border-black/5 dark:border-white/5">
                       <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase">Matchup</th>
                       <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase">Opponents</th>
                       <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase">Engagement</th>
@@ -145,7 +145,7 @@ const ClashManagement: React.FC = () => {
                         <tr key={clash._id} className="hover:bg-white/[0.02] transition-colors group">
                           <td className="px-6 py-4">
                             <div>
-                              <p className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">{clash.title}</p>
+                              <p className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-indigo-400 transition-colors">{clash.title}</p>
                               <p className="text-[11px] text-zinc-500 mt-0.5">
                                 {clash.scheduledAt ? format(new Date(clash.scheduledAt), 'MMM dd, yyyy • hh:mm a') : 'TBD'}
                               </p>
@@ -157,13 +157,13 @@ const ClashManagement: React.FC = () => {
                                 <img src={getFullImageUrl(clash.challenger.image)} className="w-8 h-8 rounded-full border-2 border-zinc-900 object-cover" />
                                 <img src={getFullImageUrl(clash.opponent.image)} className="w-8 h-8 rounded-full border-2 border-zinc-900 object-cover" />
                               </div>
-                              <span className="text-xs font-medium text-zinc-400">
+                              <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
                                 {clash.challenger.name} <span className="text-zinc-600 px-1">VS</span> {clash.opponent.name}
                               </span>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-400">
+                            <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-600 dark:text-zinc-400">
                               <Users size={14} className="text-indigo-500" />
                               {clash.rsvpCount || 0} RSVPs
                             </div>
@@ -195,7 +195,7 @@ const ClashManagement: React.FC = () => {
                     className="input-field pl-11"
                   />
                 </div>
-                <div className="flex bg-[#0a0a0a] border border-white/5 rounded-2xl p-1 gap-1">
+                <div className="flex bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-2xl p-1 gap-1">
                   {(['daily', 'weekly', 'monthly'] as const).map(p => (
                     <button
                       key={p}
@@ -213,7 +213,7 @@ const ClashManagement: React.FC = () => {
               <div className="premium-card !p-0 overflow-hidden">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="border-b border-white/5">
+                    <tr className="border-b border-black/5 dark:border-white/5">
                       <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase">Rank</th>
                       <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase">Gladiator</th>
                       <th className="px-6 py-5 text-xs font-semibold text-zinc-500 uppercase">Battle Points</th>
@@ -242,13 +242,13 @@ const ClashManagement: React.FC = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-4">
-                            <img src={getFullImageUrl(rank.image)} className="w-9 h-9 rounded-full object-cover border border-white/5" />
-                            <span className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">{rank.name}</span>
+                            <img src={getFullImageUrl(rank.image)} className="w-9 h-9 rounded-full object-cover border border-black/5 dark:border-white/5" />
+                            <span className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-indigo-400 transition-colors">{rank.name}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-col">
-                            <span className="text-sm font-bold text-white tracking-tight">{rank.totalScore.toLocaleString()}</span>
+                            <span className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight">{rank.totalScore.toLocaleString()}</span>
                             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Points</span>
                           </div>
                         </td>
@@ -256,7 +256,7 @@ const ClashManagement: React.FC = () => {
                           {rank.clashCount} Total Battles
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <button className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/5 transition-all">
+                          <button className="p-2 rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 transition-all">
                             <ChevronRight size={18} />
                           </button>
                         </td>

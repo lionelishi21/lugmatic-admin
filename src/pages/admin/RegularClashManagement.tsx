@@ -83,8 +83,8 @@ export default function RegularClashManagement() {
             <Zap className="h-6 w-6 text-yellow-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-white">Regular Clash</h1>
-            <p className="text-sm text-zinc-400">Manage challenge pools and brackets</p>
+            <h1 className="text-2xl font-black text-zinc-900 dark:text-white">Regular Clash</h1>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">Manage challenge pools and brackets</p>
           </div>
         </div>
         <button
@@ -99,9 +99,9 @@ export default function RegularClashManagement() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Pool list */}
         <div className="lg:col-span-1 space-y-3">
-          <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-3">Pools</h2>
+          <h2 className="text-sm font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-3">Pools</h2>
           {loadingPools ? (
-            [...Array(3)].map((_, i) => <div key={i} className="h-24 rounded-2xl bg-white/5 animate-pulse" />)
+            [...Array(3)].map((_, i) => <div key={i} className="h-24 rounded-2xl bg-black/5 dark:bg-white/5 animate-pulse" />)
           ) : pools.length === 0 ? (
             <p className="text-zinc-500 text-sm text-center py-8">No pools yet</p>
           ) : (
@@ -116,7 +116,7 @@ export default function RegularClashManagement() {
                 }`}
               >
                 <div className="flex items-start justify-between mb-2">
-                  <p className="text-sm font-bold text-white">{pool.title}</p>
+                  <p className="text-sm font-bold text-zinc-900 dark:text-white">{pool.title}</p>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${STATUS_COLOR[pool.status] ?? STATUS_COLOR.ended}`}>
                     {pool.status}
                   </span>
@@ -144,16 +144,16 @@ export default function RegularClashManagement() {
         {/* Pool detail / clash list */}
         <div className="lg:col-span-2">
           {!selectedPool ? (
-            <div className="rounded-2xl border border-white/5 bg-white/5 h-full flex items-center justify-center py-24">
+            <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5 h-full flex items-center justify-center py-24">
               <p className="text-zinc-500 text-sm">Select a pool to view its bracket</p>
             </div>
           ) : (
             <div>
               {/* Pool phase pipeline */}
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-5 mb-5">
+              <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-5 mb-5">
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-black text-white">{selectedPool.title}</h2>
-                  <button onClick={() => setSelectedPool(null)} className="text-zinc-500 hover:text-white">
+                  <h2 className="text-lg font-black text-zinc-900 dark:text-white">{selectedPool.title}</h2>
+                  <button onClick={() => setSelectedPool(null)} className="text-zinc-500 hover:text-zinc-900 dark:text-white">
                     <ChevronLeft className="h-4 w-4" />
                   </button>
                 </div>
@@ -179,9 +179,9 @@ export default function RegularClashManagement() {
                     { label: 'Submission deadline', date: selectedPool.submissionDeadline },
                     { label: 'Voting deadline', date: selectedPool.votingDeadline },
                   ].map(item => (
-                    <div key={item.label} className="bg-white/5 rounded-xl p-3">
+                    <div key={item.label} className="bg-black/5 dark:bg-white/5 rounded-xl p-3">
                       <p className="text-zinc-500 mb-1">{item.label}</p>
-                      <p className="text-white font-semibold">
+                      <p className="text-zinc-900 dark:text-white font-semibold">
                         <Clock className="inline h-3 w-3 mr-1" />
                         {format(new Date(item.date), 'MMM d, HH:mm')}
                       </p>
@@ -203,22 +203,22 @@ export default function RegularClashManagement() {
               </div>
 
               {/* Clash table */}
-              <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-3">
+              <h3 className="text-sm font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-3">
                 Matchups ({poolClashes.length})
               </h3>
               {loadingClashes ? (
                 <div className="space-y-2">
-                  {[...Array(5)].map((_, i) => <div key={i} className="h-16 rounded-xl bg-white/5 animate-pulse" />)}
+                  {[...Array(5)].map((_, i) => <div key={i} className="h-16 rounded-xl bg-black/5 dark:bg-white/5 animate-pulse" />)}
                 </div>
               ) : poolClashes.length === 0 ? (
                 <p className="text-zinc-500 text-sm text-center py-8">No clashes in this pool</p>
               ) : (
                 <div className="space-y-2">
                   {poolClashes.map(clash => (
-                    <div key={clash._id} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                    <div key={clash._id} className="rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-white truncate">
+                          <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
                             {clash.challenger.name} <span className="text-yellow-400">⚡</span> {clash.opponent.name}
                           </p>
                           <div className="flex items-center gap-3 mt-1">

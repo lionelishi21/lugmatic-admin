@@ -133,7 +133,7 @@ export default function SetupAccount() {
           <motion.button
             type="submit"
             disabled={isLoading || !isValid}
-            className="w-full bg-gradient-to-r from-green-500 via-lime-500 to-emerald-500 text-white py-3 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            className="w-full bg-gradient-to-r from-green-500 via-lime-500 to-emerald-500 text-zinc-900 dark:text-white py-3 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             whileHover={{ scale: 1.02, y: -1 }}
             whileTap={{ scale: 0.98 }}
           >

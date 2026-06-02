@@ -165,7 +165,7 @@ const Reports: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold text-white leading-none">Reports</h1>
+            <h1 className="text-4xl font-bold text-zinc-900 dark:text-white leading-none">Reports</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-500">Live Database Sync</span>
@@ -174,7 +174,7 @@ const Reports: React.FC = () => {
           <p className="text-zinc-500 text-xs font-semibold ml-1">Comprehensive platform-wide analytical deep-dives and historical data.</p>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center bg-[#0a0a0a] border border-white/5 rounded-xl p-1">
+          <div className="flex items-center bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-xl p-1">
             {periods.map(p => (
               <button
                 key={p.key}
@@ -205,7 +205,7 @@ const Reports: React.FC = () => {
             className="premium-card group"
           >
             <div className="flex items-center justify-between mb-6">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.bg} border border-white/5`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.bg} border border-black/5 dark:border-white/5`}>
                 <s.icon className={`w-5 h-5 ${s.color}`} />
               </div>
               <span className={`flex items-center gap-1 text-[10px] font-bold ${s.up ? 'text-emerald-500' : 'text-rose-500'}`}>
@@ -213,15 +213,15 @@ const Reports: React.FC = () => {
                 {s.trend}
               </span>
             </div>
-            <div className="text-3xl font-bold text-white">{s.value}</div>
+            <div className="text-3xl font-bold text-zinc-900 dark:text-white">{s.value}</div>
             <div className="text-[10px] font-bold text-zinc-600 mt-2">{s.label}</div>
           </motion.div>
         ))}
       </div>
 
       {/* Main Content Area */}
-      <div className="premium-card !p-0 overflow-hidden border-white/5">
-        <div className="flex items-center gap-2 p-1.5 bg-[#0a0a0a] border-b border-white/5">
+      <div className="premium-card !p-0 overflow-hidden border-black/5 dark:border-white/5">
+        <div className="flex items-center gap-2 p-1.5 bg-white dark:bg-[#0a0a0a] border-b border-black/5 dark:border-white/5">
           {tabs.map(t => (
             <button
               key={t.key}
@@ -249,10 +249,10 @@ const Reports: React.FC = () => {
                   <div 
                     key={cat.id} 
                     onClick={() => handleGenerate(cat.title.toLowerCase().split(' ')[0])}
-                    className="group premium-card !bg-zinc-950/40 border-white/5 hover:border-emerald-500/20 p-6 transition-all cursor-pointer relative overflow-hidden"
+                    className="group premium-card !bg-zinc-950/40 border-black/5 dark:border-white/5 hover:border-emerald-500/20 p-6 transition-all cursor-pointer relative overflow-hidden"
                   >
                     {generating === cat.title.toLowerCase().split(' ')[0] && (
-                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10 backdrop-blur-sm">
+                      <div className="absolute inset-0 bg-white/60 dark:bg-black/60 flex items-center justify-center z-10 backdrop-blur-sm">
                         <RefreshCw className="w-6 h-6 text-emerald-500 animate-spin" />
                       </div>
                     )}
@@ -260,16 +260,16 @@ const Reports: React.FC = () => {
                       <div className={`p-3 rounded-xl ${cat.bg} border ${cat.border}`}>
                         <cat.icon className={`w-5 h-5 ${cat.color}`} />
                       </div>
-                      <span className="text-[9px] font-bold text-zinc-600 bg-zinc-900 px-2 py-1 rounded border border-white/5">{cat.frequency}</span>
+                      <span className="text-[9px] font-bold text-zinc-600 bg-zinc-900 px-2 py-1 rounded border border-black/5 dark:border-white/5">{cat.frequency}</span>
                     </div>
-                    <h3 className="text-sm font-bold text-white mb-2">{cat.title}</h3>
+                    <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-2">{cat.title}</h3>
                     <p className="text-xs text-zinc-500 mb-6 leading-relaxed">{cat.description}</p>
                     <div className="flex flex-wrap gap-2 mb-6">
                       {cat.metrics.map((m, i) => (
-                        <span key={i} className="text-[9px] font-bold bg-white/5 text-zinc-400 px-2.5 py-1 rounded border border-white/5">{m}</span>
+                        <span key={i} className="text-[9px] font-bold bg-black/5 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 px-2.5 py-1 rounded border border-black/5 dark:border-white/5">{m}</span>
                       ))}
                     </div>
-                    <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                    <div className="flex items-center justify-between pt-6 border-t border-black/5 dark:border-white/5">
                       <div className="text-[9px] font-bold text-zinc-700">
                         LAST GENERATED: <span className="text-zinc-500">{cat.lastGenerated}</span>
                       </div>
@@ -280,13 +280,13 @@ const Reports: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                <div className="lg:col-span-2 premium-card !bg-zinc-950/40 border-white/5 p-8">
+                <div className="lg:col-span-2 premium-card !bg-zinc-950/40 border-black/5 dark:border-white/5 p-8">
                   <div className="flex items-center justify-between mb-8">
                     <div>
                       <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Revenue Forecast</h3>
                       <p className="text-[10px] text-zinc-700 font-bold">Historical revenue data vs forecast</p>
                     </div>
-                    <button className="text-[10px] font-bold text-zinc-600 hover:text-white flex items-center gap-2 transition-all">
+                    <button className="text-[10px] font-bold text-zinc-600 hover:text-zinc-900 dark:text-white flex items-center gap-2 transition-all">
                       <Download size={14} /> EXPORT RAW
                     </button>
                   </div>
@@ -314,12 +314,12 @@ const Reports: React.FC = () => {
                     { label: 'Share Report', desc: 'TEAM', icon: Share2, color: 'text-violet-500', bg: 'bg-violet-500/5' },
                     { label: 'Custom Filter', desc: 'FILTER', icon: Filter, color: 'text-amber-500', bg: 'bg-amber-500/5' },
                   ].map((a, i) => (
-                    <button key={i} className="w-full flex items-center gap-4 p-4 rounded-2xl border border-white/5 bg-zinc-950/40 hover:border-emerald-500/20 hover:bg-zinc-900 transition-all text-left group">
-                      <div className={`p-2.5 rounded-xl ${a.bg} border border-white/5`}>
+                    <button key={i} className="w-full flex items-center gap-4 p-4 rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/40 hover:border-emerald-500/20 hover:bg-zinc-900 transition-all text-left group">
+                      <div className={`p-2.5 rounded-xl ${a.bg} border border-black/5 dark:border-white/5`}>
                         <a.icon className={`w-4 h-4 ${a.color}`} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-[11px] font-bold text-white">{a.label}</div>
+                        <div className="text-[11px] font-bold text-zinc-900 dark:text-white">{a.label}</div>
                         <div className="text-[9px] font-bold text-zinc-600 mt-0.5">{a.desc}</div>
                       </div>
                       <ChevronRight size={14} className="text-zinc-800 group-hover:text-emerald-500 transition-colors" />
@@ -333,9 +333,9 @@ const Reports: React.FC = () => {
           {/* Saved Reports Tab */}
           {activeTab === 'saved' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-white/5 pb-6">
+              <div className="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-6">
                 <p className="text-[10px] font-bold text-zinc-600">SAVED REPORTS ({savedReports.length} REPORTS)</p>
-                <button className="text-[10px] font-bold text-zinc-600 hover:text-white flex items-center gap-2 transition-all">
+                <button className="text-[10px] font-bold text-zinc-600 hover:text-zinc-900 dark:text-white flex items-center gap-2 transition-all">
                   <Filter size={14} /> FILTER REPORTS
                 </button>
               </div>
@@ -344,14 +344,14 @@ const Reports: React.FC = () => {
                   const st = statusConfig[report.status];
                   const StIcon = st.icon;
                   return (
-                    <div key={report.id} className="flex items-center gap-6 p-4 group hover:bg-white/5 rounded-2xl transition-all border border-transparent hover:border-white/5">
-                      <div className={`p-3 rounded-xl ${report.bg} border border-white/5`}>
+                    <div key={report.id} className="flex items-center gap-6 p-4 group hover:bg-black/5 dark:bg-white/5 rounded-2xl transition-all border border-transparent hover:border-black/5 dark:border-white/5">
+                      <div className={`p-3 rounded-xl ${report.bg} border border-black/5 dark:border-white/5`}>
                         <report.icon className={`w-4 h-4 ${report.color}`} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-bold text-zinc-200">{report.name}</span>
-                          <span className="text-[9px] font-bold bg-zinc-900 text-zinc-500 px-2 py-0.5 rounded border border-white/5">{report.format}</span>
+                          <span className="text-[9px] font-bold bg-zinc-900 text-zinc-500 px-2 py-0.5 rounded border border-black/5 dark:border-white/5">{report.format}</span>
                         </div>
                         <div className="flex items-center gap-4 mt-1.5">
                           <span className="text-[10px] font-bold text-zinc-600">{report.dateRange}</span>
@@ -360,33 +360,33 @@ const Reports: React.FC = () => {
                           )}
                         </div>
                       </div>
-                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/5 ${st.bg}`}>
+                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border border-black/5 dark:border-white/5 ${st.bg}`}>
                         <StIcon className={`w-3.5 h-3.5 ${st.color} ${report.status === 'processing' ? 'animate-spin' : ''}`} />
                         <span className={`text-[10px] font-bold uppercase tracking-widest italic ${st.color}`}>{st.label}</span>
                       </div>
                       <div className="relative">
                         <button
                           onClick={() => setActionMenu(actionMenu === report.id ? null : report.id)}
-                          className="p-2 rounded-xl hover:bg-white/10 text-zinc-600 transition-all"
+                          className="p-2 rounded-xl hover:bg-black/10 dark:bg-white/10 text-zinc-600 transition-all"
                         >
                           <MoreHorizontal size={18} />
                         </button>
                         {actionMenu === report.id && (
                           <>
                             <div className="fixed inset-0 z-10" onClick={() => setActionMenu(null)} />
-                            <div className="absolute right-0 top-10 z-20 w-48 bg-[#0a0a0a] rounded-2xl border border-white/10 shadow-2xl py-2 overflow-hidden backdrop-blur-xl">
+                            <div className="absolute right-0 top-10 z-20 w-48 bg-white dark:bg-[#0a0a0a] rounded-2xl border border-black/10 dark:border-white/10 shadow-2xl py-2 overflow-hidden backdrop-blur-xl">
                               {report.status === 'completed' && (
-                                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 uppercase tracking-widest transition-all">
+                                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 uppercase tracking-widest transition-all">
                                   <Download size={14} /> DOWNLOAD
                                 </button>
                               )}
-                              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 uppercase tracking-widest transition-all">
+                              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 uppercase tracking-widest transition-all">
                                 <Eye size={14} /> VIEW DETAILS
                               </button>
-                              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 uppercase tracking-widest transition-all">
+                              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 uppercase tracking-widest transition-all">
                                 <RefreshCw size={14} /> REGENERATE
                               </button>
-                              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-rose-500 hover:bg-rose-500/10 uppercase tracking-widest transition-all border-t border-white/5 mt-1">
+                              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-rose-500 hover:bg-rose-500/10 uppercase tracking-widest transition-all border-t border-black/5 dark:border-white/5 mt-1">
                                 <Trash2 size={14} /> DELETE REPORT
                               </button>
                             </div>
@@ -403,7 +403,7 @@ const Reports: React.FC = () => {
           {/* Scheduled Tab */}
           {activeTab === 'scheduled' && (
             <div className="space-y-8">
-              <div className="flex items-center justify-between border-b border-white/5 pb-6">
+              <div className="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-6">
                 <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">SCHEDULED REPORTS ({scheduledReports.length} RUNNING)</p>
                 <button className="flex items-center gap-2 text-[10px] font-bold text-emerald-500 hover:text-emerald-400 uppercase tracking-widest transition-all">
                   <Plus size={16} /> NEW SCHEDULE
@@ -411,7 +411,7 @@ const Reports: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {scheduledReports.map(sr => (
-                  <div key={sr.id} className="premium-card !bg-zinc-950/40 border-white/5 p-6 hover:border-emerald-500/20 transition-all">
+                  <div key={sr.id} className="premium-card !bg-zinc-950/40 border-black/5 dark:border-white/5 p-6 hover:border-emerald-500/20 transition-all">
                     <div className="flex items-center justify-between mb-8">
                        <div className={`p-3 rounded-xl ${sr.active ? 'bg-emerald-500/5' : 'bg-zinc-900'} border border-white/5`}>
                         <Calendar className={`w-5 h-5 ${sr.active ? 'text-emerald-500' : 'text-zinc-600'}`} />
@@ -425,8 +425,8 @@ const Reports: React.FC = () => {
                     <div className="space-y-4">
                       <div>
                         <div className="flex items-center gap-3">
-                          <h4 className="text-sm font-bold text-white uppercase tracking-wide">{sr.name}</h4>
-                          <span className="text-[9px] font-bold bg-zinc-900 text-zinc-600 px-2 py-0.5 rounded border border-white/5">{sr.format}</span>
+                          <h4 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wide">{sr.name}</h4>
+                          <span className="text-[9px] font-bold bg-zinc-900 text-zinc-600 px-2 py-0.5 rounded border border-black/5 dark:border-white/5">{sr.format}</span>
                         </div>
                         <div className="flex flex-wrap gap-4 mt-3">
                           <span className="text-[10px] font-bold text-zinc-500 flex items-center gap-1.5 uppercase tracking-widest">
@@ -437,9 +437,9 @@ const Reports: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                      <div className="pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
                         <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">RECIPIENTS: {sr.recipients} USERS</span>
-                        <button className="text-zinc-700 hover:text-white transition-all"><MoreHorizontal size={16} /></button>
+                        <button className="text-zinc-700 hover:text-zinc-900 dark:text-white transition-all"><MoreHorizontal size={16} /></button>
                       </div>
                     </div>
                   </div>
