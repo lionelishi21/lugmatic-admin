@@ -7,6 +7,8 @@ import {
   RefreshCw, ShieldCheck, AlertCircle, Play
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
+import { podcastService } from '../../services/podcastService';
+import { Loader2, X } from 'lucide-react';
 import { Podcast } from '../../types';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,6 +25,9 @@ const PodcastManagement: React.FC = () => {
   const [selectedPodcast, setSelectedPodcast] = useState<Podcast | null>(null);
   const [podcastToDelete, setPodcastToDelete] = useState<string | null>(null);
   const [podcastToModerate, setPodcastToModerate] = useState<{id: string, action: 'approve' | 'reject', title: string} | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newPodcast, setNewPodcast] = useState({ title: '', description: '', category: 'Music', explicit: false, coverArt: '' });
   
   const [stats, setStats] = useState({
     total: 0,
@@ -71,6 +76,23 @@ const PodcastManagement: React.FC = () => {
     fetchPodcasts();
   }, [page, statusFilter]);
 
+  const handleAddPodcast = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    const loadingId = toast.loading('Creating new podcast series...');
+    try {
+      await podcastService.createPodcast(newPodcast);
+      toast.success('Podcast series created successfully', { id: loadingId });
+      setIsAddModalOpen(false);
+      setNewPodcast({ title: '', description: '', category: 'Music', explicit: false, coverArt: '' });
+      fetchPodcasts();
+    } catch (err) {
+      toast.error('Failed to create podcast', { id: loadingId });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleModerate = async () => {
     if (!podcastToModerate) return;
     const loadingId = toast.loading(`${podcastToModerate.action === 'approve' ? 'Approving' : 'Deactivating'} podcast...`);
@@ -112,7 +134,7 @@ const PodcastManagement: React.FC = () => {
           </h1>
           <p className="text-zinc-500 text-xs font-semibold ml-1">Monitor and manage podcasts and episodes across the platform.</p>
         </div>
-        <button className="btn-primary flex items-center gap-2">
+        <button onClick={() => setIsAddModalOpen(true)} className="btn-primary flex items-center gap-2">
           <Plus size={18} />
           New Series
         </button>
@@ -287,6 +309,80 @@ const PodcastManagement: React.FC = () => {
         onConfirm={handleModerate}
         onCancel={() => setPodcastToModerate(null)}
       />
+
+      <AnimatePresence mode="wait">
+        {isAddModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" onClick={() => setIsAddModalOpen(false)}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="premium-card w-full max-w-lg shadow-2xl border-black/10 dark:border-white/10 p-8" onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-start mb-8">
+                <div className="flex items-center gap-4">
+                   <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center border border-purple-500/20">
+                      <PodcastIcon className="text-purple-500" size={24} />
+                   </div>
+                   <div>
+                      <h3 className="text-xl font-bold text-zinc-900 dark:text-white">Add Podcast Series</h3>
+                      <p className="text-sm text-zinc-500 font-medium">Create a new platform podcast.</p>
+                   </div>
+                </div>
+                <button onClick={() => setIsAddModalOpen(false)} className="p-2 rounded-lg hover:bg-black/5 dark:bg-white/5 text-zinc-500 hover:text-zinc-900 dark:text-white transition-colors"><X size={20} /></button>
+              </div>
+              <form onSubmit={handleAddPodcast} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Series Title</label>
+                  <input type="text" value={newPodcast.title} onChange={e => setNewPodcast({...newPodcast, title: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" placeholder="e.g. Daily Top Hits" required />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Description</label>
+                  <textarea value={newPodcast.description} onChange={e => setNewPodcast({...newPodcast, description: e.target.value})} className="w-full p-4 h-24 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600 resize-none" placeholder="A brief description of this podcast..." required />
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Category</label>
+                    <div className="relative group/sel">
+                      <select value={newPodcast.category} onChange={e => setNewPodcast({...newPodcast, category: e.target.value})} className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 appearance-none transition-all cursor-pointer">
+                        <option value="Music">Music</option>
+                        <option value="Talk">Talk</option>
+                        <option value="Comedy">Comedy</option>
+                        <option value="News">News</option>
+                      </select>
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none group-focus-within/sel:text-purple-400 transition-colors" />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Content Rating</label>
+                    <div className="relative group/sel">
+                      <select value={newPodcast.explicit ? 'true' : 'false'} onChange={e => setNewPodcast({...newPodcast, explicit: e.target.value === 'true'})} className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 appearance-none transition-all cursor-pointer">
+                        <option value="false">Clean</option>
+                        <option value="true">Explicit</option>
+                      </select>
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none group-focus-within/sel:text-purple-400 transition-colors" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Cover Art URL</label>
+                  <input type="url" value={newPodcast.coverArt} onChange={e => setNewPodcast({...newPodcast, coverArt: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" placeholder="https://..." required />
+                </div>
+
+                <div className="pt-6 flex justify-end gap-3 border-t border-black/5 dark:border-white/5 mt-8">
+                  <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-6 py-2.5 text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors">Cancel</button>
+                  <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-white text-black rounded-xl text-sm font-bold shadow-lg hover:bg-zinc-200 transition-colors flex items-center gap-2">
+                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <PodcastIcon size={18} />}
+                    Create Series
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
