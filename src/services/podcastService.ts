@@ -15,27 +15,27 @@ export const podcastService = {
       pageSize: pageSize.toString(),
       ...filters
     });
-    return apiService.get<PaginatedResponse<Podcast>>(`/podcasts?${params}`);
+    return apiService.get<PaginatedResponse<Podcast>>(`/podcast?${params}`);
   },
 
   // Get podcast by ID
   getPodcastById: async (id: string) => {
-    return apiService.get<ApiResponse<Podcast>>(`/podcasts/${id}`);
+    return apiService.get<ApiResponse<Podcast>>(`/podcast/${id}`);
   },
 
   // Create new podcast
   createPodcast: async (data: CreatePodcastRequest) => {
-    return apiService.post<ApiResponse<Podcast>>('/podcasts', data);
+    return apiService.post<ApiResponse<Podcast>>('/podcast', data);
   },
 
   // Update podcast
   updatePodcast: async (id: string, data: UpdatePodcastRequest) => {
-    return apiService.put<ApiResponse<Podcast>>(`/podcasts/${id}`, data);
+    return apiService.put<ApiResponse<Podcast>>(`/podcast/${id}`, data);
   },
 
   // Delete podcast
   deletePodcast: async (id: string) => {
-    return apiService.delete<ApiResponse<void>>(`/podcasts/${id}`);
+    return apiService.delete<ApiResponse<void>>(`/podcast/${id}`);
   },
 
   // Get artist's podcasts
@@ -44,22 +44,22 @@ export const podcastService = {
       page: page.toString(),
       pageSize: pageSize.toString()
     });
-    return apiService.get<PaginatedResponse<Podcast>>(`/podcasts/artist/${artistId}?${params}`);
+    return apiService.get<PaginatedResponse<Podcast>>(`/podcast/artist/${artistId}?${params}`);
   },
 
   // Publish/unpublish podcast
   togglePublishStatus: async (id: string, isPublished: boolean) => {
-    return apiService.put<ApiResponse<Podcast>>(`/podcasts/${id}/publish`, { isPublished });
+    return apiService.put<ApiResponse<Podcast>>(`/podcast/${id}/publish`, { isPublished });
   },
 
   // Get podcast analytics
   getPodcastAnalytics: async (id: string) => {
-    return apiService.get<ApiResponse<any>>(`/podcasts/${id}/analytics`);
+    return apiService.get<ApiResponse<any>>(`/podcast/${id}/analytics`);
   },
 
   // Get trending podcasts
   getTrendingPodcasts: async (limit = 10) => {
-    return apiService.get<ApiResponse<Podcast[]>>(`/podcasts/trending?limit=${limit}`);
+    return apiService.get<ApiResponse<Podcast[]>>(`/podcast/trending?limit=${limit}`);
   },
 
   // Get podcasts by category
@@ -68,7 +68,7 @@ export const podcastService = {
       page: page.toString(),
       pageSize: pageSize.toString()
     });
-    return apiService.get<PaginatedResponse<Podcast>>(`/podcasts/category/${category}?${params}`);
+    return apiService.get<PaginatedResponse<Podcast>>(`/podcast/category/${category}?${params}`);
   },
 
   // Search podcasts
@@ -78,7 +78,7 @@ export const podcastService = {
       page: page.toString(),
       pageSize: pageSize.toString()
     });
-    return apiService.get<PaginatedResponse<Podcast>>(`/podcasts/search?${params}`);
+    return apiService.get<PaginatedResponse<Podcast>>(`/podcast/search?${params}`);
   },
 
   // Admin: Get all podcasts for moderation
