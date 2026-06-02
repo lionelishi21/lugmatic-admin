@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import { 
-  Search, Edit, Trash2, Radio as PodcastIcon, 
+  Search, Trash2, Radio as PodcastIcon, 
   PlayCircle, Filter, CheckCircle2, XCircle, Mic, 
-  Eye, Plus, ArrowLeft, Headphones, RefreshCw, ShieldCheck
+  Eye, Plus, ArrowLeft, Headphones, RefreshCw, ShieldCheck, Upload, Music
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { podcastService } from '../../services/podcastService';
-import { apiService } from '../../services/api';
+import apiService from '../../services/api';
 import { Loader2, X } from 'lucide-react';
 import { Podcast } from '../../types';
 import toast from 'react-hot-toast';
@@ -32,7 +33,11 @@ const PodcastManagement: React.FC = () => {
   const [isAddEpisodeOpen, setIsAddEpisodeOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newPodcast, setNewPodcast] = useState({ title: '', description: '', category: 'Music', explicit: false, coverArt: '' });
-  const [newEpisode, setNewEpisode] = useState({ title: '', description: '', audioUrl: '', duration: '', episodeNumber: '' });
+  const [newEpisode, setNewEpisode] = useState({ title: '', description: '', duration: '', episodeNumber: '' });
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const audioInputRef = useRef<HTMLInputElement>(null);
   const [stats, setStats] = useState({ total: 0, published: 0, pending: 0, episodes: 0 });
 
   const fetchPodcasts = async () => {
@@ -88,25 +93,48 @@ const PodcastManagement: React.FC = () => {
 
   const handleAddEpisode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedPodcast) return;
+    if (!selectedPodcast || !audioFile) { toast.error('Please select an audio file'); return; }
     setIsSubmitting(true);
-    const id = toast.loading('Adding episode...');
+    const toastId = toast.loading('Uploading audio to S3...');
     try {
+      // Step 1: Get presigned URL
+      setIsUploading(true);
+      const presignRes = await apiService.post<{ data: { uploadUrl: string; key: string } }>('/upload/presign/podcast-audio', {
+        filename: audioFile.name,
+        contentType: audioFile.type || 'audio/mpeg',
+      });
+      const { uploadUrl, key } = (presignRes.data as any)?.data ?? presignRes.data as any;
+
+      // Step 2: Upload file directly to S3 with progress
+      const cleanAxios = axios.create();
+      await cleanAxios.put(uploadUrl, audioFile, {
+        headers: { 'Content-Type': audioFile.type || 'audio/mpeg' },
+        onUploadProgress: (e) => {
+          const pct = Math.round(((e.loaded ?? 0) / (e.total ?? audioFile.size)) * 100);
+          setUploadProgress(pct);
+        },
+      });
+      setIsUploading(false);
+
+      // Step 3: Save episode with the S3 key
+      toast.loading('Saving episode...', { id: toastId });
       await apiService.post(`/podcast/${selectedPodcast._id}/episodes`, {
         title: newEpisode.title,
         description: newEpisode.description,
-        audioFileKey: newEpisode.audioUrl,
+        audioFileKey: key,
         duration: newEpisode.duration ? parseInt(newEpisode.duration) : 0,
         episodeNumber: newEpisode.episodeNumber ? parseInt(newEpisode.episodeNumber) : undefined,
       });
-      toast.success('Episode published!', { id });
+
+      toast.success('Episode published!', { id: toastId });
       setIsAddEpisodeOpen(false);
-      setNewEpisode({ title: '', description: '', audioUrl: '', duration: '', episodeNumber: '' });
+      setNewEpisode({ title: '', description: '', duration: '', episodeNumber: '' });
+      setAudioFile(null);
+      setUploadProgress(0);
       fetchPodcasts();
-      // Update selected podcast episode count locally
-      setSelectedPodcast(prev => prev ? { ...prev, episodes: [...(prev.episodes || []), { title: newEpisode.title } as any] } : prev);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Failed to add episode', { id });
+      setIsUploading(false);
+      toast.error(err?.response?.data?.message || 'Failed to add episode', { id: toastId });
     } finally {
       setIsSubmitting(false);
     }
@@ -523,10 +551,54 @@ const PodcastManagement: React.FC = () => {
                   <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Description</label>
                   <textarea value={newEpisode.description} onChange={e => setNewEpisode({...newEpisode, description: e.target.value})} className="w-full p-4 h-20 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600 resize-none" placeholder="What is this episode about?" />
                 </div>
+                {/* Audio File Upload */}
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Audio File URL <span className="text-rose-400">*</span></label>
-                  <input type="url" value={newEpisode.audioUrl} onChange={e => setNewEpisode({...newEpisode, audioUrl: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" placeholder="https://... (MP3, AAC, or S3 URL)" required />
-                  <p className="text-[11px] text-zinc-500">Paste a direct link to the audio file (S3, CDN, or any hosted URL).</p>
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Audio File <span className="text-rose-400">*</span></label>
+                  <input
+                    ref={audioInputRef}
+                    type="file"
+                    accept="audio/*,.mp3,.aac,.wav,.m4a,.ogg"
+                    className="hidden"
+                    onChange={e => { const f = e.target.files?.[0]; if (f) setAudioFile(f); }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => audioInputRef.current?.click()}
+                    className={`w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
+                      audioFile
+                        ? 'border-purple-500/40 bg-purple-500/5'
+                        : 'border-black/10 dark:border-white/10 hover:border-purple-500/30 hover:bg-purple-500/5'
+                    }`}
+                  >
+                    {audioFile ? (
+                      <>
+                        <Music size={20} className="text-purple-400" />
+                        <p className="text-xs font-bold text-zinc-900 dark:text-white truncate max-w-xs">{audioFile.name}</p>
+                        <p className="text-[11px] text-zinc-500">{(audioFile.size / 1024 / 1024).toFixed(1)} MB · Click to change</p>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={20} className="text-zinc-500" />
+                        <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Click to select audio file</p>
+                        <p className="text-[11px] text-zinc-500">MP3, AAC, WAV, M4A supported</p>
+                      </>
+                    )}
+                  </button>
+                  {/* Upload progress bar */}
+                  {isUploading && (
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-semibold text-zinc-500">
+                        <span>Uploading to S3...</span>
+                        <span>{uploadProgress}%</span>
+                      </div>
+                      <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-purple-500 rounded-full transition-all duration-150"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
