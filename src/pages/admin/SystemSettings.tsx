@@ -156,11 +156,11 @@ const SystemSettings: React.FC = () => {
                     key={category.id}
                     onClick={() => setActiveTab(category.id)}
                     className={`w-full flex items-center gap-5 px-5 py-4 rounded-2xl transition-all duration-300 text-left group relative overflow-hidden ${
-                      active ? 'bg-white/10 text-white shadow-xl border border-white/5' : 'text-zinc-600 hover:text-zinc-300 hover:bg-white/5'
+                      active ? 'bg-white dark:bg-white/10 text-zinc-900 dark:text-white shadow-xl border border-black/5 dark:border-white/5' : 'text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5'
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
-                      active ? 'bg-emerald-500 text-black shadow-[0_0_20px_#10b981]' : 'bg-zinc-900 border border-white/5 group-hover:scale-110'
+                      active ? 'bg-emerald-500 text-black shadow-[0_0_20px_#10b981]' : 'bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 group-hover:scale-110'
                     }`}>
                       <Icon size={18} />
                     </div>
@@ -170,7 +170,7 @@ const SystemSettings: React.FC = () => {
                         {category.description}
                       </p>
                     </div>
-                    <ChevronRight size={14} className={`transition-all duration-500 ${active ? 'translate-x-1 text-emerald-500' : 'text-zinc-900 group-hover:text-zinc-700 group-hover:translate-x-1'}`} />
+                    <ChevronRight size={14} className={`transition-all duration-500 ${active ? 'translate-x-1 text-emerald-500' : 'text-zinc-500 group-hover:text-zinc-700 group-hover:translate-x-1'}`} />
                   </button>
                 );
               })}
@@ -178,7 +178,7 @@ const SystemSettings: React.FC = () => {
           </div>
 
           {/* Real-time Infrastructure Telemetry */}
-          <div className="premium-card space-y-8 border-black/5 dark:border-white/5 bg-zinc-950/20 shadow-2xl">
+          <div className="premium-card space-y-8 border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/20 shadow-2xl">
             <div className="flex items-center justify-between">
               <h3 className="text-[10px] font-bold text-zinc-500 flex items-center gap-3">
                 <Activity size={14} className="text-emerald-500" /> Infrastructure Health
@@ -214,7 +214,7 @@ const SystemSettings: React.FC = () => {
             <div className="p-10 border-b border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/50 flex items-center justify-between relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/[0.02] blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
               <div className="flex items-center gap-8 relative z-10">
-                <div className="w-16 h-16 rounded-[1.5rem] bg-zinc-900 flex items-center justify-center border border-black/5 dark:border-white/5 shadow-2xl relative overflow-hidden">
+                <div className="w-16 h-16 rounded-[1.5rem] bg-white dark:bg-zinc-900 flex items-center justify-center border border-black/5 dark:border-white/5 shadow-2xl relative overflow-hidden">
                   <div className="absolute inset-0 bg-emerald-500/5" />
                   {activeCategory && <activeCategory.icon size={28} className="text-emerald-500 relative z-10" />}
                 </div>
@@ -254,11 +254,11 @@ const SystemSettings: React.FC = () => {
                             <button
                               onClick={() => handleSettingChange(setting.id, !setting.value)}
                               className={`relative w-16 h-8 rounded-full transition-all duration-500 shadow-inner overflow-hidden group/toggle ${
-                                setting.value ? 'bg-emerald-500' : 'bg-zinc-900 border border-white/5'
+                                setting.value ? 'bg-emerald-500' : 'bg-zinc-200 dark:bg-zinc-900 border border-black/5 dark:border-white/5'
                               }`}
                             >
                               <div className={`absolute top-1.5 w-5 h-5 rounded-full transition-all duration-500 ${
-                                setting.value ? 'left-9 bg-black shadow-[0_0_15px_rgba(0,0,0,0.5)]' : 'left-2 bg-zinc-700'
+                                setting.value ? 'left-9 bg-black shadow-[0_0_15px_rgba(0,0,0,0.5)]' : 'left-2 bg-white dark:bg-zinc-700 shadow-sm'
                               }`} />
                               <div className="absolute inset-0 bg-black/10 dark:bg-white/10 translate-y-full group-hover/toggle:translate-y-0 transition-transform" />
                             </button>
