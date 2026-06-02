@@ -128,12 +128,12 @@ export default function ArtistApprovals() {
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-900 dark:text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-64"
+              className="pl-9 pr-4 py-2 bg-zinc-50 dark:bg-zinc-800 border border-black/5 dark:border-white/5 rounded-lg text-zinc-900 dark:text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-64"
             />
           </div>
           <button
             onClick={() => fetchPending(pagination.page)}
-            className="p-2 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors"
+            className="p-2 bg-zinc-50 dark:bg-zinc-800 border border-black/5 dark:border-white/5 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors"
           >
             <RefreshCw className="h-4 w-4" />
           </button>
@@ -144,19 +144,19 @@ export default function ArtistApprovals() {
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 animate-pulse">
+            <div key={i} className="bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-xl p-5 animate-pulse">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-zinc-800" />
+                <div className="w-14 h-14 rounded-full bg-zinc-100 dark:bg-zinc-800" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-zinc-800 rounded w-1/3" />
-                  <div className="h-3 bg-zinc-800 rounded w-1/4" />
+                  <div className="h-4 bg-zinc-100 dark:bg-zinc-800 rounded w-1/3" />
+                  <div className="h-3 bg-zinc-100 dark:bg-zinc-800 rounded w-1/4" />
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center">
+        <div className="bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-xl p-12 text-center">
           <UserCheck className="h-10 w-10 text-zinc-600 mx-auto mb-3" />
           <p className="text-zinc-600 dark:text-zinc-400 font-medium">No pending applications</p>
           <p className="text-zinc-600 text-sm mt-1">All artist submissions have been reviewed</p>
@@ -190,7 +190,7 @@ export default function ArtistApprovals() {
               className={`px-3 py-1 rounded text-sm ${
                 p === pagination.page
                   ? 'bg-emerald-500 text-white'
-                  : 'bg-zinc-800 text-zinc-400 hover:text-white'
+                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-white'
               }`}
             >
               {p}
@@ -202,7 +202,7 @@ export default function ArtistApprovals() {
       {/* Reject Modal */}
       {rejectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-md p-6 space-y-4">
+          <div className="bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-2xl w-full max-w-md p-6 space-y-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-red-500/10 rounded-lg">
                 <XCircle className="h-5 w-5 text-red-400" />
@@ -223,7 +223,7 @@ export default function ArtistApprovals() {
                   value={rejectReason}
                   onChange={e => setRejectReason(e.target.value)}
                   placeholder="e.g. ID document unclear, bio too short, missing agreement signature..."
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-red-500 resize-none"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-black/5 dark:border-white/5 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-red-500 resize-none"
                 />
               </div>
               <div>
@@ -233,7 +233,7 @@ export default function ArtistApprovals() {
                   value={adminNotes}
                   onChange={e => setAdminNotes(e.target.value)}
                   placeholder="Optional internal notes..."
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800 border border-black/5 dark:border-white/5 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
                 />
               </div>
             </div>
@@ -241,7 +241,7 @@ export default function ArtistApprovals() {
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => { setRejectModal(null); setRejectReason(''); }}
-                className="flex-1 px-4 py-2 bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors text-sm"
+                className="flex-1 px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors text-sm"
               >
                 Cancel
               </button>
@@ -273,7 +273,7 @@ function ArtistCard({ artist, isExpanded, isProcessing, onToggle, onApprove, onR
   const [showId, setShowId] = useState(false);
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+    <div className="bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-xl overflow-hidden">
       {/* Summary row */}
       <div className="flex items-center gap-4 p-5">
         <img
@@ -299,7 +299,7 @@ function ArtistCard({ artist, isExpanded, isProcessing, onToggle, onApprove, onR
               {formatDistanceToNow(new Date(artist.onboardingSubmittedAt), { addSuffix: true })}
             </span>
             {artist.genres?.slice(0, 3).map(g => (
-              <span key={g} className="text-xs text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded">{g}</span>
+              <span key={g} className="text-xs text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">{g}</span>
             ))}
           </div>
         </div>
@@ -322,7 +322,7 @@ function ArtistCard({ artist, isExpanded, isProcessing, onToggle, onApprove, onR
           </button>
           <button
             onClick={onToggle}
-            className="p-1.5 bg-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors"
+            className="p-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors"
           >
             {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
@@ -331,7 +331,7 @@ function ArtistCard({ artist, isExpanded, isProcessing, onToggle, onApprove, onR
 
       {/* Expanded detail */}
       {isExpanded && (
-        <div className="border-t border-zinc-800 p-5 space-y-5">
+        <div className="border-t border-black/5 dark:border-white/5 p-5 space-y-5">
           {/* Bio */}
           <div>
             <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Bio</h4>
@@ -367,7 +367,7 @@ function ArtistCard({ artist, isExpanded, isProcessing, onToggle, onApprove, onR
                 href={artist.idDocumentUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/50 transition-colors"
+                className="inline-flex items-center gap-2 px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-black/5 dark:border-white/5 rounded-lg text-sm text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/50 transition-colors"
               >
                 <FileText className="h-4 w-4" />
                 View ID Document
@@ -408,7 +408,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
       <p className="text-zinc-500 text-xs">{label}</p>
-      <p className="text-zinc-200 mt-0.5">{value || '—'}</p>
+      <p className="text-zinc-800 dark:text-zinc-200 mt-0.5">{value || '—'}</p>
     </div>
   );
 }
