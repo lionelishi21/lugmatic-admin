@@ -346,9 +346,15 @@ const PodcastManagement: React.FC = () => {
                     <div className="relative group/sel">
                       <select value={newPodcast.category} onChange={e => setNewPodcast({...newPodcast, category: e.target.value})} className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 appearance-none transition-all cursor-pointer">
                         <option value="Music">Music</option>
-                        <option value="Talk">Talk</option>
-                        <option value="Comedy">Comedy</option>
                         <option value="News">News</option>
+                        <option value="Comedy">Comedy</option>
+                        <option value="Education">Education</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Business">Business</option>
+                        <option value="Health">Health</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Other">Other</option>
                       </select>
                       <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none group-focus-within/sel:text-purple-400 transition-colors" />
                     </div>
