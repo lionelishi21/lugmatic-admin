@@ -281,8 +281,8 @@ const PodcastManagement: React.FC = () => {
         isOpen={!!podcastToModerate}
         title={podcastToModerate?.action === 'approve' ? 'Approve Podcast?' : 'Deactivate Podcast?'}
         message={podcastToModerate?.action === 'approve' 
-          ? `Make "${podcastToModerate.title}" live for all users?`
-          : `Hide "${podcastToModerate.title}" from the platform?`}
+          ? `Make "${podcastToModerate?.title}" live for all users?`
+          : `Hide "${podcastToModerate?.title}" from the platform?`}
         confirmLabel={podcastToModerate?.action === 'approve' ? 'Approve' : 'Deactivate'}
         onConfirm={handleModerate}
         onCancel={() => setPodcastToModerate(null)}
