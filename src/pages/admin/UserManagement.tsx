@@ -212,15 +212,15 @@ export default function UserManagement() {
       </motion.div>
 
       {/* Control HUD */}
-      <div className="premium-card !p-4 flex flex-col lg:flex-row items-center gap-6 border-black/5 dark:border-white/5 shadow-md">
-        <div className="relative flex-1 group w-full">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500 h-5 w-5 group-focus-within:text-indigo-500 transition-colors" />
+      <div className="flex flex-col lg:flex-row items-center gap-6 border-black/5 dark:border-white/5">
+        <div className="relative w-full lg:max-w-xl group">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-indigo-500 transition-colors" />
           <input
             type="text"
             placeholder="Search users by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-14 pr-12 h-14 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-zinc-600"
+            className="w-full pl-14 pr-12 h-14 bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold focus:outline-none focus:border-indigo-500/30 focus:ring-4 focus:ring-indigo-500/5 transition-all shadow-inner placeholder:text-zinc-400 dark:placeholder:text-zinc-800"
           />
           {search && (
             <button
@@ -235,13 +235,13 @@ export default function UserManagement() {
         <div className="flex flex-wrap items-center gap-8 px-4">
           <div className="flex items-center gap-3">
             <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Role</span>
-            <div className="flex bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl p-1 gap-1">
+            <div className="flex bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 shadow-inner rounded-xl p-1 gap-1">
               {['all', 'admin', 'artist', 'user'].map(role => (
                 <button
                   key={role}
                   onClick={() => { setRoleFilter(role); setPage(1); }}
                   className={`px-4 py-2 rounded-lg text-xs font-semibold capitalize transition-all duration-300 ${
-                    roleFilter === role ? 'bg-white/10 text-white shadow-md border border-white/5' : 'text-zinc-500 hover:text-zinc-300'
+                    roleFilter === role ? 'bg-white dark:bg-white/10 text-zinc-900 dark:text-white shadow-md border border-black/5 dark:border-white/5' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                   }`}
                 >
                   {role}
@@ -252,13 +252,13 @@ export default function UserManagement() {
 
           <div className="flex items-center gap-3">
             <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Status</span>
-            <div className="flex bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl p-1 gap-1">
+            <div className="flex bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 shadow-inner rounded-xl p-1 gap-1">
               {['all', 'active', 'inactive', 'suspended'].map(status => (
                 <button
                   key={status}
                   onClick={() => { setStatusFilter(status); setPage(1); }}
                   className={`px-4 py-2 rounded-lg text-xs font-semibold capitalize transition-all duration-300 ${
-                    statusFilter === status ? 'bg-white/10 text-white shadow-md border border-white/5' : 'text-zinc-500 hover:text-zinc-300'
+                    statusFilter === status ? 'bg-white dark:bg-white/10 text-zinc-900 dark:text-white shadow-md border border-black/5 dark:border-white/5' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                   }`}
                 >
                   {status}
@@ -274,7 +274,7 @@ export default function UserManagement() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-black/5 dark:border-white/5 bg-zinc-950/20">
+              <tr className="border-b border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/50">
                 <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">{renderSortHeader('User', 'name')}</th>
                 <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">{renderSortHeader('Role', 'role')}</th>
                 <th className="px-8 py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">{renderSortHeader('Status', 'status')}</th>
@@ -294,7 +294,7 @@ export default function UserManagement() {
               ) : users.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-10 py-32 text-center">
-                    <div className="w-20 h-20 bg-zinc-900/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-black/5 dark:border-white/5">
+                    <div className="w-20 h-20 bg-zinc-50 dark:bg-zinc-900/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-black/5 dark:border-white/5">
                       <Users size={32} className="text-zinc-600" />
                     </div>
                     <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">No users found</h3>
@@ -317,7 +317,7 @@ export default function UserManagement() {
                     >
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-black/5 dark:border-white/5 flex items-center justify-center text-sm font-bold text-zinc-500 shadow-sm">
+                          <div className="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/5 flex items-center justify-center text-sm font-bold text-zinc-500 shadow-sm">
                             {getInitials(user)}
                           </div>
                           <div className="min-w-0">
@@ -369,7 +369,7 @@ export default function UserManagement() {
                                   initial={{ opacity: 0, scale: 0.95, y: 10 }}
                                   animate={{ opacity: 1, scale: 1, y: 0 }}
                                   exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                                  className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl shadow-xl z-50 p-2 overflow-hidden backdrop-blur-xl"
+                                  className="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl shadow-xl z-50 p-2 overflow-hidden backdrop-blur-xl"
                                 >
                                   <button onClick={() => handleStatusChange(user._id, 'active')} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:text-white hover:bg-emerald-500/10 transition-colors text-left group/opt">
                                     <UserCheck size={16} className="text-emerald-500" /> Activate
@@ -392,7 +392,7 @@ export default function UserManagement() {
         </div>
 
         {/* Pagination */}
-        <div className="px-8 py-5 border-t border-black/5 dark:border-white/5 bg-zinc-950/20 flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto">
+        <div className="px-8 py-5 border-t border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/50 flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto">
           <p className="text-xs font-medium text-zinc-500">
             Showing <span className="text-zinc-900 dark:text-white">{users.length}</span> of <span className="text-zinc-900 dark:text-white">{totalUsers}</span> users
           </p>
@@ -411,8 +411,8 @@ export default function UserManagement() {
                   onClick={() => setPage(i + 1)}
                   className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all border ${
                     page === i + 1 
-                      ? 'bg-white text-black border-white' 
-                      : 'bg-transparent text-zinc-400 border-white/5 hover:bg-white/5'
+                      ? 'bg-zinc-900 dark:bg-white text-white dark:text-black border-zinc-900 dark:border-white' 
+                      : 'bg-transparent text-zinc-500 border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5'
                   }`}
                 >
                   {i + 1}
@@ -454,21 +454,21 @@ export default function UserManagement() {
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">First Name</label>
-                    <input type="text" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} className="w-full px-4 h-12 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-600" placeholder="John" required />
+                    <input type="text" value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" placeholder="John" required />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Last Name</label>
-                    <input type="text" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} className="w-full px-4 h-12 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-600" placeholder="Doe" required />
+                    <input type="text" value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" placeholder="Doe" required />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Email Address</label>
-                  <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full px-4 h-12 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-600" placeholder="john@example.com" required />
+                  <input type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" placeholder="john@example.com" required />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Role</label>
                   <div className="relative group/sel">
-                    <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value as any})} className="w-full h-12 px-4 pr-10 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
+                    <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value as any})} className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
                       <option value="user">User</option>
                       <option value="artist">Artist</option>
                       <option value="admin">Admin</option>
@@ -505,7 +505,7 @@ export default function UserManagement() {
               
               <div className="space-y-6">
                 <div className="relative text-left group/sel">
-                  <select value={newRole} onChange={e => setNewRole(e.target.value)} className="w-full h-12 px-4 pr-10 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
+                  <select value={newRole} onChange={e => setNewRole(e.target.value)} className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
                     <option value="user">User</option>
                     <option value="artist">Artist</option>
                     <option value="admin">Admin</option>
@@ -537,7 +537,7 @@ export default function UserManagement() {
               </p>
               
               {tempPassword ? (
-                <div className="bg-zinc-900/50 border border-black/5 dark:border-white/5 p-6 rounded-2xl mb-8">
+                <div className="bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 p-6 rounded-2xl mb-8">
                   <p className="text-xs text-zinc-600 dark:text-zinc-400 font-semibold uppercase tracking-wider mb-2">Temporary Password</p>
                   <code className="text-2xl font-mono text-zinc-900 dark:text-white tracking-widest">{tempPassword}</code>
                 </div>
