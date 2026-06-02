@@ -150,28 +150,28 @@ export default function Approvals() {
       </div>
 
       {/* Control HUD */}
-      <div className="premium-card !p-4 flex flex-col lg:flex-row items-center gap-6 border-black/5 dark:border-white/5">
-        <div className="relative flex-1 group w-full">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
+      <div className="flex flex-col lg:flex-row items-center gap-6 border-black/5 dark:border-white/5">
+        <div className="relative w-full lg:max-w-xl group">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
           <input
             type="text"
             placeholder="Search pending tracks..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-14 pr-12 h-14 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all placeholder:text-zinc-600"
+            className="w-full pl-14 pr-12 h-14 bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner placeholder:text-zinc-400 dark:placeholder:text-zinc-800"
           />
         </div>
         
-        <div className="flex flex-wrap items-center gap-8 px-4">
+        <div className="flex flex-wrap items-center gap-8">
           <div className="relative group w-full md:w-auto">
-            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500" />
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-600" />
             <select
               value={genreFilter}
               onChange={(e) => setGenreFilter(e.target.value)}
-              className="w-full md:w-48 h-14 pl-12 pr-10 bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500/30 appearance-none transition-all cursor-pointer"
+              className="w-full md:w-48 h-14 pl-12 pr-10 bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 shadow-inner appearance-none transition-all cursor-pointer"
             >
               {uniqueGenres.map(genre => (
-                <option key={genre} value={genre} className="bg-zinc-900 text-zinc-900 dark:text-white">
+                <option key={genre} value={genre} className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">
                   {genre === 'all' ? 'All Genres' : genre}
                 </option>
               ))}
@@ -190,7 +190,7 @@ export default function Approvals() {
           </div>
         ) : filteredTracks.length === 0 ? (
           <div className="premium-card py-32 flex flex-col items-center justify-center text-center max-w-3xl mx-auto border-black/5 dark:border-white/5">
-            <div className="w-20 h-20 bg-zinc-900/50 rounded-full flex items-center justify-center mb-6 border border-black/5 dark:border-white/5">
+            <div className="w-20 h-20 bg-zinc-50 dark:bg-zinc-900/50 rounded-full flex items-center justify-center mb-6 border border-black/5 dark:border-white/5">
               <CheckCircle className="h-8 w-8 text-emerald-500" />
             </div>
             <h3 className="text-zinc-900 dark:text-white font-bold text-xl mb-2">All caught up!</h3>
@@ -245,7 +245,7 @@ export default function Approvals() {
                   </div>
 
                   {/* Content Info */}
-                  <div className="flex-1 p-8 flex flex-col justify-between bg-zinc-900/50">
+                  <div className="flex-1 p-8 flex flex-col justify-between bg-white dark:bg-zinc-900/50">
                     <div className="space-y-6">
                       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
                         <div className="space-y-3">
