@@ -127,39 +127,30 @@ export default function Approvals() {
 
   return (
     <div className="space-y-8 pb-24">
-      {/* Premium Welcome Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="premium-card !p-12 relative overflow-hidden group shadow-2xl border-black/5 dark:border-white/5"
-      >
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/[0.03] blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-        
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-12 z-10">
-          <div className="flex items-center gap-8">
-             <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center flex-shrink-0 border border-emerald-500/20 shadow-2xl relative overflow-hidden">
-                <ShieldCheck className="w-10 h-10 text-emerald-500" />
-             </div>
-             <div>
-                <h2 className="text-4xl font-bold text-zinc-900 dark:text-white tracking-tight mb-2">
-                  Content Approvals
-                </h2>
-                <p className="text-zinc-500 font-medium max-w-md leading-relaxed">
-                   Review and moderate incoming content submissions from artists before they go live on the platform.
-                </p>
-             </div>
+      {/* Intelligence Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">
+              Content Approvals
+            </h1>
+            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-500 tracking-wide">Live Sync Active</span>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-             <div className="flex flex-col items-end mr-4">
-               <span className="text-3xl font-bold text-zinc-900 dark:text-white tabular-nums leading-none">{tracks.length}</span>
-               <span className="text-xs text-zinc-500 font-medium mt-1">Pending Review</span>
-             </div>
+          <p className="text-zinc-500 text-xs font-semibold tracking-wide ml-1">Review and moderate incoming content submissions from artists before they go live on the platform.</p>
+        </div>
+        <div className="flex items-center gap-6">
+          <div className="flex flex-col items-end mr-4">
+            <span className="text-3xl font-bold text-zinc-900 dark:text-white tabular-nums leading-none">{tracks.length}</span>
+            <span className="text-xs text-zinc-500 font-medium mt-1">Pending Review</span>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Control HUD */}
-      <div className="premium-card !p-4 flex flex-col lg:flex-row items-center gap-6 border-black/5 dark:border-white/5 shadow-md">
+      <div className="premium-card !p-4 flex flex-col lg:flex-row items-center gap-6 border-black/5 dark:border-white/5">
         <div className="relative flex-1 group w-full">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500 h-5 w-5 group-focus-within:text-emerald-500 transition-colors" />
           <input
@@ -193,12 +184,12 @@ export default function Approvals() {
       {/* Moderation Queue */}
       <div className="space-y-6">
         {isLoading ? (
-          <div className="premium-card py-32 flex flex-col items-center justify-center text-center border-black/5 dark:border-white/5 shadow-xl">
+          <div className="premium-card py-32 flex flex-col items-center justify-center text-center border-black/5 dark:border-white/5">
             <Activity className="h-10 w-10 text-emerald-500 animate-spin mb-6" />
             <p className="text-zinc-500 font-medium text-sm">Loading pending content...</p>
           </div>
         ) : filteredTracks.length === 0 ? (
-          <div className="premium-card py-32 flex flex-col items-center justify-center text-center max-w-3xl mx-auto border-black/5 dark:border-white/5 shadow-xl">
+          <div className="premium-card py-32 flex flex-col items-center justify-center text-center max-w-3xl mx-auto border-black/5 dark:border-white/5">
             <div className="w-20 h-20 bg-zinc-900/50 rounded-full flex items-center justify-center mb-6 border border-black/5 dark:border-white/5">
               <CheckCircle className="h-8 w-8 text-emerald-500" />
             </div>
@@ -215,7 +206,7 @@ export default function Approvals() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.98 }}
                   transition={{ delay: index * 0.05, duration: 0.3 }}
-                  className="premium-card group !p-0 overflow-hidden hover:border-emerald-500/20 transition-all border-black/5 dark:border-white/5 shadow-xl flex flex-col xl:flex-row"
+                  className="premium-card group !p-0 overflow-hidden hover:border-emerald-500/20 transition-all border-black/5 dark:border-white/5 flex flex-col xl:flex-row"
                 >
                   {/* Visual & Playback Control */}
                   <div className="relative w-full xl:w-80 h-64 xl:h-auto bg-zinc-50 dark:bg-zinc-950 overflow-hidden flex-shrink-0">
