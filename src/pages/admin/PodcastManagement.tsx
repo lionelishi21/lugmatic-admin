@@ -147,7 +147,7 @@ const PodcastManagement: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && fetchPodcasts()}
-              className="input-field pl-11"
+              className="w-full pl-11 pr-4 h-14 bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold focus:outline-none focus:border-purple-500/30 focus:ring-4 focus:ring-purple-500/5 transition-all shadow-inner placeholder:text-zinc-400 dark:placeholder:text-zinc-800"
             />
           </div>
           <div className="relative w-full md:w-64">
@@ -155,12 +155,12 @@ const PodcastManagement: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="input-field pl-11 pr-10 appearance-none cursor-pointer"
+              className="w-full pl-11 pr-10 h-14 bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold focus:outline-none focus:border-purple-500/30 focus:ring-4 focus:ring-purple-500/5 transition-all shadow-inner appearance-none cursor-pointer"
             >
-              <option value="all">All Status</option>
-              <option value="approved">Live Only</option>
-              <option value="pending">Pending Only</option>
-              <option value="inactive">Inactive</option>
+              <option value="all" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">All Status</option>
+              <option value="approved" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Live Only</option>
+              <option value="pending" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Pending Only</option>
+              <option value="inactive" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Inactive</option>
             </select>
             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" size={16} />
           </div>
@@ -172,7 +172,7 @@ const PodcastManagement: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-black/5 dark:border-white/5">
+              <tr className="border-b border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/50">
                 <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Series</th>
                 <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Artist</th>
                 <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Episodes</th>
@@ -200,14 +200,14 @@ const PodcastManagement: React.FC = () => {
                   <tr key={podcast._id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-black/5 dark:border-white/5 overflow-hidden flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-black/5 dark:border-white/5 overflow-hidden flex items-center justify-center">
                           <img src={podcast.coverArt} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-purple-400 transition-colors">{podcast.title}</p>
                           <div className="flex items-center gap-2 mt-0.5">
                             <span className="text-[10px] font-bold text-zinc-600 uppercase">{podcast.category}</span>
-                            <span className="w-1 h-1 rounded-full bg-zinc-800" />
+                            <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-800" />
                             <span className="text-[10px] font-bold text-zinc-600 uppercase">{podcast.explicit ? 'Explicit' : 'Clean'}</span>
                           </div>
                         </div>
@@ -257,7 +257,7 @@ const PodcastManagement: React.FC = () => {
           </table>
         </div>
         {totalPages > 1 && (
-          <div className="px-6 py-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
+          <div className="px-6 py-4 border-t border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950/50 flex items-center justify-between">
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Page {page} of {totalPages}</span>
             <div className="flex gap-2">
               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="btn-secondary !py-1 !px-3 disabled:opacity-30">Prev</button>
