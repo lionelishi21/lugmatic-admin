@@ -32,13 +32,17 @@ const PodcastManagement: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddEpisodeOpen, setIsAddEpisodeOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [newPodcast, setNewPodcast] = useState({ title: '', description: '', category: 'Music', explicit: false, coverArt: '' });
+  const [newPodcast, setNewPodcast] = useState({ title: '', description: '', category: 'Music', explicit: false, coverArt: '', artistId: '' });
   const [newEpisode, setNewEpisode] = useState({ title: '', description: '', duration: '', episodeNumber: '' });
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const audioInputRef = useRef<HTMLInputElement>(null);
   const [stats, setStats] = useState({ total: 0, published: 0, pending: 0, episodes: 0 });
+  const [artists, setArtists] = useState<any[]>([]);
+  const [coverMode, setCoverMode] = useState<'url' | 'file'>('url');
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   const fetchPodcasts = async () => {
     setLoading(true);
@@ -74,18 +78,66 @@ const PodcastManagement: React.FC = () => {
 
   useEffect(() => { fetchPodcasts(); }, [page, statusFilter]);
 
+  useEffect(() => {
+    const fetchArtists = async () => {
+      try {
+        const response = await adminService.getAllArtists(1, 100);
+        if (response && response.data) {
+          const list = response.data.data || response.data;
+          setArtists(Array.isArray(list) ? list : []);
+        }
+      } catch (e) {
+        console.error('Failed to fetch artists:', e);
+      }
+    };
+    if (isAddModalOpen) {
+      fetchArtists();
+    }
+  }, [isAddModalOpen]);
+
   const handleAddPodcast = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newPodcast.artistId) {
+      toast.error('Please select an artist owner');
+      return;
+    }
     setIsSubmitting(true);
-    const id = toast.loading('Creating podcast series...');
+    const toastId = toast.loading('Creating podcast series...');
     try {
-      await podcastService.createPodcast(newPodcast);
-      toast.success('Podcast created!', { id });
+      let finalCoverArt = newPodcast.coverArt;
+      if (coverMode === 'file' && coverFile) {
+        toast.loading('Uploading cover art...', { id: toastId });
+        const presignRes = await apiService.post<{ data: { uploadUrl: string; key: string } }>('/upload/presign/cover-art', {
+          filename: coverFile.name,
+          contentType: coverFile.type || 'image/jpeg',
+        });
+        const { uploadUrl, key } = (presignRes.data as any)?.data ?? presignRes.data as any;
+
+        const cleanAxios = axios.create();
+        await cleanAxios.put(uploadUrl, coverFile, {
+          headers: { 'Content-Type': coverFile.type || 'image/jpeg' }
+        });
+        finalCoverArt = key;
+      }
+
+      toast.loading('Saving series...', { id: toastId });
+      await podcastService.createPodcast({
+        title: newPodcast.title,
+        description: newPodcast.description,
+        category: newPodcast.category,
+        explicit: newPodcast.explicit,
+        coverArt: finalCoverArt,
+        artistId: newPodcast.artistId
+      });
+
+      toast.success('Podcast created!', { id: toastId });
       setIsAddModalOpen(false);
-      setNewPodcast({ title: '', description: '', category: 'Music', explicit: false, coverArt: '' });
+      setNewPodcast({ title: '', description: '', category: 'Music', explicit: false, coverArt: '', artistId: '' });
+      setCoverFile(null);
+      setCoverMode('url');
       fetchPodcasts();
-    } catch {
-      toast.error('Failed to create podcast', { id });
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to create podcast', { id: toastId });
     } finally {
       setIsSubmitting(false);
     }
@@ -468,6 +520,23 @@ const PodcastManagement: React.FC = () => {
               </div>
               <form onSubmit={handleAddPodcast} className="space-y-6">
                 <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Artist Owner *</label>
+                  <div className="relative">
+                    <select
+                      value={newPodcast.artistId}
+                      onChange={e => setNewPodcast({...newPodcast, artistId: e.target.value})}
+                      className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 appearance-none cursor-pointer"
+                      required
+                    >
+                      <option value="">Select Artist...</option>
+                      {artists.map((art: any) => (
+                        <option key={art._id} value={art._id}>{art.name || art.fullName || 'Unnamed Artist'}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" size={16} />
+                  </div>
+                </div>
+                <div className="space-y-2">
                   <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Series Title</label>
                   <input type="text" value={newPodcast.title} onChange={e => setNewPodcast({...newPodcast, title: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" placeholder="e.g. Daily Top Hits" required />
                 </div>
@@ -491,7 +560,7 @@ const PodcastManagement: React.FC = () => {
                         <option value="Entertainment">Entertainment</option>
                         <option value="Other">Other</option>
                       </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" size={16} />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -501,14 +570,53 @@ const PodcastManagement: React.FC = () => {
                         <option value="false">Clean</option>
                         <option value="true">Explicit</option>
                       </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" size={16} />
                     </div>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Cover Art URL</label>
-                  <input type="url" value={newPodcast.coverArt} onChange={e => setNewPodcast({...newPodcast, coverArt: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" placeholder="https://..." required />
+                
+                {/* Cover Art input style switcher */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Cover Art</label>
+                    <div className="flex bg-zinc-100 dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-lg p-0.5 text-[10px] font-bold">
+                      <button type="button" onClick={() => setCoverMode('url')} className={`px-2.5 py-1 rounded-md transition-colors ${coverMode === 'url' ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-sm' : 'text-zinc-400 hover:text-white'}`}>URL Link</button>
+                      <button type="button" onClick={() => setCoverMode('file')} className={`px-2.5 py-1 rounded-md transition-colors ${coverMode === 'file' ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-sm' : 'text-zinc-400 hover:text-white'}`}>File Upload</button>
+                    </div>
+                  </div>
+
+                  {coverMode === 'url' ? (
+                    <input type="url" value={newPodcast.coverArt} onChange={e => setNewPodcast({...newPodcast, coverArt: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" placeholder="https://..." required={coverMode === 'url'} />
+                  ) : (
+                    <div>
+                      <input
+                        ref={coverInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={e => { const f = e.target.files?.[0]; if (f) setCoverFile(f); }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => coverInputRef.current?.click()}
+                        className={`w-full h-16 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${coverFile ? 'border-purple-500/40 bg-purple-500/5' : 'border-black/10 dark:border-white/10 hover:border-purple-500/30'}`}
+                      >
+                        {coverFile ? (
+                          <>
+                            <p className="text-xs font-bold text-zinc-900 dark:text-white truncate max-w-xs">{coverFile.name}</p>
+                            <p className="text-[10px] text-zinc-500">{(coverFile.size / 1024).toFixed(0)} KB · Change image</p>
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={16} className="text-zinc-500" />
+                            <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Click to upload cover image</p>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
+
                 <div className="pt-6 flex justify-end gap-3 border-t border-black/5 dark:border-white/5">
                   <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-6 py-2.5 text-sm font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">Cancel</button>
                   <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-white text-black rounded-xl text-sm font-bold hover:bg-zinc-200 transition-colors flex items-center gap-2">
