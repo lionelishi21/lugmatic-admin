@@ -15,6 +15,8 @@ const roleConfig: Record<string, any> = {
   admin: { label: 'Admin', icon: Shield, bg: 'bg-indigo-500/5', text: 'text-indigo-500', border: 'border-indigo-500/10' },
   'super admin': { label: 'Super Admin', icon: Shield, bg: 'bg-purple-500/5', text: 'text-purple-500', border: 'border-purple-500/10' },
   artist: { label: 'Artist', icon: Music2, bg: 'bg-emerald-500/5', text: 'text-emerald-500', border: 'border-emerald-500/10' },
+  provider: { label: 'Provider', icon: UserIcon, bg: 'bg-blue-500/5', text: 'text-blue-500', border: 'border-blue-500/10' },
+  contributor: { label: 'Contributor', icon: UserIcon, bg: 'bg-teal-500/5', text: 'text-teal-500', border: 'border-teal-500/10' },
   user: { label: 'User', icon: UserIcon, bg: 'bg-white/5', text: 'text-zinc-500', border: 'border-white/5' },
 };
 
@@ -47,6 +49,7 @@ export default function UserManagement() {
   const [isResetting, setIsResetting] = useState(false);
   const [targetUser, setTargetUser] = useState<User | null>(null);
   const [newRole, setNewRole] = useState('user');
+  const [newRoles, setNewRoles] = useState<string[]>([]);
   const [tempPassword, setTempPassword] = useState('');
   const [newUser, setNewUser] = useState({
     firstName: '',
@@ -125,7 +128,7 @@ export default function UserManagement() {
     if (!targetUser) return;
     setIsSubmitting(true);
     try {
-      await adminService.updateUserRole(targetUser._id, newRole);
+      await adminService.updateUserRole(targetUser._id, newRole, newRoles);
       toast.success('Role updated successfully');
       setIsRoleModalOpen(false);
       fetchUsers();
@@ -236,7 +239,7 @@ export default function UserManagement() {
           <div className="flex items-center gap-3">
             <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Role</span>
             <div className="flex bg-zinc-100 dark:bg-zinc-950/40 border border-black/5 dark:border-white/5 shadow-inner rounded-xl p-1 gap-1">
-              {['all', 'admin', 'artist', 'user'].map(role => (
+              {['all', 'admin', 'artist', 'provider', 'contributor', 'user'].map(role => (
                 <button
                   key={role}
                   onClick={() => { setRoleFilter(role); setPage(1); }}
@@ -329,9 +332,24 @@ export default function UserManagement() {
                         </div>
                       </td>
                       <td className="px-8 py-5">
-                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border ${role.bg} ${role.text} ${role.border}`}>
-                          <role.icon size={14} />
-                          <span className="text-xs font-semibold">{role.label}</span>
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${config.bg} ${config.text} ${config.border}`}>
+                            <Icon size={12} />
+                            {config.label}
+                          </span>
+                          {user.roles && user.roles.length > 0 && (
+                            <div className="flex gap-1 mt-1.5 flex-wrap">
+                              {user.roles.map((r: string) => {
+                                const addConf = roleConfig[r] || roleConfig.user;
+                                const AddIcon = addConf.icon;
+                                return (
+                                  <span key={r} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${addConf.bg} ${addConf.text} ${addConf.border}`}>
+                                    <AddIcon size={10} />
+                                    {addConf.label}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                       </td>
                       <td className="px-8 py-5">
@@ -343,8 +361,8 @@ export default function UserManagement() {
                       <td className="px-8 py-5 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => { setTargetUser(user); setNewRole(user.role); setIsRoleModalOpen(true); }}
-                            className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent text-zinc-500 hover:text-indigo-400 hover:bg-black/5 dark:bg-white/5 transition-colors"
+                            onClick={() => { setTargetUser(user); setNewRole(user.role || 'user'); setNewRoles(user.roles || []); setIsRoleModalOpen(true); setOpenMenu(null); }}
+                            className="w-10 h-10 rounded-xl flex items-center justify-center bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white transition-colors"
                             title="Edit Role"
                           >
                             <Shield size={18} />
@@ -471,6 +489,8 @@ export default function UserManagement() {
                     <select value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value as any})} className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
                       <option value="user">User</option>
                       <option value="artist">Artist</option>
+                      <option value="provider">Provider</option>
+                      <option value="contributor">Contributor</option>
                       <option value="admin">Admin</option>
                     </select>
                     <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none group-focus-within/sel:text-indigo-400 transition-colors" />
@@ -504,16 +524,42 @@ export default function UserManagement() {
               </p>
               
               <div className="space-y-6">
-                <div className="relative text-left group/sel">
-                  <select value={newRole} onChange={e => setNewRole(e.target.value)} className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
-                    <option value="user">User</option>
-                    <option value="artist">Artist</option>
-                    <option value="admin">Admin</option>
-                    <option value="super admin">Super Admin</option>
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none group-focus-within/sel:text-indigo-400 transition-colors" />
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 block text-left">Primary Role</label>
+                  <div className="relative text-left group/sel">
+                    <select value={newRole} onChange={e => setNewRole(e.target.value)} className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
+                      <option value="user">User</option>
+                      <option value="artist">Artist</option>
+                      <option value="provider">Provider</option>
+                      <option value="contributor">Contributor</option>
+                      <option value="admin">Admin</option>
+                      <option value="super admin">Super Admin</option>
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none group-focus-within/sel:text-indigo-400 transition-colors" />
+                  </div>
                 </div>
-                <div className="flex gap-3">
+
+                <div className="space-y-3 text-left">
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 block">Additional Roles</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {['artist', 'provider', 'contributor'].map(role => (
+                      <label key={role} className="flex items-center gap-2 p-3 rounded-xl border border-black/5 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 cursor-pointer hover:border-indigo-500/30 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={newRoles.includes(role)}
+                          onChange={(e) => {
+                            if (e.target.checked) setNewRoles([...newRoles, role]);
+                            else setNewRoles(newRoles.filter(r => r !== role));
+                          }}
+                          className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 text-indigo-500 focus:ring-indigo-500/30"
+                        />
+                        <span className="capitalize text-sm font-medium text-zinc-700 dark:text-zinc-300">{role}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-black/5 dark:border-white/5">
                   <button onClick={() => setIsRoleModalOpen(false)} className="flex-1 py-2.5 text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors">Cancel</button>
                   <button onClick={handleRoleChange} disabled={isSubmitting} className="flex-1 py-2.5 bg-white text-black rounded-xl text-sm font-bold shadow-lg hover:bg-zinc-200 transition-colors">Update Role</button>
                 </div>

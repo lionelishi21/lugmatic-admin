@@ -61,8 +61,8 @@ export const adminService = {
     return apiService.put<User>(`/admin/users/${userId}`, { isActive, status });
   },
 
-  updateUserRole: async (userId: string, role: string) => {
-    return apiService.put<User>(`/admin/users/${userId}`, { role });
+  updateUserRole: async (userId: string, role: string, roles?: string[]) => {
+    return apiService.put<User>(`/admin/users/${userId}`, { role, roles });
   },
 
   resetUserPassword: async (userId: string) => {

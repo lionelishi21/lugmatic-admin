@@ -45,7 +45,7 @@ export interface UserPreferences {
   theme: 'light' | 'dark';
 }
 
-export type UserRole = 'user' | 'admin' | 'artist' | 'super admin' | 'contributor';
+export type UserRole = 'user' | 'admin' | 'artist' | 'super admin' | 'contributor' | 'provider';
 
 export interface PayoutInfo {
   method: 'paypal' | 'bank_transfer' | 'stripe';
@@ -72,6 +72,7 @@ export interface User {
   isActive: boolean;
   status: 'active' | 'inactive' | 'suspended';
   role: UserRole;
+  roles?: UserRole[];
   profilePicture?: string;
   preferences: UserPreferences;
   payoutInfo?: PayoutInfo;
