@@ -304,14 +304,6 @@ export default function Layout({ children }: LayoutProps) {
                          onClick={() => setIsProfileOpen(false)}
                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white transition-all"
                        >
-                         <UserCheck size={16} className="flex-shrink-0" />
-                         View Profile
-                       </Link>
-                       <Link
-                         to="/admin/system-settings"
-                         onClick={() => setIsProfileOpen(false)}
-                         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white transition-all"
-                       >
                          <Settings size={16} className="flex-shrink-0" />
                          Settings
                        </Link>

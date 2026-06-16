@@ -127,7 +127,7 @@ export default function StreamShare() {
             </div>
 
             <p className="text-center text-zinc-700 text-xs py-2">
-              Watching as guest · <a href="https://studio.lugmaticmusic.com/register" className="text-emerald-500 hover:underline">Join Lugmatic</a> to interact
+              Watching as guest · <a href="https://lugmaticmusic.com/register" className="text-emerald-500 hover:underline">Join Lugmatic</a> to interact
             </p>
           </div>
         )}

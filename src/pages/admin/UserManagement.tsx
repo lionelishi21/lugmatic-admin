@@ -332,9 +332,10 @@ export default function UserManagement() {
                         </div>
                       </td>
                       <td className="px-8 py-5">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${config.bg} ${config.text} ${config.border}`}>
-                            <Icon size={12} />
-                            {config.label}
+                        <div>
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${role.bg} ${role.text} ${role.border}`}>
+                            <role.icon size={12} />
+                            {role.label}
                           </span>
                           {user.roles && user.roles.length > 0 && (
                             <div className="flex gap-1 mt-1.5 flex-wrap">
@@ -542,7 +543,7 @@ export default function UserManagement() {
                 <div className="space-y-3 text-left">
                   <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 block">Additional Roles</label>
                   <div className="grid grid-cols-2 gap-3">
-                    {['artist', 'provider', 'contributor'].map(role => (
+                    {['artist', 'provider', 'contributor'].filter(r => r !== newRole).map(role => (
                       <label key={role} className="flex items-center gap-2 p-3 rounded-xl border border-black/5 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 cursor-pointer hover:border-indigo-500/30 transition-colors">
                         <input
                           type="checkbox"

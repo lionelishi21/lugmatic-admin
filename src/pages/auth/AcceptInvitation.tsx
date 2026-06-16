@@ -8,11 +8,17 @@ import { userService } from '../../services/userService';
 import toast from 'react-hot-toast';
 import { ShieldCheck, Lock, ArrowRight, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
+const CONTRIBUTOR_ROLES = [
+  'Vocalist', 'Guitarist', 'Pianist', 'Drummer', 
+  'Bassist', 'Producer', 'Songwriter', 'Musician'
+];
+
 const validationSchema = yup.object({
   firstName: yup.string().required('First name is required'),
   lastName: yup.string().required('Last name is required'),
   password: yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
   confirmPassword: yup.string().oneOf([yup.ref('password')], 'Passwords must match').required('Confirm password is required'),
+  contributorRoles: yup.array().of(yup.string().required()).min(1, 'Please select at least one role').required('Roles are required'),
 });
 
 type RegisterFormValues = yup.InferType<typeof validationSchema>;
@@ -60,7 +66,8 @@ export default function AcceptInvitation() {
         lastName: values.lastName,
         email: inviteData.email,
         password: values.password,
-        invitationToken: token
+        invitationToken: token,
+        contributorRoles: values.contributorRoles
       });
       
       toast.success('Account created successfully! Please log in.');
@@ -151,6 +158,24 @@ export default function AcceptInvitation() {
                 </div>
                 {errors.lastName && <p className="text-red-400 text-[10px] font-bold ml-1">{errors.lastName.message}</p>}
               </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Your Roles</label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {CONTRIBUTOR_ROLES.map(role => (
+                  <label key={role} className="flex items-center gap-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-3 cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
+                    <input 
+                      type="checkbox" 
+                      value={role.toLowerCase()} 
+                      {...register('contributorRoles')}
+                      className="rounded border-gray-600 text-green-500 focus:ring-green-500/30"
+                    />
+                    <span className="text-xs font-bold text-zinc-900 dark:text-white">{role}</span>
+                  </label>
+                ))}
+              </div>
+              {errors.contributorRoles && <p className="text-red-400 text-[10px] font-bold ml-1">{errors.contributorRoles.message}</p>}
             </div>
 
             <div className="space-y-2">
