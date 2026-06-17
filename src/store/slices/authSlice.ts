@@ -87,7 +87,7 @@ export const initializeAuth = createAsyncThunk(
         const userData = (response.data as any).data ?? response.data;
         
         // Allowed roles for this dashboard
-        const allowedRoles = ['admin', 'artist', 'contributor', 'super admin'];
+        const allowedRoles = ['admin', 'artist', 'contributor', 'provider', 'super admin'];
         const userRole = (userData.role || '').toLowerCase().trim();
         if (!userRole || !allowedRoles.includes(userRole)) {
           clearTokens();
@@ -117,7 +117,7 @@ export const loginUser = createAsyncThunk(
       const user: AuthUser = (payload?.user ?? payload) as AuthUser;
       
       // Check role BEFORE setting tokens and returning
-      const allowedRoles = ['admin', 'artist', 'contributor', 'super admin'];
+      const allowedRoles = ['admin', 'artist', 'contributor', 'provider', 'super admin'];
       const userRole = (user.role || '').toLowerCase().trim();
       
       if (!userRole || !allowedRoles.includes(userRole)) {

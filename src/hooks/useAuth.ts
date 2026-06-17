@@ -22,8 +22,8 @@ export const useAuth = () => {
       if (loginUser.fulfilled.match(resultAction)) {
         const userData = resultAction.payload;
         
-        // Allowed roles for this dashboard (Artist, Admin, Contributor)
-        const allowedRoles = ['admin', 'artist', 'contributor', 'super admin'];
+        // Allowed roles for this dashboard (Artist, Admin, Contributor, Provider)
+        const allowedRoles = ['admin', 'artist', 'contributor', 'provider', 'super admin'];
         const userRole = (userData.role || '').toLowerCase().trim();
         
         if (!userRole || !allowedRoles.includes(userRole)) {
@@ -39,6 +39,7 @@ export const useAuth = () => {
         let targetPath = '/artist';
         if (isAdmin) targetPath = '/admin';
         else if (userRole === 'contributor') targetPath = '/contributor';
+        else if (userRole === 'provider') targetPath = '/provider';
 
         navigate(targetPath, { replace: true });
         
