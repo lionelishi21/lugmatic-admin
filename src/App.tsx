@@ -31,6 +31,7 @@ import NotificationManagement from './pages/admin/NotificationManagement';
 import ContentModeration from './pages/admin/ContentModeration';
 import Analytics from './pages/admin/Analytics';
 import SystemSettings from './pages/admin/SystemSettings';
+import RoleManagement from './pages/admin/RoleManagement';
 import Promotions from './pages/admin/Promotions';
 import Reports from './pages/admin/Reports';
 import PlaylistManagement from './pages/admin/PlaylistManagement';
@@ -97,6 +98,7 @@ function App() {
                           <Route path="content-moderation" element={<ContentModeration />} />
                           <Route path="analytics" element={<Analytics />} />
                           <Route path="system-settings" element={<SystemSettings />} />
+                          <Route path="roles" element={<RoleManagement />} />
                           <Route path="promotions" element={<Promotions />} />
                           <Route path="reports" element={<Reports />} />
                           <Route path="clash-management" element={<ClashManagement />} />

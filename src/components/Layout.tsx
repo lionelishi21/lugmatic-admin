@@ -68,7 +68,9 @@ export default function Layout({ children }: LayoutProps) {
     return location.pathname.startsWith(path);
   };
 
-  const navItems: NavItemType[] = [
+  const userRole = (user?.role || 'user').toLowerCase();
+
+  const adminNavItems: NavItemType[] = [
     // Core Management
     { path: '/admin', label: 'Overview', icon: <BarChart2 size={20} />, section: 'Management' },
     { path: '/admin/approvals', label: 'Approvals', icon: <Shield size={20} />, section: 'Management' },
@@ -102,8 +104,34 @@ export default function Layout({ children }: LayoutProps) {
 
     // System
     { path: '/admin/system-settings', label: 'Settings', icon: <Settings size={20} />, section: 'System' },
+    { path: '/admin/roles', label: 'Roles & Permissions', icon: <Shield size={20} />, section: 'System' },
     { path: '/admin/documentation', label: 'Documentation', icon: <HelpCircle size={20} />, section: 'System' }
   ];
+
+  const artistNavItems: NavItemType[] = [
+    { path: '/artist', label: 'Dashboard', icon: <BarChart2 size={20} />, section: 'Overview' },
+    { path: '/artist/upload', label: 'Upload Songs', icon: <Music2 size={20} />, section: 'Music' },
+    { path: '/artist/clashes', label: 'Clashes', icon: <Swords size={20} />, section: 'Engagement' },
+    { path: '/artist/shell-it', label: 'Shell It', icon: <Zap size={20} />, section: 'Engagement' },
+  ];
+
+  const contributorNavItems: NavItemType[] = [
+    { path: '/contributor', label: 'Dashboard', icon: <BarChart2 size={20} />, section: 'Overview' },
+    { path: '/contributor/tasks', label: 'Tasks', icon: <Users size={20} />, section: 'Work' },
+  ];
+
+  const providerNavItems: NavItemType[] = [
+    { path: '/provider', label: 'Dashboard', icon: <BarChart2 size={20} />, section: 'Overview' },
+    { path: '/provider/services', label: 'Services', icon: <Settings size={20} />, section: 'Services' },
+  ];
+
+  const navItems: NavItemType[] = (() => {
+    if (userRole.includes('admin')) return adminNavItems;
+    if (userRole === 'artist') return artistNavItems;
+    if (userRole === 'contributor') return contributorNavItems;
+    if (userRole === 'provider') return providerNavItems;
+    return [];
+  })();
 
   const sections = Array.from(new Set(navItems.map(i => i.section).filter(Boolean)));
 
