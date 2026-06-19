@@ -123,7 +123,7 @@ export default function ArtistRegister() {
     if (!cred.credential) return;
     try {
       const res = await apiService.post<any>('/auth/google', {
-        idToken: cred.credential,
+        token: cred.credential,
         deviceType: 'web',
         role: 'artist',
       });
