@@ -7,6 +7,7 @@ interface AuthUser {
   _id?: string; // Standard MongoDB ID
   email: string;
   role: string;
+  roles?: string[];
   firstName?: string;
   lastName?: string;
   name?: string;
@@ -16,6 +17,13 @@ interface AuthUser {
   termsAccepted?: boolean;
   termsVersion?: string;
   payoutInfo?: any;
+}
+
+const ROLE_PRIORITY = ['super admin', 'admin', 'artist', 'contributor', 'provider', 'user'] as const;
+
+export function getPrimaryRole(user: AuthUser): string {
+  const roles = user.roles && user.roles.length > 0 ? user.roles : [user.role || 'user'];
+  return ROLE_PRIORITY.find(r => roles.includes(r)) || user.role || 'user';
 }
 
 interface LoginCredentials {
@@ -86,10 +94,10 @@ export const initializeAuth = createAsyncThunk(
         const response = await apiService.get('/auth/me');
         const userData = (response.data as any).data ?? response.data;
         
-        // Allowed roles for this dashboard
-        const allowedRoles = ['admin', 'artist', 'contributor', 'provider', 'super admin'];
-        const userRole = (userData.role || '').toLowerCase().trim();
-        if (!userRole || !allowedRoles.includes(userRole)) {
+        // Allowed roles for this dashboard — check both role string and roles array
+        const allowedRoles = ['admin', 'super admin', 'artist', 'contributor', 'provider'];
+        const primaryRole = getPrimaryRole(userData as AuthUser);
+        if (!allowedRoles.includes(primaryRole)) {
           clearTokens();
           return { isAuthenticated: false, user: null };
         }
@@ -116,12 +124,12 @@ export const loginUser = createAsyncThunk(
 
       const user: AuthUser = (payload?.user ?? payload) as AuthUser;
       
-      // Check role BEFORE setting tokens and returning
-      const allowedRoles = ['admin', 'artist', 'contributor', 'provider', 'super admin'];
-      const userRole = (user.role || '').toLowerCase().trim();
-      
-      if (!userRole || !allowedRoles.includes(userRole)) {
-         throw new Error('Access denied. Regular user accounts are restricted to the main platform at lugmaticmusic.com.');
+      // Check role BEFORE setting tokens — uses priority order across both role string and roles array
+      const allowedRoles = ['admin', 'super admin', 'artist', 'contributor', 'provider'];
+      const primaryRole = getPrimaryRole(user);
+
+      if (!allowedRoles.includes(primaryRole)) {
+        throw new Error('Access denied. Regular user accounts are restricted to the main platform at lugmaticmusic.com.');
       }
 
       const accessToken = payload?.accessToken || payload?.token;

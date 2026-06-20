@@ -1,72 +1,59 @@
 import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { getAccessToken } from '../services/api';
+import { getPrimaryRole } from '../store/slices/authSlice';
 
 interface RootState {
   auth: {
-    user: { role?: string } | null;
+    user: { role?: string; roles?: string[] } | null;
     isAuthenticated: boolean;
+    isLoading?: boolean;
   };
 }
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'admin' | 'artist' | 'contributor';
+  requiredRole?: 'admin' | 'super admin' | 'artist' | 'contributor' | 'provider';
+}
+
+function getRedirectPath(role: string): string {
+  if (role === 'admin' || role === 'super admin') return '/admin';
+  if (role === 'contributor') return '/contributor';
+  if (role === 'provider') return '/provider';
+  return '/artist';
 }
 
 export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
   const token = getAccessToken();
   const { user, isLoading } = useSelector((state: RootState) => state.auth);
 
-  // Wait for auth initialization
-  if (isLoading) {
-    return null; // Or a loading spinner
-  }
+  if (isLoading) return null;
 
-  // No token = not logged in
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+  if (!token) return <Navigate to="/login" replace />;
 
-  // Allowed roles
-  const normalizedUserRole = (user?.role || '').toLowerCase().trim();
-  const isAdmin = normalizedUserRole.includes('admin') || 
-                  user?.email === 'admin@example.com' || 
-                  user?.email === 'lionelishmael@gmail.com' ||
-                  user?.email === 'info@lugmaticmusic.com';
-  
-  const isAllowed = isAdmin || normalizedUserRole === 'artist' || normalizedUserRole === 'contributor' || normalizedUserRole === 'provider';
+  if (user) {
+    const userRoles: string[] = (user as any).roles?.length > 0 ? (user as any).roles : [user.role || 'user'];
+    const primaryRole = getPrimaryRole(user as any);
+    const isAdmin = userRoles.includes('admin') || userRoles.includes('super admin');
+    const isAllowed = isAdmin || ['artist', 'contributor', 'provider'].some(r => userRoles.includes(r));
 
-  // Regular users belong on the fan webapp, not here
-  if (user && !isAllowed) {
-    console.log(`[AuthDebug] Denied: User role ${normalizedUserRole} not in allowed list.`);
-    window.location.href = 'https://lugmaticmusic.com';
-    return null;
-  }
-
-  // If a specific role is required, check the user's role
-  const targetRole = requiredRole ? requiredRole.toLowerCase().trim() : '';
-
-  console.log(`[AuthDebug] Current Path: ${window.location.pathname}`);
-  console.log(`[AuthDebug] User Role: ${normalizedUserRole}`);
-  console.log(`[AuthDebug] Target Role: ${targetRole}`);
-  console.log(`[AuthDebug] Is Admin: ${isAdmin}`);
-
-  if (requiredRole && user && normalizedUserRole !== targetRole) {
-    // If user is admin/super admin, they can access admin pages
-    if (targetRole === 'admin' && isAdmin) return <>{children}</>;
-
-    // Redirect to their respective dashboard
-    let fallback = '/artist';
-    if (isAdmin) fallback = '/admin';
-    else if (normalizedUserRole === 'contributor') fallback = '/contributor';
-    
-    // Avoid redirect loops if already at fallback
-    if (window.location.pathname.startsWith(fallback)) {
-      return <>{children}</>;
+    // Regular fan accounts do not belong in this dashboard
+    if (!isAllowed) {
+      window.location.href = 'https://lugmaticmusic.com';
+      return null;
     }
 
-    return <Navigate to={fallback} replace />;
+    if (requiredRole) {
+      const requiredNorm = requiredRole.toLowerCase().trim();
+      const hasRequired = userRoles.includes(requiredNorm) ||
+                          (requiredNorm === 'admin' && isAdmin);
+
+      if (!hasRequired) {
+        const fallback = getRedirectPath(primaryRole);
+        if (window.location.pathname.startsWith(fallback)) return <>{children}</>;
+        return <Navigate to={fallback} replace />;
+      }
+    }
   }
 
   return <>{children}</>;

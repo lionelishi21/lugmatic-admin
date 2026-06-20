@@ -528,7 +528,15 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 block text-left">Primary Role</label>
                   <div className="relative text-left group/sel">
-                    <select value={newRole} onChange={e => setNewRole(e.target.value)} className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer">
+                    <select 
+                      value={newRole} 
+                      onChange={e => {
+                        const val = e.target.value;
+                        setNewRoles(newRoles.filter(r => r !== newRole && r !== val));
+                        setNewRole(val);
+                      }} 
+                      className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none transition-all cursor-pointer"
+                    >
                       <option value="user">User</option>
                       <option value="artist">Artist</option>
                       <option value="provider">Provider</option>

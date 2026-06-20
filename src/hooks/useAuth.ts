@@ -5,7 +5,8 @@ import {
   loginUser,
   logout,
   clearError,
-  refreshUser as refreshUserThunk
+  refreshUser as refreshUserThunk,
+  getPrimaryRole,
 } from '../store/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../services/userService';
@@ -21,28 +22,26 @@ export const useAuth = () => {
       
       if (loginUser.fulfilled.match(resultAction)) {
         const userData = resultAction.payload;
-        
-        // Allowed roles for this dashboard (Artist, Admin, Contributor, Provider)
-        const allowedRoles = ['admin', 'artist', 'contributor', 'provider', 'super admin'];
-        const userRole = (userData.role || '').toLowerCase().trim();
-        
-        if (!userRole || !allowedRoles.includes(userRole)) {
-          // Clear stored tokens since this user is restricted to the main platform
+
+        // Determine primary role using priority: super admin > admin > artist > contributor > provider > user
+        const primaryRole = getPrimaryRole(userData as any);
+        const allowedRoles = ['admin', 'super admin', 'artist', 'contributor', 'provider'];
+
+        if (!allowedRoles.includes(primaryRole)) {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           dispatch(logout());
           throw new Error('Access denied. Regular user accounts are restricted to the main platform at lugmaticmusic.com.');
         }
-        
-        // Navigate based on user role
-        const isAdmin = userRole.includes('admin');
+
+        // Navigate to the highest-privilege dashboard
         let targetPath = '/artist';
-        if (isAdmin) targetPath = '/admin';
-        else if (userRole === 'contributor') targetPath = '/contributor';
-        else if (userRole === 'provider') targetPath = '/provider';
+        if (primaryRole === 'admin' || primaryRole === 'super admin') targetPath = '/admin';
+        else if (primaryRole === 'contributor') targetPath = '/contributor';
+        else if (primaryRole === 'provider') targetPath = '/provider';
 
         navigate(targetPath, { replace: true });
-        
+
         return userData;
       }
       
