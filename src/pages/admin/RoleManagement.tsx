@@ -65,6 +65,28 @@ const mockRoles: RoleConfig[] = [
       { id: 'perm_services', name: 'Service Integration', description: 'Can configure provider services', enabled: true },
       { id: 'perm_billing', name: 'Manage Billing', description: 'Can view provider payments', enabled: true },
     ]
+  },
+  {
+    id: 'admin',
+    name: 'Admin',
+    description: 'Administrative access for moderation and management.',
+    icon: Shield,
+    permissions: [
+      { id: 'perm_manage_users', name: 'Manage Users', description: 'Can view and moderate users', enabled: true },
+      { id: 'perm_manage_artists', name: 'Manage Artists', description: 'Can approve and manage artists', enabled: true },
+      { id: 'perm_manage_content', name: 'Manage Content', description: 'Can moderate songs, albums, and playlists', enabled: true },
+    ]
+  },
+  {
+    id: 'super admin',
+    name: 'Super Admin',
+    description: 'Full system access and financial control.',
+    icon: Settings,
+    permissions: [
+      { id: 'perm_system_config', name: 'System Settings', description: 'Can modify core platform settings', enabled: true },
+      { id: 'perm_financials', name: 'Financial Management', description: 'Can view and manage payouts and revenue', enabled: true },
+      { id: 'perm_manage_admins', name: 'Manage Admins', description: 'Can assign admin roles', enabled: true },
+    ]
   }
 ];
 

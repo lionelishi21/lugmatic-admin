@@ -35,7 +35,7 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
                   user?.email === 'lionelishmael@gmail.com' ||
                   user?.email === 'info@lugmaticmusic.com';
   
-  const isAllowed = isAdmin || normalizedUserRole === 'artist' || normalizedUserRole === 'contributor';
+  const isAllowed = isAdmin || normalizedUserRole === 'artist' || normalizedUserRole === 'contributor' || normalizedUserRole === 'provider';
 
   // Regular users belong on the fan webapp, not here
   if (user && !isAllowed) {
