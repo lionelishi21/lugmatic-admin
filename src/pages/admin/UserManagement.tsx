@@ -1,14 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  Users, Search, Shield, Music2, 
-  User as UserIcon, ChevronDown, X, UserPlus, UserCheck, 
+import {
+  Users, Search, Shield, Music2,
+  User as UserIcon, ChevronDown, X, UserPlus, UserCheck,
   Ban, Loader2, Key, MoreVertical, AlertTriangle,
-  ArrowUpRight, ShieldCheck, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown
+  ArrowUpRight, ShieldCheck, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown,
+  Sparkles
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { User } from '../../types';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../hooks/useAuth';
+
+const PERMISSION_OPTIONS: { key: 'ai_lyrics_generation' | 'karaoke_timing'; label: string; description: string }[] = [
+  { key: 'ai_lyrics_generation', label: 'AI Lyrics Generation', description: 'Generate AI lyrics for any song, not just their own.' },
+  { key: 'karaoke_timing', label: 'Karaoke Timing', description: 'Set/auto-generate karaoke timing for any song, not just their own.' },
+];
 
 // Role configuration for UI display
 const roleConfig: Record<string, any> = {
@@ -27,6 +34,9 @@ const statusConfig: Record<string, any> = {
 };
 
 export default function UserManagement() {
+  const { user: currentUser } = useAuth();
+  const isSuperAdmin = (currentUser?.role || '').toLowerCase() === 'super admin';
+
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -44,6 +54,8 @@ export default function UserManagement() {
   // Modals State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
+  const [newPermissions, setNewPermissions] = useState<string[]>([]);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
@@ -134,6 +146,21 @@ export default function UserManagement() {
       fetchUsers();
     } catch (error: any) {
       toast.error(error.message || 'Failed to update role');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePermissionsChange = async () => {
+    if (!targetUser) return;
+    setIsSubmitting(true);
+    try {
+      await adminService.updateUserPermissions(targetUser._id, newPermissions);
+      toast.success('Permissions updated successfully');
+      setIsPermissionsModalOpen(false);
+      fetchUsers();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update permissions');
     } finally {
       setIsSubmitting(false);
     }
@@ -368,6 +395,15 @@ export default function UserManagement() {
                           >
                             <Shield size={18} />
                           </button>
+                          {isSuperAdmin && user.role.toLowerCase() === 'admin' && (
+                            <button
+                              onClick={() => { setTargetUser(user); setNewPermissions(user.adminPermissions || []); setIsPermissionsModalOpen(true); setOpenMenu(null); }}
+                              className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/10 text-purple-500 hover:bg-purple-500 hover:text-white transition-colors"
+                              title="Manage Permissions"
+                            >
+                              <Sparkles size={18} />
+                            </button>
+                          )}
                           <button
                             onClick={() => { setTargetUser(user); setIsResetModalOpen(true); setTempPassword(''); }}
                             className="w-10 h-10 rounded-xl flex items-center justify-center bg-transparent text-zinc-500 hover:text-amber-400 hover:bg-black/5 dark:bg-white/5 transition-colors"
@@ -572,6 +608,52 @@ export default function UserManagement() {
                   <button onClick={() => setIsRoleModalOpen(false)} className="flex-1 py-2.5 text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors">Cancel</button>
                   <button onClick={handleRoleChange} disabled={isSubmitting} className="flex-1 py-2.5 bg-white text-black rounded-xl text-sm font-bold shadow-lg hover:bg-zinc-200 transition-colors">Update Role</button>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {isPermissionsModalOpen && targetUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" onClick={() => setIsPermissionsModalOpen(false)}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="premium-card w-full max-w-sm text-center p-8 border-purple-500/10 shadow-2xl" onClick={e => e.stopPropagation()}
+            >
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-purple-500/5 border border-purple-500/10 flex items-center justify-center mb-6">
+                <Sparkles className="h-8 w-8 text-purple-500" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Manage Permissions</h3>
+              <p className="text-sm text-zinc-500 mb-8">
+                Grant or revoke admin-only capabilities for <br />
+                <span className="text-zinc-900 dark:text-white font-medium">{targetUser.email}</span>
+              </p>
+
+              <div className="space-y-3 text-left">
+                {PERMISSION_OPTIONS.map(({ key, label, description }) => (
+                  <label key={key} className="flex items-start gap-3 p-3 rounded-xl border border-black/5 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 cursor-pointer hover:border-purple-500/30 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={newPermissions.includes(key)}
+                      onChange={(e) => {
+                        if (e.target.checked) setNewPermissions([...newPermissions, key]);
+                        else setNewPermissions(newPermissions.filter(p => p !== key));
+                      }}
+                      className="w-4 h-4 mt-0.5 rounded border-zinc-300 dark:border-zinc-700 text-purple-500 focus:ring-purple-500/30"
+                    />
+                    <span>
+                      <span className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">{label}</span>
+                      <span className="block text-xs text-zinc-500 mt-0.5">{description}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+
+              <div className="flex gap-3 pt-6 mt-6 border-t border-black/5 dark:border-white/5">
+                <button onClick={() => setIsPermissionsModalOpen(false)} className="flex-1 py-2.5 text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white transition-colors">Cancel</button>
+                <button onClick={handlePermissionsChange} disabled={isSubmitting} className="flex-1 py-2.5 bg-white text-black rounded-xl text-sm font-bold shadow-lg hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2">
+                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                  Save Permissions
+                </button>
               </div>
             </motion.div>
           </div>

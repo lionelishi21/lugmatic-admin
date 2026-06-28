@@ -65,6 +65,10 @@ export const adminService = {
     return apiService.put<User>(`/admin/users/${userId}`, { role, roles });
   },
 
+  updateUserPermissions: async (userId: string, permissions: string[]) => {
+    return apiService.put<User>(`/admin/users/${userId}/permissions`, { permissions });
+  },
+
   resetUserPassword: async (userId: string) => {
     return apiService.post<{ temporaryPassword: string }>(`/admin/users/${userId}/reset-password`);
   },

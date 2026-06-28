@@ -11,6 +11,7 @@ export interface Song {
   genre: string | { _id: string; name?: string };
   releaseDate: string;
   lyrics: string;
+  lyricsLines?: Array<{ time: number; text: string }>;
   coverArt: string;
   coverArtUrl?: string;
   audioFile: string;
@@ -287,6 +288,22 @@ const songService = {
     const response = await apiService.post<{ lyrics: string }>(`/song/${songId}/generate-lyrics`, {});
     const data = (response.data as any)?.data;
     return data?.lyrics ?? '';
+  },
+  /**
+   * Auto-generate karaoke timing as a draft (not saved) — Gemini primary,
+   * Transcribe+Bedrock fallback. Caller reviews/edits then calls
+   * updateLyricsTiming to persist.
+   */
+  autoGenerateLyricsTiming: async (songId: string): Promise<{ lyricsLines: Array<{ time: number; text: string }>; source: string }> => {
+    const response = await apiService.post<any>(`/song/${songId}/lyrics-timing/auto-generate`, {});
+    const data = (response.data as any)?.data ?? response.data;
+    return { lyricsLines: data?.lyricsLines ?? [], source: data?.source ?? 'unknown' };
+  },
+  /**
+   * Save karaoke timing for a song.
+   */
+  updateLyricsTiming: async (songId: string, lyricsLines: Array<{ time: number; text: string }>): Promise<void> => {
+    await apiService.put(`/song/${songId}/lyrics-timing`, { lyricsLines });
   },
 };
 

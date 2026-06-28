@@ -12,17 +12,25 @@ import Preloader from '../../components/ui/Preloader';
 import {
   ArrowLeft, Music2, User, Disc, Tag, Clock, Calendar,
   FileText, Edit2, Trash2, Save, X, Play, Pause, AlertCircle,
-  CheckCircle, XCircle, Loader2, ExternalLink, Video, 
+  CheckCircle, XCircle, Loader2, ExternalLink, Video,
   Activity, ShieldCheck, Share2, Zap, BarChart3, Heart,
-  ChevronRight, Music, CheckCircle2, ShieldAlert
+  ChevronRight, Music, CheckCircle2, ShieldAlert, Sparkles, Mic
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import videoService, { type Video as VideoType } from '../../services/videoService';
 import { getFullImageUrl } from '../../services/api';
+import { useAuth } from '../../hooks/useAuth';
+import KaraokeTimingModal from '../../components/admin/KaraokeTimingModal';
 
 const SongDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
+  const currentRole = (currentUser?.role || '').toLowerCase();
+  const isSuperAdmin = currentRole === 'super admin';
+  const currentPermissions = currentUser?.adminPermissions || [];
+  const canGenerateLyrics = isSuperAdmin || currentPermissions.includes('ai_lyrics_generation');
+  const canSetKaraokeTiming = isSuperAdmin || currentPermissions.includes('karaoke_timing');
 
   const [song, setSong] = useState<Song | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,6 +38,8 @@ const SongDetail: React.FC = () => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [generatingLyrics, setGeneratingLyrics] = useState(false);
+  const [showKaraokeModal, setShowKaraokeModal] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const [artists, setArtists] = useState<Artist[]>([]);
@@ -187,6 +197,22 @@ const SongDetail: React.FC = () => {
     }
   };
 
+  const handleGenerateLyrics = async () => {
+    if (!song) return;
+    setGeneratingLyrics(true);
+    try {
+      const lyrics = await songService.generateLyrics(song._id);
+      if (!lyrics) { toast.error('No lyrics returned.'); return; }
+      await songService.updateSong(song._id, { lyrics });
+      setSong({ ...song, lyrics });
+      toast.success('AI lyrics generated and saved!');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to generate lyrics.');
+    } finally {
+      setGeneratingLyrics(false);
+    }
+  };
+
   const togglePlay = () => {
     if (!audioRef.current) return;
     if (isPlaying) { audioRef.current.pause(); setIsPlaying(false); }
@@ -240,6 +266,30 @@ const SongDetail: React.FC = () => {
               <button onClick={() => setDeleteOpen(true)} className="btn-secondary !text-rose-500 hover:!bg-rose-500/5 !border-rose-500/20 flex items-center gap-2 !px-6">
                 <Trash2 size={16} /> Delete
               </button>
+              {(canGenerateLyrics || canSetKaraokeTiming) && (
+                <div className="flex items-center gap-2 pl-3 border-l border-black/10 dark:border-white/10 ml-3">
+                  {canGenerateLyrics && (
+                    <button
+                      onClick={handleGenerateLyrics}
+                      disabled={generatingLyrics}
+                      className="btn-secondary !text-purple-500 hover:!bg-purple-500/5 !border-purple-500/20 flex items-center gap-2 !px-6 disabled:opacity-50"
+                    >
+                      {generatingLyrics ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                      Generate Lyrics
+                    </button>
+                  )}
+                  {canSetKaraokeTiming && (
+                    <button
+                      onClick={() => setShowKaraokeModal(true)}
+                      disabled={!song.lyrics?.trim() || !(song.audioFileUrl || song.audioFile)}
+                      title={!song.lyrics?.trim() ? 'Song needs lyrics first' : undefined}
+                      className="btn-secondary !text-purple-500 hover:!bg-purple-500/5 !border-purple-500/20 flex items-center gap-2 !px-6 disabled:opacity-50"
+                    >
+                      <Mic size={16} /> Karaoke Timing
+                    </button>
+                  )}
+                </div>
+              )}
               {song.status === 'pending' && (
                 <div className="flex items-center gap-2 pl-3 border-l border-black/10 dark:border-white/10 ml-3">
                   <button onClick={() => handleModerate('approve')} className="btn-primary !bg-emerald-500 !text-black flex items-center gap-2 !px-6">
@@ -488,14 +538,23 @@ const SongDetail: React.FC = () => {
         </div>
       </div>
 
-      <ConfirmDialog 
-        isOpen={deleteOpen} 
-        title="Delete Song?" 
-        message={`Are you sure you want to permanently delete "${song?.name}"? This action cannot be undone.`} 
-        confirmLabel="Delete" 
-        onConfirm={handleDelete} 
-        onCancel={() => setDeleteOpen(false)} 
+      <ConfirmDialog
+        isOpen={deleteOpen}
+        title="Delete Song?"
+        message={`Are you sure you want to permanently delete "${song?.name}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteOpen(false)}
       />
+
+      {showKaraokeModal && song && (
+        <KaraokeTimingModal
+          songId={song._id}
+          lyrics={song.lyrics}
+          audioUrl={getFullImageUrl(song.audioFileUrl || song.audioFile)}
+          onClose={() => setShowKaraokeModal(false)}
+        />
+      )}
     </div>
   );
 };

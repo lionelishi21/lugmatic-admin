@@ -73,6 +73,7 @@ export interface User {
   status: 'active' | 'inactive' | 'suspended';
   role: UserRole;
   roles?: UserRole[];
+  adminPermissions?: ('ai_lyrics_generation' | 'karaoke_timing')[];
   profilePicture?: string;
   preferences: UserPreferences;
   payoutInfo?: PayoutInfo;
