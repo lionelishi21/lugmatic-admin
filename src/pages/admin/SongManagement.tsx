@@ -7,12 +7,13 @@ import albumService, { Album } from '../../services/albumService';
 import artistService, { Artist } from '../../services/artistService';
 import genreService, { Genre } from '../../services/genreService';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import { 
-  Plus, Music2, Search, Trash2, Eye, CheckCircle2, 
+import {
+  Plus, Music2, Search, Trash2, Eye, CheckCircle2,
   Disc, User, Clock, BarChart3, MoreVertical, ShieldCheck,
   AlertCircle, ChevronRight, Filter, Target, Activity, Globe,
   Cpu, ArrowUpRight, Layers, Database, Save, HardDrive, Info,
-  Music, Zap, SlidersHorizontal, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown
+  Music, Zap, SlidersHorizontal, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown,
+  XCircle, X
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,6 +29,8 @@ const SongManagement: React.FC = () => {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [sortField, setSortField] = useState<string>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [rejectTarget, setRejectTarget] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState<string>('');
 
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -87,6 +90,21 @@ const SongManagement: React.FC = () => {
       setSongs(prev => prev.map(s => s._id === songId ? { ...s, isApproved: true } : s));
     } catch (err: any) {
       toast.error('Approval failed', { id: loadingId });
+    }
+  };
+
+  const handleReject = async () => {
+    if (!rejectTarget) return;
+    const songId = rejectTarget;
+    setRejectTarget(null);
+    const loadingId = toast.loading('Rejecting song...');
+    try {
+      await adminService.moderateContent('songs', songId, 'reject', rejectReason);
+      toast.success('Song rejected', { id: loadingId });
+      setSongs(prev => prev.map(s => s._id === songId ? { ...s, isApproved: false } : s));
+      setRejectReason('');
+    } catch (err: any) {
+      toast.error('Rejection failed', { id: loadingId });
     }
   };
 
@@ -282,14 +300,21 @@ const SongManagement: React.FC = () => {
                     <td className="px-10 py-6 text-right">
                       <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
                         {!song.isApproved && (
-                          <button 
-                            onClick={() => handleApprove(song._id)} 
-                            className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-emerald-500/60 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all shadow-inner" 
+                          <button
+                            onClick={() => handleApprove(song._id)}
+                            className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-emerald-500/60 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all shadow-inner"
                             title="Approve Song"
                           >
                             <ShieldCheck size={20} />
                           </button>
                         )}
+                        <button
+                          onClick={() => { setRejectReason(''); setRejectTarget(song._id); }}
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-amber-500/60 hover:text-amber-500 hover:bg-amber-500/10 transition-all shadow-inner"
+                          title="Reject Song"
+                        >
+                          <XCircle size={20} />
+                        </button>
                         <button 
                           onClick={() => navigate(`/admin/song-management/${song._id}`)} 
                           className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 text-zinc-600 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5 transition-all shadow-inner" 
@@ -332,6 +357,39 @@ const SongManagement: React.FC = () => {
         }}
         onCancel={() => setSongToDelete(null)}
       />
+
+      {/* Reject Dialog */}
+      <AnimatePresence>
+        {rejectTarget && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4" onClick={() => setRejectTarget(null)}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="premium-card w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold">Reject Song</h3>
+                <button onClick={() => setRejectTarget(null)} className="p-2 rounded-full hover:bg-black/5 dark:bg-white/5 text-zinc-500"><X size={20} /></button>
+              </div>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Rejection Reason</label>
+                  <textarea
+                    autoFocus placeholder="Specify violation or error..."
+                    className="input-field h-32 resize-none"
+                    value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
+                  />
+                </div>
+                <div className="flex justify-end gap-4 pt-4 border-t border-black/5 dark:border-white/5">
+                  <button onClick={() => setRejectTarget(null)} className="btn-secondary">Cancel</button>
+                  <button onClick={handleReject} className="btn-primary !bg-amber-500 !text-black hover:!bg-amber-400">
+                    Confirm Rejection
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
