@@ -17,6 +17,7 @@ interface AuthUser {
   termsAccepted?: boolean;
   termsVersion?: string;
   payoutInfo?: any;
+  adminPermissions?: ('ai_lyrics_generation' | 'karaoke_timing')[];
 }
 
 const ROLE_PRIORITY = ['super admin', 'admin', 'artist', 'contributor', 'provider', 'user'] as const;

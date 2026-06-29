@@ -34,7 +34,7 @@ const statusConfig: Record<string, any> = {
 };
 
 export default function UserManagement() {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, refreshUser: refreshCurrentUser } = useAuth();
   const isSuperAdmin = (currentUser?.role || '').toLowerCase() === 'super admin';
 
   const [users, setUsers] = useState<User[]>([]);
@@ -159,6 +159,13 @@ export default function UserManagement() {
       toast.success('Permissions updated successfully');
       setIsPermissionsModalOpen(false);
       fetchUsers();
+      // Granting a permission to the currently logged-in admin wouldn't
+      // otherwise show up until they logged out/in — Redux auth state is
+      // only populated at login/init, not refetched after this grant.
+      const isSelf = targetUser._id === currentUser?._id || targetUser._id === String(currentUser?.id);
+      if (isSelf) {
+        refreshCurrentUser();
+      }
     } catch (error: any) {
       toast.error(error.message || 'Failed to update permissions');
     } finally {
