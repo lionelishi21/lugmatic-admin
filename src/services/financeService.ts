@@ -124,6 +124,35 @@ export const financeService = {
         const response = await apiService.put<SubscriptionPlan>(`/admin/subscription-plans/${planId}`, plan);
         return response.data.data;
     },
+
+    // Global pricing tiers
+    getPricingTiers: async () => {
+        const response = await apiService.get<PricingTier[]>('/finance/admin/pricing/tiers');
+        return response.data.data;
+    },
+    createPricingTier: async (tier: Omit<PricingTier, '_id' | 'createdAt' | 'updatedAt'>) => {
+        const response = await apiService.post<PricingTier>('/finance/admin/pricing/tiers', tier);
+        return response.data.data;
+    },
+    updatePricingTier: async (id: string, updates: Partial<PricingTier>) => {
+        const response = await apiService.put<PricingTier>(`/finance/admin/pricing/tiers/${id}`, updates);
+        return response.data.data;
+    },
+    deletePricingTier: async (id: string) => {
+        await apiService.delete(`/finance/admin/pricing/tiers/${id}`);
+    },
 };
+
+export interface PricingTier {
+    _id: string;
+    region: string;
+    currency: string;
+    currencySymbol: string;
+    premiumPriceCents: number;
+    proArtistPriceCents: number;
+    isActive: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+}
 
 export default financeService;

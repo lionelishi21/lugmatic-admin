@@ -8,7 +8,7 @@ import {
   Package, Globe, Layers, Wallet, X, ThumbsUp, ThumbsDown,
   Banknote
 } from 'lucide-react';
-import financeService, { AdminFinancialStats, Payout, SubscriptionPlan } from '../../services/financeService';
+import financeService, { AdminFinancialStats, Payout, SubscriptionPlan, PricingTier } from '../../services/financeService';
 import artistService, { Artist } from '../../services/artistService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -972,56 +972,230 @@ const ComplianceSection = () => {
   );
 };
 
-/* ─── Regional Pricing Section ─── */
-const PricingSection = () => {
-  const tiers = [
-    { region: 'UNITED STATES', currency: 'USD', premium: '$9.99', pro: '$14.99' },
-    { region: 'EUROPEAN UNION', currency: 'EUR', premium: '€9.49', pro: '€13.99' },
-    { region: 'UNITED KINGDOM', currency: 'GBP', premium: '£7.99', pro: '£11.99' },
-    { region: 'JAPAN', currency: 'JPY', premium: '¥980', pro: '¥1,480' },
-  ];
+/* ─── Pricing Tier Modal ─── */
+const PricingTierModal = ({ tier, onClose, onSave }: {
+  tier: PricingTier | null;
+  onClose: () => void;
+  onSave: (data: Omit<PricingTier, '_id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+}) => {
+  const [form, setForm] = useState({
+    region: tier?.region ?? '',
+    currency: tier?.currency ?? '',
+    currencySymbol: tier?.currencySymbol ?? '$',
+    premiumPriceCents: tier ? (tier.premiumPriceCents / 100).toFixed(2) : '',
+    proArtistPriceCents: tier ? (tier.proArtistPriceCents / 100).toFixed(2) : '',
+    isActive: tier?.isActive ?? true,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await onSave({
+        region: form.region.trim(),
+        currency: form.currency.trim().toUpperCase(),
+        currencySymbol: form.currencySymbol.trim(),
+        premiumPriceCents: Math.round(parseFloat(form.premiumPriceCents) * 100),
+        proArtistPriceCents: Math.round(parseFloat(form.proArtistPriceCents) * 100),
+        isActive: form.isActive,
+      });
+      onClose();
+    } catch {
+      // toast already shown by caller
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const field = (label: string, key: keyof typeof form, type = 'text', placeholder = '') => (
+    <div>
+      <label className="block text-[10px] font-bold text-zinc-500 mb-1 uppercase">{label}</label>
+      <input
+        type={type}
+        value={form[key] as string}
+        onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+        placeholder={placeholder}
+        required
+        step={type === 'number' ? '0.01' : undefined}
+        min={type === 'number' ? '0' : undefined}
+        className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      />
+    </div>
+  );
 
   return (
-    <div className="premium-card !p-0 overflow-hidden border-black/5 dark:border-white/5 shadow-2xl bg-white dark:bg-[#0a0a0a]">
-      <div className="p-8 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-zinc-100 dark:bg-zinc-950/50">
-        <div>
-          <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Global Pricing Tiers</h3>
-          <p className="text-[10px] text-zinc-700 font-bold">Pricing configurations across different regions</p>
-        </div>
-        <button className="btn-primary flex items-center gap-3 !px-8 !py-3.5 shadow-xl shadow-emerald-500/10">
-          <Plus size={16} /> 
-          <span className="text-[10px] font-bold uppercase">Add New Region</span>
-        </button>
-      </div>
-      <table className="w-full text-left">
-        <thead>
-          <tr className="border-b border-black/5 dark:border-white/5 bg-black/20">
-            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Region</th>
-            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Currency</th>
-            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Premium Tier</th>
-            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Pro Artist</th>
-            <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-white/5">
-          {tiers.map((t) => (
-            <tr key={t.region} className="hover:bg-white/[0.01] transition-colors group">
-              <td className="px-8 py-6 text-sm font-bold text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:text-white transition-colors uppercase">{t.region}</td>
-              <td className="px-8 py-6">
-                 <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500">
-                    <Globe size={14} className="text-zinc-700" />
-                    {t.currency}
-                 </div>
-              </td>
-              <td className="px-8 py-6 text-sm font-bold text-zinc-900 dark:text-white tracking-tighter">{t.premium}</td>
-              <td className="px-8 py-6 text-sm font-bold text-emerald-500 tracking-tighter">{t.pro}</td>
-              <td className="px-8 py-6 text-right">
-                <button className="px-6 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 text-[10px] font-bold text-zinc-600 hover:text-zinc-900 dark:text-white hover:bg-black/10 dark:bg-white/10 transition-all border border-black/5 dark:border-white/5">Edit</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        className="bg-white dark:bg-zinc-900 rounded-2xl p-8 w-full max-w-md shadow-2xl">
+        <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-6">
+          {tier ? 'Edit Pricing Tier' : 'Add Pricing Tier'}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {field('Region', 'region', 'text', 'e.g. United States')}
+          <div className="grid grid-cols-2 gap-4">
+            {field('Currency Code', 'currency', 'text', 'USD')}
+            {field('Symbol', 'currencySymbol', 'text', '$')}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {field('Premium Price ($)', 'premiumPriceCents', 'number', '9.99')}
+            {field('Pro Artist Price ($)', 'proArtistPriceCents', 'number', '14.99')}
+          </div>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" checked={form.isActive}
+              onChange={e => setForm(f => ({ ...f, isActive: e.target.checked }))}
+              className="w-4 h-4 accent-emerald-500" />
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Active</span>
+          </label>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose}
+              className="flex-1 px-6 py-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-sm font-bold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+              Cancel
+            </button>
+            <button type="submit" disabled={saving}
+              className="flex-1 btn-primary !py-3 text-sm font-bold disabled:opacity-50">
+              {saving ? 'Saving…' : (tier ? 'Save Changes' : 'Create')}
+            </button>
+          </div>
+        </form>
+      </motion.div>
     </div>
+  );
+};
+
+/* ─── Regional Pricing Section ─── */
+const PricingSection = () => {
+  const [tiers, setTiers] = useState<PricingTier[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalTier, setModalTier] = useState<PricingTier | 'new' | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const fetchTiers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await financeService.getPricingTiers();
+      setTiers(data);
+    } catch {
+      toast.error('Failed to load pricing tiers');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchTiers(); }, [fetchTiers]);
+
+  const handleSave = async (data: Omit<PricingTier, '_id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      if (modalTier && modalTier !== 'new') {
+        await financeService.updatePricingTier(modalTier._id, data);
+        toast.success('Pricing tier updated');
+      } else {
+        await financeService.createPricingTier(data);
+        toast.success('Pricing tier created');
+      }
+      fetchTiers();
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? 'Failed to save pricing tier');
+      throw e;
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Delete this pricing tier? This cannot be undone.')) return;
+    setDeletingId(id);
+    try {
+      await financeService.deletePricingTier(id);
+      toast.success('Pricing tier deleted');
+      fetchTiers();
+    } catch {
+      toast.error('Failed to delete pricing tier');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const fmt = (cents: number, symbol: string) =>
+    `${symbol}${(cents / 100).toFixed(2)}`;
+
+  return (
+    <>
+      <div className="premium-card !p-0 overflow-hidden border-black/5 dark:border-white/5 shadow-2xl bg-white dark:bg-[#0a0a0a]">
+        <div className="p-8 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-zinc-100 dark:bg-zinc-950/50">
+          <div>
+            <h3 className="text-[10px] font-bold text-zinc-500 mb-1">Global Pricing Tiers</h3>
+            <p className="text-[10px] text-zinc-700 font-bold">Subscription pricing per region</p>
+          </div>
+          <button onClick={() => setModalTier('new')}
+            className="btn-primary flex items-center gap-3 !px-8 !py-3.5 shadow-xl shadow-emerald-500/10">
+            <Plus size={16} />
+            <span className="text-[10px] font-bold uppercase">Add Region</span>
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-emerald-500 border-t-transparent" />
+          </div>
+        ) : tiers.length === 0 ? (
+          <div className="text-center py-16 text-zinc-500 text-sm">
+            No pricing tiers yet. Add one to get started.
+          </div>
+        ) : (
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-black/5 dark:border-white/5 bg-black/20">
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Region</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Currency</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Premium</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Pro Artist</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Status</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {tiers.map(t => (
+                <tr key={t._id} className="hover:bg-white/[0.01] transition-colors group">
+                  <td className="px-8 py-6 text-sm font-bold text-zinc-700 dark:text-zinc-300 uppercase">{t.region}</td>
+                  <td className="px-8 py-6">
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500">
+                      <Globe size={14} className="text-zinc-700" />{t.currency}
+                    </div>
+                  </td>
+                  <td className="px-8 py-6 text-sm font-bold text-zinc-900 dark:text-white tracking-tighter">
+                    {fmt(t.premiumPriceCents, t.currencySymbol)}
+                  </td>
+                  <td className="px-8 py-6 text-sm font-bold text-emerald-500 tracking-tighter">
+                    {fmt(t.proArtistPriceCents, t.currencySymbol)}
+                  </td>
+                  <td className="px-8 py-6">
+                    <span className={`text-[10px] font-bold px-3 py-1 rounded-full ${t.isActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'}`}>
+                      {t.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
+                  <td className="px-8 py-6 text-right flex items-center justify-end gap-2">
+                    <button onClick={() => setModalTier(t)}
+                      className="px-5 py-2 rounded-xl bg-black/5 dark:bg-white/5 text-[10px] font-bold text-zinc-600 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/10 transition-all border border-black/5 dark:border-white/5">
+                      Edit
+                    </button>
+                    <button onClick={() => handleDelete(t._id)} disabled={deletingId === t._id}
+                      className="px-5 py-2 rounded-xl bg-red-500/10 text-[10px] font-bold text-red-500 hover:bg-red-500/20 transition-all border border-red-500/20 disabled:opacity-50">
+                      {deletingId === t._id ? '…' : 'Delete'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {modalTier !== null && (
+        <PricingTierModal
+          tier={modalTier === 'new' ? null : modalTier}
+          onClose={() => setModalTier(null)}
+          onSave={handleSave}
+        />
+      )}
+    </>
   );
 };
