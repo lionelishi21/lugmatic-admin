@@ -1,14 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   TrendingUp, CreditCard, FileText, Receipt, Settings,
   DollarSign, Users, Activity, BarChart3, Download,
   Filter, Calendar, ChevronRight, Clock, CheckCircle2,
   AlertCircle, XCircle, Search, Music, Zap, Crown, Plus,
   FileCheck, ShieldCheck, ArrowUpRight, ArrowDownRight,
-  Package, Globe, Layers, Wallet
+  Package, Globe, Layers, Wallet, X, ThumbsUp, ThumbsDown,
+  Banknote
 } from 'lucide-react';
 import financeService, { AdminFinancialStats, Payout } from '../../services/financeService';
+import artistService, { Artist } from '../../services/artistService';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 
 const tabs = [
   { id: 'revenue', label: 'REVENUE', icon: TrendingUp },
@@ -23,25 +26,56 @@ export default function FinancialManagement() {
   const [stats, setStats] = useState<AdminFinancialStats | null>(null);
   const [allPayouts, setAllPayouts] = useState<Payout[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [payoutStatusFilter, setPayoutStatusFilter] = useState<string>('');
+  const [newTransactionOpen, setNewTransactionOpen] = useState(false);
+  const [rankingOpen, setRankingOpen] = useState(false);
+
+  const fetchPayouts = useCallback(async (status?: string) => {
+    try {
+      const payoutList = await financeService.getAdminPayouts(status || undefined);
+      setAllPayouts(payoutList);
+    } catch (error) {
+      console.error('Error fetching payouts:', error);
+    }
+  }, []);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const revenueStats = await financeService.getAdminRevenue();
+      setStats(revenueStats);
+    } catch (error) {
+      console.error('Error fetching revenue stats:', error);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const [revenueStats, payoutList] = await Promise.all([
-          financeService.getAdminRevenue(),
-          financeService.getAdminPayouts()
-        ]);
-        setStats(revenueStats);
-        setAllPayouts(payoutList);
-      } catch (error) {
-        console.error('Error fetching financial data:', error);
-      } finally {
-        setIsLoading(false);
-      }
+      setIsLoading(true);
+      await Promise.all([fetchStats(), fetchPayouts()]);
+      setIsLoading(false);
     };
     fetchData();
-  }, []);
+  }, [fetchStats, fetchPayouts]);
+
+  const handleExportCSV = () => {
+    const rows = stats?.recentTransactions || [];
+    if (rows.length === 0) { toast.error('No transactions to export'); return; }
+    const csv = [
+      ['Date', 'Type', 'Amount', 'Status', 'Description'].join(','),
+      ...rows.map(t => [
+        new Date(t.createdAt).toISOString(),
+        t.type,
+        (t.amount / 100).toFixed(2),
+        t.status,
+        `"${(t.description || '').replace(/"/g, '""')}"`,
+      ].join(',')),
+    ].join('\n');
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(new Blob([csv], { type: 'text/csv' })),
+      download: `revenue-${new Date().toISOString().slice(0, 10)}.csv`,
+    });
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  };
 
   return (
     <div className="space-y-12 pb-20">
@@ -58,11 +92,11 @@ export default function FinancialManagement() {
           <p className="text-zinc-500 text-xs font-semibold ml-1">Manage platform revenue, artist payouts, subscriptions, and compliance.</p>
         </div>
         <div className="flex items-center gap-4">
-          <button className="btn-secondary !px-8 flex items-center gap-2">
+          <button onClick={handleExportCSV} className="btn-secondary !px-8 flex items-center gap-2">
             <Download size={18} />
             <span className="text-[10px] font-bold">Export CSV</span>
           </button>
-          <button className="btn-primary flex items-center gap-2 !px-10 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+          <button onClick={() => setNewTransactionOpen(true)} className="btn-primary flex items-center gap-2 !px-10 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
             <Plus size={18} />
             <span className="text-[10px] font-bold">New Transaction</span>
           </button>
@@ -110,20 +144,222 @@ export default function FinancialManagement() {
             exit={{ opacity: 0, x: 10 }}
             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
           >
-            {activeTab === 'revenue' && <RevenueSection stats={stats} />}
-            {activeTab === 'payouts' && <PayoutsSection stats={stats} payouts={allPayouts} />}
+            {activeTab === 'revenue' && <RevenueSection stats={stats} onOpenRanking={() => setRankingOpen(true)} />}
+            {activeTab === 'payouts' && (
+              <PayoutsSection
+                stats={stats}
+                payouts={allPayouts}
+                statusFilter={payoutStatusFilter}
+                onStatusFilterChange={(s) => { setPayoutStatusFilter(s); fetchPayouts(s); }}
+                onPayoutUpdated={() => { fetchPayouts(payoutStatusFilter); fetchStats(); }}
+              />
+            )}
             {activeTab === 'subscriptions' && <SubscriptionsSection stats={stats} />}
             {activeTab === 'compliance' && <ComplianceSection />}
             {activeTab === 'pricing' && <PricingSection />}
           </motion.div>
         </AnimatePresence>
       )}
+
+      <NewTransactionModal
+        isOpen={newTransactionOpen}
+        onClose={() => setNewTransactionOpen(false)}
+        onSuccess={() => { setNewTransactionOpen(false); fetchStats(); }}
+      />
+      <RevenueRankingModal isOpen={rankingOpen} onClose={() => setRankingOpen(false)} />
     </div>
   );
 }
 
+/* ─── New Transaction Modal ─── */
+const NewTransactionModal = ({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose: () => void; onSuccess: () => void }) => {
+  const [artists, setArtists] = useState<Artist[]>([]);
+  const [search, setSearch] = useState('');
+  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
+  const [amount, setAmount] = useState('');
+  const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && artists.length === 0) {
+      artistService.getAllArtists().then(setArtists).catch(() => {});
+    }
+    if (!isOpen) {
+      setSelectedArtist(null); setAmount(''); setDescription(''); setSearch('');
+    }
+  }, [isOpen, artists.length]);
+
+  const filteredArtists = artists.filter(a => a.name?.toLowerCase().includes(search.toLowerCase()));
+
+  const handleSubmit = async () => {
+    if (!selectedArtist) { toast.error('Select an artist'); return; }
+    const dollars = parseFloat(amount);
+    if (isNaN(dollars) || dollars <= 0) { toast.error('Enter a valid amount'); return; }
+    if (!description.trim()) { toast.error('Enter a description'); return; }
+
+    setIsSubmitting(true);
+    const loadingId = toast.loading('Creating transaction...');
+    try {
+      await financeService.createTransaction(selectedArtist._id, Math.round(dollars * 100), description.trim());
+      toast.success(`$${dollars.toFixed(2)} credited to ${selectedArtist.name}`, { id: loadingId });
+      onSuccess();
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to create transaction', { id: loadingId });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4" onClick={onClose}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+            className="premium-card w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold">New Transaction</h3>
+              <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 dark:bg-white/5 text-zinc-500"><X size={20} /></button>
+            </div>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Artist</label>
+                {selectedArtist ? (
+                  <div className="flex items-center justify-between input-field !py-3">
+                    <span className="text-sm font-bold">{selectedArtist.name}</span>
+                    <button onClick={() => setSelectedArtist(null)} className="text-zinc-500 hover:text-zinc-900 dark:text-white"><X size={16} /></button>
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      type="text" placeholder="Search artist by name..." value={search}
+                      onChange={(e) => setSearch(e.target.value)} className="input-field"
+                    />
+                    {search && (
+                      <div className="max-h-40 overflow-y-auto rounded-xl border border-black/5 dark:border-white/5">
+                        {filteredArtists.slice(0, 8).map(a => (
+                          <button
+                            key={a._id} onClick={() => { setSelectedArtist(a); setSearch(''); }}
+                            className="w-full text-left px-4 py-2.5 text-sm hover:bg-white/5 transition-colors"
+                          >
+                            {a.name}
+                          </button>
+                        ))}
+                        {filteredArtists.length === 0 && (
+                          <p className="px-4 py-3 text-xs text-zinc-500">No artists match "{search}"</p>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Amount (USD)</label>
+                <input
+                  type="number" min="0.01" step="0.01" placeholder="0.00" value={amount}
+                  onChange={(e) => setAmount(e.target.value)} className="input-field"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Description</label>
+                <textarea
+                  placeholder="e.g. Promotional bonus — Summer Fest 2026" value={description}
+                  onChange={(e) => setDescription(e.target.value)} className="input-field h-24 resize-none"
+                />
+              </div>
+              <div className="flex justify-end gap-4 pt-4 border-t border-black/5 dark:border-white/5">
+                <button onClick={onClose} className="btn-secondary">Cancel</button>
+                <button onClick={handleSubmit} disabled={isSubmitting} className="btn-primary">
+                  {isSubmitting ? 'Creating...' : 'Create Transaction'}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+/* ─── Revenue Ranking Modal ("Global Rank" / "Analyze Full Payout Spectrum") ─── */
+const RevenueRankingModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const [rankings, setRankings] = useState<AdminFinancialStats['topEarners']>([]);
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) { setPage(1); return; }
+    setIsLoading(true);
+    financeService.getRevenueRanking(page, 20)
+      .then(res => { setRankings(res.rankings); setPages(res.pagination.pages); })
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
+  }, [isOpen, page]);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4" onClick={onClose}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+            className="premium-card w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold">Full Artist Revenue Ranking</h3>
+              <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 dark:bg-white/5 text-zinc-500"><X size={20} /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-3">
+              {isLoading ? (
+                <div className="py-12 flex justify-center"><div className="w-6 h-6 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" /></div>
+              ) : rankings.length === 0 ? (
+                <p className="text-center text-zinc-500 text-sm py-12">No revenue data yet.</p>
+              ) : (
+                rankings.map((a, i) => (
+                  <div key={a._id || i} className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-black/5 dark:border-white/5">
+                    <div className="flex items-center gap-4">
+                      <span className="w-6 text-center text-xs font-bold text-zinc-500">#{(page - 1) * 20 + i + 1}</span>
+                      <span className="text-sm font-bold">{a.name}</span>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-emerald-500">${(a.revenue / 100).toLocaleString()}</p>
+                      <p className="text-[9px] text-zinc-600">{a.transactions} transactions</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            {pages > 1 && (
+              <div className="flex items-center justify-between pt-4 mt-4 border-t border-black/5 dark:border-white/5">
+                <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="btn-secondary !px-5 !py-2 disabled:opacity-30">Previous</button>
+                <span className="text-xs font-bold text-zinc-500">Page {page} of {pages}</span>
+                <button disabled={page >= pages} onClick={() => setPage(p => p + 1)} className="btn-secondary !px-5 !py-2 disabled:opacity-30">Next</button>
+              </div>
+            )}
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 /* ─── Revenue Section ─── */
-const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
+const RevenueSection = ({ stats, onOpenRanking }: { stats: AdminFinancialStats | null; onOpenRanking: () => void }) => {
+  const [period, setPeriod] = useState<'30d' | '90d' | '1y'>('30d');
+  const [series, setSeries] = useState<{ label: string; amount: number }[]>([]);
+  const [chartLoading, setChartLoading] = useState(false);
+
+  useEffect(() => {
+    setChartLoading(true);
+    financeService.getRevenueTimeSeries(period)
+      .then(setSeries)
+      .catch(() => setSeries([]))
+      .finally(() => setChartLoading(false));
+  }, [period]);
+
+  const maxAmount = Math.max(1, ...series.map(s => s.amount));
+
   const displayStats = [
     { label: 'Cumulative Revenue', value: `$${((stats?.totalRevenue || 0) / 100).toLocaleString()}`, trend: '+12.5%', up: true, icon: DollarSign, color: 'text-emerald-500', bgColor: 'bg-emerald-500/5' },
     { label: 'Active Subscriptions', value: (stats?.activeSubscribers || 0).toLocaleString(), trend: '+5.2%', up: true, icon: Zap, color: 'text-blue-500', bgColor: 'bg-blue-500/5' },
@@ -167,22 +403,38 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
               <p className="text-[10px] text-zinc-700 font-bold">Revenue categorization and statistics</p>
             </div>
             <div className="flex bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-2xl p-1 shadow-inner">
-              {['30D', '90D', '1Y'].map(t => (
-                <button key={t} className="px-5 py-2 text-[10px] font-bold text-zinc-600 hover:text-zinc-900 dark:text-white transition-all rounded-xl hover:bg-black/5 dark:bg-white/5">
-                  {t}
+              {(['30d', '90d', '1y'] as const).map(t => (
+                <button
+                  key={t}
+                  onClick={() => setPeriod(t)}
+                  className={`px-5 py-2 text-[10px] font-bold transition-all rounded-xl ${period === t ? 'bg-emerald-500 text-black' : 'text-zinc-600 hover:text-zinc-900 dark:text-white hover:bg-black/5 dark:bg-white/5'}`}
+                >
+                  {t.toUpperCase()}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="h-64 bg-zinc-100 dark:bg-zinc-950/50 border border-black/5 dark:border-white/5 rounded-3xl mb-8 flex flex-col items-center justify-center relative overflow-hidden group">
-            <div className="absolute inset-0 flex items-end justify-between px-10 pb-10">
-               {[...Array(12)].map((_, i) => (
-                 <div key={i} className="w-8 bg-emerald-500/10 rounded-t-lg transition-all group-hover:bg-emerald-500/20" style={{ height: `${20 + Math.random() * 60}%` }} />
-               ))}
-            </div>
-            <BarChart3 className="w-12 h-12 text-zinc-800 relative z-10" />
-            <p className="text-[10px] font-bold text-zinc-800 relative z-10 mt-4">Financial Chart</p>
+            {chartLoading ? (
+              <div className="w-6 h-6 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+            ) : series.length === 0 ? (
+              <>
+                <BarChart3 className="w-12 h-12 text-zinc-800 relative z-10" />
+                <p className="text-[10px] font-bold text-zinc-800 relative z-10 mt-4">No revenue data for this period</p>
+              </>
+            ) : (
+              <div className="absolute inset-0 flex items-end justify-between gap-1 px-6 pb-6">
+                {series.map((s) => (
+                  <div
+                    key={s.label}
+                    className="flex-1 bg-emerald-500/20 rounded-t-lg transition-all hover:bg-emerald-500/40"
+                    style={{ height: `${Math.max(4, (s.amount / maxAmount) * 100)}%` }}
+                    title={`${s.label}: $${(s.amount / 100).toLocaleString()}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-8">
@@ -213,7 +465,7 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
         <div className="premium-card space-y-10">
           <div className="flex items-center justify-between">
             <h3 className="text-[10px] font-bold text-zinc-500">Top Earners</h3>
-            <button className="text-[10px] font-bold text-emerald-500 hover:text-emerald-400 transition-colors">Global Rank</button>
+            <button onClick={onOpenRanking} className="text-[10px] font-bold text-emerald-500 hover:text-emerald-400 transition-colors">Global Rank</button>
           </div>
           <div className="space-y-8 flex-1">
             {(stats?.topEarners || []).slice(0, 6).map((a, i) => (
@@ -237,7 +489,7 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
             ))}
           </div>
           <div className="pt-6 border-t border-black/5 dark:border-white/5">
-             <button className="w-full py-3.5 rounded-2xl bg-black/5 dark:bg-white/5 text-[10px] font-bold text-zinc-600 hover:text-zinc-900 dark:text-white hover:bg-black/10 dark:bg-white/10 transition-all border border-black/5 dark:border-white/5">Analyze Full Payout Spectrum</button>
+             <button onClick={onOpenRanking} className="w-full py-3.5 rounded-2xl bg-black/5 dark:bg-white/5 text-[10px] font-bold text-zinc-600 hover:text-zinc-900 dark:text-white hover:bg-black/10 dark:bg-white/10 transition-all border border-black/5 dark:border-white/5">Analyze Full Payout Spectrum</button>
           </div>
         </div>
       </div>
@@ -246,13 +498,44 @@ const RevenueSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
 };
 
 /* ─── Payout Section ─── */
-const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null, payouts: Payout[] }) => {
+const PayoutsSection = ({
+  stats, payouts, statusFilter, onStatusFilterChange, onPayoutUpdated,
+}: {
+  stats: AdminFinancialStats | null;
+  payouts: Payout[];
+  statusFilter: string;
+  onStatusFilterChange: (status: string) => void;
+  onPayoutUpdated: () => void;
+}) => {
+  const [search, setSearch] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [actioningId, setActioningId] = useState<string | null>(null);
+
   const statusStyles: Record<string, string> = {
     completed: 'text-emerald-400 bg-emerald-500/5 border-emerald-500/10',
     processing: 'text-blue-400 bg-blue-500/5 border-blue-500/10',
     pending: 'text-amber-400 bg-amber-500/5 border-amber-500/10',
     failed: 'text-rose-400 bg-rose-500/5 border-rose-500/10',
+    cancelled: 'text-zinc-400 bg-zinc-500/5 border-zinc-500/10',
   };
+
+  const handleStatusChange = async (payoutId: string, status: string) => {
+    setActioningId(payoutId);
+    const loadingId = toast.loading('Updating payout...');
+    try {
+      await financeService.updatePayoutStatus(payoutId, status);
+      toast.success('Payout updated', { id: loadingId });
+      onPayoutUpdated();
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to update payout', { id: loadingId });
+    } finally {
+      setActioningId(null);
+    }
+  };
+
+  const filteredPayouts = payouts.filter(p =>
+    !search || (p.artist?.name || '').toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="space-y-10">
@@ -284,9 +567,33 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
           <div className="flex items-center gap-4">
             <div className="relative w-full md:w-80 group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-emerald-500 w-4 h-4 transition-colors" />
-              <input type="text" placeholder="Search artist..." className="input-field pl-12 !py-3 !text-[10px] font-bold" />
+              <input
+                type="text" placeholder="Search artist..." value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="input-field pl-12 !py-3 !text-[10px] font-bold"
+              />
             </div>
-            <button className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-600 hover:text-zinc-900 dark:text-white transition-all border border-black/5 dark:border-white/5"><Filter size={18} /></button>
+            <div className="relative">
+              <button
+                onClick={() => setFilterOpen(o => !o)}
+                className={`p-3 rounded-2xl transition-all border ${statusFilter ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-black/5 dark:bg-white/5 text-zinc-600 hover:text-zinc-900 dark:text-white border-black/5 dark:border-white/5'}`}
+              >
+                <Filter size={18} />
+              </button>
+              {filterOpen && (
+                <div className="absolute right-0 top-full mt-2 w-44 bg-white dark:bg-[#0a0a0a] border border-black/5 dark:border-white/5 rounded-2xl shadow-2xl z-20 overflow-hidden">
+                  {['', 'pending', 'processing', 'completed', 'failed', 'cancelled'].map(s => (
+                    <button
+                      key={s || 'all'}
+                      onClick={() => { onStatusFilterChange(s); setFilterOpen(false); }}
+                      className={`w-full text-left px-4 py-2.5 text-[10px] font-bold capitalize transition-colors ${statusFilter === s ? 'text-emerald-500' : 'text-zinc-500 hover:text-zinc-900 dark:text-white'} hover:bg-black/5 dark:bg-white/5`}
+                    >
+                      {s || 'All Statuses'}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -297,11 +604,12 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
                 <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Amount</th>
                 <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Payment Method</th>
                 <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Status</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 text-right">Date</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600">Date</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-zinc-600 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {payouts.map((p) => (
+              {filteredPayouts.map((p) => (
                 <tr key={p._id} className="hover:bg-white/[0.01] transition-colors group">
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-4">
@@ -323,14 +631,61 @@ const PayoutsSection = ({ stats, payouts }: { stats: AdminFinancialStats | null,
                       {p.status}
                     </span>
                   </td>
-                  <td className="px-8 py-5 text-right text-[10px] text-zinc-600 font-bold">{new Date(p.createdAt).toLocaleDateString()}</td>
+                  <td className="px-8 py-5 text-[10px] text-zinc-600 font-bold">{new Date(p.createdAt).toLocaleDateString()}</td>
+                  <td className="px-8 py-5 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      {p.status === 'pending' && (
+                        <>
+                          <button
+                            disabled={actioningId === p._id}
+                            onClick={() => handleStatusChange(p._id, 'processing')}
+                            title="Approve"
+                            className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 transition-all disabled:opacity-40"
+                          >
+                            <ThumbsUp size={14} />
+                          </button>
+                          <button
+                            disabled={actioningId === p._id}
+                            onClick={() => handleStatusChange(p._id, 'cancelled')}
+                            title="Reject"
+                            className="p-2 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-all disabled:opacity-40"
+                          >
+                            <ThumbsDown size={14} />
+                          </button>
+                        </>
+                      )}
+                      {p.status === 'processing' && (
+                        <>
+                          <button
+                            disabled={actioningId === p._id}
+                            onClick={() => handleStatusChange(p._id, 'completed')}
+                            title="Mark Paid"
+                            className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 transition-all disabled:opacity-40"
+                          >
+                            <Banknote size={14} />
+                          </button>
+                          <button
+                            disabled={actioningId === p._id}
+                            onClick={() => handleStatusChange(p._id, 'failed')}
+                            title="Mark Failed"
+                            className="p-2 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-all disabled:opacity-40"
+                          >
+                            <XCircle size={14} />
+                          </button>
+                        </>
+                      )}
+                      {(p.status === 'completed' || p.status === 'failed' || p.status === 'cancelled') && (
+                        <span className="text-[9px] text-zinc-700">—</span>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
+              {filteredPayouts.length === 0 && (
+                <tr><td colSpan={6} className="px-8 py-12 text-center text-[10px] text-zinc-600 font-bold">No payouts match your search.</td></tr>
+              )}
             </tbody>
           </table>
-        </div>
-        <div className="p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/5 dark:border-white/5 text-center">
-            <button className="text-[10px] font-bold text-zinc-700 hover:text-zinc-900 dark:text-white transition-all">Load Extended Archive</button>
         </div>
       </div>
     </div>

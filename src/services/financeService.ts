@@ -4,7 +4,7 @@ export interface Transaction {
     _id: string;
     user: any;
     artist?: any;
-    type: 'coin_purchase' | 'gift_sent' | 'gift_received' | 'subscription_payment' | 'payout' | 'withdrawal';
+    type: 'coin_purchase' | 'gift_sent' | 'gift_received' | 'subscription_payment' | 'payout' | 'withdrawal' | 'manual_adjustment';
     amount: number;
     currency: string;
     status: 'pending' | 'completed' | 'failed' | 'refunded';
@@ -72,6 +72,28 @@ export const financeService = {
     getAdminPayouts: async (status?: string) => {
         const url = status ? `/finance/admin/payouts?status=${status}` : '/finance/admin/payouts';
         const response = await apiService.get<Payout[]>(url);
+        return response.data.data;
+    },
+
+    updatePayoutStatus: async (payoutId: string, status: string, notes?: string) => {
+        const response = await apiService.put<Payout>(`/finance/admin/payouts/${payoutId}/status`, { status, notes });
+        return response.data.data;
+    },
+
+    createTransaction: async (artistId: string, amount: number, description: string) => {
+        const response = await apiService.post<Transaction>('/finance/admin/transactions', { artistId, amount, description });
+        return response.data.data;
+    },
+
+    getRevenueRanking: async (page = 1, limit = 20) => {
+        const response = await apiService.get<{ rankings: AdminFinancialStats['topEarners']; pagination: { page: number; limit: number; total: number; pages: number } }>(
+            `/finance/admin/revenue/ranking?page=${page}&limit=${limit}`
+        );
+        return response.data.data;
+    },
+
+    getRevenueTimeSeries: async (period: '30d' | '90d' | '1y' = '30d') => {
+        const response = await apiService.get<{ label: string; amount: number }[]>(`/finance/admin/revenue/timeseries?period=${period}`);
         return response.data.data;
     }
 };
