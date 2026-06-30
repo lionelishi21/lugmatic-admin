@@ -51,6 +51,18 @@ export interface AdminFinancialStats {
     recentTransactions: Transaction[];
 }
 
+export interface SubscriptionPlan {
+    _id: string;
+    name: string;
+    description?: string;
+    price: number; // cents
+    currency: string;
+    billingCycle: 'monthly' | 'quarterly' | 'yearly';
+    features: { name: string; description?: string; isEnabled?: boolean }[];
+    isActive: boolean;
+    sortOrder?: number;
+}
+
 export const financeService = {
     // Artist methods
     getArtistEarnings: async (page = 1, limit = 20) => {
@@ -95,7 +107,23 @@ export const financeService = {
     getRevenueTimeSeries: async (period: '30d' | '90d' | '1y' = '30d') => {
         const response = await apiService.get<{ label: string; amount: number }[]>(`/finance/admin/revenue/timeseries?period=${period}`);
         return response.data.data;
-    }
+    },
+
+    // Subscription plans
+    getSubscriptionPlans: async () => {
+        const response = await apiService.get<SubscriptionPlan[]>('/admin/subscription-plans');
+        return response.data.data;
+    },
+
+    createSubscriptionPlan: async (plan: Partial<SubscriptionPlan>) => {
+        const response = await apiService.post<SubscriptionPlan>('/admin/subscription-plans', plan);
+        return response.data.data;
+    },
+
+    updateSubscriptionPlan: async (planId: string, plan: Partial<SubscriptionPlan>) => {
+        const response = await apiService.put<SubscriptionPlan>(`/admin/subscription-plans/${planId}`, plan);
+        return response.data.data;
+    },
 };
 
 export default financeService;

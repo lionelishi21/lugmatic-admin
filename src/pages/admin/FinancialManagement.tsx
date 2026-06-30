@@ -8,7 +8,7 @@ import {
   Package, Globe, Layers, Wallet, X, ThumbsUp, ThumbsDown,
   Banknote
 } from 'lucide-react';
-import financeService, { AdminFinancialStats, Payout } from '../../services/financeService';
+import financeService, { AdminFinancialStats, Payout, SubscriptionPlan } from '../../services/financeService';
 import artistService, { Artist } from '../../services/artistService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -693,48 +693,208 @@ const PayoutsSection = ({
 };
 
 /* ─── Subscriptions Section ─── */
+const PLAN_ICONS = [Music, Zap, Crown];
+
 const SubscriptionsSection = ({ stats }: { stats: AdminFinancialStats | null }) => {
-  const plans = [
-    { name: 'Free Tier', price: '$0', period: '/mo', subscribers: '12,456', features: ['Ad-supported streams', '5 skips/hour', 'Standard audio quality'], icon: Music, color: 'zinc' },
-    { name: 'Premium Tier', price: '$9.99', period: '/mo', subscribers: '5,234', features: ['Ad-free experience', 'Unlimited skips', 'High-quality audio'], icon: Zap, color: 'emerald', popular: true },
-    { name: 'Pro Artist', price: '$14.99', period: '/mo', subscribers: '2,456', features: ['Lossless audio quality', 'Exclusive artist content', 'Priority support'], icon: Crown, color: 'indigo' },
-  ];
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | 'new' | null>(null);
+
+  const fetchPlans = useCallback(async () => {
+    try {
+      const data = await financeService.getSubscriptionPlans();
+      setPlans(data);
+    } catch (error) {
+      console.error('Error fetching subscription plans:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchPlans(); }, [fetchPlans]);
 
   return (
     <div className="space-y-10">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-        {plans.map((plan) => (
-          <div key={plan.name} className={`premium-card relative group transition-all duration-500 hover:border-emerald-500/30 ${plan.popular ? 'border-emerald-500/20 bg-emerald-500/5 shadow-[0_0_50px_rgba(16,185,129,0.05)]' : 'border-white/5 bg-zinc-950/30'}`}>
-            {plan.popular && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 text-[9px] font-bold text-black bg-emerald-500 rounded-full shadow-lg shadow-emerald-500/20">
-                Most Popular
-              </div>
-            )}
-            <div className={`w-14 h-14 rounded-2xl mb-10 flex items-center justify-center bg-black/5 dark:bg-white/5 text-zinc-500 group-hover:text-emerald-500 transition-all duration-500 group-hover:scale-110 border border-black/5 dark:border-white/5`}>
-              <plan.icon size={28} />
-            </div>
-            <h4 className="text-[10px] font-bold text-zinc-500 mb-4">{plan.name}</h4>
-            <div className="mb-10 flex items-end gap-1">
-              <span className="text-5xl font-bold text-zinc-900 dark:text-white tracking-tighter leading-none">{plan.price}</span>
-              <span className="text-zinc-600 text-xs font-bold mb-1">{plan.period}</span>
-            </div>
-            <div className="flex items-center gap-3 p-4 bg-white/40 dark:bg-black/40 rounded-2xl border border-black/5 dark:border-white/5 text-[10px] font-bold text-zinc-600 dark:text-zinc-400 mb-10">
-              <Users size={16} className="text-emerald-500" />
-              {plan.subscribers} Active Subscribers
-            </div>
-            <ul className="space-y-6 mb-12">
-              {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-4 text-xs font-medium text-zinc-500 group-hover:text-zinc-700 dark:text-zinc-300 transition-colors">
-                  <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
-                  <span className="leading-relaxed text-[10px] font-bold">{f}</span>
-                </li>
-              ))}
-            </ul>
-            <button className="w-full py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[10px] font-bold hover:bg-emerald-500 hover:text-black hover:border-emerald-500 transition-all duration-500">Edit Plan Specs</button>
-          </div>
-        ))}
+      <div className="flex justify-end">
+        <button onClick={() => setEditingPlan('new')} className="btn-primary flex items-center gap-2 !px-8">
+          <Plus size={16} />
+          <span className="text-[10px] font-bold">Add Plan</span>
+        </button>
       </div>
+
+      {isLoading ? (
+        <div className="premium-card py-20 flex justify-center"><div className="w-6 h-6 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" /></div>
+      ) : plans.length === 0 ? (
+        <div className="premium-card py-20 flex flex-col items-center justify-center text-center gap-4">
+          <Layers className="w-10 h-10 text-zinc-700" />
+          <p className="text-zinc-500 text-sm font-bold">No subscription plans yet.</p>
+          <button onClick={() => setEditingPlan('new')} className="btn-primary !px-8">Create your first plan</button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          {plans.map((plan, i) => {
+            const Icon = PLAN_ICONS[i % PLAN_ICONS.length];
+            return (
+              <div key={plan._id} className={`premium-card relative group transition-all duration-500 hover:border-emerald-500/30 ${!plan.isActive ? 'opacity-50' : 'border-white/5 bg-zinc-950/30'}`}>
+                {!plan.isActive && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 text-[9px] font-bold text-white bg-zinc-700 rounded-full shadow-lg">
+                    Inactive
+                  </div>
+                )}
+                <div className="w-14 h-14 rounded-2xl mb-10 flex items-center justify-center bg-black/5 dark:bg-white/5 text-zinc-500 group-hover:text-emerald-500 transition-all duration-500 group-hover:scale-110 border border-black/5 dark:border-white/5">
+                  <Icon size={28} />
+                </div>
+                <h4 className="text-[10px] font-bold text-zinc-500 mb-4">{plan.name}</h4>
+                <div className="mb-10 flex items-end gap-1">
+                  <span className="text-5xl font-bold text-zinc-900 dark:text-white tracking-tighter leading-none">${(plan.price / 100).toFixed(2)}</span>
+                  <span className="text-zinc-600 text-xs font-bold mb-1">/{plan.billingCycle === 'monthly' ? 'mo' : plan.billingCycle === 'yearly' ? 'yr' : 'qtr'}</span>
+                </div>
+                {plan.description && (
+                  <p className="text-[10px] text-zinc-600 font-bold mb-6 leading-relaxed">{plan.description}</p>
+                )}
+                <ul className="space-y-6 mb-12">
+                  {plan.features.map((f, fi) => (
+                    <li key={fi} className="flex items-start gap-4 text-xs font-medium text-zinc-500 group-hover:text-zinc-700 dark:text-zinc-300 transition-colors">
+                      <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
+                      <span className="leading-relaxed text-[10px] font-bold">{f.name}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => setEditingPlan(plan)}
+                  className="w-full py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[10px] font-bold hover:bg-emerald-500 hover:text-black hover:border-emerald-500 transition-all duration-500"
+                >
+                  Edit Plan Specs
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <PlanEditModal
+        plan={editingPlan}
+        onClose={() => setEditingPlan(null)}
+        onSaved={() => { setEditingPlan(null); fetchPlans(); }}
+      />
     </div>
+  );
+};
+
+/* ─── Subscription Plan Create/Edit Modal ─── */
+const PlanEditModal = ({ plan, onClose, onSaved }: { plan: SubscriptionPlan | 'new' | null; onClose: () => void; onSaved: () => void }) => {
+  const isNew = plan === 'new';
+  const existing = isNew ? null : plan;
+
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'quarterly' | 'yearly'>('monthly');
+  const [featuresText, setFeaturesText] = useState('');
+  const [isActive, setIsActive] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (existing) {
+      setName(existing.name);
+      setDescription(existing.description || '');
+      setPrice((existing.price / 100).toFixed(2));
+      setBillingCycle(existing.billingCycle);
+      setFeaturesText(existing.features.map(f => f.name).join('\n'));
+      setIsActive(existing.isActive);
+    } else if (isNew) {
+      setName(''); setDescription(''); setPrice(''); setBillingCycle('monthly'); setFeaturesText(''); setIsActive(true);
+    }
+  }, [plan, existing, isNew]);
+
+  const handleSubmit = async () => {
+    const dollars = parseFloat(price);
+    if (!name.trim()) { toast.error('Plan name is required'); return; }
+    if (isNaN(dollars) || dollars < 0) { toast.error('Enter a valid price'); return; }
+
+    const payload = {
+      name: name.trim(),
+      description: description.trim(),
+      price: Math.round(dollars * 100),
+      billingCycle,
+      features: featuresText.split('\n').map(f => f.trim()).filter(Boolean).map(f => ({ name: f, isEnabled: true })),
+      isActive,
+    };
+
+    setIsSubmitting(true);
+    const loadingId = toast.loading(isNew ? 'Creating plan...' : 'Saving plan...');
+    try {
+      if (isNew) {
+        await financeService.createSubscriptionPlan(payload);
+      } else if (existing) {
+        await financeService.updateSubscriptionPlan(existing._id, payload);
+      }
+      toast.success(isNew ? 'Plan created' : 'Plan updated', { id: loadingId });
+      onSaved();
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to save plan', { id: loadingId });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {plan !== null && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4" onClick={onClose}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+            className="premium-card w-full max-w-md shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold">{isNew ? 'Add Plan' : 'Edit Plan'}</h3>
+              <button onClick={onClose} className="p-2 rounded-full hover:bg-black/5 dark:bg-white/5 text-zinc-500"><X size={20} /></button>
+            </div>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Name</label>
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="input-field" placeholder="e.g. Premium Tier" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Description</label>
+                <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} className="input-field" placeholder="Short summary" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Price (USD)</label>
+                  <input type="number" min="0" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} className="input-field" placeholder="9.99" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Billing Cycle</label>
+                  <select value={billingCycle} onChange={(e) => setBillingCycle(e.target.value as any)} className="input-field">
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Features (one per line)</label>
+                <textarea
+                  value={featuresText} onChange={(e) => setFeaturesText(e.target.value)}
+                  className="input-field h-28 resize-none" placeholder={'Ad-free experience\nUnlimited skips\nHigh-quality audio'}
+                />
+              </div>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="w-4 h-4 accent-emerald-500" />
+                <span className="text-xs font-bold text-zinc-500">Active (visible to users)</span>
+              </label>
+              <div className="flex justify-end gap-4 pt-4 border-t border-black/5 dark:border-white/5">
+                <button onClick={onClose} className="btn-secondary">Cancel</button>
+                <button onClick={handleSubmit} disabled={isSubmitting} className="btn-primary">
+                  {isSubmitting ? 'Saving...' : isNew ? 'Create Plan' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 
