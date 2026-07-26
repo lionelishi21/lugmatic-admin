@@ -15,7 +15,7 @@ interface FileUploadProps {
 
 const FileUpload: React.FC<FileUploadProps> = ({
   accept,
-  maxSize = 10,
+  maxSize = 50,
   onFileSelect,
   onFileRemove,
   currentFile,
