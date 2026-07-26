@@ -249,7 +249,17 @@ const SongManagement: React.FC = () => {
                           <div className="absolute inset-0 bg-black/20" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2">{song.name}</p>
+                          <div className="flex items-center gap-2 mb-2">
+                            <p className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight group-hover:text-emerald-400 transition-colors leading-none">{song.name}</p>
+                            {(!song.audioFile || !song.coverArt) && (
+                              <div className="relative group/warning cursor-help">
+                                <AlertCircle size={14} className="text-rose-500" />
+                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 w-max px-2 py-1 bg-zinc-900 text-white font-bold text-[10px] rounded opacity-0 group-hover/warning:opacity-100 transition-opacity pointer-events-none z-10">
+                                  Missing: {!song.audioFile && !song.coverArt ? 'Audio & Cover Art' : !song.audioFile ? 'Audio File' : 'Cover Art'}
+                                </div>
+                              </div>
+                            )}
+                          </div>
                           {!song.isApproved && (
                             <div className="flex items-center gap-2 bg-amber-500/5 px-2 py-1 rounded-lg border border-amber-500/10 w-fit">
                               <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse" />

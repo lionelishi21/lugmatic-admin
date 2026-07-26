@@ -415,7 +415,17 @@ const AlbumManagement: React.FC = () => {
                               <div className="absolute inset-0 bg-black/20" />
                             </div>
                             <div>
-                              <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none mb-2">{album.name}</p>
+                              <div className="flex items-center gap-2 mb-2">
+                                <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight group-hover:text-emerald-400 transition-colors leading-none">{album.name}</p>
+                                {(!album.songs || album.songs.length === 0) && (
+                                  <div className="relative group/warning cursor-help">
+                                    <AlertCircle size={14} className="text-amber-500" />
+                                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 w-max px-2 py-1 bg-zinc-900 text-white font-bold text-[10px] rounded opacity-0 group-hover/warning:opacity-100 transition-opacity pointer-events-none z-10">
+                                      Empty Album (0 Tracks)
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                               <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{album.songs?.length || 0} Tracks</p>
                             </div>
                           </div>

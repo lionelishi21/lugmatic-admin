@@ -3,7 +3,7 @@ import axios from 'axios';
 import { 
   Search, Trash2, Radio as PodcastIcon, 
   PlayCircle, Filter, CheckCircle2, XCircle, Mic, 
-  Eye, Plus, ArrowLeft, Headphones, RefreshCw, ShieldCheck, Upload, Music
+  Eye, Plus, ArrowLeft, Headphones, RefreshCw, ShieldCheck, Upload, Music, AlertCircle, Edit
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { podcastService } from '../../services/podcastService';
@@ -31,6 +31,8 @@ const PodcastManagement: React.FC = () => {
   const [podcastToModerate, setPodcastToModerate] = useState<{id: string, action: 'approve' | 'reject', title: string} | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddEpisodeOpen, setIsAddEpisodeOpen] = useState(false);
+  const [isEditEpisodeOpen, setIsEditEpisodeOpen] = useState(false);
+  const [episodeToEdit, setEpisodeToEdit] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newPodcast, setNewPodcast] = useState({ title: '', description: '', category: 'Music', explicit: false, coverArt: '', artistId: '' });
   const [newEpisode, setNewEpisode] = useState({ title: '', description: '', duration: '', episodeNumber: '' });
@@ -190,6 +192,69 @@ const PodcastManagement: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+  const handleEditEpisode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPodcast || !episodeToEdit) return;
+    setIsSubmitting(true);
+    const toastId = toast.loading('Saving episode changes...');
+    try {
+      let key = undefined;
+      
+      if (audioFile) {
+        setIsUploading(true);
+        toast.loading('Uploading audio to S3...', { id: toastId });
+        const presignRes = await apiService.post<{ data: { uploadUrl: string; key: string } }>('/upload/presign/podcast-audio', {
+          filename: audioFile.name,
+          contentType: audioFile.type || 'audio/mpeg',
+        });
+        const { uploadUrl, key: newKey } = (presignRes.data as any)?.data ?? presignRes.data as any;
+
+        const cleanAxios = axios.create();
+        await cleanAxios.put(uploadUrl, audioFile, {
+          headers: { 'Content-Type': audioFile.type || 'audio/mpeg' },
+          onUploadProgress: (e) => {
+            const pct = Math.round(((e.loaded ?? 0) / (e.total ?? audioFile.size)) * 100);
+            setUploadProgress(pct);
+          },
+        });
+        setIsUploading(false);
+        key = newKey;
+      }
+
+      toast.loading('Updating episode data...', { id: toastId });
+      
+      const payload: any = {
+        title: episodeToEdit.title,
+        description: episodeToEdit.description,
+        episodeNumber: episodeToEdit.episodeNumber
+      };
+      
+      if (key) {
+        payload.audioFileKey = key;
+      }
+
+      await apiService.put(`/podcast/${selectedPodcast._id}/episodes/${episodeToEdit._id}`, payload);
+
+      toast.success('Episode updated!', { id: toastId });
+      setIsEditEpisodeOpen(false);
+      setEpisodeToEdit(null);
+      setAudioFile(null);
+      setUploadProgress(0);
+      fetchPodcasts(); // Refresh the list to get new episodes data
+      
+      // Update selected podcast locally if needed, but fetchPodcasts handles it
+      const updatedPodcasts = await adminService.getAllPodcasts(page, 10, search ? { search } : {});
+      let list = updatedPodcasts?.data?.data || updatedPodcasts?.data || [];
+      const refreshedPodcast = list.find((p: any) => p._id === selectedPodcast._id);
+      if (refreshedPodcast) {
+         setSelectedPodcast(refreshedPodcast);
+      }
+    } catch (err: any) {
+      setIsUploading(false);
+      toast.error(err?.response?.data?.message || 'Failed to update episode', { id: toastId });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleModerate = async () => {
@@ -286,6 +351,7 @@ const PodcastManagement: React.FC = () => {
                   <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Duration</th>
                   <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Plays</th>
                   <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-5 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -300,7 +366,18 @@ const PodcastManagement: React.FC = () => {
                           <Headphones size={14} className="text-purple-400" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-zinc-900 dark:text-white">{ep.title}</p>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-bold text-zinc-900 dark:text-white">{ep.title}</p>
+                            {(!ep.audioFile || !ep.audioFile.url) && (
+                              <div className="relative group/warning cursor-help">
+                                <AlertCircle size={14} className="text-rose-500" />
+                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 w-max px-2 py-1 bg-zinc-900 text-white font-bold text-[10px] rounded opacity-0 group-hover/warning:opacity-100 transition-opacity pointer-events-none z-10">
+                                  Missing Audio File
+                                </div>
+                              </div>
+                            )}
+                          </div>
                           {ep.description && <p className="text-xs text-zinc-500 truncate max-w-xs">{ep.description}</p>}
                         </div>
                       </div>
@@ -319,6 +396,15 @@ const PodcastManagement: React.FC = () => {
                       ) : (
                         <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-zinc-500/10 text-zinc-500 border border-zinc-500/20">Draft</span>
                       )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button 
+                        onClick={() => { setEpisodeToEdit(ep); setIsEditEpisodeOpen(true); }}
+                        className="p-2 text-zinc-500 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-colors inline-flex"
+                        title="Edit Episode"
+                      >
+                        <Edit size={16} />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -723,6 +809,101 @@ const PodcastManagement: React.FC = () => {
                   <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-white text-black rounded-xl text-sm font-bold hover:bg-zinc-200 transition-colors flex items-center gap-2">
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Headphones size={18} />}
                     Publish Episode
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Episode Modal */}
+      <AnimatePresence mode="wait">
+        {isEditEpisodeOpen && selectedPodcast && episodeToEdit && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" onClick={() => setIsEditEpisodeOpen(false)}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="premium-card w-full max-w-lg shadow-2xl border-black/10 dark:border-white/10 p-8" onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-start mb-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center border border-purple-500/20">
+                    <Edit className="text-purple-500" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-zinc-900 dark:text-white">Edit Episode</h3>
+                    <p className="text-sm text-zinc-500 font-medium truncate max-w-[220px]">Fixing missing media / details</p>
+                  </div>
+                </div>
+                <button onClick={() => setIsEditEpisodeOpen(false)} className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-zinc-500 transition-colors"><X size={20} /></button>
+              </div>
+              <form onSubmit={handleEditEpisode} className="space-y-5">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Episode Title <span className="text-rose-400">*</span></label>
+                  <input type="text" value={episodeToEdit.title || ''} onChange={e => setEpisodeToEdit({...episodeToEdit, title: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" required />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Description</label>
+                  <textarea value={episodeToEdit.description || ''} onChange={e => setEpisodeToEdit({...episodeToEdit, description: e.target.value})} className="w-full p-4 h-20 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600 resize-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Audio File (Optional - upload to replace missing audio)</label>
+                  <input
+                    ref={audioInputRef}
+                    type="file"
+                    accept="audio/*,.mp3,.aac,.wav,.m4a,.ogg"
+                    className="hidden"
+                    onChange={e => { const f = e.target.files?.[0]; if (f) setAudioFile(f); }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => audioInputRef.current?.click()}
+                    className={`w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
+                      audioFile
+                        ? 'border-purple-500/40 bg-purple-500/5'
+                        : 'border-black/10 dark:border-white/10 hover:border-purple-500/30 hover:bg-purple-500/5'
+                    }`}
+                  >
+                    {audioFile ? (
+                      <>
+                        <Music size={20} className="text-purple-400" />
+                        <p className="text-xs font-bold text-zinc-900 dark:text-white truncate max-w-xs">{audioFile.name}</p>
+                        <p className="text-[11px] text-zinc-500">{(audioFile.size / 1024 / 1024).toFixed(1)} MB · Click to change</p>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={20} className="text-zinc-500" />
+                        <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Click to select new audio file</p>
+                        <p className="text-[11px] text-zinc-500">Only upload if the original audio is missing or broken</p>
+                      </>
+                    )}
+                  </button>
+                  {isUploading && (
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-semibold text-zinc-500">
+                        <span>Uploading replacement to S3...</span>
+                        <span>{uploadProgress}%</span>
+                      </div>
+                      <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-purple-500 rounded-full transition-all duration-150"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Episode Number</label>
+                    <input type="number" min="1" value={episodeToEdit.episodeNumber || ''} onChange={e => setEpisodeToEdit({...episodeToEdit, episodeNumber: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" />
+                  </div>
+                </div>
+                <div className="pt-6 flex justify-end gap-3 border-t border-black/5 dark:border-white/5">
+                  <button type="button" onClick={() => setIsEditEpisodeOpen(false)} className="px-6 py-2.5 text-sm font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">Cancel</button>
+                  <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-white text-black rounded-xl text-sm font-bold hover:bg-zinc-200 transition-colors flex items-center gap-2">
+                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit size={18} />}
+                    Save Changes
                   </button>
                 </div>
               </form>
