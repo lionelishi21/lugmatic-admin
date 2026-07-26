@@ -67,7 +67,7 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
       'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp']
     },
     multiple: false,
-    maxSize: 10 * 1024 * 1024 // 10MB
+    maxSize: 50 * 1024 * 1024 // 50MB
   });
 
   const validateForm = (): boolean => {
@@ -234,7 +234,7 @@ const GiftUpload: React.FC<GiftUploadProps> = ({ onGiftCreated, onClose }) => {
                 </h4>
                 <p className="text-gray-600 mb-2">or click to select</p>
                 <p className="text-sm text-gray-500">
-                  Supports: JPG, PNG, GIF, WebP (max 10MB)
+                  Supports: JPG, PNG, GIF, WebP (max 50MB)
                 </p>
               </div>
             )}

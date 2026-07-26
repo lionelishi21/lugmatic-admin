@@ -30,7 +30,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   // Set default accept based on fileType
   const defaultAccept = accept || (fileType === 'audio' ? 'audio/*' : 'image/*');
-  const defaultMaxSize = fileType === 'audio' ? 50 : 10; // 50MB for audio, 10MB for images
+  const defaultMaxSize = fileType === 'audio' ? 50 : 50; // 50MB for audio, 50MB for images
   const actualMaxSize = maxSize || defaultMaxSize;
 
   const handleFileChange = (file: File) => {
