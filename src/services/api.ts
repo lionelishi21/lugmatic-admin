@@ -119,10 +119,11 @@ export const createApiInstance = (config?: AxiosRequestConfig): AxiosInstance =>
             refreshToken,
           });
 
-          const { accessToken, refreshToken: newRefreshToken } = response.data as { accessToken: string; refreshToken: string };
+          const responseData = response.data as any;
+          const { accessToken, refreshToken: newRefreshToken, token } = responseData.data || responseData;
 
           // Save new tokens
-          setTokens(accessToken, newRefreshToken);
+          setTokens(accessToken || token, newRefreshToken || refreshToken);
 
           // Retry the original request with new token
           if (originalRequest.headers) {
