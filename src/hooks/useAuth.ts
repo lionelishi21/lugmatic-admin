@@ -24,8 +24,8 @@ export const useAuth = () => {
         const userData = resultAction.payload;
 
         // Determine primary role using priority: super admin > admin > artist > contributor > provider > user
+        const allowedRoles = ['admin', 'super admin'];
         const primaryRole = getPrimaryRole(userData as any);
-        const allowedRoles = ['admin', 'super admin', 'artist', 'contributor', 'provider'];
 
         if (!allowedRoles.includes(primaryRole)) {
           localStorage.removeItem('access_token');

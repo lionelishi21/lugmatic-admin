@@ -126,7 +126,7 @@ export const loginUser = createAsyncThunk(
       const user: AuthUser = (payload?.user ?? payload) as AuthUser;
       
       // Check role BEFORE setting tokens — uses priority order across both role string and roles array
-      const allowedRoles = ['admin', 'super admin', 'artist', 'contributor', 'provider'];
+      const allowedRoles = ['admin', 'super admin'];
       const primaryRole = getPrimaryRole(user);
 
       if (!allowedRoles.includes(primaryRole)) {

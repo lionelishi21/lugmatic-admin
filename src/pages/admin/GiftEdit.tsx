@@ -53,27 +53,27 @@ const INITIAL_FORM_DATA: GiftFormData = {
 };
 
 const GIFT_TYPES: Array<{ value: AdminGiftPayload['type']; label: string }> = [
-  { value: 'coin', label: 'COIN_UNIT' },
-  { value: 'badge', label: 'IDENTITY_BADGE' },
-  { value: 'sticker', label: 'VISUAL_SIGNAL' },
-  { value: 'special', label: 'ELITE_ASSET' },
+  { value: 'coin', label: 'Coin' },
+  { value: 'badge', label: 'Badge' },
+  { value: 'sticker', label: 'Sticker' },
+  { value: 'special', label: 'Special' },
 ];
 
 const GIFT_RARITIES: Array<{ value: AdminGiftPayload['rarity']; label: string }> = [
-  { value: 'common', label: 'COMMON_TIER' },
-  { value: 'rare', label: 'RARE_TIER' },
-  { value: 'epic', label: 'EPIC_TIER' },
-  { value: 'legendary', label: 'LEGENDARY_TIER' },
+  { value: 'common', label: 'Common' },
+  { value: 'rare', label: 'Rare' },
+  { value: 'epic', label: 'Epic' },
+  { value: 'legendary', label: 'Legendary' },
 ];
 
 const GIFT_CATEGORIES: string[] = ['support', 'music', 'celebration', 'love', 'funny', 'custom'];
 
 const CLASH_ACTIONS: Array<{ value: AdminGiftPayload['clashAction']; label: string }> = [
-  { value: 'none', label: 'NULL_ACTION' },
-  { value: 'mute_opponent', label: 'MUTE_TARGET' },
-  { value: 'flame_overlay', label: 'THERMAL_OVERLAY' },
-  { value: 'sound_effect', label: 'SONIC_PULSE' },
-  { value: 'noise', label: 'SONIC_DISRUPTION' },
+  { value: 'none', label: 'None' },
+  { value: 'mute_opponent', label: 'Mute Opponent' },
+  { value: 'flame_overlay', label: 'Flame Overlay' },
+  { value: 'sound_effect', label: 'Sound Effect' },
+  { value: 'noise', label: 'Noise Disruption' },
 ];
 
 const GiftEdit: React.FC = () => {
@@ -116,11 +116,11 @@ const GiftEdit: React.FC = () => {
           clashAction: gift.clashAction || 'none',
         });
       } else {
-        toast.error('Asset not found in registry');
+        toast.error('Gift not found');
         navigate('/admin/gift-management');
       }
     } catch (error) {
-      toast.error('Failed to load asset data');
+      toast.error('Failed to load gift details');
     } finally {
       setLoading(false);
     }
@@ -128,13 +128,13 @@ const GiftEdit: React.FC = () => {
 
   const handleIconSelect = (file: File) => {
     setPendingIconFile(file);
-    toast('Spectral icon protocol queued', { icon: '📎' });
+    toast('Image uploaded', { icon: '📎' });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    const loadingId = toast.loading(id ? 'Synchronizing asset registry...' : 'Registering new digital asset...');
+    const loadingId = toast.loading(id ? 'Updating gift...' : 'Creating new gift...');
 
     try {
       let finalImageUrl = formData.image;
@@ -160,16 +160,16 @@ const GiftEdit: React.FC = () => {
       if (id) {
         const result = await dispatch(updateGift({ id, data: giftPayload }));
         if (updateGift.rejected.match(result)) throw new Error(result.payload as string);
-        toast.success('Asset registry synchronized', { id: loadingId });
+        toast.success('Gift updated successfully', { id: loadingId });
       } else {
         const result = await dispatch(createGiftJson(giftPayload));
         if (createGiftJson.rejected.match(result)) throw new Error(result.payload as string);
-        toast.success('Asset deployed to economy matrix', { id: loadingId });
+        toast.success('Gift created successfully', { id: loadingId });
       }
 
       navigate('/admin/gift-management');
     } catch (error: any) {
-      toast.error(error.message || 'Transmission failure', { id: loadingId });
+      toast.error(error.message || 'Failed to save gift', { id: loadingId });
     } finally {
       setSubmitting(false);
     }
