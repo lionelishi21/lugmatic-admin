@@ -181,9 +181,8 @@ const GiftEdit: React.FC = () => {
         <div className="text-center">
           <div className="relative inline-block mb-8">
              <div className="w-24 h-24 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin" />
-             <Cpu className="absolute inset-0 m-auto text-emerald-500 animate-pulse" size={32} />
           </div>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-600 italic">Accessing Secure Asset Registry...</p>
+          <p className="text-sm font-medium text-zinc-500">Loading gift details...</p>
         </div>
       </div>
     );
@@ -202,33 +201,33 @@ const GiftEdit: React.FC = () => {
           </button>
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none italic uppercase">
-                {id ? 'Asset Synchronizer' : 'Asset Ingestion'}
+              <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">
+                {id ? 'Edit Gift' : 'Add Gift'}
               </h1>
-              <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-full">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-                <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest italic">{id ? 'Modifying Node' : 'Forging New Asset'}</span>
+              <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 rounded-full">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{id ? 'Editing' : 'New Gift'}</span>
               </div>
             </div>
-            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] ml-1 italic">
-              Registry Identifier: <span className="text-zinc-700 dark:text-zinc-300 select-all">{id || 'PENDING_REGISTRATION'}</span>
+            <p className="text-zinc-500 text-sm font-medium ml-1">
+              Gift ID: <span className="text-zinc-700 dark:text-zinc-300 select-all">{id || 'Pending'}</span>
             </p>
           </div>
         </div>
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate('/admin/gift-management')} 
-            className="h-16 px-10 bg-zinc-50 dark:bg-zinc-950 text-zinc-600 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] border border-black/5 dark:border-white/5 hover:text-zinc-900 dark:text-white transition-all italic"
+            className="px-6 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl text-sm font-medium hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
           >
-            Abort Protocol
+            Cancel
           </button>
           <button 
             onClick={handleSubmit} 
             disabled={submitting} 
-            className="h-16 px-12 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-emerald-400 transition-all shadow-2xl flex items-center justify-center gap-6 group border border-black/10 dark:border-white/10"
+            className="px-6 py-3 bg-emerald-500 text-white rounded-xl text-sm font-medium hover:bg-emerald-600 transition-all shadow-lg flex items-center justify-center gap-2 group"
           >
-            {submitting ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} className="group-hover:translate-y-1 transition-transform" />}
-            {id ? 'Commit Sync' : 'Deploy Asset'}
+            {submitting ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
+            {id ? 'Save Changes' : 'Create Gift'}
           </button>
         </div>
       </div>
@@ -246,36 +245,36 @@ const GiftEdit: React.FC = () => {
                  <ShieldCheck size={28} className="text-emerald-500 relative z-10" />
               </div>
               <div>
-                 <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-emerald-500 mb-2 italic">Neural Identity Protocol</p>
-                 <h2 className="text-2xl font-bold text-zinc-900 dark:text-white uppercase tracking-tighter italic">Semantic Parameters</h2>
+                 <p className="text-sm font-medium text-emerald-600 mb-1">Gift Information</p>
+                 <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Basic Details</h2>
               </div>
             </div>
 
             <div className="space-y-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Asset Identifier <span className="text-emerald-500">*</span></label>
+                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Name <span className="text-emerald-500">*</span></label>
                   <div className="relative group">
                     <input 
                       type="text" 
                       value={formData.name} 
                       onChange={(e) => setFormData(p => ({ ...p, name: e.target.value }))} 
-                      className="w-full h-16 px-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-800 italic" 
-                      placeholder="e.g. EMERALD_CROWN_PRO" 
+                      className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner placeholder:text-zinc-400" 
+                      placeholder="e.g. Crown" 
                       required 
                     />
                     <Target size={20} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-900 group-focus-within:text-emerald-500 transition-all" />
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Market Classification</label>
+                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Category</label>
                   <div className="relative group">
                     <select 
                       value={formData.category} 
                       onChange={e => setFormData(p => ({ ...p, category: e.target.value }))} 
-                      className="w-full h-16 px-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                      className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500/30 appearance-none shadow-inner transition-all cursor-pointer"
                     >
-                      {GIFT_CATEGORIES.map(c => <option key={c} value={c}>{c.toUpperCase()}</option>)}
+                      {GIFT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                     <ChevronDown size={20} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-900 pointer-events-none group-focus-within:rotate-180 duration-500 transition-all group-focus-within:text-emerald-500" />
                   </div>
@@ -283,14 +282,14 @@ const GiftEdit: React.FC = () => {
               </div>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Registry Logbook (Description)</label>
-                  <span className="text-[8px] font-bold text-zinc-700 uppercase tracking-widest italic">Semantic Context Mapping</span>
+                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Description</label>
+                  <span className="text-xs text-zinc-500">Optional</span>
                 </div>
                 <textarea 
                   value={formData.description} 
                   onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} 
-                  className="w-full p-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-3xl text-zinc-700 dark:text-zinc-300 text-[11px] font-bold tracking-[0.1em] focus:outline-none focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-inner resize-none h-40 leading-relaxed placeholder:text-zinc-800" 
-                  placeholder="Inscribe detailed contextual metadata for the virtual asset node..." 
+                  className="w-full p-4 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500/30 transition-all shadow-inner resize-none h-32 placeholder:text-zinc-400" 
+                  placeholder="Enter gift description..." 
                 />
               </div>
             </div>
@@ -302,38 +301,38 @@ const GiftEdit: React.FC = () => {
                    <DollarSign size={28} className="text-blue-500 relative z-10" />
                 </div>
                 <div>
-                   <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-blue-500 mb-2 italic">Economic Configuration</p>
-                   <h2 className="text-2xl font-bold text-zinc-900 dark:text-white uppercase tracking-tighter italic">Fiscal Valuation</h2>
+                   <p className="text-sm font-medium text-blue-600 mb-1">Pricing</p>
+                   <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Value & Cost</h2>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Fiat Valuation (USD)</label>
+                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Value (USD)</label>
                   <div className="relative group">
-                    <DollarSign size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-emerald-500 transition-all" />
+                    <DollarSign size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-emerald-500 transition-all" />
                     <input 
                       type="number" 
                       step="0.01" 
                       value={formData.value || ''} 
                       onChange={(e) => setFormData(p => ({ ...p, value: parseFloat(e.target.value) || 0 }))} 
-                      className="w-full h-16 pl-16 pr-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[12px] font-bold tracking-[0.2em] focus:outline-none focus:border-emerald-500/30 shadow-inner italic tabular-nums" 
+                      className="w-full h-12 pl-12 pr-4 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500/30 shadow-inner tabular-nums" 
                       required 
                     />
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] italic">Virtual Unit Equivalent</label>
+                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Coin Cost</label>
                   <div className="relative group">
-                    <Zap size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-emerald-500 transition-all" />
+                    <Zap size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-emerald-500 transition-all" />
                     <input 
                       type="number" 
                       value={formData.coinCost || ''} 
                       onChange={(e) => setFormData(p => ({ ...p, coinCost: parseInt(e.target.value) || 0 }))} 
-                      className="w-full h-16 pl-16 pr-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[12px] font-bold tracking-[0.2em] focus:outline-none focus:border-emerald-500/30 shadow-inner italic tabular-nums" 
+                      className="w-full h-12 pl-12 pr-4 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500/30 shadow-inner tabular-nums" 
                       required 
                     />
-                    <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[9px] font-bold text-zinc-800 uppercase italic">COINS</span>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-zinc-500">COINS</span>
                   </div>
                 </div>
               </div>
@@ -347,32 +346,32 @@ const GiftEdit: React.FC = () => {
                     <Activity size={24} className="text-amber-500" />
                  </div>
                  <div>
-                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white uppercase tracking-tighter italic leading-none mb-1.5">Engagement Protocol</h3>
-                    <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Battle Tactical Modifiers</p>
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white">Live Battle Settings</h3>
+                    <p className="text-sm text-zinc-500">Clash points & actions</p>
                  </div>
               </div>
               <div className="space-y-8">
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic ml-1">Clash Battle Multiplier</label>
+                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Clash Points</label>
                   <input 
                     type="number" 
                     value={formData.clashPoints || ''} 
                     onChange={(e) => setFormData(p => ({ ...p, clashPoints: parseInt(e.target.value) || 0 }))} 
-                    className="w-full h-14 px-6 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[11px] font-bold tracking-[0.2em] focus:outline-none focus:border-amber-500/30 shadow-inner italic tabular-nums" 
+                    className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-amber-500/30 shadow-inner tabular-nums" 
                     placeholder="e.g. 500" 
                   />
                 </div>
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic ml-1">Live Tactical Signature</label>
+                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Action Effect</label>
                   <div className="relative group">
                     <select 
                       value={formData.clashAction} 
                       onChange={e => setFormData(p => ({ ...p, clashAction: e.target.value as any }))} 
-                      className="w-full h-14 px-6 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-amber-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                      className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-amber-500/30 appearance-none shadow-inner transition-all cursor-pointer"
                     >
                       {CLASH_ACTIONS.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
                     </select>
-                    <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-900 pointer-events-none group-focus-within:rotate-180 duration-500 transition-all group-focus-within:text-amber-500" />
+                    <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-900 pointer-events-none group-focus-within:rotate-180 duration-500 transition-all group-focus-within:text-amber-500" />
                   </div>
                 </div>
               </div>
@@ -384,17 +383,17 @@ const GiftEdit: React.FC = () => {
                     <Calendar size={24} className="text-rose-500" />
                  </div>
                  <div>
-                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white uppercase tracking-tighter italic leading-none mb-1.5">Availability Matrix</h3>
-                    <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Temporal Deployment Window</p>
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white">Seasonal Settings</h3>
+                    <p className="text-sm text-zinc-500">Limited time availability</p>
                  </div>
               </div>
               <div className="space-y-8">
                 <label className="flex items-center justify-between p-6 bg-zinc-50 dark:bg-zinc-950 rounded-[2rem] border border-black/5 dark:border-white/5 group cursor-pointer hover:border-rose-500/20 transition-all shadow-inner relative overflow-hidden">
                    <div className="absolute inset-0 bg-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                    <div className="flex items-center gap-5 relative z-10">
-                      <div className={`w-1.5 h-1.5 rounded-full ${formData.isSeasonal ? 'bg-rose-500 shadow-[0_0_8px_#f43f5e]' : 'bg-zinc-800'} transition-all`} />
-                      <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest italic group-hover:text-zinc-900 dark:text-white transition-colors">Seasonal Deployment Protocol</span>
-                   </div>
+                       <div className={`w-1.5 h-1.5 rounded-full ${formData.isSeasonal ? 'bg-rose-500 shadow-[0_0_8px_#f43f5e]' : 'bg-zinc-800'} transition-all`} />
+                       <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:text-white transition-colors">Is Seasonal Gift?</span>
+                    </div>
                    <div className={`w-14 h-7 rounded-full relative transition-all duration-500 shadow-inner group/toggle ${formData.isSeasonal ? 'bg-rose-500' : 'bg-zinc-900 border border-white/5'}`}>
                       <div className={`absolute top-1.5 w-4 h-4 rounded-full transition-all duration-500 ${formData.isSeasonal ? 'left-8 bg-black shadow-[0_0_10px_white]' : 'left-1.5 bg-zinc-700'}`} />
                    </div>
@@ -410,12 +409,12 @@ const GiftEdit: React.FC = () => {
                       className="grid grid-cols-2 gap-6"
                     >
                       <div className="space-y-3">
-                        <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest italic ml-1">Initiation Cycle</label>
-                        <input type="date" value={formData.seasonalStart} onChange={e => setFormData(p => ({ ...p, seasonalStart: e.target.value }))} className="w-full h-12 px-6 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold tracking-[0.2em] focus:outline-none focus:border-rose-500/30 shadow-inner italic" />
+                        <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Start Date</label>
+                        <input type="date" value={formData.seasonalStart} onChange={e => setFormData(p => ({ ...p, seasonalStart: e.target.value }))} className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-rose-500/30 shadow-inner" />
                       </div>
                       <div className="space-y-3">
-                        <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest italic ml-1">Termination Cycle</label>
-                        <input type="date" value={formData.seasonalEnd} onChange={e => setFormData(p => ({ ...p, seasonalEnd: e.target.value }))} className="w-full h-12 px-6 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold tracking-[0.2em] focus:outline-none focus:border-rose-500/30 shadow-inner italic" />
+                        <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">End Date</label>
+                        <input type="date" value={formData.seasonalEnd} onChange={e => setFormData(p => ({ ...p, seasonalEnd: e.target.value }))} className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-rose-500/30 shadow-inner" />
                       </div>
                     </motion.div>
                   )}
@@ -433,14 +432,14 @@ const GiftEdit: React.FC = () => {
                   <ImageIcon size={24} className="text-emerald-500" />
                </div>
                <div>
-                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white uppercase tracking-tighter italic leading-none mb-1.5">Spectral Icon</h3>
-                  <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Visual Asset Protocol</p>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white">Gift Image</h3>
+                  <p className="text-sm text-zinc-500">Visual representation</p>
                </div>
             </div>
             
             <div className="bg-zinc-50 dark:bg-zinc-950 rounded-[2.5rem] border border-black/5 dark:border-white/5 p-8 shadow-inner group/upload">
                <FileUpload 
-                label="SYNC_SPECTRAL_ASSET"
+                label="Upload Gift Image"
                 currentFile={pendingIconFile ? URL.createObjectURL(pendingIconFile) : (formData.image ? getFullImageUrl(formData.image) : undefined)}
                 onFileSelect={handleIconSelect}
                 onFileRemove={() => { setPendingIconFile(null); setFormData(p => ({ ...p, image: '' })); }}
@@ -452,7 +451,7 @@ const GiftEdit: React.FC = () => {
                  <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                  <div className="flex items-center gap-5 relative z-10">
                     <div className={`w-1.5 h-1.5 rounded-full ${formData.isActive ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-zinc-800'} transition-all`} />
-                    <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest italic group-hover:text-zinc-900 dark:text-white transition-colors">Active Link Protocol</span>
+                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:text-white transition-colors">Is Active?</span>
                  </div>
                  <div className={`w-14 h-7 rounded-full relative transition-all duration-500 shadow-inner group/toggle ${formData.isActive ? 'bg-emerald-500' : 'bg-zinc-900 border border-white/5'}`}>
                     <div className={`absolute top-1.5 w-4 h-4 rounded-full transition-all duration-500 ${formData.isActive ? 'left-8 bg-black shadow-[0_0_10px_white]' : 'left-1.5 bg-zinc-700'}`} />
@@ -464,7 +463,7 @@ const GiftEdit: React.FC = () => {
                  <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                  <div className="flex items-center gap-5 relative z-10">
                     <div className={`w-1.5 h-1.5 rounded-full ${formData.isAnimated ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-zinc-800'} transition-all`} />
-                    <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest italic group-hover:text-zinc-900 dark:text-white transition-colors">Neural Animation Signal</span>
+                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:text-white transition-colors">Is Animated?</span>
                  </div>
                  <div className={`w-14 h-7 rounded-full relative transition-all duration-500 shadow-inner group/toggle ${formData.isAnimated ? 'bg-emerald-500' : 'bg-zinc-900 border border-white/5'}`}>
                     <div className={`absolute top-1.5 w-4 h-4 rounded-full transition-all duration-500 ${formData.isAnimated ? 'left-8 bg-black shadow-[0_0_10px_white]' : 'left-1.5 bg-zinc-700'}`} />
@@ -480,36 +479,36 @@ const GiftEdit: React.FC = () => {
                   <Tag size={24} className="text-indigo-500" />
                </div>
                <div>
-                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white uppercase tracking-tighter italic leading-none mb-1.5">Catalog Logic</h3>
-                  <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.3em] italic">Structural Classification</p>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white">Classification</h3>
+                  <p className="text-sm text-zinc-500">Type and rarity</p>
                </div>
             </div>
             
             <div className="space-y-8">
               <div className="space-y-4">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic ml-1">Asset Category</label>
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Gift Type</label>
                 <div className="relative group/sel">
                   <select 
                     value={formData.type} 
                     onChange={e => setFormData(p => ({ ...p, type: e.target.value as any }))} 
-                    className="w-full h-14 px-6 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-indigo-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                    className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none shadow-inner transition-all cursor-pointer"
                   >
                     {GIFT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
-                  <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-900 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-indigo-500" />
+                  <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-900 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-indigo-500" />
                 </div>
               </div>
               <div className="space-y-4">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic ml-1">Rarity Classification</label>
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Rarity</label>
                 <div className="relative group/sel">
                   <select 
                     value={formData.rarity} 
                     onChange={e => setFormData(p => ({ ...p, rarity: e.target.value as any }))} 
-                    className="w-full h-14 px-6 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-2xl text-zinc-900 dark:text-white text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-indigo-500/30 appearance-none shadow-inner transition-all italic cursor-pointer"
+                    className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500/30 appearance-none shadow-inner transition-all cursor-pointer"
                   >
                     {GIFT_RARITIES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                   </select>
-                  <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-900 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-indigo-500" />
+                  <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-900 pointer-events-none group-focus-within/sel:rotate-180 duration-500 transition-all group-focus-within/sel:text-indigo-500" />
                 </div>
               </div>
             </div>
