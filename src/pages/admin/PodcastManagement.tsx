@@ -192,6 +192,8 @@ const PodcastManagement: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
   const handleEditEpisode = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPodcast || !episodeToEdit) return;
