@@ -366,7 +366,6 @@ const PodcastManagement: React.FC = () => {
                           <Headphones size={14} className="text-purple-400" />
                         </div>
                         <div>
-                        <div>
                           <div className="flex items-center gap-2">
                             <p className="text-sm font-bold text-zinc-900 dark:text-white">{ep.title}</p>
                             {(!ep.audioFile || !ep.audioFile.url) && (
