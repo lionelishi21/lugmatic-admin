@@ -47,6 +47,7 @@ export const createPool = async (data: {
   description?: string;
   season: number;
   realm: string;
+  startTime?: string;
   challengeDeadline: string;
   submissionDeadline: string;
   votingDeadline: string;

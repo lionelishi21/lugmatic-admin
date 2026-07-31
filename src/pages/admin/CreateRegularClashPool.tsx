@@ -13,6 +13,7 @@ export default function CreateRegularClashPool() {
     description: '',
     season: 1,
     realm: 'dancehall',
+    startTime: '',
     challengeDeadline: '',
     submissionDeadline: '',
     votingDeadline: '',
@@ -60,10 +61,15 @@ export default function CreateRegularClashPool() {
     e.preventDefault();
     setCreateError(null);
 
+    const st = form.startTime ? new Date(form.startTime) : new Date();
     const cd = new Date(form.challengeDeadline);
     const sd = new Date(form.submissionDeadline);
     const vd = new Date(form.votingDeadline);
 
+    if (st >= cd) {
+      setCreateError('Scheduled Start Time must be before challenge deadline.');
+      return;
+    }
     if (cd >= sd) {
       setCreateError('Challenge deadline must be before submission deadline.');
       return;
@@ -155,21 +161,77 @@ export default function CreateRegularClashPool() {
           </div>
         </div>
 
+        {/* Explanation Section */}
+        <div className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800">
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-2 flex items-center gap-2">
+            <Clock className="h-5 w-5 text-blue-400" />
+            How a Clash Works
+          </h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+            A Regular Clash pool runs in distinct, strict phases. Setting these dates correctly ensures a smooth tournament.
+          </p>
+          <div className="space-y-4">
+            <div className="flex gap-4 items-start">
+              <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm shrink-0">1</div>
+              <div>
+                <strong className="text-zinc-900 dark:text-white block mb-1 text-sm">Scheduled Start & Challenge Phase</strong>
+                <p className="text-xs text-zinc-500 leading-relaxed">
+                  The clash goes live at the <strong>Scheduled Start Time</strong>. Once live, artists can challenge each other and accept invites. This phase ends precisely at the <strong>Challenge Deadline</strong>.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-4 items-start">
+              <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0">2</div>
+              <div>
+                <strong className="text-zinc-900 dark:text-white block mb-1 text-sm">Submission Phase</strong>
+                <p className="text-xs text-zinc-500 leading-relaxed">
+                  After the challenge phase ends, all matched artists must record and submit their 6-second Shell It video before the <strong>Submission Deadline</strong>.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-4 items-start">
+              <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm shrink-0">3</div>
+              <div>
+                <strong className="text-zinc-900 dark:text-white block mb-1 text-sm">Voting Phase</strong>
+                <p className="text-xs text-zinc-500 leading-relaxed">
+                  Once submissions close, fans can watch the battles and vote. The artist with the most votes when the <strong>Voting Deadline</strong> hits is crowned the winner!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Phase Deadlines */}
         <div className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800">
           <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">2. Phase Deadlines</h2>
           <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6">
-            A regular clash runs in three phases. Set the deadline for when each phase strictly ends.
+            Set the timeline for your Clash Pool. Dates must be sequential.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="bg-black/30 p-5 rounded-xl border border-black/5 dark:border-white/5">
+              <div className="flex items-center gap-2 text-blue-400 mb-2">
+                <Clock className="h-4 w-4" />
+                <h3 className="font-bold text-sm">Scheduled Start Time</h3>
+              </div>
+              <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
+                When does this pool become active? Leave blank to start immediately.
+              </p>
+              <input 
+                type="datetime-local" 
+                value={form.startTime}
+                onChange={e => setForm(f => ({ ...f, startTime: e.target.value }))}
+                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-blue-500/50"
+              />
+            </div>
+            
             <div className="bg-black/30 p-5 rounded-xl border border-black/5 dark:border-white/5">
               <div className="flex items-center gap-2 text-yellow-400 mb-2">
                 <Clock className="h-4 w-4" />
                 <h3 className="font-bold text-sm">Challenge Deadline</h3>
               </div>
               <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
-                The final date and time artists can challenge each other and accept invites to pair up.
+                The final date and time artists can challenge each other and accept invites.
               </p>
               <input 
                 type="datetime-local" 
@@ -179,6 +241,9 @@ export default function CreateRegularClashPool() {
                 className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-yellow-500/50"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             <div className="bg-black/30 p-5 rounded-xl border border-black/5 dark:border-white/5">
               <div className="flex items-center gap-2 text-emerald-400 mb-2">
