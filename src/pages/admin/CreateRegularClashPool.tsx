@@ -4,6 +4,8 @@ import { Zap, Clock, Users, X, Search, ChevronLeft } from 'lucide-react';
 import { createPool, REALMS } from '../../services/regularClashService';
 import { searchService } from '../../services/searchService';
 import type { Artist } from '../../types';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default function CreateRegularClashPool() {
   const navigate = useNavigate();
@@ -13,10 +15,10 @@ export default function CreateRegularClashPool() {
     description: '',
     season: 1,
     realm: 'dancehall',
-    startTime: '',
-    challengeDeadline: '',
-    submissionDeadline: '',
-    votingDeadline: '',
+    startTime: null as Date | null,
+    challengeDeadline: null as Date | null,
+    submissionDeadline: null as Date | null,
+    votingDeadline: null as Date | null,
   });
 
   // Artist restrictions state
@@ -61,10 +63,15 @@ export default function CreateRegularClashPool() {
     e.preventDefault();
     setCreateError(null);
 
-    const st = form.startTime ? new Date(form.startTime) : new Date();
-    const cd = new Date(form.challengeDeadline);
-    const sd = new Date(form.submissionDeadline);
-    const vd = new Date(form.votingDeadline);
+    const st = form.startTime || new Date();
+    const cd = form.challengeDeadline;
+    const sd = form.submissionDeadline;
+    const vd = form.votingDeadline;
+
+    if (!cd || !sd || !vd) {
+      setCreateError('Please fill in all deadlines.');
+      return;
+    }
 
     if (st >= cd) {
       setCreateError('Scheduled Start Time must be before challenge deadline.');
@@ -217,11 +224,17 @@ export default function CreateRegularClashPool() {
               <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
                 When does this pool become active? Leave blank to start immediately.
               </p>
-              <input 
-                type="datetime-local" 
-                value={form.startTime}
-                onChange={e => setForm(f => ({ ...f, startTime: e.target.value }))}
-                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-blue-500/50"
+              <DatePicker
+                selected={form.startTime}
+                onChange={(date) => setForm(f => ({ ...f, startTime: date }))}
+                showTimeSelect
+                timeFormat="HH:mm"
+                timeIntervals={15}
+                timeCaption="Time"
+                dateFormat="MMMM d, yyyy h:mm aa"
+                placeholderText="Select start time"
+                onKeyDown={(e) => e.preventDefault()}
+                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-blue-500/50 cursor-pointer"
               />
             </div>
             
@@ -233,12 +246,17 @@ export default function CreateRegularClashPool() {
               <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
                 The final date and time artists can challenge each other and accept invites.
               </p>
-              <input 
-                type="datetime-local" 
-                required 
-                value={form.challengeDeadline}
-                onChange={e => setForm(f => ({ ...f, challengeDeadline: e.target.value }))}
-                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-yellow-500/50"
+              <DatePicker
+                selected={form.challengeDeadline}
+                onChange={(date) => setForm(f => ({ ...f, challengeDeadline: date }))}
+                showTimeSelect
+                timeFormat="HH:mm"
+                timeIntervals={15}
+                timeCaption="Time"
+                dateFormat="MMMM d, yyyy h:mm aa"
+                placeholderText="Select challenge deadline"
+                onKeyDown={(e) => e.preventDefault()}
+                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-yellow-500/50 cursor-pointer"
               />
             </div>
           </div>
@@ -253,12 +271,17 @@ export default function CreateRegularClashPool() {
               <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
                 The final date and time paired artists have to record and submit their 6-second Shell It video.
               </p>
-              <input 
-                type="datetime-local" 
-                required 
-                value={form.submissionDeadline}
-                onChange={e => setForm(f => ({ ...f, submissionDeadline: e.target.value }))}
-                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500/50"
+              <DatePicker
+                selected={form.submissionDeadline}
+                onChange={(date) => setForm(f => ({ ...f, submissionDeadline: date }))}
+                showTimeSelect
+                timeFormat="HH:mm"
+                timeIntervals={15}
+                timeCaption="Time"
+                dateFormat="MMMM d, yyyy h:mm aa"
+                placeholderText="Select submission deadline"
+                onKeyDown={(e) => e.preventDefault()}
+                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500/50 cursor-pointer"
               />
             </div>
 
@@ -270,12 +293,17 @@ export default function CreateRegularClashPool() {
               <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
                 The final date and time fans can watch the battles and cast their votes for the winners.
               </p>
-              <input 
-                type="datetime-local" 
-                required 
-                value={form.votingDeadline}
-                onChange={e => setForm(f => ({ ...f, votingDeadline: e.target.value }))}
-                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/50"
+              <DatePicker
+                selected={form.votingDeadline}
+                onChange={(date) => setForm(f => ({ ...f, votingDeadline: date }))}
+                showTimeSelect
+                timeFormat="HH:mm"
+                timeIntervals={15}
+                timeCaption="Time"
+                dateFormat="MMMM d, yyyy h:mm aa"
+                placeholderText="Select voting deadline"
+                onKeyDown={(e) => e.preventDefault()}
+                className="w-full bg-black/50 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/50 cursor-pointer"
               />
             </div>
           </div>
