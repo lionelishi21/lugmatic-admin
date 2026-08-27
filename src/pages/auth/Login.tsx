@@ -204,7 +204,7 @@ export default function Login() {
               {/* <Music2 className="w-5 h-5 text-emerald-400" /> */}
               <img src={icon} width="20px" />
             </div>
-            <span className="text-zinc-900 dark:text-white font-bold text-xl tracking-tight">Lugmatic</span>
+            <span className="text-zinc-900 dark:text-white font-bold text-xl tracking-tight">Lumatix</span>
             <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 border border-emerald-500/30 rounded-full px-2 py-0.5">
               Studio
             </span>
@@ -291,7 +291,7 @@ export default function Login() {
               {/* Mobile logo */}
               <div className="flex items-center gap-2 mb-8 lg:hidden">
                 <Music2 className="w-5 h-5 text-emerald-400" />
-                <span className="text-zinc-900 dark:text-white font-bold tracking-tight">Lugmatic Studio</span>
+                <span className="text-zinc-900 dark:text-white font-bold tracking-tight">Lumatix Studio</span>
               </div>
 
               {/* Heading */}
@@ -406,7 +406,7 @@ export default function Login() {
               {/* Footer */}
               <div className="space-y-2 text-center">
                 <p className="text-zinc-500 text-sm">
-                  New to Lugmatic?{' '}
+                  New to Lumatix?{' '}
                   <button
                     onClick={() => navigate('/register')}
                     className="text-emerald-400 font-semibold hover:text-emerald-300 transition-colors"

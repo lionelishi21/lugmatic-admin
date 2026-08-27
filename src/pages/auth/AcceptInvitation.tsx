@@ -209,7 +209,7 @@ export default function AcceptInvitation() {
             <div className="bg-green-500/5 border border-green-500/10 rounded-2xl p-4 flex gap-4">
               <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
               <p className="text-[10px] text-gray-400 leading-relaxed font-medium">
-                By completing this setup, you agree to the <span className="text-zinc-900 dark:text-white">Lugmatic Contributor Terms</span> and authorize the platform to manage revenue distribution on your behalf.
+                By completing this setup, you agree to the <span className="text-zinc-900 dark:text-white">Lumatix Contributor Terms</span> and authorize the platform to manage revenue distribution on your behalf.
               </p>
             </div>
 

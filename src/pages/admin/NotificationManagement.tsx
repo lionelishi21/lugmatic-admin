@@ -198,7 +198,7 @@ const NotificationManagement: React.FC = () => {
             
             <div className="space-y-1 divide-y divide-black/5 dark:divide-white/5">
               {[
-                { id: '1', title: 'Welcome to Lugmatic!', date: '2h ago', count: 1242, tag: 'Marketing' },
+                { id: '1', title: 'Welcome to Lumatix!', date: '2h ago', count: 1242, tag: 'Marketing' },
                 { id: '2', title: 'Scheduled Maintenance', date: 'Yesterday', count: 1238, tag: 'System' },
                 { id: '3', title: 'Artist Contest Winners', date: '2d ago', count: 1190, tag: 'Event' },
               ].map(item => (

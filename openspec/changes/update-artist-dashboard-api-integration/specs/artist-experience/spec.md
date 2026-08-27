@@ -45,7 +45,7 @@ The admin artist Redux slice and UI SHALL surface loading and failure states for
 - **THEN** `artistSlice.error` SHALL capture the failure message
 - **AND** the UI SHALL render an error state exposing that message to the artist
 
-### Requirement: Admin Artist Service Targets Lugmatic API Routes
+### Requirement: Admin Artist Service Targets Lumatix API Routes
 The admin `artistService` SHALL call the lugmatic-api artist endpoints and unwrap payloads into domain models expected by the Redux slice.
 
 #### Scenario: Fetch artists list

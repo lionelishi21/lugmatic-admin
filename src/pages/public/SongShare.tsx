@@ -72,9 +72,9 @@ export default function SongShare() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center justify-center p-6">
-      {/* Lugmatic branding */}
+      {/* Lumatix branding */}
       <div className="mb-8 text-center">
-        <span className="text-emerald-400 font-bold text-lg tracking-tight">Lugmatic</span>
+        <span className="text-emerald-400 font-bold text-lg tracking-tight">Lumatix</span>
         <p className="text-zinc-600 text-xs mt-1">Caribbean Music Platform</p>
       </div>
 
@@ -167,7 +167,7 @@ export default function SongShare() {
       </div>
 
       <p className="mt-6 text-zinc-600 text-xs text-center">
-        Powered by <a href="https://lugmaticmusic.com" className="text-emerald-500 hover:underline">Lugmatic</a>
+        Powered by <a href="https://lugmaticmusic.com" className="text-emerald-500 hover:underline">Lumatix</a>
       </p>
     </div>
   );

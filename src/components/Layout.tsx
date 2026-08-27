@@ -146,7 +146,7 @@ export default function Layout({ children }: LayoutProps) {
         <div className={`p-8 mb-4 flex items-center ${!isSidebarOpen && !isMobile ? 'justify-center p-4' : 'justify-between'}`}>
           <div className="flex items-center gap-3">
             <img src={lugmaticIcon} alt="Logo" className="w-10 h-10 flex-shrink-0" />
-            <span className={`font-bold text-xl tracking-tight transition-all duration-300 whitespace-nowrap ${!isSidebarOpen && !isMobile ? 'opacity-0 w-0 overflow-hidden' : ''}`}>Lugmatic</span>
+            <span className={`font-bold text-xl tracking-tight transition-all duration-300 whitespace-nowrap ${!isSidebarOpen && !isMobile ? 'opacity-0 w-0 overflow-hidden' : ''}`}>Lumatix</span>
           </div>
           {isMobile && (
             <button onClick={() => setIsSidebarOpen(false)} className="text-zinc-500 hover:text-white flex-shrink-0">

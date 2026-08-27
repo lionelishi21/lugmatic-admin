@@ -35,7 +35,7 @@ const SystemSettings: React.FC = () => {
   const [settings, setSettings] = useState<Setting[]>([
     // General
     { id: 'site_name', name: 'Platform Identity', description: 'The public identity and branding of the global network', type: 'input', value: 'Lugmatic', category: 'general', required: true, icon: Globe },
-    { id: 'site_description', name: 'Semantic Metadata', description: 'SEO descriptors and social indexing protocols', type: 'textarea', value: 'Discover, stream, and share music with Lugmatic.', category: 'general', required: false, icon: FileText },
+    { id: 'site_description', name: 'Semantic Metadata', description: 'SEO descriptors and social indexing protocols', type: 'textarea', value: 'Discover, stream, and share music with Lumatix.', category: 'general', required: false, icon: FileText },
     { id: 'default_language', name: 'Linguistic Localization', description: 'Global interface linguistic localization', type: 'select', value: 'en', category: 'general', required: true, icon: Globe, options: [{ label: 'English', value: 'en' }, { label: 'Spanish', value: 'es' }, { label: 'French', value: 'fr' }] },
     { id: 'theme_mode', name: 'Visual Protocol', description: 'Initial aesthetic mode for new identity nodes', type: 'select', value: 'dark', category: 'general', required: false, icon: Palette, options: [{ label: 'Dark Mode', value: 'dark' }, { label: 'Light Mode', value: 'light' }] },
     { id: 'maintenance_mode', name: 'System Quarantine', description: 'Restrict access to all non-executive identity nodes', type: 'toggle', value: false, category: 'general', required: false, icon: Settings },

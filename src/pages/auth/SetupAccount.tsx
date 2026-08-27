@@ -89,7 +89,7 @@ export default function SetupAccount() {
           Set Up Your Account
         </h2>
         <p className="text-center text-gray-500 text-sm mb-6">
-          Create a password to activate your Lugmatic account.
+          Create a password to activate your Lumatix account.
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

@@ -132,7 +132,7 @@ export default function ResetPassword() {
           <div className="p-8">
             <div className="flex items-center gap-2 mb-8">
               <Music2 className="w-6 h-6 text-emerald-400" />
-              <span className="text-zinc-900 dark:text-white font-bold text-xl tracking-tight">Lugmatic Studio</span>
+              <span className="text-zinc-900 dark:text-white font-bold text-xl tracking-tight">Lumatix Studio</span>
             </div>
 
             <div className="mb-8">

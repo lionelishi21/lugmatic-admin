@@ -51,7 +51,7 @@ export default function StreamShare() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.05]">
-        <span className="text-emerald-400 font-bold text-sm tracking-tight">Lugmatic</span>
+        <span className="text-emerald-400 font-bold text-sm tracking-tight">Lumatix</span>
         {state === 'live' && tokenData && (
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
@@ -127,7 +127,7 @@ export default function StreamShare() {
             </div>
 
             <p className="text-center text-zinc-700 text-xs py-2">
-              Watching as guest · <a href="https://lugmaticmusic.com/register" className="text-emerald-500 hover:underline">Join Lugmatic</a> to interact
+              Watching as guest · <a href="https://lugmaticmusic.com/register" className="text-emerald-500 hover:underline">Join Lumatix</a> to interact
             </p>
           </div>
         )}

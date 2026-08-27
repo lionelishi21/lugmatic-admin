@@ -16,8 +16,8 @@ export default function ShareModal({ type, id, title, artist, onClose }: ShareMo
 
   const shareUrl = `${window.location.origin}/share/${type === 'song' ? 'song' : 'stream'}/${id}`;
   const shareText = type === 'song'
-    ? `Listen to "${title}"${artist ? ` by ${artist}` : ''} on Lugmatic`
-    : `Watch "${title}" live on Lugmatic`;
+    ? `Listen to "${title}"${artist ? ` by ${artist}` : ''} on Lumatix`
+    : `Watch "${title}" live on Lumatix`;
 
   const copy = async () => {
     try {

@@ -1,4 +1,4 @@
-// Firebase Cloud Messaging Service Worker — Lugmatic Artist Studio
+// Firebase Cloud Messaging Service Worker — Lumatix Artist Studio
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
@@ -17,7 +17,7 @@ messaging.onBackgroundMessage((payload) => {
   const { title, body, icon } = payload.notification ?? {};
   const data = payload.data ?? {};
 
-  self.registration.showNotification(title || 'Lugmatic Studio', {
+  self.registration.showNotification(title || 'Lumatix Studio', {
     body:  body || 'You have a new notification',
     icon:  icon || '/logo.png',
     badge: '/logo.png',

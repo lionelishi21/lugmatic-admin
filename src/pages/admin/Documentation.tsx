@@ -23,15 +23,15 @@ const Documentation: React.FC = () => {
       id: 'overview',
       label: 'Overview',
       icon: BookOpen,
-      title: 'Lugmatic Ecosystem Documentation',
+      title: 'Lumatix Ecosystem Documentation',
       description: 'System-wide feature guide and architecture overview for administrators and developers.',
       content: (
         <div className="space-y-8">
           <div className="p-8 bg-zinc-50 dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-3xl shadow-inner relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/[0.02] rounded-bl-full pointer-events-none" />
-            <h3 className="text-lg font-bold text-zinc-900 dark:text-white uppercase tracking-tight mb-4">Welcome to Lugmatic Admin</h3>
+            <h3 className="text-lg font-bold text-zinc-900 dark:text-white uppercase tracking-tight mb-4">Welcome to Lumatix Admin</h3>
             <p className="text-zinc-600 dark:text-zinc-400 text-xs leading-relaxed mb-4">
-              Lugmatic is a next-generation music streaming, live battle (clash), and virtual economy platform. 
+              Lumatix is a next-generation music streaming, live battle (clash), and virtual economy platform. 
               The platform connects music artists directly with fans through mobile apps, web applications, 
               interactive live stages, and digital currency.
             </p>

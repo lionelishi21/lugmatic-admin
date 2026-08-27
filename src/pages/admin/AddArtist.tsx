@@ -139,7 +139,7 @@ const AddArtist = () => {
                   Initialize Artist
                 </h1>
                 <p className="text-sm text-zinc-500 mt-1 max-w-md">
-                  Onboarding new talent into the Lugmatic Intelligence loop.
+                  Onboarding new talent into the Lumatix Intelligence loop.
                 </p>
              </div>
           </div>
