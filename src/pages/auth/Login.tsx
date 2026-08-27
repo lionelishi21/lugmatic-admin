@@ -11,10 +11,12 @@ import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 import apiService from '../../services/api';
 import { useDispatch } from 'react-redux';
 import { loginUser } from '../../store/slices/authSlice';
+
+import icon from '../../assets/logo.png';
 import type { AppDispatch } from '../../store';
 
 const schema = yup.object({
-  email:    yup.string().email('Enter a valid email').required('Email is required'),
+  email: yup.string().email('Enter a valid email').required('Email is required'),
   password: yup.string().min(8, 'At least 8 characters').required('Password is required'),
 });
 type FormValues = yup.InferType<typeof schema>;
@@ -38,7 +40,7 @@ const PARTICLES = [
   { x: 20, y: 75, size: 3, delay: 0.8 },
   { x: 90, y: 60, size: 5, delay: 2 },
   { x: 50, y: 10, size: 4, delay: 1.5 },
-  { x: 5,  y: 50, size: 3, delay: 0.4 },
+  { x: 5, y: 50, size: 3, delay: 0.4 },
   { x: 75, y: 80, size: 6, delay: 2.5 },
   { x: 35, y: 90, size: 3, delay: 1.8 },
   { x: 60, y: 30, size: 5, delay: 0.6 },
@@ -69,17 +71,15 @@ function Field({
       <motion.div
         animate={{ scale: focused ? 1.01 : 1 }}
         transition={{ duration: 0.2 }}
-        className={`relative flex items-center rounded-xl border transition-all duration-300 ${
-          error
-            ? 'border-red-500/60 bg-red-500/5'
-            : focused
+        className={`relative flex items-center rounded-xl border transition-all duration-300 ${error
+          ? 'border-red-500/60 bg-red-500/5'
+          : focused
             ? 'border-emerald-500/60 bg-emerald-500/5 shadow-[0_0_0_3px_rgba(134,229,96,0.08)]'
             : 'border-white/[0.08] bg-zinc-800/40'
-        }`}
+          }`}
       >
-        <Icon className={`absolute left-3.5 w-4 h-4 transition-colors duration-200 ${
-          focused ? 'text-emerald-400' : 'text-zinc-500'
-        }`} />
+        <Icon className={`absolute left-3.5 w-4 h-4 transition-colors duration-200 ${focused ? 'text-emerald-400' : 'text-zinc-500'
+          }`} />
         {children}
       </motion.div>
       <AnimatePresence>
@@ -153,7 +153,7 @@ export default function Login() {
     if (isAuthenticated && user) {
       const role = (user.role || '').toLowerCase().trim();
       const isAdmin = role.includes('admin');
-      
+
       if (isAdmin) navigate('/admin', { replace: true });
       else if (role === 'contributor') navigate('/contributor', { replace: true });
       else navigate('/artist', { replace: true });
@@ -201,7 +201,8 @@ export default function Login() {
           {/* Logo mark */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-              <Music2 className="w-5 h-5 text-emerald-400" />
+              {/* <Music2 className="w-5 h-5 text-emerald-400" /> */}
+              <img src={icon} width="20px" />
             </div>
             <span className="text-zinc-900 dark:text-white font-bold text-xl tracking-tight">Lugmatic</span>
             <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 border border-emerald-500/30 rounded-full px-2 py-0.5">
@@ -239,7 +240,7 @@ export default function Login() {
           >
             {[
               { icon: Radio, label: 'Go Live' },
-              { icon: Zap,   label: 'Clash Mode' },
+              { icon: Zap, label: 'Clash Mode' },
               { icon: Music2, label: 'Upload Tracks' },
             ].map(({ icon: Icon, label }) => (
               <div key={label} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-800/60 border border-white/[0.07] text-zinc-700 dark:text-zinc-300 text-xs font-medium">

@@ -21,6 +21,7 @@ const SongCreate: React.FC = () => {
     const [formData, setFormData] = useState<Partial<CreateSongData>>({
         name: '',
         artist: '',
+        unclaimedArtistName: '',
         album: '',
         duration: 0,
         genre: '',
@@ -32,6 +33,8 @@ const SongCreate: React.FC = () => {
 
     const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
     const [audioFile, setAudioFile] = useState<File | null>(null);
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [splitSheet, setSplitSheet] = useState<Array<{ contributor: string; role: string; share: number }>>([{ contributor: '', role: 'Artist', share: 100 }]);
     const [artists, setArtists] = useState<Artist[]>([]);
     const [albums, setAlbums] = useState<Album[]>([]);
     const [genres, setGenres] = useState<Genre[]>([]);
@@ -74,6 +77,15 @@ const SongCreate: React.FC = () => {
         }
     };
 
+    const handleSplitSheetChange = (index: number, field: string, value: string | number) => {
+        const newSplits = [...splitSheet];
+        newSplits[index] = { ...newSplits[index], [field]: value };
+        setSplitSheet(newSplits);
+    };
+
+    const addSplit = () => setSplitSheet([...splitSheet, { contributor: '', role: 'Artist', share: 0 }]);
+    const removeSplit = (index: number) => setSplitSheet(splitSheet.filter((_, i) => i !== index));
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!audioFile) {
@@ -87,6 +99,7 @@ const SongCreate: React.FC = () => {
             const cleanedData: Partial<CreateSongData> = {
                 ...formData,
                 album: formData.album && formData.album.trim() !== '' ? formData.album : undefined,
+                splitSheet: splitSheet.filter(s => s.contributor.trim() !== '' && s.share > 0)
             };
 
             // Audio Upload
@@ -101,6 +114,13 @@ const SongCreate: React.FC = () => {
                 await songService.uploadToS3(coverPresign.uploadUrl, coverArtFile, coverArtFile.type);
                 cleanedData.coverArtKey = coverPresign.key;
                 cleanedData.coverArt = coverPresign.publicUrl;
+            }
+
+            // Video Upload
+            if (videoFile) {
+                const videoPresign = await songService.getPresignedUrl('music-video', videoFile.name, videoFile.type);
+                await songService.uploadToS3(videoPresign.uploadUrl, videoFile, videoFile.type);
+                cleanedData.videoFileKey = videoPresign.key;
             }
 
             await songService.createSong(cleanedData as CreateSongData);
@@ -164,6 +184,16 @@ const SongCreate: React.FC = () => {
                             />
                             {!audioFile && <p className="text-[10px] text-rose-500 font-bold uppercase tracking-widest italic animate-pulse">Required Asset Missing</p>}
                         </div>
+
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest ml-1">Music Video (Optional)</label>
+                            <FileUpload
+                                fileType="video"
+                                maxSize={200}
+                                onFileSelect={setVideoFile}
+                                onFileRemove={() => setVideoFile(null)}
+                            />
+                        </div>
                     </div>
 
                     <div className="premium-card p-6 border-emerald-500/10">
@@ -173,7 +203,7 @@ const SongCreate: React.FC = () => {
                         </div>
                         <ul className="space-y-3">
                             {[
-                                { label: 'Metadata Valid', ok: !!formData.name && !!formData.artist },
+                                { label: 'Metadata Valid', ok: !!formData.name && (!!formData.artist || !!formData.unclaimedArtistName) },
                                 { label: 'Audio Payload', ok: !!audioFile },
                                 { label: 'Genre Assignment', ok: !!formData.genre },
                             ].map((check, i) => (
@@ -210,20 +240,32 @@ const SongCreate: React.FC = () => {
 
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Primary Artist</label>
-                                <div className="relative">
+                                <div className="relative mb-2">
                                     <User className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" size={16} />
                                     <select
-                                        name="artist" required
+                                        name="artist"
                                         className="input-field pl-12 appearance-none"
                                         value={formData.artist}
                                         onChange={handleInputChange}
+                                        disabled={!!formData.unclaimedArtistName}
                                     >
-                                        <option value="">Select Artist...</option>
+                                        <option value="">Select Existing Artist...</option>
                                         {artists.map((a) => (
                                             <option key={a._id} value={a._id}>{a.name || `${a.firstName} ${a.lastName}`}</option>
                                         ))}
                                     </select>
                                     <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 rotate-90 pointer-events-none" size={16} />
+                                </div>
+                                <div className="relative">
+                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" size={16} />
+                                    <input
+                                        type="text" name="unclaimedArtistName"
+                                        placeholder="Or type a NEW artist name (Record Labels)"
+                                        className="input-field pl-12 text-sm"
+                                        value={formData.unclaimedArtistName || ''}
+                                        onChange={handleInputChange}
+                                        disabled={!!formData.artist}
+                                    />
                                 </div>
                             </div>
 
@@ -300,6 +342,59 @@ const SongCreate: React.FC = () => {
                                     value={formData.lyrics}
                                     onChange={handleInputChange}
                                 />
+                            </div>
+
+                            <div className="space-y-4 md:col-span-2">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Revenue Splits</label>
+                                    <button type="button" onClick={addSplit} className="text-xs text-emerald-500 hover:text-emerald-400 font-medium">+ Add Collaborator</button>
+                                </div>
+                                <div className="space-y-3">
+                                    {splitSheet.map((split, idx) => (
+                                        <div key={idx} className="flex gap-3 items-start">
+                                            <div className="flex-1">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Contributor Name"
+                                                    className="input-field"
+                                                    value={split.contributor}
+                                                    onChange={(e) => handleSplitSheetChange(idx, 'contributor', e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="w-1/3">
+                                                <select
+                                                    className="input-field"
+                                                    value={split.role}
+                                                    onChange={(e) => handleSplitSheetChange(idx, 'role', e.target.value)}
+                                                >
+                                                    <option value="Artist">Artist</option>
+                                                    <option value="Producer">Producer</option>
+                                                    <option value="Writer">Writer</option>
+                                                </select>
+                                            </div>
+                                            <div className="w-24 relative">
+                                                <input
+                                                    type="number"
+                                                    className="input-field pr-8"
+                                                    value={split.share}
+                                                    onChange={(e) => handleSplitSheetChange(idx, 'share', Number(e.target.value))}
+                                                />
+                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">%</span>
+                                            </div>
+                                            {idx > 0 && (
+                                                <button type="button" onClick={() => removeSplit(idx)} className="p-2.5 bg-rose-500/10 text-rose-500 rounded-xl hover:bg-rose-500/20 mt-0.5">
+                                                    <X size={16} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <div className="text-xs text-zinc-500 mt-2 flex justify-between px-1">
+                                        <span>Total Split:</span>
+                                        <span className={splitSheet.reduce((sum, s) => sum + s.share, 0) === 100 ? 'text-emerald-500' : 'text-rose-500'}>
+                                            {splitSheet.reduce((sum, s) => sum + s.share, 0)}%
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

@@ -36,6 +36,21 @@ interface PendingArtist {
   };
 }
 
+interface ProfileClaim {
+  _id: string;
+  artistName: string;
+  requestType: string;
+  status: string;
+  claimedArtistId?: string;
+  createdAt: string;
+  user: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
 const ID_LABELS: Record<string, string> = {
   passport: 'Passport',
   drivers_license: "Driver's License",
@@ -44,7 +59,9 @@ const ID_LABELS: Record<string, string> = {
 };
 
 export default function ArtistApprovals() {
+  const [activeTab, setActiveTab] = useState<'onboarding' | 'claims'>('onboarding');
   const [artists, setArtists] = useState<PendingArtist[]>([]);
+  const [claims, setClaims] = useState<ProfileClaim[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -57,15 +74,21 @@ export default function ArtistApprovals() {
   const fetchPending = useCallback(async (page = 1) => {
     try {
       setIsLoading(true);
-      const res = await api.get(`/onboarding/admin/pending?page=${page}&limit=20`);
-      setArtists(res.data.data);
-      setPagination(res.data.pagination);
+      if (activeTab === 'onboarding') {
+        const res = await api.get(`/onboarding/admin/pending?page=${page}&limit=20`);
+        setArtists(res.data.data);
+        setPagination(res.data.pagination);
+      } else {
+        const res = await api.get(`/artist-request/admin/all?status=pending&requestType=claim_profile&page=${page}&limit=20`);
+        setClaims(res.data.data);
+        setPagination(res.data.pagination);
+      }
     } catch {
-      toast.error('Failed to load pending applications');
+      toast.error('Failed to load pending requests');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activeTab]);
 
   useEffect(() => { fetchPending(); }, [fetchPending]);
 
@@ -104,6 +127,32 @@ export default function ArtistApprovals() {
     }
   };
 
+  const handleApproveClaim = async (claimId: string) => {
+    setProcessing(claimId);
+    try {
+      await api.put(`/artist-request/admin/${claimId}/status`, { status: 'approved' });
+      toast.success('Profile Claim approved!');
+      setClaims(prev => prev.filter(c => c._id !== claimId));
+    } catch {
+      toast.error('Approval failed');
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const handleRejectClaim = async (claimId: string) => {
+    setProcessing(claimId);
+    try {
+      await api.put(`/artist-request/admin/${claimId}/status`, { status: 'rejected' });
+      toast.success('Profile Claim rejected');
+      setClaims(prev => prev.filter(c => c._id !== claimId));
+    } catch {
+      toast.error('Rejection failed');
+    } finally {
+      setProcessing(null);
+    }
+  };
+
   const filtered = artists.filter(a =>
     a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     a.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -115,9 +164,9 @@ export default function ArtistApprovals() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Artist Applications</h1>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Artist Approvals</h1>
           <p className="text-zinc-600 dark:text-zinc-400 text-sm mt-1">
-            {pagination.total} pending application{pagination.total !== 1 ? 's' : ''} awaiting review
+            {pagination.total} pending {activeTab === 'onboarding' ? 'application' : 'claim'}{pagination.total !== 1 ? 's' : ''} awaiting review
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -140,6 +189,22 @@ export default function ArtistApprovals() {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="flex space-x-4 border-b border-black/5 dark:border-white/5">
+        <button
+          onClick={() => setActiveTab('onboarding')}
+          className={`pb-2 px-1 font-medium text-sm transition-colors ${activeTab === 'onboarding' ? 'border-b-2 border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+        >
+          Onboarding Applications
+        </button>
+        <button
+          onClick={() => setActiveTab('claims')}
+          className={`pb-2 px-1 font-medium text-sm transition-colors ${activeTab === 'claims' ? 'border-b-2 border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+        >
+          Profile Claims (Record Labels)
+        </button>
+      </div>
+
       {/* List */}
       {isLoading ? (
         <div className="space-y-3">
@@ -155,15 +220,16 @@ export default function ArtistApprovals() {
             </div>
           ))}
         </div>
-      ) : filtered.length === 0 ? (
-        <div className="bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-xl p-12 text-center">
-          <UserCheck className="h-10 w-10 text-zinc-600 mx-auto mb-3" />
-          <p className="text-zinc-600 dark:text-zinc-400 font-medium">No pending applications</p>
-          <p className="text-zinc-600 text-sm mt-1">All artist submissions have been reviewed</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map(artist => (
+      ) : activeTab === 'onboarding' ? (
+        filtered.length === 0 ? (
+          <div className="bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-xl p-12 text-center">
+            <UserCheck className="h-10 w-10 text-zinc-600 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-zinc-900 dark:text-white">All Caught Up!</h3>
+            <p className="text-zinc-500 text-sm mt-1">There are no pending applications matching your search.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filtered.map(artist => (
             <ArtistCard
               key={artist._id}
               artist={artist}

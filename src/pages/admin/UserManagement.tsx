@@ -536,6 +536,9 @@ export default function UserManagement() {
                       <option value="provider">Provider</option>
                       <option value="contributor">Contributor</option>
                       <option value="admin">Admin</option>
+                      <option value="dj">DJ</option>
+                      <option value="selector">Selector</option>
+                      <option value="label">Record Label</option>
                     </select>
                     <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none group-focus-within/sel:text-indigo-400 transition-colors" />
                   </div>
@@ -586,6 +589,9 @@ export default function UserManagement() {
                       <option value="contributor">Contributor</option>
                       <option value="admin">Admin</option>
                       <option value="super admin">Super Admin</option>
+                      <option value="dj">DJ</option>
+                      <option value="selector">Selector</option>
+                      <option value="label">Record Label</option>
                     </select>
                     <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none group-focus-within/sel:text-indigo-400 transition-colors" />
                   </div>

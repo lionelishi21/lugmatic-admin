@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Clock, Users, X, Search, ChevronLeft } from 'lucide-react';
+import { Zap, Clock, Users, X, Search, ChevronLeft, Trophy, Gift } from 'lucide-react';
 import { createPool, REALMS } from '../../services/regularClashService';
 import { searchService } from '../../services/searchService';
 import type { Artist } from '../../types';
@@ -20,6 +20,10 @@ export default function CreateRegularClashPool() {
     submissionDeadline: null as Date | null,
     votingDeadline: null as Date | null,
   });
+
+  // Promo campaign state
+  const [isPromoCampaign, setIsPromoCampaign] = useState(false);
+  const [promoPrizes, setPromoPrizes] = useState({ first: 2000, second: 1000, third: 500 });
 
   // Artist restrictions state
   const [isInviteOnly, setIsInviteOnly] = useState(false);
@@ -95,6 +99,8 @@ export default function CreateRegularClashPool() {
           if (typeof a.user === 'string') return a.user;
           return (a.user as any)?._id || a._id;
         }) : [],
+        isPromoCampaign,
+        ...(isPromoCampaign ? { promoPrizes } : {}),
       });
       navigate('/admin/regular-clash-management');
     } catch (err: any) {
@@ -409,6 +415,75 @@ export default function CreateRegularClashPool() {
                   No artists selected yet. If you save now, the pool will effectively be locked for everyone.
                 </p>
               )}
+            </div>
+          )}
+        </div>
+
+        {/* Promo Campaign Toggle */}
+        <div className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800">
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-2 flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-yellow-400" />
+            4. Promotional Campaign
+          </h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-5">
+            Enable this for a sponsored user-acquisition clash. Gifts sent during this clash will go to the platform prize pool, NOT the artist's wallet. Top 3 artists receive cash prizes at the end.
+          </p>
+
+          <div className="flex bg-black/50 p-1 rounded-xl w-fit mb-6 border border-black/5 dark:border-white/5">
+            <button
+              type="button"
+              onClick={() => setIsPromoCampaign(false)}
+              className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${!isPromoCampaign ? 'bg-zinc-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+            >
+              Standard Clash
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsPromoCampaign(true)}
+              className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${isPromoCampaign ? 'bg-yellow-500 text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+            >
+              🏆 Promo Campaign
+            </button>
+          </div>
+
+          {isPromoCampaign && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
+              <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm font-medium flex items-start gap-3">
+                <Gift className="h-5 w-5 shrink-0 mt-0.5" />
+                <span>Gifts sent during this clash are held by the platform. Artists earn clash points but <strong>no wallet credit</strong>. Prizes are paid manually at the end of the campaign.</span>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-black/30 p-4 rounded-xl border border-yellow-500/30">
+                  <label className="text-xs text-yellow-400 font-bold uppercase tracking-wider block mb-1.5">🥇 1st Prize (USD)</label>
+                  <input
+                    type="number" min={0}
+                    value={promoPrizes.first}
+                    onChange={e => setPromoPrizes(p => ({ ...p, first: Number(e.target.value) }))}
+                    className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-500/50"
+                  />
+                </div>
+                <div className="bg-black/30 p-4 rounded-xl border border-zinc-600/30">
+                  <label className="text-xs text-zinc-400 font-bold uppercase tracking-wider block mb-1.5">🥈 2nd Prize (USD)</label>
+                  <input
+                    type="number" min={0}
+                    value={promoPrizes.second}
+                    onChange={e => setPromoPrizes(p => ({ ...p, second: Number(e.target.value) }))}
+                    className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-500/50"
+                  />
+                </div>
+                <div className="bg-black/30 p-4 rounded-xl border border-amber-700/30">
+                  <label className="text-xs text-amber-600 font-bold uppercase tracking-wider block mb-1.5">🥉 3rd Prize (USD)</label>
+                  <input
+                    type="number" min={0}
+                    value={promoPrizes.third}
+                    onChange={e => setPromoPrizes(p => ({ ...p, third: Number(e.target.value) }))}
+                    className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-500/50"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-zinc-500">
+                Total prize pool: <strong className="text-white">${(promoPrizes.first + promoPrizes.second + promoPrizes.third).toLocaleString()} USD</strong>
+              </p>
             </div>
           )}
         </div>

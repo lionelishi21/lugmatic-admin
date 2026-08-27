@@ -37,12 +37,9 @@ const PodcastManagement: React.FC = () => {
   const [newPodcast, setNewPodcast] = useState({ title: '', description: '', category: 'Music', explicit: false, coverArt: '', artistId: '' });
   const [newEpisode, setNewEpisode] = useState({ title: '', description: '', duration: '', episodeNumber: '' });
   const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [videoUploadProgress, setVideoUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const audioInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
   const [stats, setStats] = useState({ total: 0, published: 0, pending: 0, episodes: 0 });
   const [artists, setArtists] = useState<any[]>([]);
   const [coverMode, setCoverMode] = useState<'url' | 'file'>('url');
@@ -150,62 +147,35 @@ const PodcastManagement: React.FC = () => {
 
   const handleAddEpisode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedPodcast || (!audioFile && !videoFile)) { toast.error('Please select an audio or video file'); return; }
+    if (!selectedPodcast || !audioFile) { toast.error('Please select an audio file'); return; }
     setIsSubmitting(true);
-    const toastId = toast.loading('Uploading media to S3...');
+    const toastId = toast.loading('Uploading audio to S3...');
     try {
+      // Step 1: Get presigned URL
       setIsUploading(true);
-      let audioKey;
-      let videoKey;
+      const presignRes = await apiService.post<{ data: { uploadUrl: string; key: string } }>('/upload/presign/podcast-audio', {
+        filename: audioFile.name,
+        contentType: audioFile.type || 'audio/mpeg',
+      });
+      const { uploadUrl, key } = (presignRes.data as any)?.data ?? presignRes.data as any;
 
-      if (audioFile) {
-        // Step 1: Get presigned URL for audio
-        const presignRes = await apiService.post<{ data: { uploadUrl: string; key: string } }>('/upload/presign/podcast-audio', {
-          filename: audioFile.name,
-          contentType: audioFile.type || 'audio/mpeg',
-        });
-        const { uploadUrl, key } = (presignRes.data as any)?.data ?? presignRes.data as any;
-
-        // Step 2: Upload file directly to S3 with progress
-        const cleanAxios = axios.create();
-        await cleanAxios.put(uploadUrl, audioFile, {
-          headers: { 'Content-Type': audioFile.type || 'audio/mpeg' },
-          onUploadProgress: (e) => {
-            const pct = Math.round(((e.loaded ?? 0) / (e.total ?? audioFile.size)) * 100);
-            setUploadProgress(pct);
-          },
-        });
-        audioKey = key;
-      }
-
-      if (videoFile) {
-        // Step 1: Get presigned URL for video
-        const presignRes = await apiService.post<{ data: { uploadUrl: string; key: string } }>('/upload/presign/podcast-video', {
-          filename: videoFile.name,
-          contentType: videoFile.type || 'video/mp4',
-        });
-        const { uploadUrl, key } = (presignRes.data as any)?.data ?? presignRes.data as any;
-
-        // Step 2: Upload file directly to S3 with progress
-        const cleanAxios = axios.create();
-        await cleanAxios.put(uploadUrl, videoFile, {
-          headers: { 'Content-Type': videoFile.type || 'video/mp4' },
-          onUploadProgress: (e) => {
-            const pct = Math.round(((e.loaded ?? 0) / (e.total ?? videoFile.size)) * 100);
-            setVideoUploadProgress(pct);
-          },
-        });
-        videoKey = key;
-      }
+      // Step 2: Upload file directly to S3 with progress
+      const cleanAxios = axios.create();
+      await cleanAxios.put(uploadUrl, audioFile, {
+        headers: { 'Content-Type': audioFile.type || 'audio/mpeg' },
+        onUploadProgress: (e) => {
+          const pct = Math.round(((e.loaded ?? 0) / (e.total ?? audioFile.size)) * 100);
+          setUploadProgress(pct);
+        },
+      });
       setIsUploading(false);
 
-      // Step 3: Save episode with the S3 keys
+      // Step 3: Save episode with the S3 key
       toast.loading('Saving episode...', { id: toastId });
       await apiService.post(`/podcast/${selectedPodcast._id}/episodes`, {
         title: newEpisode.title,
         description: newEpisode.description,
-        audioFileKey: audioKey,
-        videoFileKey: videoKey,
+        audioFileKey: key,
         duration: newEpisode.duration ? parseInt(newEpisode.duration) : 0,
         episodeNumber: newEpisode.episodeNumber ? parseInt(newEpisode.episodeNumber) : undefined,
       });
@@ -214,9 +184,7 @@ const PodcastManagement: React.FC = () => {
       setIsAddEpisodeOpen(false);
       setNewEpisode({ title: '', description: '', duration: '', episodeNumber: '' });
       setAudioFile(null);
-      setVideoFile(null);
       setUploadProgress(0);
-      setVideoUploadProgress(0);
       fetchPodcasts();
     } catch (err: any) {
       setIsUploading(false);
@@ -224,58 +192,33 @@ const PodcastManagement: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-    const handleEditEpisode = async (e: React.FormEvent) => {
+  const handleEditEpisode = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPodcast || !episodeToEdit) return;
     setIsSubmitting(true);
     const toastId = toast.loading('Saving episode changes...');
     try {
-      let audioKey = undefined;
-      let videoKey = undefined;
+      let key = undefined;
       
-      if (audioFile || videoFile) {
+      if (audioFile) {
         setIsUploading(true);
-        if (audioFile) {
-          toast.loading('Uploading audio to S3...', { id: toastId });
-          const presignRes = await apiService.post<{ data: { uploadUrl: string; key: string } }>('/upload/presign/podcast-audio', {
-            filename: audioFile.name,
-            contentType: audioFile.type || 'audio/mpeg',
-          });
-          const { uploadUrl, key: newKey } = (presignRes.data as any)?.data ?? presignRes.data as any;
+        toast.loading('Uploading audio to S3...', { id: toastId });
+        const presignRes = await apiService.post<{ data: { uploadUrl: string; key: string } }>('/upload/presign/podcast-audio', {
+          filename: audioFile.name,
+          contentType: audioFile.type || 'audio/mpeg',
+        });
+        const { uploadUrl, key: newKey } = (presignRes.data as any)?.data ?? presignRes.data as any;
 
-          const cleanAxios = axios.create();
-          await cleanAxios.put(uploadUrl, audioFile, {
-            headers: { 'Content-Type': audioFile.type || 'audio/mpeg' },
-            onUploadProgress: (e) => {
-              const pct = Math.round(((e.loaded ?? 0) / (e.total ?? audioFile.size)) * 100);
-              setUploadProgress(pct);
-            },
-          });
-          audioKey = newKey;
-        }
-
-        if (videoFile) {
-          toast.loading('Uploading video to S3...', { id: toastId });
-          const presignRes = await apiService.post<{ data: { uploadUrl: string; key: string } }>('/upload/presign/podcast-video', {
-            filename: videoFile.name,
-            contentType: videoFile.type || 'video/mp4',
-          });
-          const { uploadUrl, key: newKey } = (presignRes.data as any)?.data ?? presignRes.data as any;
-
-          const cleanAxios = axios.create();
-          await cleanAxios.put(uploadUrl, videoFile, {
-            headers: { 'Content-Type': videoFile.type || 'video/mp4' },
-            onUploadProgress: (e) => {
-              const pct = Math.round(((e.loaded ?? 0) / (e.total ?? videoFile.size)) * 100);
-              setVideoUploadProgress(pct);
-            },
-          });
-          videoKey = newKey;
-        }
-
+        const cleanAxios = axios.create();
+        await cleanAxios.put(uploadUrl, audioFile, {
+          headers: { 'Content-Type': audioFile.type || 'audio/mpeg' },
+          onUploadProgress: (e) => {
+            const pct = Math.round(((e.loaded ?? 0) / (e.total ?? audioFile.size)) * 100);
+            setUploadProgress(pct);
+          },
+        });
         setIsUploading(false);
+        key = newKey;
       }
 
       toast.loading('Updating episode data...', { id: toastId });
@@ -286,11 +229,8 @@ const PodcastManagement: React.FC = () => {
         episodeNumber: episodeToEdit.episodeNumber
       };
       
-      if (audioKey) {
-        payload.audioFileKey = audioKey;
-      }
-      if (videoKey) {
-        payload.videoFileKey = videoKey;
+      if (key) {
+        payload.audioFileKey = key;
       }
 
       await apiService.put(`/podcast/${selectedPodcast._id}/episodes/${episodeToEdit._id}`, payload);
@@ -299,9 +239,7 @@ const PodcastManagement: React.FC = () => {
       setIsEditEpisodeOpen(false);
       setEpisodeToEdit(null);
       setAudioFile(null);
-      setVideoFile(null);
       setUploadProgress(0);
-      setVideoUploadProgress(0);
       fetchPodcasts(); // Refresh the list to get new episodes data
       
       // Update selected podcast locally if needed, but fetchPodcasts handles it
@@ -625,157 +563,7 @@ const PodcastManagement: React.FC = () => {
         </>
       )}
 
-      {/* Confirm Dialogs */}
-      <ConfirmDialog
-        isOpen={!!podcastToDelete}
-        title="Delete Series?"
-        message="This will permanently remove the podcast and all its episodes."
-        confirmLabel="Delete"
-        onConfirm={handleDelete}
-        onCancel={() => setPodcastToDelete(null)}
-      />
-      <ConfirmDialog
-        isOpen={!!podcastToModerate}
-        title={podcastToModerate?.action === 'approve' ? 'Approve Podcast?' : 'Deactivate Podcast?'}
-        message={podcastToModerate?.action === 'approve'
-          ? `Make "${podcastToModerate?.title}" live for all users?`
-          : `Hide "${podcastToModerate?.title}" from the platform?`}
-        confirmLabel={podcastToModerate?.action === 'approve' ? 'Approve' : 'Deactivate'}
-        onConfirm={handleModerate}
-        onCancel={() => setPodcastToModerate(null)}
-      />
-
-      {/* Add Series Modal */}
-      <AnimatePresence mode="wait">
-        {isAddModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" onClick={() => setIsAddModalOpen(false)}>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="premium-card w-full max-w-lg shadow-2xl border-black/10 dark:border-white/10 p-8" onClick={e => e.stopPropagation()}
-            >
-              <div className="flex justify-between items-start mb-8">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center border border-purple-500/20">
-                    <PodcastIcon className="text-purple-500" size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-zinc-900 dark:text-white">Add Podcast Series</h3>
-                    <p className="text-sm text-zinc-500 font-medium">Create a new platform podcast.</p>
-                  </div>
-                </div>
-                <button onClick={() => setIsAddModalOpen(false)} className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-zinc-500 transition-colors"><X size={20} /></button>
-              </div>
-              <form onSubmit={handleAddPodcast} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Artist Owner *</label>
-                  <div className="relative">
-                    <select
-                      value={newPodcast.artistId}
-                      onChange={e => setNewPodcast({...newPodcast, artistId: e.target.value})}
-                      className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 appearance-none cursor-pointer"
-                      required
-                    >
-                      <option value="">Select Artist...</option>
-                      {artists.map((art: any) => (
-                        <option key={art._id} value={art._id}>{art.name || art.fullName || 'Unnamed Artist'}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" size={16} />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Series Title</label>
-                  <input type="text" value={newPodcast.title} onChange={e => setNewPodcast({...newPodcast, title: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" placeholder="e.g. Daily Top Hits" required />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Description</label>
-                  <textarea value={newPodcast.description} onChange={e => setNewPodcast({...newPodcast, description: e.target.value})} className="w-full p-4 h-24 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600 resize-none" placeholder="A brief description..." required />
-                </div>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Category</label>
-                    <div className="relative">
-                      <select value={newPodcast.category} onChange={e => setNewPodcast({...newPodcast, category: e.target.value})} className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 appearance-none cursor-pointer">
-                        <option value="Music">Music</option>
-                        <option value="News">News</option>
-                        <option value="Comedy">Comedy</option>
-                        <option value="Education">Education</option>
-                        <option value="Technology">Technology</option>
-                        <option value="Business">Business</option>
-                        <option value="Health">Health</option>
-                        <option value="Sports">Sports</option>
-                        <option value="Entertainment">Entertainment</option>
-                        <option value="Other">Other</option>
-                      </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" size={16} />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Content Rating</label>
-                    <div className="relative">
-                      <select value={newPodcast.explicit ? 'true' : 'false'} onChange={e => setNewPodcast({...newPodcast, explicit: e.target.value === 'true'})} className="w-full h-12 px-4 pr-10 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 appearance-none cursor-pointer">
-                        <option value="false">Clean</option>
-                        <option value="true">Explicit</option>
-                      </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" size={16} />
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Cover Art input style switcher */}
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Cover Art</label>
-                    <div className="flex bg-zinc-100 dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-lg p-0.5 text-[10px] font-bold">
-                      <button type="button" onClick={() => setCoverMode('url')} className={`px-2.5 py-1 rounded-md transition-colors ${coverMode === 'url' ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-sm' : 'text-zinc-400 hover:text-white'}`}>URL Link</button>
-                      <button type="button" onClick={() => setCoverMode('file')} className={`px-2.5 py-1 rounded-md transition-colors ${coverMode === 'file' ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-sm' : 'text-zinc-400 hover:text-white'}`}>File Upload</button>
-                    </div>
-                  </div>
-
-                  {coverMode === 'url' ? (
-                    <input type="url" value={newPodcast.coverArt} onChange={e => setNewPodcast({...newPodcast, coverArt: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" placeholder="https://..." required={coverMode === 'url'} />
-                  ) : (
-                    <div>
-                      <input
-                        ref={coverInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={e => { const f = e.target.files?.[0]; if (f) setCoverFile(f); }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => coverInputRef.current?.click()}
-                        className={`w-full h-16 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${coverFile ? 'border-purple-500/40 bg-purple-500/5' : 'border-black/10 dark:border-white/10 hover:border-purple-500/30'}`}
-                      >
-                        {coverFile ? (
-                          <>
-                            <p className="text-xs font-bold text-zinc-900 dark:text-white truncate max-w-xs">{coverFile.name}</p>
-                            <p className="text-[10px] text-zinc-500">{(coverFile.size / 1024).toFixed(0)} KB · Change image</p>
-                          </>
-                        ) : (
-                          <>
-                            <Upload size={16} className="text-zinc-500" />
-                            <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Click to upload cover image</p>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-6 flex justify-end gap-3 border-t border-black/5 dark:border-white/5">
-                  <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-6 py-2.5 text-sm font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">Cancel</button>
-                  <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-white text-black rounded-xl text-sm font-bold hover:bg-zinc-200 transition-colors flex items-center gap-2">
-                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <PodcastIcon size={18} />}
-                    Create Series
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      
 
       {/* Add Episode Modal */}
       <AnimatePresence mode="wait">
@@ -840,67 +628,16 @@ const PodcastManagement: React.FC = () => {
                     )}
                   </button>
                   {/* Upload progress bar */}
-                  {isUploading && audioFile && (
+                  {isUploading && (
                     <div className="space-y-1">
                       <div className="flex justify-between text-[11px] font-semibold text-zinc-500">
-                        <span>Uploading Audio to S3...</span>
+                        <span>Uploading to S3...</span>
                         <span>{uploadProgress}%</span>
                       </div>
                       <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-purple-500 rounded-full transition-all duration-150"
                           style={{ width: `${uploadProgress}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-                {/* Video File Upload */}
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Video File (Optional)</label>
-                  <input
-                    ref={videoInputRef}
-                    type="file"
-                    accept="video/*,.mp4,.webm,.mov,.avi"
-                    className="hidden"
-                    onChange={e => { const f = e.target.files?.[0]; if (f) setVideoFile(f); }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => videoInputRef.current?.click()}
-                    className={`w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
-                      videoFile
-                        ? 'border-indigo-500/40 bg-indigo-500/5'
-                        : 'border-black/10 dark:border-white/10 hover:border-indigo-500/30 hover:bg-indigo-500/5'
-                    }`}
-                  >
-                    {videoFile ? (
-                      <>
-                        <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        <p className="text-xs font-bold text-zinc-900 dark:text-white truncate max-w-xs">{videoFile.name}</p>
-                        <p className="text-[11px] text-zinc-500">{(videoFile.size / 1024 / 1024).toFixed(1)} MB · Click to change</p>
-                      </>
-                    ) : (
-                      <>
-                        <Upload size={20} className="text-zinc-500" />
-                        <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Click to select video file</p>
-                        <p className="text-[11px] text-zinc-500">MP4, WebM, MOV, AVI supported</p>
-                      </>
-                    )}
-                  </button>
-                  {/* Upload progress bar */}
-                  {isUploading && videoFile && (
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[11px] font-semibold text-zinc-500">
-                        <span>Uploading Video to S3...</span>
-                        <span>{videoUploadProgress}%</span>
-                      </div>
-                      <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-indigo-500 rounded-full transition-all duration-300 ease-out"
-                          style={{ width: `${videoUploadProgress}%` }}
                         />
                       </div>
                     </div>
@@ -990,7 +727,7 @@ const PodcastManagement: React.FC = () => {
                       </>
                     )}
                   </button>
-                  {isUploading && audioFile && (
+                  {isUploading && (
                     <div className="space-y-1">
                       <div className="flex justify-between text-[11px] font-semibold text-zinc-500">
                         <span>Uploading replacement to S3...</span>
@@ -1000,57 +737,6 @@ const PodcastManagement: React.FC = () => {
                         <div
                           className="h-full bg-purple-500 rounded-full transition-all duration-150"
                           style={{ width: `${uploadProgress}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-                {/* Video File Upload */}
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Video File (Optional)</label>
-                  <input
-                    ref={videoInputRef}
-                    type="file"
-                    accept="video/*,.mp4,.webm,.mov,.avi"
-                    className="hidden"
-                    onChange={e => { const f = e.target.files?.[0]; if (f) setVideoFile(f); }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => videoInputRef.current?.click()}
-                    className={`w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
-                      videoFile
-                        ? 'border-indigo-500/40 bg-indigo-500/5'
-                        : 'border-black/10 dark:border-white/10 hover:border-indigo-500/30 hover:bg-indigo-500/5'
-                    }`}
-                  >
-                    {videoFile ? (
-                      <>
-                        <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        <p className="text-xs font-bold text-zinc-900 dark:text-white truncate max-w-xs">{videoFile.name}</p>
-                        <p className="text-[11px] text-zinc-500">{(videoFile.size / 1024 / 1024).toFixed(1)} MB · Click to change</p>
-                      </>
-                    ) : (
-                      <>
-                        <Upload size={20} className="text-zinc-500" />
-                        <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">{episodeToEdit?.videoFile?.url ? 'Change video file' : 'Click to select new video file'}</p>
-                        <p className="text-[11px] text-zinc-500">Only upload if the original video is missing or broken</p>
-                      </>
-                    )}
-                  </button>
-                  {/* Upload progress bar */}
-                  {isUploading && videoFile && (
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[11px] font-semibold text-zinc-500">
-                        <span>Uploading Video to S3...</span>
-                        <span>{videoUploadProgress}%</span>
-                      </div>
-                      <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-indigo-500 rounded-full transition-all duration-300 ease-out"
-                          style={{ width: `${videoUploadProgress}%` }}
                         />
                       </div>
                     </div>

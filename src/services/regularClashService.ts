@@ -7,6 +7,8 @@ export interface ClashPool {
   season: number;
   status: 'open' | 'submission' | 'voting' | 'ended';
   realm: string;
+  isPromoCampaign: boolean;
+  promoPrizes?: { first: number; second: number; third: number };
   challengeDeadline: string;
   submissionDeadline: string;
   votingDeadline: string;
@@ -35,7 +37,7 @@ export interface RegularClashItem {
   createdAt: string;
 }
 
-const REALMS = ['fire', 'ice', 'reggae', 'dancehall', 'hiphop', 'rnb', 'afrobeats'];
+const REALMS = ['fire', 'ice', 'reggae', 'dancehall', 'singjay', 'hiphop', 'rnb', 'afrobeats'];
 
 export const getAdminPools = async (): Promise<ClashPool[]> => {
   const res = await apiService.get('/regular-clash/pool/admin');
@@ -53,6 +55,8 @@ export const createPool = async (data: {
   votingDeadline: string;
   isInviteOnly?: boolean;
   allowedArtists?: string[];
+  isPromoCampaign?: boolean;
+  promoPrizes?: { first: number; second: number; third: number };
 }): Promise<ClashPool> => {
   const res = await apiService.post('/regular-clash/pool', data);
   return res.data?.data;

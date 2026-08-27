@@ -45,7 +45,7 @@ export interface UserPreferences {
   theme: 'light' | 'dark';
 }
 
-export type UserRole = 'user' | 'admin' | 'artist' | 'super admin' | 'contributor' | 'provider';
+export type UserRole = 'user' | 'admin' | 'artist' | 'super admin' | 'contributor' | 'provider' | 'dj' | 'selector' | 'label';
 
 export interface PayoutInfo {
   method: 'paypal' | 'bank_transfer' | 'stripe';

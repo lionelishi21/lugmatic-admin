@@ -40,6 +40,7 @@ export interface Song {
 export interface CreateSongData {
   name: string;
   artist: string;
+  unclaimedArtistName?: string;
   album?: string;
   duration: number;
   genre: string;
