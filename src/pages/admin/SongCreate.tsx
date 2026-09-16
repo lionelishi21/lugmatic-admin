@@ -29,6 +29,7 @@ const SongCreate: React.FC = () => {
         lyrics: '',
         coverArt: '',
         audioFile: '',
+        isAiGenerated: false,
     });
 
     const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
@@ -342,6 +343,18 @@ const SongCreate: React.FC = () => {
                                     value={formData.lyrics}
                                     onChange={handleInputChange}
                                 />
+                            </div>
+
+                            <div className="space-y-2 md:col-span-2">
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={!!formData.isAiGenerated}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, isAiGenerated: e.target.checked }))}
+                                        className="w-4 h-4 rounded accent-emerald-500"
+                                    />
+                                    <span className="text-sm text-zinc-300">This track was made using AI music generation tools</span>
+                                </label>
                             </div>
 
                             <div className="space-y-4 md:col-span-2">

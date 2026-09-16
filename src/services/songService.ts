@@ -21,6 +21,7 @@ export interface Song {
   status: 'pending' | 'approved' | 'rejected';
   rejectionReason?: string;
   termsAccepted?: boolean;
+  isAiGenerated?: boolean;
   videoUrl?: string;
   playCount?: number;
   splitSheet?: Array<{
@@ -53,6 +54,7 @@ export interface CreateSongData {
   coverArtKey?: string;
   splitSheet?: Array<{ contributor: string; role: string; share: number }>;
   termsAccepted?: boolean;
+  isAiGenerated?: boolean;
   videoUrl?: string;
   videoFileKey?: string;
 }

@@ -13,7 +13,7 @@ import {
   AlertCircle, ChevronRight, Filter, Target, Activity, Globe,
   Cpu, ArrowUpRight, Layers, Database, Save, HardDrive, Info,
   Music, Zap, SlidersHorizontal, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown,
-  XCircle, X
+  XCircle, X, Sparkles
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -251,6 +251,11 @@ const SongManagement: React.FC = () => {
                         <div>
                           <div className="flex items-center gap-2 mb-2">
                             <p className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight group-hover:text-emerald-400 transition-colors leading-none">{song.name}</p>
+                            {song.isAiGenerated && (
+                              <span className="flex items-center gap-1 bg-violet-500/10 text-violet-400 text-[9px] font-black px-1.5 py-0.5 rounded border border-violet-500/20">
+                                <Sparkles size={9} /> AI
+                              </span>
+                            )}
                             {(!song.audioFile || !song.coverArt) && (
                               <div className="relative group/warning cursor-help">
                                 <AlertCircle size={14} className="text-rose-500" />
