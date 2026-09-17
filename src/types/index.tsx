@@ -158,6 +158,7 @@ export interface PodcastEpisode {
   coverArt?: string;
   tags: string[];
   isExplicit: boolean;
+  isAiGenerated?: boolean;
   isPublished: boolean;
   publishDate?: Date;
   playCount: number;

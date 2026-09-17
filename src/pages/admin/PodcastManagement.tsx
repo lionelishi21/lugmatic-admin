@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { 
-  Search, Trash2, Radio as PodcastIcon, 
-  PlayCircle, Filter, CheckCircle2, XCircle, Mic, 
-  Eye, Plus, ArrowLeft, Headphones, RefreshCw, ShieldCheck, Upload, Music, AlertCircle, Edit
+  Search, Trash2, Radio as PodcastIcon,
+  PlayCircle, Filter, CheckCircle2, XCircle, Mic,
+  Eye, Plus, ArrowLeft, Headphones, RefreshCw, ShieldCheck, Upload, Music, AlertCircle, Edit, Sparkles
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { podcastService } from '../../services/podcastService';
@@ -35,7 +35,7 @@ const PodcastManagement: React.FC = () => {
   const [episodeToEdit, setEpisodeToEdit] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newPodcast, setNewPodcast] = useState({ title: '', description: '', category: 'Music', explicit: false, coverArt: '', artistId: '' });
-  const [newEpisode, setNewEpisode] = useState({ title: '', description: '', duration: '', episodeNumber: '' });
+  const [newEpisode, setNewEpisode] = useState({ title: '', description: '', duration: '', episodeNumber: '', isAiGenerated: false });
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -208,11 +208,12 @@ const PodcastManagement: React.FC = () => {
         videoFileKey: videoKey,
         duration: newEpisode.duration ? parseInt(newEpisode.duration) : 0,
         episodeNumber: newEpisode.episodeNumber ? parseInt(newEpisode.episodeNumber) : undefined,
+        isAiGenerated: newEpisode.isAiGenerated,
       });
 
       toast.success('Episode published!', { id: toastId });
       setIsAddEpisodeOpen(false);
-      setNewEpisode({ title: '', description: '', duration: '', episodeNumber: '' });
+      setNewEpisode({ title: '', description: '', duration: '', episodeNumber: '', isAiGenerated: false });
       setAudioFile(null);
       setVideoFile(null);
       setUploadProgress(0);
@@ -283,7 +284,8 @@ const PodcastManagement: React.FC = () => {
       const payload: any = {
         title: episodeToEdit.title,
         description: episodeToEdit.description,
-        episodeNumber: episodeToEdit.episodeNumber
+        episodeNumber: episodeToEdit.episodeNumber,
+        isAiGenerated: episodeToEdit.isAiGenerated
       };
       
       if (audioKey) {
@@ -430,6 +432,11 @@ const PodcastManagement: React.FC = () => {
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="text-sm font-bold text-zinc-900 dark:text-white">{ep.title}</p>
+                            {ep.isAiGenerated && (
+                              <span className="flex items-center gap-1 bg-violet-500/10 text-violet-400 text-[9px] font-black px-1.5 py-0.5 rounded border border-violet-500/20">
+                                <Sparkles size={9} /> AI
+                              </span>
+                            )}
                             {(!ep.audioFile || !ep.audioFile.url) && (
                               <div className="relative group/warning cursor-help">
                                 <AlertCircle size={14} className="text-rose-500" />
@@ -916,6 +923,15 @@ const PodcastManagement: React.FC = () => {
                     <input type="number" min="1" value={newEpisode.episodeNumber} onChange={e => setNewEpisode({...newEpisode, episodeNumber: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" placeholder="e.g. 1" />
                   </div>
                 </div>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newEpisode.isAiGenerated}
+                    onChange={e => setNewEpisode({...newEpisode, isAiGenerated: e.target.checked})}
+                    className="w-4 h-4 rounded accent-purple-500"
+                  />
+                  <span className="text-sm text-zinc-600 dark:text-zinc-400">This episode was made using AI generation tools</span>
+                </label>
                 <div className="pt-6 flex justify-end gap-3 border-t border-black/5 dark:border-white/5">
                   <button type="button" onClick={() => setIsAddEpisodeOpen(false)} className="px-6 py-2.5 text-sm font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">Cancel</button>
                   <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-white text-black rounded-xl text-sm font-bold hover:bg-zinc-200 transition-colors flex items-center gap-2">
@@ -1062,6 +1078,15 @@ const PodcastManagement: React.FC = () => {
                     <input type="number" min="1" value={episodeToEdit.episodeNumber || ''} onChange={e => setEpisodeToEdit({...episodeToEdit, episodeNumber: e.target.value})} className="w-full px-4 h-12 bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-purple-500/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600" />
                   </div>
                 </div>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!!episodeToEdit.isAiGenerated}
+                    onChange={e => setEpisodeToEdit({...episodeToEdit, isAiGenerated: e.target.checked})}
+                    className="w-4 h-4 rounded accent-purple-500"
+                  />
+                  <span className="text-sm text-zinc-600 dark:text-zinc-400">This episode was made using AI generation tools</span>
+                </label>
                 <div className="pt-6 flex justify-end gap-3 border-t border-black/5 dark:border-white/5">
                   <button type="button" onClick={() => setIsEditEpisodeOpen(false)} className="px-6 py-2.5 text-sm font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">Cancel</button>
                   <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-white text-black rounded-xl text-sm font-bold hover:bg-zinc-200 transition-colors flex items-center gap-2">
