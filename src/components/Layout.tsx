@@ -4,7 +4,7 @@ import { liveGuard } from '../store/liveGuard';
 import {
   Users, Shield, DollarSign, Settings, BarChart2, Film, Disc, Music2,
   Menu, X, Bell, Search, User, UserCheck, Sun, Moon, LogOut, ChevronDown,
-  Swords, Award, Podcast, Megaphone, MessageSquare, Gift, AlertTriangle, HelpCircle, Zap, Video
+  Swords, Award, Podcast, Megaphone, MessageSquare, Gift, AlertTriangle, HelpCircle, Zap, Video, FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
@@ -74,9 +74,20 @@ export default function Layout({ children }: LayoutProps) {
     // Core Management
     { path: '/admin', label: 'Overview', icon: <BarChart2 size={20} />, section: 'Management' },
     { path: '/admin/approvals', label: 'Approvals', icon: <Shield size={20} />, section: 'Management' },
-    { path: '/admin/artist-approvals', label: 'Artists', icon: <UserCheck size={20} />, section: 'Management' },
+    {
+      path: '/admin/artist-management',
+      label: 'Artists',
+      icon: <UserCheck size={20} />,
+      section: 'Management',
+      subItems: [
+        { path: '/admin/artist-management', label: 'All Artists' },
+        { path: '/admin/artist-approvals', label: 'Approvals & Claims' }
+      ]
+    },
     { path: '/admin/user-management', label: 'Users', icon: <Users size={20} />, section: 'Management' },
     { path: '/admin/financial-management', label: 'Revenue', icon: <DollarSign size={20} />, section: 'Management' },
+    { path: '/admin/analytics', label: 'Analytics', icon: <BarChart2 size={20} />, section: 'Management' },
+    { path: '/admin/reports', label: 'Reports', icon: <FileText size={20} />, section: 'Management' },
     { path: '/admin/live-stream-management', label: 'Streams', icon: <Film size={20} />, section: 'Management' },
     {
       path: '/admin/library',
@@ -86,6 +97,7 @@ export default function Layout({ children }: LayoutProps) {
       subItems: [
         { path: '/admin/album-management', label: 'Albums' },
         { path: '/admin/song-management', label: 'Songs' },
+        { path: '/admin/playlist-management', label: 'Playlists' },
         { path: '/admin/genre-management', label: 'Genres' }
       ]
     },
