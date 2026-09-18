@@ -117,7 +117,7 @@ export default function Layout({ children }: LayoutProps) {
 
     // System
     { path: '/admin/system-settings', label: 'Settings', icon: <Settings size={20} />, section: 'System' },
-    { path: '/admin/roles', label: 'Roles & Permissions', icon: <Shield size={20} />, section: 'System' },
+    { path: '/admin/roles', label: 'Admin Permissions', icon: <Shield size={20} />, section: 'System' },
     { path: '/admin/documentation', label: 'Documentation', icon: <HelpCircle size={20} />, section: 'System' }
   ];
 
