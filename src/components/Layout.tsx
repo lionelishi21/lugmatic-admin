@@ -4,7 +4,7 @@ import { liveGuard } from '../store/liveGuard';
 import {
   Users, Shield, DollarSign, Settings, BarChart2, Film, Disc, Music2,
   Menu, X, Bell, Search, User, UserCheck, Sun, Moon, LogOut, ChevronDown,
-  Swords, Award, Podcast, Megaphone, MessageSquare, Gift, AlertTriangle, HelpCircle, Zap
+  Swords, Award, Podcast, Megaphone, MessageSquare, Gift, AlertTriangle, HelpCircle, Zap, Video
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
@@ -95,6 +95,7 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/admin/regular-clash-management', label: 'Regular Clash', icon: <Zap size={20} />, section: 'Engagement' },
     { path: '/admin/billboard', label: 'Billboard', icon: <Award size={20} />, section: 'Engagement' },
     { path: '/admin/podcast-management', label: 'Podcasts', icon: <Podcast size={20} />, section: 'Engagement' },
+    { path: '/admin/video-management', label: 'Videos', icon: <Video size={20} />, section: 'Engagement' },
     { path: '/admin/rhythm-management', label: 'Rhythms', icon: <Music2 size={20} />, section: 'Engagement' },
     { path: '/admin/promotions', label: 'Promotions', icon: <Megaphone size={20} />, section: 'Engagement' },
     { path: '/admin/comment-management', label: 'Comments', icon: <MessageSquare size={20} />, section: 'Engagement' },
