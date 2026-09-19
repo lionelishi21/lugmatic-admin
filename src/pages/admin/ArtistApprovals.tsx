@@ -244,6 +244,25 @@ export default function ArtistApprovals() {
             />
           ))}
         </div>
+        )
+      ) : claims.length === 0 ? (
+        <div className="bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-xl p-12 text-center">
+          <UserCheck className="h-10 w-10 text-zinc-600 mx-auto mb-3" />
+          <h3 className="text-lg font-bold text-zinc-900 dark:text-white">All Caught Up!</h3>
+          <p className="text-zinc-500 text-sm mt-1">There are no pending profile claims.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {claims.map(claim => (
+            <ClaimCard
+              key={claim._id}
+              claim={claim}
+              isProcessing={processing === claim._id}
+              onApprove={() => handleApproveClaim(claim._id)}
+              onReject={() => handleRejectClaim(claim._id)}
+            />
+          ))}
+        </div>
       )}
 
       {/* Pagination */}
@@ -466,6 +485,58 @@ function ArtistCard({ artist, isExpanded, isProcessing, onToggle, onApprove, onR
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+interface ClaimCardProps {
+  claim: ProfileClaim;
+  isProcessing: boolean;
+  onApprove: () => void;
+  onReject: () => void;
+}
+
+function ClaimCard({ claim, isProcessing, onApprove, onReject }: ClaimCardProps) {
+  return (
+    <div className="bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-xl p-5">
+      <div className="flex items-center gap-4">
+        <img
+          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(claim.artistName)}&background=10b981&color=fff`}
+          alt={claim.artistName}
+          className="w-14 h-14 rounded-full object-cover flex-shrink-0"
+        />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-zinc-900 dark:text-white truncate">{claim.artistName}</span>
+            <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">Profile Claim</span>
+          </div>
+          <p className="text-zinc-600 dark:text-zinc-400 text-sm truncate">
+            Claimed by {claim.user?.firstName} {claim.user?.lastName} · {claim.user?.email}
+          </p>
+          <span className="flex items-center gap-1 text-xs text-zinc-500 mt-1">
+            <Clock className="h-3 w-3" />
+            {formatDistanceToNow(new Date(claim.createdAt), { addSuffix: true })}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            onClick={onApprove}
+            disabled={isProcessing}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-zinc-900 dark:text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+          >
+            <CheckCircle2 className="h-4 w-4" />
+            Approve
+          </button>
+          <button
+            onClick={onReject}
+            disabled={isProcessing}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-700 text-red-400 rounded-lg hover:bg-red-500/10 disabled:opacity-50 transition-colors text-sm"
+          >
+            <XCircle className="h-4 w-4" />
+            Reject
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
