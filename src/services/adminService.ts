@@ -251,5 +251,16 @@ export const adminService = {
       pageSize: pageSize.toString()
     });
     return apiService.get<PaginatedResponse<any>>(`/admin/reports/history?${params}`);
+  },
+
+  // Content/profile moderation reports (users flagging songs, videos, podcasts, artists, or other users)
+  getContentReports: async (status = 'pending', targetType?: string, page = 1, pageSize = 20) => {
+    const params = new URLSearchParams({ status, page: page.toString(), limit: pageSize.toString() });
+    if (targetType) params.set('targetType', targetType);
+    return apiService.get<any>(`/report/admin/list?${params}`);
+  },
+
+  resolveContentReport: async (reportId: string, status: 'reviewed' | 'dismissed' | 'action_taken', resolutionNote?: string) => {
+    return apiService.put<ApiResponse<any>>(`/report/admin/${reportId}/status`, { status, resolutionNote });
   }
 }; 
