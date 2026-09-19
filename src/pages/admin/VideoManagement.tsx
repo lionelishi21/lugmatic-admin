@@ -7,14 +7,15 @@ import songService, { Song } from '../../services/songService';
 import uploadService from '../../services/uploadService';
 import { getFullImageUrl } from '../../services/api';
 import { 
-  Film, Plus, Search, Edit, Trash2, Play, 
-  CheckCircle2, Music, Eye, Video as VideoIcon, 
-  XCircle, Upload, Check, Radio, Signal, Clock, 
-  MoreVertical, ChevronRight, Share2, Zap, 
+  Film, Plus, Search, Edit, Trash2, Play,
+  CheckCircle2, Music, Eye, Video as VideoIcon,
+  XCircle, Upload, Check, Radio, Signal, Clock,
+  MoreVertical, ChevronRight, Share2, Zap,
   Settings, Monitor, BarChart3, HardDrive, RefreshCw,
   Globe, Target, Cpu, ArrowUpRight, Layers, Database,
   Save, Info, Waves, Wifi, LayoutGrid, List, ChevronDown,
-  Lock, Unlock, Shield, Camera, Mic, Volume2, User
+  Lock, Unlock, Shield, Camera, Mic, Volume2, User,
+  X, Image as ImageIcon, Loader2
 } from 'lucide-react';
 import Preloader from '../../components/ui/Preloader';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
