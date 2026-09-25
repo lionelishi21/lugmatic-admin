@@ -36,6 +36,9 @@ interface PendingArtist {
   };
 }
 
+// Covers both requestType: 'claim_profile' (an unclaimed Artist profile)
+// and 'claim_contributor' (an unclaimed songwriter/contributor credit,
+// linked across every song crediting that name, not just one).
 interface ProfileClaim {
   _id: string;
   artistName: string;
@@ -79,7 +82,7 @@ export default function ArtistApprovals() {
         setArtists(res.data.data);
         setPagination(res.data.pagination);
       } else {
-        const res = await api.get(`/artist-request/admin/all?status=pending&requestType=claim_profile&page=${page}&limit=20`);
+        const res = await api.get(`/artist-request/admin/all?status=pending&requestType=claim_profile,claim_contributor&page=${page}&limit=20`);
         setClaims(res.data.data);
         setPagination(res.data.pagination);
       }
@@ -201,7 +204,7 @@ export default function ArtistApprovals() {
           onClick={() => setActiveTab('claims')}
           className={`pb-2 px-1 font-medium text-sm transition-colors ${activeTab === 'claims' ? 'border-b-2 border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
         >
-          Profile Claims (Record Labels)
+          Claims (Profiles &amp; Songwriter Credits)
         </button>
       </div>
 
@@ -249,7 +252,7 @@ export default function ArtistApprovals() {
         <div className="bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-xl p-12 text-center">
           <UserCheck className="h-10 w-10 text-zinc-600 mx-auto mb-3" />
           <h3 className="text-lg font-bold text-zinc-900 dark:text-white">All Caught Up!</h3>
-          <p className="text-zinc-500 text-sm mt-1">There are no pending profile claims.</p>
+          <p className="text-zinc-500 text-sm mt-1">There are no pending claims.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -497,6 +500,7 @@ interface ClaimCardProps {
 }
 
 function ClaimCard({ claim, isProcessing, onApprove, onReject }: ClaimCardProps) {
+  const isContributorClaim = claim.requestType === 'claim_contributor';
   return (
     <div className="bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-xl p-5">
       <div className="flex items-center gap-4">
@@ -508,10 +512,14 @@ function ClaimCard({ claim, isProcessing, onApprove, onReject }: ClaimCardProps)
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-zinc-900 dark:text-white truncate">{claim.artistName}</span>
-            <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">Profile Claim</span>
+            <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">
+              {isContributorClaim ? 'Songwriter Credit Claim' : 'Profile Claim'}
+            </span>
           </div>
           <p className="text-zinc-600 dark:text-zinc-400 text-sm truncate">
-            Claimed by {claim.user?.firstName} {claim.user?.lastName} · {claim.user?.email}
+            {isContributorClaim
+              ? `Claims every unlinked "${claim.artistName}" songwriter credit — by ${claim.user?.firstName} ${claim.user?.lastName} · ${claim.user?.email}`
+              : `Claimed by ${claim.user?.firstName} ${claim.user?.lastName} · ${claim.user?.email}`}
           </p>
           <span className="flex items-center gap-1 text-xs text-zinc-500 mt-1">
             <Clock className="h-3 w-3" />
